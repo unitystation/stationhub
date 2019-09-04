@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UnitystationLauncher.Views.LoginView">
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" Height="50" HorizontalAlignment="Center">
+            <Viewbox Margin="5">
+                <Image Source="/Assets/Unitystation.png" />
+            </Viewbox>
+            <TextBlock VerticalAlignment="Center" Margin="5" FontSize="20">Login</TextBlock>
+        </StackPanel>
+        <TextBox Text="{Binding Username}" Margin="5" FontSize="20" Watermark="Username">
+            <TextBox.KeyBindings>
+                <KeyBinding Command="{Binding Login}" Gesture="Return" />
+            </TextBox.KeyBindings>
+        </TextBox>
+        <TextBox Text="{Binding Password}" Margin="5" FontSize="20" PasswordChar="*" Watermark="Password" >
+            <TextBox.KeyBindings>
+                <KeyBinding Command="{Binding Login}" Gesture="Return" />
+            </TextBox.KeyBindings>
+        </TextBox>
+        <Grid ColumnDefinitions="*, 1.5*"  Margin="5">
+            <Button Command="{Binding Create}" Grid.Column="0" FontSize="20" Padding="5" Background="Transparent">Create</Button>
+            <Button Command="{Binding Login}" Grid.Column="1" FontSize="20" Padding="5">Login</Button>
+        </Grid>
+    </StackPanel>
+</UserControl>

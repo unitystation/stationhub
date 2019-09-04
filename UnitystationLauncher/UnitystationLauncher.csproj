@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <!--PublishReadyToRun>true</PublishReadyToRun>
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
+    <LangVersion>8.0</LangVersion>
+    <NullableContextOptions>enable</NullableContextOptions>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Models\"/>
+    <Compile Update="**\*.xaml.cs">
+      <DependentUpon>%(Filename)</DependentUpon>
+    </Compile>
+    <AvaloniaResource Include="**\*.xaml">
+      <SubType>Designer</SubType>
+    </AvaloniaResource>
+    <AvaloniaResource Include="Assets\**"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.8.0"/>
+    <PackageReference Include="Avalonia.Desktop" Version="0.8.0"/>
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.8.0"/>
+    <PackageReference Include="Newtonsoft.Json" Version="*"/>
+    <PackageReference Include="FirebaseAuthentication.net" Version="*"/>
+    <PackageReference Include="Octokit" Version="*"/>
+    <PackageReference Include="Octokit.Reactive" Version="*"/>
+  </ItemGroup>
+</Project>

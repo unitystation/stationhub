@@ -1,0 +1,66 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avc="clr-namespace:Avalonia.Data.Converters;assembly:Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             MinWidth="1000" MinHeight="600"
+             x:Class="UnitystationLauncher.Views.LauncherView">
+  <Grid ColumnDefinitions="*,2*,*">
+    <Border Grid.Column="0" BorderThickness="0 0 5 0" BorderBrush="{DynamicResource HighlightBrush}">
+      <StackPanel>
+        <DockPanel Margin="5" LastChildFill="False">
+          <TextBlock DockPanel.Dock="Left" Text="{Binding Username}" Margin="5" FontSize="20"/>
+          <Button DockPanel.Dock="Right" FontSize="20" Background="Transparent">Logout</Button>
+        </DockPanel>
+        <Separator/>
+        <StackPanel>
+          <TextBlock Margin="5" FontSize="20" HorizontalAlignment="Center">News</TextBlock>
+          <UserControl Content="{Binding News}"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <UserControl Grid.Column="1" Content="{Binding ServerList}"/>
+
+    <Border Grid.Column="2" BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}">
+      <StackPanel IsVisible="{Binding ServerList.SelectedServer, Converter={x:Static ObjectConverters.IsNotNull}}" DataContext="{Binding ServerList.SelectedServer}">
+        <TextBlock FontSize="20" Margin="5" Text="{Binding ServerName}"/>
+        <Separator/>
+        <Grid Margin="5" ColumnDefinitions="*, *" RowDefinitions="auto,auto,auto,auto,auto">
+          <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Version </TextBlock>
+          <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <TextBlock Text="{Binding ForkName}" FontSize="20"/>
+            <TextBlock FontSize="20">:</TextBlock>
+            <TextBlock Text="{Binding BuildVersion}" FontSize="20"/>
+          </StackPanel>
+
+          <TextBlock Grid.Row="1" Grid.Column="0" FontSize="20">IP</TextBlock>
+          <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+            <TextBlock Text="{Binding ServerIP}" FontSize="20"/>
+            <TextBlock FontSize="20">:</TextBlock>
+            <TextBlock Text="{Binding ServerPort}" FontSize="20"/>
+          </StackPanel>
+
+          <TextBlock Grid.Row="2" Grid.Column="0" FontSize="20">Ingame Time </TextBlock>
+          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IngameTime}" FontSize="20"/>
+
+          <TextBlock Grid.Row="3" Grid.Column="0" FontSize="20">Players </TextBlock>
+          <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PlayerCount}" FontSize="20"/>
+
+          <Expander Grid.Row="4" Grid.ColumnSpan="2" Header="Downloads" FontSize="20">
+            <StackPanel Margin="10 0 0 0">
+              <TextBlock Text="{Binding WinDownload}" FontSize="20"/>
+              <TextBlock Text="{Binding OSXDownload}" FontSize="20"/>
+              <TextBlock Text="{Binding LinuxDownload}" FontSize="20"/>
+            </StackPanel>
+          </Expander>
+        </Grid>
+        <StackPanel Margin="5">
+          <Button FontSize="20" Padding="5">Play</Button>
+          <Button Command="{Binding Download}" FontSize="20" Padding="5" Background="Transparent">Download</Button>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>
