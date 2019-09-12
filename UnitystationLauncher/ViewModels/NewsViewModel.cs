@@ -16,7 +16,7 @@ namespace UnitystationLauncher.ViewModels{
         {
             client = new ObservableGitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
             client.Repository.Commit
-                .Get("unitystation","unitystation", "develop")
+                .GetAll("unitystation","unitystation")
                 .Take(10)
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(commit =>{

@@ -8,7 +8,7 @@
     <UserControl.DataTemplates>
           <DataTemplate DataType="{x:Type models:Server}">
             <Border>
-              <DockPanel Background="{DynamicResource ThemeBackgroundColor}">
+              <DockPanel>
                 <TextBlock FontWeight="Bold" DockPanel.Dock="Left" Text="{Binding ServerName}" FontSize="20"/>
                 <StackPanel Margin="10 0 0 0" DockPanel.Dock="Right" Orientation="Horizontal">
                   <TextBlock FontWeight="Bold" Text="{Binding ForkName}" FontSize="20"/>
@@ -20,7 +20,7 @@
           </DataTemplate>
     </UserControl.DataTemplates>
 
-    <StackPanel Margin="10 0 0 0">
+    <StackPanel>
       <DockPanel>
         <TextBlock DockPanel.Dock="Left" Margin="5" TextAlignment="center" FontSize="30">Server List</TextBlock>
       </DockPanel>

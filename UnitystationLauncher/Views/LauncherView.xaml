@@ -11,7 +11,7 @@
       <StackPanel>
         <DockPanel Margin="5" LastChildFill="False">
           <TextBlock DockPanel.Dock="Left" Text="{Binding Username}" Margin="5" FontSize="20"/>
-          <Button DockPanel.Dock="Right" FontSize="20" Background="Transparent">Logout</Button>
+          <Button Command="{Binding Logout}" DockPanel.Dock="Right" FontSize="20" Background="Transparent">Logout</Button>
         </DockPanel>
         <Separator/>
         <StackPanel>
@@ -24,7 +24,7 @@
     <UserControl Grid.Column="1" Content="{Binding ServerList}"/>
 
     <Border Grid.Column="2" BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}">
-      <StackPanel IsVisible="{Binding ServerList.SelectedServer, Converter={x:Static ObjectConverters.IsNotNull}}" DataContext="{Binding ServerList.SelectedServer}">
+      <StackPanel DataContext="{Binding ServerList.SelectedServer}">
         <TextBlock FontSize="20" Margin="5" Text="{Binding ServerName}"/>
         <Separator/>
         <Grid Margin="5" ColumnDefinitions="*, *" RowDefinitions="auto,auto,auto,auto,auto">
@@ -57,7 +57,7 @@
           </Expander>
         </Grid>
         <StackPanel Margin="5">
-          <Button FontSize="20" Padding="5">Play</Button>
+          <Button Command="{Binding Start}" FontSize="20" Padding="5">Play</Button>
           <Button Command="{Binding Download}" FontSize="20" Padding="5" Background="Transparent">Download</Button>
         </StackPanel>
       </StackPanel>

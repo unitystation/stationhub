@@ -5,13 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": ".NET Core Launch",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             "program": "${workspaceFolder}/UnitystationLauncher/bin/Debug/netcoreapp3.0/UnitystationLauncher.dll",
             "args": [],
             "cwd": "${workspaceFolder}/UnitystationLauncher",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": ".NET Core Launch with exe cwd",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/UnitystationLauncher/bin/Debug/netcoreapp3.0/UnitystationLauncher.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/UnitystationLauncher/bin/Debug/netcoreapp3.0",
             "console": "internalConsole",
             "stopAtEntry": false
         },

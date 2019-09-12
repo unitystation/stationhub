@@ -2,9 +2,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <!--PublishReadyToRun>true</PublishReadyToRun>
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
     <LangVersion>8.0</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
     <Nullable>enable</Nullable>
@@ -27,5 +24,9 @@
     <PackageReference Include="FirebaseAuthentication.net" Version="*"/>
     <PackageReference Include="Octokit" Version="*"/>
     <PackageReference Include="Octokit.Reactive" Version="*"/>
+    <PackageReference Include="Serilog" Version="2.8.0"/>
+    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0"/>
+    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0"/>
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
   </ItemGroup>
 </Project>

@@ -1,6 +1,8 @@
 ﻿using System;
 using ReactiveUI;
 using System.Reactive.Linq;
+using Serilog;
+using System.Threading;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -10,23 +12,42 @@ namespace UnitystationLauncher.ViewModels
 
         public MainWindowViewModel()
         {
-            var login = new LoginViewModel();
-            Content = login;
-
-            Observable.Merge(
-                login.Login,
-                login.Create)
-                .Take(1)
-                .Subscribe(username =>
-                {
-                    Content = new LauncherViewModel(username);
-                });
+            Content = new LoginViewModel();
         }
 
         public ViewModelBase Content
         {
             get => content;
-            private set => this.RaiseAndSetIfChanged(ref content, value);
+            private set
+            {
+                this.RaiseAndSetIfChanged(ref content, value);
+                ContentChanged();
+            }
+        }
+
+        private void ContentChanged()
+        {
+            switch(Content)
+            {
+                case LoginViewModel loginVM:
+                    SubscribeToVM(
+                        Observable.Merge(
+                            loginVM.Login,
+                            loginVM.Create));
+                    break;
+                case LauncherViewModel launcherVM:
+                    SubscribeToVM(launcherVM.Logout);
+                    break;
+            }
+        }
+
+        private void SubscribeToVM(IObservable<ViewModelBase?> observable)
+        {
+            observable
+                .SkipWhile(vm => vm == null)
+                .Take(1)
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(vm => Content = vm);
         }
     }
 }

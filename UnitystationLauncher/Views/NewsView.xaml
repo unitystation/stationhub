@@ -7,7 +7,9 @@
   <ItemsControl Items="{Binding Commits}">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+        <Border Margin="5" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}">
+            <TextBlock Text="{Binding Message}" FontSize="18" TextWrapping="Wrap"/>
+        </Border>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
   </ItemsControl>

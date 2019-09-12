@@ -11,7 +11,7 @@
             </Viewbox>
             <TextBlock VerticalAlignment="Center" Margin="5" FontSize="20">Login</TextBlock>
         </StackPanel>
-        <TextBox Text="{Binding Username}" Margin="5" FontSize="20" Watermark="Username">
+        <TextBox Text="{Binding Email}" Margin="5" FontSize="20" Watermark="Email">
             <TextBox.KeyBindings>
                 <KeyBinding Command="{Binding Login}" Gesture="Return" />
             </TextBox.KeyBindings>

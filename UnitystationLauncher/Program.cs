@@ -3,6 +3,9 @@ using Avalonia;
 using Avalonia.Logging.Serilog;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
+using Serilog;
+using Serilog.Sinks.File;
+using System.IO;
 
 namespace UnitystationLauncher
 {
@@ -24,6 +27,12 @@ namespace UnitystationLauncher
         // container, etc.
         private static void AppMain(Application app, string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File(Path.Combine("Logs", "Launcher.log"), rollingInterval: RollingInterval.Day)
+                .WriteTo.Console()
+                .CreateLogger();
+
             var window = new MainWindow
             {
                 DataContext = new MainWindowViewModel(),

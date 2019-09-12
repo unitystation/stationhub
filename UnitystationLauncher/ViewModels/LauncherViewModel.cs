@@ -10,20 +10,24 @@ using System;
 using System.Net;
 using System.IO.Compression;
 using System.Net.Sockets;
+using Firebase.Auth;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LauncherViewModel : ViewModelBase
     {
+        private readonly FirebaseAuthLink authLink;
         string username;
         ViewModelBase news;
         ServerListViewModel serverList;
 
-        public LauncherViewModel(string username)
+        public LauncherViewModel(FirebaseAuthLink authLink)
         {
-            this.Username = username;
+            this.authLink = authLink;
+            this.Username = authLink.User.DisplayName;
             News = new NewsViewModel();
             ServerList = new ServerListViewModel();
+            Logout = ReactiveCommand.Create(LogoutImp);
         }
 
         public string Username
@@ -42,6 +46,13 @@ namespace UnitystationLauncher.ViewModels
         {
             get => serverList;
             set => this.RaiseAndSetIfChanged(ref serverList, value);
+        }
+
+        public ReactiveCommand<Unit, ViewModelBase> Logout { get; }
+
+        ViewModelBase LogoutImp()
+        {
+            return new LoginViewModel();
         }
     }
 }
