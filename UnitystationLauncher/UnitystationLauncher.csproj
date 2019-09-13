@@ -7,26 +7,43 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Models\"/>
     <Compile Update="**\*.xaml.cs">
       <DependentUpon>%(Filename)</DependentUpon>
     </Compile>
     <AvaloniaResource Include="**\*.xaml">
       <SubType>Designer</SubType>
     </AvaloniaResource>
-    <AvaloniaResource Include="Assets\**"/>
+    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="0.8.0"/>
-    <PackageReference Include="Avalonia.Desktop" Version="0.8.0"/>
-    <PackageReference Include="Avalonia.ReactiveUI" Version="0.8.0"/>
-    <PackageReference Include="Newtonsoft.Json" Version="*"/>
-    <PackageReference Include="FirebaseAuthentication.net" Version="*"/>
-    <PackageReference Include="Octokit" Version="*"/>
-    <PackageReference Include="Octokit.Reactive" Version="*"/>
-    <PackageReference Include="Serilog" Version="2.8.0"/>
-    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0"/>
-    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0"/>
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
+    <AvaloniaResource Remove="Views\InstallationsPanelView.xaml" />
+    <AvaloniaResource Remove="Views\ServersPanelView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Views\InstallationsPanelView.xaml" />
+    <None Remove="Views\ServersPanelView.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.8.2" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.8.2" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.8.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="*" />
+    <PackageReference Include="FirebaseAuthentication.net" Version="*" />
+    <PackageReference Include="Octokit" Version="*" />
+    <PackageReference Include="Octokit.Reactive" Version="*" />
+    <PackageReference Include="Serilog" Version="2.8.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\ServersPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\InstallationsPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

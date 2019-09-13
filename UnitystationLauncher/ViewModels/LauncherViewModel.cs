@@ -19,14 +19,19 @@ namespace UnitystationLauncher.ViewModels
         private readonly FirebaseAuthLink authLink;
         string username;
         ViewModelBase news;
-        ServerListViewModel serverList;
+        PanelBase[] panels;
+        ViewModelBase selectedPanel;
 
         public LauncherViewModel(FirebaseAuthLink authLink)
         {
             this.authLink = authLink;
             this.Username = authLink.User.DisplayName;
             News = new NewsViewModel();
-            ServerList = new ServerListViewModel();
+            panels = new PanelBase[]
+            {
+                new ServersPanelViewModel(),
+                new InstallationsPanelViewModel()
+            };
             Logout = ReactiveCommand.Create(LogoutImp);
         }
 
@@ -42,10 +47,16 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref news, value);
         }
 
-        public ServerListViewModel ServerList
+        public PanelBase[] Panels
         {
-            get => serverList;
-            set => this.RaiseAndSetIfChanged(ref serverList, value);
+            get => panels;
+            set => this.RaiseAndSetIfChanged(ref panels, value);
+        }
+
+        public ViewModelBase SelectedPanel
+        {
+            get => selectedPanel;
+            set => this.RaiseAndSetIfChanged(ref selectedPanel, value);
         }
 
         public ReactiveCommand<Unit, ViewModelBase> Logout { get; }

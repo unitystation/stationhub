@@ -2,28 +2,29 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
+             TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.LoginView">
     <StackPanel>
         <StackPanel Orientation="Horizontal" Height="50" HorizontalAlignment="Center">
             <Viewbox Margin="5">
                 <Image Source="/Assets/Unitystation.png" />
             </Viewbox>
-            <TextBlock VerticalAlignment="Center" Margin="5" FontSize="20">Login</TextBlock>
+            <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
         </StackPanel>
-        <TextBox Text="{Binding Email}" Margin="5" FontSize="20" Watermark="Email">
+        <TextBox Text="{Binding Email}" Margin="5" Watermark="Email">
             <TextBox.KeyBindings>
                 <KeyBinding Command="{Binding Login}" Gesture="Return" />
             </TextBox.KeyBindings>
         </TextBox>
-        <TextBox Text="{Binding Password}" Margin="5" FontSize="20" PasswordChar="*" Watermark="Password" >
+        <TextBox Text="{Binding Password}" Margin="5" PasswordChar="*" Watermark="Password" >
             <TextBox.KeyBindings>
                 <KeyBinding Command="{Binding Login}" Gesture="Return" />
             </TextBox.KeyBindings>
         </TextBox>
         <Grid ColumnDefinitions="*, 1.5*"  Margin="5">
-            <Button Command="{Binding Create}" Grid.Column="0" FontSize="20" Padding="5" Background="Transparent">Create</Button>
-            <Button Command="{Binding Login}" Grid.Column="1" FontSize="20" Padding="5">Login</Button>
+            <Button Command="{Binding Create}" Grid.Column="0" Padding="5" Background="Transparent">Create</Button>
+            <Button Command="{Binding Login}" Grid.Column="1" Padding="5">Login</Button>
         </Grid>
     </StackPanel>
 </UserControl>

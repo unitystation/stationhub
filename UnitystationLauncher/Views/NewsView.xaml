@@ -3,12 +3,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.NewsView">
   <ItemsControl Items="{Binding Commits}">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
         <Border Margin="5" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}">
-            <TextBlock Text="{Binding Message}" FontSize="18" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
         </Border>
       </DataTemplate>
     </ItemsControl.ItemTemplate>

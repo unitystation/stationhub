@@ -2,65 +2,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:avc="clr-namespace:Avalonia.Data.Converters;assembly:Avalonia"
+             xmlns:avc="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             MinWidth="1000" MinHeight="600"
+             TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.LauncherView">
-  <Grid ColumnDefinitions="*,2*,*">
-    <Border Grid.Column="0" BorderThickness="0 0 5 0" BorderBrush="{DynamicResource HighlightBrush}">
-      <StackPanel>
-        <DockPanel Margin="5" LastChildFill="False">
-          <TextBlock DockPanel.Dock="Left" Text="{Binding Username}" Margin="5" FontSize="20"/>
-          <Button Command="{Binding Logout}" DockPanel.Dock="Right" FontSize="20" Background="Transparent">Logout</Button>
-        </DockPanel>
-        <Separator/>
+  <DockPanel>
+    <Border DockPanel.Dock="Top" BorderThickness="0 0 0 5" BorderBrush="{DynamicResource HighlightBrush}">
+      <DockPanel Margin="5" LastChildFill="False">
+        <TextBlock DockPanel.Dock="Left" Text="{Binding Username}" Margin="5"/>
+        <Button Command="{Binding Logout}" DockPanel.Dock="Right" Background="Transparent">Logout</Button>
+      </DockPanel>
+    </Border>
+    <Grid ColumnDefinitions="*,3*">
+      <Border Grid.Column="0" BorderThickness="0 0 5 0" BorderBrush="{DynamicResource HighlightBrush}">
         <StackPanel>
-          <TextBlock Margin="5" FontSize="20" HorizontalAlignment="Center">News</TextBlock>
-          <UserControl Content="{Binding News}"/>
-        </StackPanel>
-      </StackPanel>
-    </Border>
-
-    <UserControl Grid.Column="1" Content="{Binding ServerList}"/>
-
-    <Border Grid.Column="2" BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}">
-      <StackPanel DataContext="{Binding ServerList.SelectedServer}">
-        <TextBlock FontSize="20" Margin="5" Text="{Binding ServerName}"/>
-        <Separator/>
-        <Grid Margin="5" ColumnDefinitions="*, *" RowDefinitions="auto,auto,auto,auto,auto">
-          <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Version </TextBlock>
-          <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-            <TextBlock Text="{Binding ForkName}" FontSize="20"/>
-            <TextBlock FontSize="20">:</TextBlock>
-            <TextBlock Text="{Binding BuildVersion}" FontSize="20"/>
+          <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0" Padding="0 5">
+            <ListBox.DataTemplates>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                  <Viewbox Width="48" Height="48" Margin="10 0">
+                    <Canvas Width="24" Height="24">
+                      <Path Data="M4,1H20A1,1 0 0,1 21,2V6A1,1 0 0,1 20,7H4A1,1 0 0,1 3,6V2A1,1 0 0,1 4,1M4,9H20A1,1 0 0,1 21,10V14A1,1 0 0,1 20,15H4A1,1 0 0,1 3,14V10A1,1 0 0,1 4,9M4,17H20A1,1 0 0,1 21,18V22A1,1 0 0,1 20,23H4A1,1 0 0,1 3,22V18A1,1 0 0,1 4,17M9,5H10V3H9V5M9,13H10V11H9V13M9,21H10V19H9V21M5,3V5H7V3H5M5,11V13H7V11H5M5,19V21H7V19H5Z" Fill="LightBlue" />
+                    </Canvas>
+                  </Viewbox>
+                  <TextBlock Text="{Binding Name}" FontSize="30"/>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.DataTemplates>
+          </ListBox>
+          <Rectangle Height="5" Stretch="Uniform" Fill="{DynamicResource HighlightBrush}"/>
+          <StackPanel>
+            <TextBlock Margin="5" FontSize="22" HorizontalAlignment="Center">News</TextBlock>
+            <ContentControl Content="{Binding News}"/>
           </StackPanel>
-
-          <TextBlock Grid.Row="1" Grid.Column="0" FontSize="20">IP</TextBlock>
-          <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-            <TextBlock Text="{Binding ServerIP}" FontSize="20"/>
-            <TextBlock FontSize="20">:</TextBlock>
-            <TextBlock Text="{Binding ServerPort}" FontSize="20"/>
-          </StackPanel>
-
-          <TextBlock Grid.Row="2" Grid.Column="0" FontSize="20">Ingame Time </TextBlock>
-          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IngameTime}" FontSize="20"/>
-
-          <TextBlock Grid.Row="3" Grid.Column="0" FontSize="20">Players </TextBlock>
-          <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PlayerCount}" FontSize="20"/>
-
-          <Expander Grid.Row="4" Grid.ColumnSpan="2" Header="Downloads" FontSize="20">
-            <StackPanel Margin="10 0 0 0">
-              <TextBlock Text="{Binding WinDownload}" FontSize="20"/>
-              <TextBlock Text="{Binding OSXDownload}" FontSize="20"/>
-              <TextBlock Text="{Binding LinuxDownload}" FontSize="20"/>
-            </StackPanel>
-          </Expander>
-        </Grid>
-        <StackPanel Margin="5">
-          <Button Command="{Binding Start}" FontSize="20" Padding="5">Play</Button>
-          <Button Command="{Binding Download}" FontSize="20" Padding="5" Background="Transparent">Download</Button>
         </StackPanel>
-      </StackPanel>
-    </Border>
-  </Grid>
+      </Border>
+
+      <UserControl Grid.Column="1" Content="{Binding SelectedPanel}"/>
+    </Grid>
+  </DockPanel>
 </UserControl>

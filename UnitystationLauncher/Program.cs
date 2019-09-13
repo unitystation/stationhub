@@ -6,6 +6,7 @@ using UnitystationLauncher.Views;
 using Serilog;
 using Serilog.Sinks.File;
 using System.IO;
+using Serilog.Events;
 
 namespace UnitystationLauncher
 {
@@ -28,9 +29,9 @@ namespace UnitystationLauncher
         private static void AppMain(Application app, string[] args)
         {
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
+                .MinimumLevel.Verbose()
                 .WriteTo.File(Path.Combine("Logs", "Launcher.log"), rollingInterval: RollingInterval.Day)
-                .WriteTo.Console()
+                .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
             var window = new MainWindow
@@ -38,7 +39,15 @@ namespace UnitystationLauncher
                 DataContext = new MainWindowViewModel(),
             };
 
-            app.Run(window);
+            try
+            {
+                app.Run(window);
+            }
+            catch(Exception e)
+            {
+                Log.Fatal(e, "A fatal exception occured");
+                throw;
+            }
         }
     }
 }

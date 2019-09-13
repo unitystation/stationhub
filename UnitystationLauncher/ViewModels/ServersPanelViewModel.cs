@@ -1,25 +1,26 @@
+﻿using Newtonsoft.Json;
+using ReactiveUI;
+using Serilog;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using ReactiveUI;
-using Serilog;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
-    public class ServerListViewModel : ViewModelBase
+    public class ServersPanelViewModel : PanelBase
     {
         ServerWrapper[] servers;
         ServerWrapper? selectedServer;
         int refreshFrequency = 5000;
         bool refreshing;
 
-        public ServerListViewModel()
+        public ServersPanelViewModel()
         {
             UpdateServers();
         }
 
+        public override string Name => "Servers";
         public ServerWrapper[] Servers
         {
             get => servers;
@@ -38,14 +39,14 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref refreshing, value);
         }
 
-        private async Task UpdateServers()
+        private async void UpdateServers()
         {
             using var httpClient = new HttpClient();
             while (true)
             {
                 Refreshing = true;
-                Log.Debug("Refreshing server list...");
-                var response = await httpClient.GetStringAsync("https://api.unitystation.org/serverlist");
+                Log.Verbose("Refreshing server list...");
+                var response = await httpClient.GetStringAsync(Config.apiUrl);
                 var servers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
 
                 if (!(Servers?.SequenceEqual(servers) ?? false))
@@ -54,10 +55,10 @@ namespace UnitystationLauncher.ViewModels
                     Log.Debug("Server list changed");
                 }
                 Refreshing = false;
-                Log.Debug("Server list refreshed");
+                Log.Verbose("Server list refreshed");
 
                 await Task.Delay(refreshFrequency);
             }
         }
-    } 
+    }
 }
