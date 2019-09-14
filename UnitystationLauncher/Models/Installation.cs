@@ -61,7 +61,9 @@ namespace UnitystationLauncher.Models
             }
             else
             {
-                exe = files.SingleOrDefault(s => (new UnixFileInfo(s).FileAccessPermissions & FileAccessPermissions.UserExecute) > 0);
+                exe = files.SingleOrDefault(s => 
+                    s.EndsWith("station") &&
+                    (new UnixFileInfo(s).FileAccessPermissions & FileAccessPermissions.UserExecute) > 0);
             }
 
             return exe;
@@ -92,7 +94,7 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                Log.Error(e, "An exception occurred during the opening on an installation");
+                Log.Error(e, "An exception occurred during the opening of an installation");
                 throw;
             }
         }
@@ -105,7 +107,7 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                Log.Error(e, "An exception occurred during the deletion on an installation");
+                Log.Error(e, "An exception occurred during the deletion of an installation");
                 throw;
             }
         }
