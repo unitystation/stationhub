@@ -14,6 +14,7 @@ using System.Linq;
 using Mono.Unix;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using UnitystationLauncher.Infrastructure;
 
 namespace UnitystationLauncher.Models
 {
@@ -94,11 +95,17 @@ namespace UnitystationLauncher.Models
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
             Log.Information("Download connection established");
+            using var progStream = new ProgressStream(responseStream);
+            var length = webResponse.ContentLength;
+            progStream.Progress
+                .Select(p => p * 100 / length)
+                .DistinctUntilChanged()
+                .Subscribe(p => Log.Information("Progress: {prog}", p));
 
             await Task.Run(() =>
             {
                 Log.Information("Extracting...");
-                var archive = new ZipArchive(responseStream);
+                var archive = new ZipArchive(progStream);
                 archive.ExtractToDirectory(InstallationPath);
                 Log.Information("Download completed");
             });
