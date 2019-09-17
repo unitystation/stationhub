@@ -72,6 +72,7 @@
           <Button Command="{Binding Start}" Padding="5">Play</Button>
           <Button Command="{Binding Download}" Padding="5" Background="Transparent">Download</Button>
         </StackPanel>
+        <ProgressBar Value="{Binding Progress^}"/>
       </StackPanel>
     </Border>
   </Grid>

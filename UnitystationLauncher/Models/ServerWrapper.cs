@@ -15,6 +15,7 @@ using Mono.Unix;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using UnitystationLauncher.Infrastructure;
+using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
 {
@@ -51,6 +52,8 @@ namespace UnitystationLauncher.Models
             Download = ReactiveCommand.Create(DownloadAsync, canDownload);
             Start = ReactiveCommand.Create(StartImp, canStart);
         }
+
+        public Subject<int> Progress { get; set; } = new Subject<int>();
 
         public ReactiveCommand<Unit, Unit> Download { get; }
 
@@ -98,9 +101,12 @@ namespace UnitystationLauncher.Models
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             progStream.Progress
-                .Select(p => p * 100 / length)
+                .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
-                .Subscribe(p => Log.Information("Progress: {prog}", p));
+                .Subscribe(p => {
+                    Progress.OnNext(p);
+                    Log.Information("Progress: {prog}", p);
+                    });
 
             await Task.Run(() =>
             {

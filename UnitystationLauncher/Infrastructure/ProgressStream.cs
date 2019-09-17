@@ -33,9 +33,10 @@ namespace UnitystationLauncher.Infrastructure
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            position += count;
+            var r = Inner.Read(buffer, offset, count);
+            position += r;
             progress.OnNext(position);
-            return Inner.Read(buffer, offset, count);
+            return r;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
