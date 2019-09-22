@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace UnitystationLauncher.Models
 {
-    class Installation
+    public class Installation
     {
         private Installation()
         {

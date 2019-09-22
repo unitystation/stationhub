@@ -7,6 +7,8 @@ using Serilog;
 using Serilog.Sinks.File;
 using System.IO;
 using Serilog.Events;
+using Autofac;
+using AutofacSerilogIntegration;
 
 namespace UnitystationLauncher
 {
@@ -34,16 +36,22 @@ namespace UnitystationLauncher
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
-            var window = new MainWindow
-            {
-                DataContext = new MainWindowViewModel(),
-            };
+            var builder = new ContainerBuilder();
+            builder.RegisterModule(new StandardModule());
+            builder.RegisterLogger();
+
+            using var container = builder.Build();
 
             try
             {
+                var window = new MainWindow
+                {
+                    DataContext = container.Resolve<MainWindowViewModel>(),
+                };
+
                 app.Run(window);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Log.Fatal(e, "A fatal exception occured");
                 throw;

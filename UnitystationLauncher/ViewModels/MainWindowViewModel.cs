@@ -10,9 +10,9 @@ namespace UnitystationLauncher.ViewModels
     {
         ViewModelBase content;
 
-        public MainWindowViewModel()
+        public MainWindowViewModel(LoginViewModel loginVM)
         {
-            Content = new LoginViewModel();
+            Content = loginVM;
         }
 
         public ViewModelBase Content

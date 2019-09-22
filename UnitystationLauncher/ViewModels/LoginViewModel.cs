@@ -5,18 +5,21 @@ using DynamicData.Binding;
 using Firebase.Auth;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        private const string ApiKey = "AIzaSyB7GorzPgwHYjSV4XaJoszj98tLM4_WZpE";
-        private readonly FirebaseAuthProvider auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
+        private readonly AuthManager authManager;
+        private readonly Lazy<LauncherViewModel> launcherVM;
         string? email;
         string? password;
 
-        public LoginViewModel()
+        public LoginViewModel(AuthManager authManager, Lazy<LauncherViewModel> launcherVM)
         {
+            this.authManager = authManager;
+            this.launcherVM = launcherVM;
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
                 x => x.Password,
@@ -50,17 +53,16 @@ namespace UnitystationLauncher.ViewModels
 
         public async Task<LauncherViewModel?> UserLogin()
         {
-            FirebaseAuthLink authLink;
             try
             {
-                authLink = await auth.SignInWithEmailAndPasswordAsync(email, password);
+                authManager.AuthLink = await authManager.SignInWithEmailAndPasswordAsync(email!, password!);
             }
             catch (Exception e)
             {
-                Log.Error("Login failed", e);
+                Log.Error(e, "Login failed");
                 return null;
             }
-            return new LauncherViewModel(authLink);
+            return launcherVM.Value;
         }
 
         public LauncherViewModel? UserCreate()

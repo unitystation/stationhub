@@ -8,7 +8,7 @@ using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
-    class InstallationsPanelViewModel : PanelBase
+    public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
 

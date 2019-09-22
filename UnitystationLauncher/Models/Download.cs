@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Net.Http;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
@@ -12,8 +13,9 @@ using UnitystationLauncher.Infrastructure;
 
 namespace UnitystationLauncher.Models
 {
-    class Download
+    public class Download
     {
+        readonly HttpClient http;
         public string Url { get; }
         public string InstallationPath { get; }
         public Subject<int> Progress { get; set; }
@@ -22,10 +24,11 @@ namespace UnitystationLauncher.Models
         public long Size { get; set; }
         public long Time { get; set; }
 
-        public Download(string url, string installationPath)
+        public Download(string url, string installationPath, System.Net.Http.HttpClient http)
         {
             Url = url;
             InstallationPath = installationPath;
+            this.http = http;
         }
 
         public async Task Start()

@@ -10,13 +10,15 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
+        readonly HttpClient http;
         ServerWrapper[] servers;
         ServerWrapper? selectedServer;
         int refreshFrequency = 5000;
         bool refreshing;
 
-        public ServersPanelViewModel()
+        public ServersPanelViewModel(HttpClient http)
         {
+            this.http = http;
             UpdateServers();
         }
 
@@ -41,12 +43,11 @@ namespace UnitystationLauncher.ViewModels
 
         private async void UpdateServers()
         {
-            using var httpClient = new HttpClient();
             while (true)
             {
                 Refreshing = true;
                 Log.Verbose("Refreshing server list...");
-                var response = await httpClient.GetStringAsync(Config.apiUrl);
+                var response = await http.GetStringAsync(Config.apiUrl);
                 var servers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
 
                 if (!(Servers?.SequenceEqual(servers) ?? false))
