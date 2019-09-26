@@ -18,13 +18,13 @@ namespace UnitystationLauncher.Models
         readonly HttpClient http;
         public string Url { get; }
         public string InstallationPath { get; }
-        public Subject<int> Progress { get; set; }
+        public Subject<int>? Progress { get; set; }
         public float Speed { get; set; }
         public long Downloaded { get; set; }
         public long Size { get; set; }
         public long Time { get; set; }
 
-        public Download(string url, string installationPath, System.Net.Http.HttpClient http)
+        public Download(string url, string installationPath, HttpClient http)
         {
             Url = url;
             InstallationPath = installationPath;

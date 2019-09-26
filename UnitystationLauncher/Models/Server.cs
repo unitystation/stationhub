@@ -1,3 +1,5 @@
+using System;
+
 namespace UnitystationLauncher.Models
 {
     public class Server
@@ -14,5 +16,20 @@ namespace UnitystationLauncher.Models
         public string? WinDownload { get; set;}
         public string? OSXDownload { get; set;}
         public string? LinuxDownload { get; set;}
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Server server &&
+                   ServerIP == server.ServerIP &&
+                   ServerPort == server.ServerPort;
+        }
+
+        public override int GetHashCode()
+        {
+            var hash = new HashCode();
+            hash.Add(ServerIP);
+            hash.Add(ServerPort);
+            return hash.ToHashCode();
+        }
     }
 }
