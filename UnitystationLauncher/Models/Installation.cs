@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,7 +18,8 @@ namespace UnitystationLauncher.Models
     {
         private Installation()
         {
-            Play = ReactiveCommand.Create(StartImp);
+            Play = ReactiveCommand.Create(StartImp, Config.InstallationChanges
+                .Select(u => FindExecutable(InstallationPath) != null));
             Open = ReactiveCommand.Create(OpenImp);
             Delete = ReactiveCommand.Create(DeleteImp);
         }
@@ -81,7 +83,6 @@ namespace UnitystationLauncher.Models
                 catch (Exception e)
                 {
                     Log.Error(e, "An exception occurred during the start of an installation");
-                    throw;
                 }
             }
         }
@@ -95,7 +96,6 @@ namespace UnitystationLauncher.Models
             catch (Exception e)
             {
                 Log.Error(e, "An exception occurred during the opening of an installation");
-                throw;
             }
         }
 
@@ -108,7 +108,6 @@ namespace UnitystationLauncher.Models
             catch (Exception e)
             {
                 Log.Error(e, "An exception occurred during the deletion of an installation");
-                throw;
             }
         }
     }
