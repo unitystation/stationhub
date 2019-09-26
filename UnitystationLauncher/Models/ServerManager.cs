@@ -47,7 +47,7 @@ namespace UnitystationLauncher.Models{
                 Refreshing = true;
                 Log.Verbose("Refreshing server list...");
                 var response = await http.GetStringAsync(Config.apiUrl);
-                var newServers = System.Text.Json.JsonSerializer.Deserialize<ServerList>(response).Servers;
+                var newServers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
 
                 foreach (var deletedServer in Servers.Except(newServers).ToArray())
                 {
