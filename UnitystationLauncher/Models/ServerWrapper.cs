@@ -14,7 +14,6 @@ using System.Linq;
 using Mono.Unix;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using UnitystationLauncher.Infrastructure;
 using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
@@ -58,22 +57,6 @@ namespace UnitystationLauncher.Models
         public ReactiveCommand<Unit, Unit> Download { get; }
 
         public ReactiveCommand<Unit, Unit> Start { get; }
-
-        public string DownloadUrl
-        {
-            get
-            {
-                return 
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSXDownload :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
-                    throw new Exception("Failed to detect OS");
-            }
-        }
-
-        public string InstallationName => ForkName + BuildVersion;
-
-        public string InstallationPath => Path.Combine(Config.InstallationsPath, InstallationName);
 
         public async void DownloadAsync()
         {

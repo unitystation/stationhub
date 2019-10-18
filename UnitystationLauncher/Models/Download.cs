@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
-using UnitystationLauncher.Infrastructure;
 
 namespace UnitystationLauncher.Models
 {
@@ -30,6 +29,9 @@ namespace UnitystationLauncher.Models
             InstallationPath = installationPath;
             this.http = http;
         }
+
+        public string ForkName => Installation.GetForkName(InstallationPath);
+        public int BuildVersion => Installation.GetBuildVersion(InstallationPath);
 
         public async Task Start()
         {

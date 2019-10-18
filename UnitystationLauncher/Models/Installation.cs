@@ -31,13 +31,11 @@ namespace UnitystationLauncher.Models
             InstallationPath = Path.Combine(Config.InstallationsPath, ForkName + BuildVersion);
         }
 
-        public Installation(string folderName) : this()
+        public Installation(string folderPath) : this()
         {
-            folderName = folderName.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
-            var match = Regex.Match(folderName, @"(.+?)(\d+)");
-            ForkName = match.Groups[1].Value;
-            BuildVersion = int.Parse(match.Groups[2].Value);
-            InstallationPath = Path.Combine(Config.InstallationsPath, folderName);
+            ForkName = GetForkName(folderPath);
+            BuildVersion = GetBuildVersion(folderPath);
+            InstallationPath = folderPath;
         }
 
         public string ForkName { get; }
@@ -110,6 +108,20 @@ namespace UnitystationLauncher.Models
             {
                 Log.Error(e, "An exception occurred during the deletion of an installation");
             }
+        }
+
+        public static string GetForkName(string s)
+        {
+            var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
+            var match = Regex.Match(folderName, @"(.+?)(\d+)");
+            return match.Groups[1].Value;
+        }
+
+        public static int GetBuildVersion(string s)
+        {
+            var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
+            var match = Regex.Match(folderName, @"(.+?)(\d+)");
+            return int.Parse(match.Groups[2].Value);
         }
     }
 }

@@ -25,5 +25,12 @@ namespace UnitystationLauncher.Models{
             downloads.Add(download);
             return download;
         }
+
+        public Download Download(Server server)
+        {
+            var download = new Download(server.DownloadUrl, server.InstallationPath, http);
+            downloads.Add(download);
+            return download;
+        }
     }
 }

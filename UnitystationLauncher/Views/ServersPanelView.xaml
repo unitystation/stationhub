@@ -19,6 +19,17 @@
         </DockPanel>
       </Border>
     </DataTemplate>
+    <DataTemplate DataType="{x:Type models:Download}">
+      <Border>
+        <StackPanel Margin="10 0 0 0">
+          <TextBlock>From:</TextBlock>
+          <TextBlock FontWeight="Bold" Text="{Binding Url}"/>
+          <ProgressBar Value="{Binding Progress^}"/>
+          <TextBlock>To:</TextBlock>
+          <TextBlock FontWeight="Bold" Text="{Binding InstallationPath}"/>
+        </StackPanel>
+      </Border>
+    </DataTemplate>
   </UserControl.DataTemplates>
   
   <Grid ColumnDefinitions="2*,*">
@@ -36,43 +47,49 @@
     </StackPanel>
 
     <Border Grid.Column="2" BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}">
-      <StackPanel DataContext="{Binding SelectedServer}">
-        <TextBlock Margin="5" Text="{Binding ServerName}"/>
-        <Separator/>
-        <Grid Margin="5" ColumnDefinitions="*, *" RowDefinitions="auto,auto,auto,auto,auto">
-          <TextBlock Grid.Row="0" Grid.Column="0">Version </TextBlock>
-          <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-            <TextBlock Text="{Binding ForkName}"/>
-            <TextBlock>:</TextBlock>
-            <TextBlock Text="{Binding BuildVersion}"/>
-          </StackPanel>
-
-          <TextBlock Grid.Row="1" Grid.Column="0">IP</TextBlock>
-          <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-            <TextBlock Text="{Binding ServerIP}"/>
-            <TextBlock>:</TextBlock>
-            <TextBlock Text="{Binding ServerPort}"/>
-          </StackPanel>
-
-          <TextBlock Grid.Row="2" Grid.Column="0">Time </TextBlock>
-          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IngameTime}"/>
-
-          <TextBlock Grid.Row="3" Grid.Column="0">Players </TextBlock>
-          <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PlayerCount}"/>
-
-          <Expander Grid.Row="4" Grid.ColumnSpan="2" Header="Downloads">
-            <StackPanel Margin="10 0 0 0">
-              <TextBlock Text="{Binding WinDownload}"/>
-              <TextBlock Text="{Binding OSXDownload}"/>
-              <TextBlock Text="{Binding LinuxDownload}"/>
+      <StackPanel>
+        <StackPanel DataContext="{Binding SelectedServer}">
+          <TextBlock Margin="5" Text="{Binding ServerName}"/>
+          <Separator/>
+          <Grid Margin="5" ColumnDefinitions="*, *" RowDefinitions="auto,auto,auto,auto,auto">
+            <TextBlock Grid.Row="0" Grid.Column="0">Version </TextBlock>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+              <TextBlock Text="{Binding ForkName}"/>
+              <TextBlock>:</TextBlock>
+              <TextBlock Text="{Binding BuildVersion}"/>
             </StackPanel>
-          </Expander>
-        </Grid>
-        <StackPanel Margin="5">
-          <Button Command="{Binding Start}" Padding="5">Play</Button>
-          <Button Command="{Binding Download}" Padding="5" Background="Transparent">Download</Button>
+
+            <TextBlock Grid.Row="1" Grid.Column="0">IP</TextBlock>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+              <TextBlock Text="{Binding ServerIP}"/>
+              <TextBlock>:</TextBlock>
+              <TextBlock Text="{Binding ServerPort}"/>
+            </StackPanel>
+
+            <TextBlock Grid.Row="2" Grid.Column="0">Time </TextBlock>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IngameTime}"/>
+
+            <TextBlock Grid.Row="3" Grid.Column="0">Players </TextBlock>
+            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding PlayerCount}"/>
+
+            <Expander Grid.Row="4" Grid.ColumnSpan="2" Header="Downloads">
+              <StackPanel Margin="10 0 0 0">
+                <TextBlock Text="{Binding WinDownload}"/>
+                <TextBlock Text="{Binding OSXDownload}"/>
+                <TextBlock Text="{Binding LinuxDownload}"/>
+              </StackPanel>
+            </Expander>
+          </Grid>
+          <StackPanel Margin="5">
+            <Button Command="{Binding Start}" Padding="5">Play</Button>
+            <Button Command="{Binding Download}" Padding="5" Background="Transparent">Download</Button>
+          </StackPanel>
+          <ProgressBar Value="{Binding Progress^}"/>
         </StackPanel>
-        <ProgressBar Value="{Binding Progress^}"/>
+        <StackPanel>
+          <Button Command="{Binding Download}" Padding="5" Background="Transparent">Download</Button>
+          <ContentControl Content="{Binding SelectedDownload^}"/>
+        </StackPanel>
       </StackPanel>
     </Border>
   </Grid>
