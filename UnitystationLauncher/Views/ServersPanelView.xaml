@@ -28,7 +28,7 @@
         <ProgressBar IsIndeterminate="{Binding Refreshing}" MaxHeight="2"/>
         <ListBox
           Name="ServerListBox"
-          Items="{Binding ServerManager.Servers}"
+          Items="{Binding Servers^}"
           SelectedItem="{Binding SelectedServer}"
           BorderThickness="0"
           Padding="0"/>

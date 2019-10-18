@@ -8,25 +8,30 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
 using System.Text.Json;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 
 namespace UnitystationLauncher.Models{
 
-    public class ServerManager : ReactiveObject
+    public class ServerManager : ReactiveObject, IDisposable
     {
         private readonly HttpClient http;
-        private readonly ObservableCollection<ServerWrapper> servers;
+        private readonly BehaviorSubject<IReadOnlyList<ServerWrapper>> serversSubject;
         TimeSpan refreshTimeout = TimeSpan.FromSeconds(5);
         bool refreshing;
 
         public ServerManager(HttpClient http)
         {
-            servers = new ObservableCollection<ServerWrapper>();
-            Servers = new ReadOnlyObservableCollection<ServerWrapper>(servers);
+            serversSubject = new BehaviorSubject<IReadOnlyList<ServerWrapper>>(new ServerWrapper[0]);
+            Observable.Timer(TimeSpan.Zero, refreshTimeout)
+                .SelectMany(u => GetServers().ToObservable())
+                .Subscribe(serversSubject);
+                
             this.http = http;
-            UpdateServers();
         }
 
-        public ReadOnlyObservableCollection<ServerWrapper> Servers { get; }
+        public IObservable<IReadOnlyList<ServerWrapper>> Servers => serversSubject;
 
         public bool Refreshing
         {
@@ -40,30 +45,23 @@ namespace UnitystationLauncher.Models{
             set => this.RaiseAndSetIfChanged(ref refreshTimeout, value);
         }
 
-        private async void UpdateServers()
+        private async Task<IReadOnlyList<ServerWrapper>> GetServers()
         {
-            while (true)
-            {
-                Refreshing = true;
-                Log.Verbose("Refreshing server list...");
-                var response = await http.GetStringAsync(Config.apiUrl);
-                var newServers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
+            Refreshing = true;
+            Log.Verbose("Refreshing server list...");
+            var response = await http.GetStringAsync(Config.apiUrl);
+            var newServers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
 
-                foreach (var deletedServer in Servers.Except(newServers).ToArray())
-                {
-                    servers.Remove((ServerWrapper)deletedServer);
-                }
+            var newWrappedServers = newServers.Select(s => new ServerWrapper(s)).ToList();
 
-                foreach (var newServer in newServers.Except(Servers).ToArray())
-                {
-                    servers.Add(new ServerWrapper(newServer));
-                }
+            Refreshing = false;
+            Log.Verbose("Server list refreshed");
+            return newWrappedServers;
+        }
 
-                Refreshing = false;
-                Log.Verbose("Server list refreshed");
-
-                await Task.Delay(refreshTimeout);
-            }
+        public void Dispose()
+        {
+            serversSubject.Dispose();
         }
     }
 }
