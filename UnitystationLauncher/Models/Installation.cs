@@ -33,6 +33,7 @@ namespace UnitystationLauncher.Models
 
         public Installation(string folderName) : this()
         {
+            folderName = folderName.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
             var match = Regex.Match(folderName, @"(.+?)(\d+)");
             ForkName = match.Groups[1].Value;
             BuildVersion = int.Parse(match.Groups[2].Value);

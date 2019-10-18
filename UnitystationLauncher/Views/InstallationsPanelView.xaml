@@ -7,7 +7,7 @@
   <Grid ColumnDefinitions="2*,*">
     <StackPanel>
       <TextBlock TextAlignment="Center" FontSize="22">Installations</TextBlock>
-      <ListBox Items="{Binding Installations}" SelectedItem="{Binding SelectedInstallation}" Grid.Column="0" BorderThickness="0" Padding="0">
+      <ListBox Items="{Binding Installations^}" SelectedItem="{Binding SelectedInstallation}" Grid.Column="0" BorderThickness="0" Padding="0">
         <ListBox.DataTemplates>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">

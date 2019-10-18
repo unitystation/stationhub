@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
@@ -18,7 +18,7 @@ namespace UnitystationLauncher.ViewModels
             this.installationManager = installationManager;
         }
 
-        public ReadOnlyObservableCollection<Installation> Installations => installationManager.Installations;
+        public IObservable<IReadOnlyList<Installation>> Installations => installationManager.Installations;
 
         public Installation? SelectedInstallation
         {
