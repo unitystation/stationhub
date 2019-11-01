@@ -28,10 +28,12 @@ namespace UnitystationLauncher.Models
             Url = url;
             InstallationPath = installationPath;
             this.http = http;
+            Progress = new Subject<int>();
         }
 
         public string ForkName => Installation.GetForkName(InstallationPath);
         public int BuildVersion => Installation.GetBuildVersion(InstallationPath);
+        public string RelativeInstallationPath => Path.GetRelativePath(Environment.CurrentDirectory, InstallationPath);
 
         public async Task Start()
         {
@@ -45,11 +47,6 @@ namespace UnitystationLauncher.Models
             }
 
             Log.Information("Download URL: \"{URL}\"", Url);
-
-            if (Url is null)
-            {
-                throw new Exception("OS download is null");
-            }
 
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(Url);

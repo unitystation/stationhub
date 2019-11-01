@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnitystationLauncher.Models;
 
@@ -16,16 +17,15 @@ namespace UnitystationLauncher.ViewModels
     public class ServersPanelViewModel : PanelBase
     {
         ServerWrapper? selectedServer;
-        private readonly ServerManager serverManager;
         private readonly DownloadManager downloadManager;
 
-        public ServersPanelViewModel(ServerManager serverManager, DownloadManager downloadManager)
+        public ServersPanelViewModel(ServerManager serverManager, DownloadManager downloadManager, DirectoryManager directoryManager)
         {
-            this.serverManager = serverManager;
+            this.ServerManager = serverManager;
             this.downloadManager = downloadManager;
 
-            SelectedDownload = downloadManager.Downloads.GetWeakCollectionChangedObservable()
-                .CombineLatest(this.Changed, (e, c) => Unit.Default)
+            SelectedDownload = this.Changed
+                .CombineLatest(downloadManager.Downloads.GetWeakCollectionChangedObservable(), (x, y) => Unit.Default)
                 .Select(d => SelectedServer == null ?
                     null :
                     downloadManager.Downloads.FirstOrDefault(d =>
@@ -34,12 +34,14 @@ namespace UnitystationLauncher.ViewModels
 
             Download = ReactiveCommand.Create(
                 DoDownload,
-                this.WhenAnyValue(x => x.selectedServer).Select(s => s != null));
+                this.WhenAnyValue(x => x.SelectedServer)
+                    .CombineLatest(directoryManager.Directories, (s, d) => s)
+                    .Select(s => s != null && downloadManager.CanDownload(s))
+                    .ObserveOn(SynchronizationContext.Current));
         }
 
         public override string Name => "Servers";
-
-        public IObservable<IReadOnlyList<ServerWrapper>> Servers => serverManager.Servers;
+        public ServerManager ServerManager { get; }
 
         public ReactiveCommand<Unit, Unit> Download { get; }
 
@@ -53,7 +55,7 @@ namespace UnitystationLauncher.ViewModels
 
         public void DoDownload()
         {
-            downloadManager.Download(SelectedServer);
+            _ = downloadManager.Download(SelectedServer!).Start();
         }
     }
 }

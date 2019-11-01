@@ -26,7 +26,7 @@
           <TextBlock FontWeight="Bold" Text="{Binding Url}"/>
           <ProgressBar Value="{Binding Progress^}"/>
           <TextBlock>To:</TextBlock>
-          <TextBlock FontWeight="Bold" Text="{Binding InstallationPath}"/>
+          <TextBlock FontWeight="Bold" Text="{Binding RelativeInstallationPath}"/>
         </StackPanel>
       </Border>
     </DataTemplate>
@@ -36,10 +36,10 @@
     <StackPanel>
       <TextBlock DockPanel.Dock="Left" Margin="5" TextAlignment="center" FontSize="30">Server List</TextBlock>
       <StackPanel>
-        <ProgressBar IsIndeterminate="{Binding Refreshing}" MaxHeight="2"/>
+        <ProgressBar IsIndeterminate="{Binding ServerManager.Refreshing}" Height="4" MinHeight="1" BorderThickness="0"/>
         <ListBox
           Name="ServerListBox"
-          Items="{Binding Servers^}"
+          Items="{Binding ServerManager.Servers^}"
           SelectedItem="{Binding SelectedServer}"
           BorderThickness="0"
           Padding="0"/>
@@ -47,7 +47,7 @@
     </StackPanel>
 
     <Border Grid.Column="2" BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}">
-      <StackPanel>
+      <StackPanel IsVisible="{Binding SelectedServer, Converter={x:Static ObjectConverters.IsNotNull}}">
         <StackPanel DataContext="{Binding SelectedServer}">
           <TextBlock Margin="5" Text="{Binding ServerName}"/>
           <Separator/>
@@ -82,12 +82,10 @@
           </Grid>
           <StackPanel Margin="5">
             <Button Command="{Binding Start}" Padding="5">Play</Button>
-            <Button Command="{Binding Download}" Padding="5" Background="Transparent">Download</Button>
           </StackPanel>
-          <ProgressBar Value="{Binding Progress^}"/>
         </StackPanel>
         <StackPanel>
-          <Button Command="{Binding Download}" Padding="5" Background="Transparent">Download</Button>
+          <Button Command="{Binding Download}" IsVisible="{Binding SelectedDownload^, Converter={x:Static ObjectConverters.IsNull}}" Padding="5" Background="Transparent">Download</Button>
           <ContentControl Content="{Binding SelectedDownload^}"/>
         </StackPanel>
       </StackPanel>
