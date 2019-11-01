@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Avalonia.Collections;
+using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
 using System;
@@ -17,29 +18,22 @@ namespace UnitystationLauncher.ViewModels
         ServerWrapper? selectedServer;
         private readonly ServerManager serverManager;
         private readonly DownloadManager downloadManager;
-        private readonly StateManager stateManager;
 
-        public ServersPanelViewModel(ServerManager serverManager, DownloadManager downloadManager, StateManager stateManager)
+        public ServersPanelViewModel(ServerManager serverManager, DownloadManager downloadManager)
         {
             this.serverManager = serverManager;
             this.downloadManager = downloadManager;
-            this.stateManager = stateManager;
 
-            SelectedDownload = stateManager.State
-                .CombineLatest(this.Changed, (dictionary, c) => (dictionary, SelectedServer))
-                .Select(d =>
-                {
-                    (var dict, var selected) = d;
-                    var key = (selected.ForkName, selected.BuildVersion);
-                    if (!dict.ContainsKey(key))
-                    {
-                        return dict[key].download;
-                    }
-                    return null;
-                });
+            SelectedDownload = downloadManager.Downloads.GetWeakCollectionChangedObservable()
+                .CombineLatest(this.Changed, (e, c) => Unit.Default)
+                .Select(d => SelectedServer == null ?
+                    null :
+                    downloadManager.Downloads.FirstOrDefault(d =>
+                        d.ForkName == SelectedServer.ForkName &&
+                        d.BuildVersion == SelectedServer.BuildVersion));
 
             Download = ReactiveCommand.Create(
-                DoDownload, 
+                DoDownload,
                 this.WhenAnyValue(x => x.selectedServer).Select(s => s != null));
         }
 

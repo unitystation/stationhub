@@ -2,22 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net.Http;
+using Avalonia.Collections;
 
-namespace UnitystationLauncher.Models{
+namespace UnitystationLauncher.Models
+{
 
     public class DownloadManager
     {
         private readonly HttpClient http;
-        private readonly ObservableCollection<Download> downloads;
+        private readonly AvaloniaList<Download> downloads;
 
         public DownloadManager(HttpClient http)
         {
-            downloads = new ObservableCollection<Download>();
-            Downloads = new ReadOnlyObservableCollection<Download>(downloads);
+            downloads = new AvaloniaList<Download>();
             this.http = http;
+            downloads.GetWeakCollectionChangedObservable();
         }
 
-        public ReadOnlyObservableCollection<Download> Downloads { get; }
+        public IAvaloniaReadOnlyList<Download> Downloads => downloads;
 
         public Download AddDownload(string url, string installationPath)
         {
