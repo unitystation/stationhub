@@ -24,8 +24,9 @@ namespace UnitystationLauncher.ViewModels
             this.ServerManager = serverManager;
             this.downloadManager = downloadManager;
 
-            SelectedDownload = this.Changed
-                .CombineLatest(downloadManager.Downloads.GetWeakCollectionChangedObservable(), (x, y) => Unit.Default)
+            SelectedDownload = Observable.Merge(
+                this.Changed.Select(x => Unit.Default),
+                downloadManager.Downloads.GetWeakCollectionChangedObservable().Select(x => Unit.Default))
                 .Select(d => SelectedServer == null ?
                     null :
                     downloadManager.Downloads.FirstOrDefault(d =>
