@@ -25,7 +25,13 @@ namespace UnitystationLauncher.Models{
         {
             serversSubject = new BehaviorSubject<IReadOnlyList<ServerWrapper>>(new ServerWrapper[0]);
             Observable.Timer(TimeSpan.Zero, refreshTimeout)
-                .SelectMany(u => GetServers().ToObservable())
+                .Do(x => Refreshing = true)
+                .Do(x => Log.Verbose("Refreshing server list..."))
+                .SelectMany(u => http.GetStringAsync(Config.apiUrl).ToObservable())
+                .Do(x => Refreshing = false)
+                .DistinctUntilChanged()
+                .Select(JsonConvert.DeserializeObject<ServerList>)
+                .Select(servers => servers.Servers.Select(s => new ServerWrapper(s)).ToList())
                 .Subscribe(serversSubject);
                 
             this.http = http;
@@ -43,20 +49,6 @@ namespace UnitystationLauncher.Models{
         {
             get => refreshTimeout;
             set => this.RaiseAndSetIfChanged(ref refreshTimeout, value);
-        }
-
-        private async Task<IReadOnlyList<ServerWrapper>> GetServers()
-        {
-            Refreshing = true;
-            Log.Verbose("Refreshing server list...");
-            var response = await http.GetStringAsync(Config.apiUrl);
-            var newServers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
-
-            var newWrappedServers = newServers.Select(s => new ServerWrapper(s)).ToList();
-
-            Refreshing = false;
-            Log.Verbose("Server list refreshed");
-            return newWrappedServers;
         }
 
         public void Dispose()
