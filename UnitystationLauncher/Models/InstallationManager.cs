@@ -5,6 +5,7 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using System.IO;
 using System.Reactive.Subjects;
+using UnitystationLauncher.Infrastructure;
 
 namespace UnitystationLauncher.Models
 {
@@ -18,7 +19,7 @@ namespace UnitystationLauncher.Models
             installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
 
             Config.InstallationChanges
-                .Throttle(TimeSpan.FromMilliseconds(200))
+                .ThrottleSubsequent(TimeSpan.FromMilliseconds(200))
                 .Select(f =>
                     Directory.EnumerateDirectories(Config.InstallationsPath)
                         .Select(dir => new Installation(dir)).ToList())

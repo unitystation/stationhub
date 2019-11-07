@@ -17,21 +17,23 @@ namespace UnitystationLauncher.ViewModels
     public class ServersPanelViewModel : PanelBase
     {
         ServerWrapper? selectedServer;
-        private readonly DownloadManager downloadManager;
+        readonly DownloadManager downloadManager;
 
-        public ServersPanelViewModel(ServerManager serverManager, DownloadManager downloadManager, DirectoryManager directoryManager)
+        public ServersPanelViewModel(
+            ServerManager serverManager, 
+            StateManager stateManager,
+            DownloadManager downloadManager,
+            DirectoryManager directoryManager)
         {
             this.ServerManager = serverManager;
             this.downloadManager = downloadManager;
 
-            SelectedDownload = Observable.Merge(
-                this.Changed.Select(x => Unit.Default),
-                downloadManager.Downloads.GetWeakCollectionChangedObservable().Select(x => Unit.Default))
-                .Select(d => SelectedServer == null ?
-                    null :
-                    downloadManager.Downloads.FirstOrDefault(d =>
-                        d.ForkName == SelectedServer.ForkName &&
-                        d.BuildVersion == SelectedServer.BuildVersion));
+            SelectedDownload = stateManager.State
+                .CombineLatest(this.Changed, (s, e) => s)
+                .Select(state =>
+                    SelectedServer == null ? null :
+                    !state.ContainsKey(SelectedServer.Key) ? null :
+                    state[SelectedServer.Key].download);
 
             Download = ReactiveCommand.Create(
                 DoDownload,

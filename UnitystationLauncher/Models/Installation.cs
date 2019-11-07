@@ -41,6 +41,8 @@ namespace UnitystationLauncher.Models
         public string ForkName { get; }
         public int BuildVersion { get; }
         public string InstallationPath { get; }
+        public (string, int) Key => (ForkName, BuildVersion);
+
 
         public ReactiveCommand<Unit, Unit> Play { get; }
         public ReactiveCommand<Unit, Unit> Open { get; }

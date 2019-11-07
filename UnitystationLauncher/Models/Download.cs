@@ -31,6 +31,7 @@ namespace UnitystationLauncher.Models
             Progress = new Subject<int>();
         }
 
+        public (string, int) Key => (ForkName, BuildVersion);
         public string ForkName => Installation.GetForkName(InstallationPath);
         public int BuildVersion => Installation.GetBuildVersion(InstallationPath);
         public string RelativeInstallationPath => Path.GetRelativePath(Environment.CurrentDirectory, InstallationPath);

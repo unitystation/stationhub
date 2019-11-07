@@ -17,7 +17,8 @@ namespace UnitystationLauncher.Models
         public int ServerPort { get; set;}
         public string? WinDownload { get; set;}
         public string? OSXDownload { get; set;}
-        public string? LinuxDownload { get; set;}
+        public string? LinuxDownload { get; set; }
+        public (string, int) Key => (ForkName, BuildVersion);
 
         public string DownloadUrl
         {
