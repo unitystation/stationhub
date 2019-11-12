@@ -70,6 +70,7 @@ namespace UnitystationLauncher.ViewModels
 
         ViewModelBase LogoutImp()
         {
+            File.Delete("settings.json");
             return logoutVM.Value;
         }
     }

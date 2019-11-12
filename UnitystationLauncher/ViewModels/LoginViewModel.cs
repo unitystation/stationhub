@@ -1,6 +1,7 @@
 using System;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia.Interactivity;
 using DynamicData.Binding;
 using Firebase.Auth;
 using ReactiveUI;
@@ -50,7 +51,7 @@ namespace UnitystationLauncher.ViewModels
 
         public ReactiveCommand<Unit, LauncherViewModel?> Login { get; }
         public ReactiveCommand<Unit, LauncherViewModel?> Create { get; }
-
+        
         public async Task<LauncherViewModel?> UserLogin()
         {
             try
@@ -62,6 +63,9 @@ namespace UnitystationLauncher.ViewModels
                 Log.Error(e, "Login failed");
                 return null;
             }
+            
+            authManager.Store();
+            
             return launcherVM.Value;
         }
 

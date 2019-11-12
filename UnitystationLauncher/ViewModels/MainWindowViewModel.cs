@@ -3,16 +3,20 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using Serilog;
 using System.Threading;
+using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
         ViewModelBase content;
+        private Lazy<LauncherViewModel> launcherVM;
 
-        public MainWindowViewModel(LoginViewModel loginVM)
+        public MainWindowViewModel(LoginViewModel loginVM, Lazy<LauncherViewModel> launcherVM)
         {
+            this.launcherVM = launcherVM;
             Content = loginVM;
+            CheckForExistingUser();
         }
 
         public ViewModelBase Content
@@ -23,6 +27,30 @@ namespace UnitystationLauncher.ViewModels
                 this.RaiseAndSetIfChanged(ref content, value);
                 ContentChanged();
             }
+        }
+        
+        void CheckForExistingUser()
+        {
+            if (AuthManager.Instance.AuthLink != null)
+            {
+                AttemptAuthRefresh();
+            }
+        }
+
+        async void AttemptAuthRefresh()
+        {
+            try
+            {
+                AuthManager.Instance.AuthLink = await AuthManager.Instance.AuthLink.GetFreshAuthAsync();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Login failed");
+                return;
+            }
+            
+            AuthManager.Instance.Store();
+            Content = launcherVM.Value;
         }
 
         private void ContentChanged()
