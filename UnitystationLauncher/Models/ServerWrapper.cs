@@ -4,16 +4,10 @@ using System.IO.Compression;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
-using System.Linq;
-using Mono.Unix;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
 using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
@@ -105,7 +99,11 @@ namespace UnitystationLauncher.Models
             var exe = Installation.FindExecutable(InstallationPath);
             if(exe != null)
             {
-                Process.Start(exe);
+                var process = new Process();
+                process.StartInfo.FileName = exe;
+                process.StartInfo.Arguments =
+                    $"--server {ServerIP} --port {ServerPort} --refreshtoken {AuthManager.RefreshToken} --uid {AuthManager.UID}";
+                process.Start();
             }
         }
     }
