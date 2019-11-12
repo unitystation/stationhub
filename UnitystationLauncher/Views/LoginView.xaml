@@ -4,27 +4,36 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
              TextBlock.FontSize="18"
+             VerticalAlignment="Center"
              x:Class="UnitystationLauncher.Views.LoginView">
+    
     <StackPanel>
-        <StackPanel Orientation="Horizontal" Height="50" HorizontalAlignment="Center">
+        
+        <StackPanel.Background>
+            <SolidColorBrush Color="White" Opacity="0.07" />
+        </StackPanel.Background>
+        <Border BorderThickness="1" BorderBrush="Gray"/>
+        <StackPanel Orientation="Horizontal" Height="50" Margin="20" HorizontalAlignment="Center">
             <Viewbox Margin="5">
                 <Image Source="/Assets/Unitystation.png" />
             </Viewbox>
             <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
         </StackPanel>
-        <TextBox Text="{Binding Email}" Margin="5" Watermark="Email">
+        <TextBox Text="{Binding Email}" Margin="15" Watermark="Email" MaxWidth="400">
             <TextBox.KeyBindings>
                 <KeyBinding Command="{Binding Login}" Gesture="Return" />
             </TextBox.KeyBindings>
         </TextBox>
-        <TextBox Text="{Binding Password}" Margin="5" PasswordChar="*" Watermark="Password" >
+        <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400">
             <TextBox.KeyBindings>
                 <KeyBinding Command="{Binding Login}" Gesture="Return" />
             </TextBox.KeyBindings>
         </TextBox>
-        <Grid ColumnDefinitions="*, 1.5*"  Margin="5">
-            <Button Command="{Binding Create}" Grid.Column="0" Padding="5" Background="Transparent">Create</Button>
-            <Button Command="{Binding Login}" Grid.Column="1" Padding="5">Login</Button>
+
+        <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
+            <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100">Create</Button>
+            <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100">Login</Button>
         </Grid>
+        <Border BorderThickness="1" BorderBrush="Gray"/>
     </StackPanel>
 </UserControl>

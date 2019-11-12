@@ -3,10 +3,18 @@
         xmlns:vm="clr-namespace:UnitystationLauncher.ViewModels;assembly=UnitystationLauncher"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
         x:Class="UnitystationLauncher.Views.MainWindow"
         Icon="/Assets/Unitystation.png"
-        Title="UnitystationLauncher"
+        Title="Unitystation Hub"
         WindowStartupLocation="CenterScreen"
-        Content="{Binding Content}">
+        Width="700"
+        Height="500"
+        Background="#19212c">
+        <Grid>
+                <Grid.Background>
+                        <ImageBrush Source="/Assets/bg.jpg" />
+                </Grid.Background>
+                <ContentControl Content="{Binding Content}" />
+        </Grid>
 </Window>
