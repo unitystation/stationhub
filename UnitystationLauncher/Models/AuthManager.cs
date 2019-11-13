@@ -45,5 +45,8 @@ namespace UnitystationLauncher.Models
 
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
             authProvider.SignInWithEmailAndPasswordAsync(email, password);
+
+        internal Task<FirebaseAuthLink> CreateAccount(string username, string email, string password) =>
+            authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
     }
 }

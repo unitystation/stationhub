@@ -69,8 +69,8 @@ namespace UnitystationLauncher.ViewModels
                     break;
                 case SignUpViewModel signUpViewModel:
                     SubscribeToVM(signUpViewModel.Cancel);
+                    SubscribeToVM(signUpViewModel.DoneButton);
                     break;
-                    
             }
         }
 

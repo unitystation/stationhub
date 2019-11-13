@@ -13,12 +13,12 @@
         </StackPanel.Background>
         
         <Border BorderThickness="1" BorderBrush="Gray"/>
-        
+        <StackPanel IsVisible="{Binding IsFormVisible}">
         <StackPanel Orientation="Horizontal" Height="50" Margin="10" HorizontalAlignment="Center">
             <TextBlock VerticalAlignment="Center" Margin="5">Create Account:</TextBlock>
         </StackPanel>
         
-        <TextBox Text="{Binding Email}" Margin="15" Watermark="User Name" MaxWidth="400">
+        <TextBox Text="{Binding Username}" Margin="15" Watermark="User Name" MaxWidth="400">
             <TextBox.KeyBindings>
                 <KeyBinding Command="{Binding Login}" Gesture="Return" />
             </TextBox.KeyBindings>
@@ -41,7 +41,11 @@
             <Button Command="{Binding Cancel}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100">Cancel</Button>
             <Button Command="{Binding Submit}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100">Submit</Button>
         </Grid>
-
-        <Border BorderThickness="1" BorderBrush="Gray"/>
+        </StackPanel>
+        <StackPanel IsVisible="{Binding IsCreatedVisible}">
+            <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5" Text="{Binding CreationMessage}" />
+            <Button Command="{Binding DoneButton}" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100" Content="{Binding EndButtonText}"></Button>
+        </StackPanel>
+            <Border BorderThickness="1" BorderBrush="Gray"/>
     </StackPanel>
 </UserControl>
