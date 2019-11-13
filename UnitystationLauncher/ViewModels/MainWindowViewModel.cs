@@ -69,20 +69,21 @@ namespace UnitystationLauncher.ViewModels
 
         private void ContentChanged()
         {
-            switch(Content)
+            SubscribeToVM(Content switch
             {
-                case LoginViewModel loginVM:
-                    SubscribeToVM(loginVM.Login);
-                    SubscribeToVM(loginVM.Create);
-                    break;
-                case LauncherViewModel launcherVM:
-                    SubscribeToVM(launcherVM.Logout);
-                    break;
-                case SignUpViewModel signUpViewModel:
-                    SubscribeToVM(signUpViewModel.Cancel);
-                    SubscribeToVM(signUpViewModel.DoneButton);
-                    break;
-            }
+                LoginViewModel loginVM => Observable.Merge(
+                    loginVM.Login.Select(vm => (ViewModelBase) vm),
+                    loginVM.Create.Select(vm => (ViewModelBase) vm)),
+                
+                LauncherViewModel launcherVM => 
+                    launcherVM.Logout,
+                
+                SignUpViewModel signUpViewModel => Observable.Merge(
+                    signUpViewModel.Cancel,
+                    signUpViewModel.DoneButton),
+                
+                _  => throw new ArgumentException($"ViewModel type is not handled and will never be able to change")
+            });
         }
 
         private void SubscribeToVM(IObservable<ViewModelBase?> observable)
