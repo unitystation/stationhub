@@ -51,10 +51,10 @@ namespace UnitystationLauncher.ViewModels
             var hasAlreadyResent = this.WhenAnyValue(
                 x => x.ResendClicked,
                 (r) => !r);
-            
+
             ResendEmail = ReactiveCommand.Create(OnResend, hasAlreadyResent);
-            
-            GoBack = ReactiveCommand.Create(OnBackButton);
+
+            GoBack = ReactiveCommand.Create(ShowLoginForm);
         }
 
         public string? Email
@@ -109,14 +109,13 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, SignUpViewModel?> Create { get; }
         public ReactiveCommand<Unit, Unit> GoBack { get; }
         public ReactiveCommand<Unit, Unit> ResendEmail { get; }
-        
+
         public async Task<LauncherViewModel?> UserLogin()
         {
             bool signInSuccess = true;
             ResendClicked = false;
             IsResendEmailVisible = false;
-            IsWaitingVisible = true;
-            IsFormVisible = false;
+            ShowSigningInScreen();
             try
             {
                 authManager.AuthLink = await authManager.SignInWithEmailAndPasswordAsync(email!, password!);
@@ -127,13 +126,13 @@ namespace UnitystationLauncher.ViewModels
                 FailedMessage = "Login failed.\r\n" +
                                 "Check your email and password\r\n" +
                                 "and try again.";
-                                signInSuccess = false;
+                signInSuccess = false;
             }
-            
+
             if (signInSuccess)
             {
                 var user = await authManager.GetUpdatedUser();
-                
+
                 if (!user.IsEmailVerified)
                 {
                     FailedMessage = "Email not yet verified.\r\n" +
@@ -144,20 +143,25 @@ namespace UnitystationLauncher.ViewModels
                     IsResendEmailVisible = true;
                 }
             }
-            
+
             IsWaitingVisible = false;
             if (!signInSuccess)
             {
-                
                 IsFailedVisible = true;
                 return null;
             }
-            
+
             authManager.Store();
-            
+
             return launcherVM.Value;
         }
 
+        public void ShowSigningInScreen()
+        {
+            IsFormVisible = false;
+            IsWaitingVisible = true;
+        }
+        
         public SignUpViewModel? UserCreate()
         {
             return signUpVM.Value;
@@ -173,7 +177,7 @@ namespace UnitystationLauncher.ViewModels
                             $"in the email and try again.";
         }
 
-        public void OnBackButton()
+        public void ShowLoginForm()
         {
             IsFailedVisible = false;
             IsFormVisible = true;

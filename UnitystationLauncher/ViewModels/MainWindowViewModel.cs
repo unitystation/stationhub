@@ -12,10 +12,12 @@ namespace UnitystationLauncher.ViewModels
         ViewModelBase content;
         private Lazy<LauncherViewModel> launcherVM;
         private AuthManager authManager;
+        private LoginViewModel loginVM;
 
         public MainWindowViewModel(LoginViewModel loginVM, Lazy<LauncherViewModel> launcherVM,
             AuthManager authManager)
         {
+            this.loginVM = loginVM;
             this.authManager = authManager;
             this.launcherVM = launcherVM;
             Content = loginVM;
@@ -36,6 +38,7 @@ namespace UnitystationLauncher.ViewModels
         {
             if (authManager.AuthLink != null)
             {
+                loginVM.ShowSigningInScreen();
                 AttemptAuthRefresh();
             }
         }
@@ -49,6 +52,14 @@ namespace UnitystationLauncher.ViewModels
             catch (Exception e)
             {
                 Log.Error(e, "Login failed");
+                loginVM.ShowLoginForm();
+                return;
+            }
+
+            var user = await authManager.GetUpdatedUser();
+            if (!user.IsEmailVerified)
+            {
+                loginVM.ShowLoginForm();
                 return;
             }
             
