@@ -20,12 +20,15 @@ namespace UnitystationLauncher.ViewModels
         private string creationMessage;
         private string endButtonText;
         private bool isFormVisible;
+        private bool isWaitingVisible;
         private bool isCreatedVisible;
         private bool creationSuccess = false;
 
         public SignUpViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVM)
         {
             IsFormVisible = true;
+            IsWaitingVisible = false;
+            IsCreatedVisible = false;
             this.authManager = authManager;
             this.loginVM = loginVM;
             var possibleCredentials = this.WhenAnyValue(
@@ -74,6 +77,12 @@ namespace UnitystationLauncher.ViewModels
             get => isCreatedVisible;
             set => this.RaiseAndSetIfChanged(ref isCreatedVisible, value);
         }
+        
+        public bool IsWaitingVisible
+        {
+            get => isWaitingVisible;
+            set => this.RaiseAndSetIfChanged(ref isWaitingVisible, value);
+        }
 
         public string CreationMessage
         {
@@ -95,10 +104,11 @@ namespace UnitystationLauncher.ViewModels
         {
             IsFormVisible = false;
             creationSuccess = true;
+            IsWaitingVisible = true;
             
             try
             { 
-                //var authLink = await authManager.CreateAccount(username, email, password);
+                var authLink = await authManager.CreateAccount(username, email, password);
             } catch (Exception e)
             {
                 Log.Error(e, "Login failed");
@@ -107,17 +117,18 @@ namespace UnitystationLauncher.ViewModels
 
             if (creationSuccess)
             {
-                CreationMessage = $"Success! An email has been sent to {email}. \r\n" +
-                                  $"Please click the link in the email to verify \r\n" +
+                CreationMessage = $"Success! An email has been sent to {email}.\r\n" +
+                                  $"Please click the link in the email to verify\r\n" +
                                   $"your account before signing in.";
                 EndButtonText = "Done";
             }
             else
             {
-                CreationMessage = $"Invalid email address. Please try again.";
+                CreationMessage = $"Invalid email address or password length.\r\nPlease try again.";
                 EndButtonText = "Back";
             }
-
+            
+            IsWaitingVisible = false;
             IsCreatedVisible = true;
         }
 
@@ -128,7 +139,12 @@ namespace UnitystationLauncher.ViewModels
         
         public LoginViewModel? CreationEndButton()
         {
-            if (!creationSuccess) return null;
+            if (!creationSuccess)
+            {
+                IsCreatedVisible = false;
+                IsFormVisible = true;
+                return null;
+            }
             return loginVM.Value;
         }
     }
