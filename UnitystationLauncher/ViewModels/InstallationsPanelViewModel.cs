@@ -1,39 +1,24 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
-    class InstallationsPanelViewModel : PanelBase
+    public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
 
-        private Installation[] installations;
+        private InstallationManager installationManager;
 
         private Installation? selectedInstallation;
 
-        public InstallationsPanelViewModel()
+        public InstallationsPanelViewModel(InstallationManager installationManager)
         {
-            Config.InstallationChanges.Subscribe(u =>
-                {
-                    if (Directory.Exists(Config.InstallationsPath))
-                    {
-                        Installations = Directory.EnumerateDirectories(Config.InstallationsPath)
-                            .Select(d => new Installation(Path.GetFileName(d)))
-                            .ToArray();
-                    }
-                });
+            this.installationManager = installationManager;
         }
 
-        public Installation[] Installations
-        {
-            get => installations;
-            set => this.RaiseAndSetIfChanged(ref installations, value);
-        }
+        public IObservable<IReadOnlyList<Installation>> Installations => installationManager.Installations;
 
         public Installation? SelectedInstallation
         {

@@ -14,7 +14,7 @@ using System.Text.RegularExpressions;
 
 namespace UnitystationLauncher.Models
 {
-    class Installation
+    public class Installation
     {
         private Installation()
         {
@@ -31,17 +31,18 @@ namespace UnitystationLauncher.Models
             InstallationPath = Path.Combine(Config.InstallationsPath, ForkName + BuildVersion);
         }
 
-        public Installation(string folderName) : this()
+        public Installation(string folderPath) : this()
         {
-            var match = Regex.Match(folderName, @"(.+?)(\d+)");
-            ForkName = match.Groups[1].Value;
-            BuildVersion = int.Parse(match.Groups[2].Value);
-            InstallationPath = Path.Combine(Config.InstallationsPath, folderName);
+            ForkName = GetForkName(folderPath);
+            BuildVersion = GetBuildVersion(folderPath);
+            InstallationPath = folderPath;
         }
 
         public string ForkName { get; }
         public int BuildVersion { get; }
         public string InstallationPath { get; }
+        public (string, int) Key => (ForkName, BuildVersion);
+
 
         public ReactiveCommand<Unit, Unit> Play { get; }
         public ReactiveCommand<Unit, Unit> Open { get; }
@@ -109,6 +110,20 @@ namespace UnitystationLauncher.Models
             {
                 Log.Error(e, "An exception occurred during the deletion of an installation");
             }
+        }
+
+        public static string GetForkName(string s)
+        {
+            var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
+            var match = Regex.Match(folderName, @"(.+?)(\d+)");
+            return match.Groups[1].Value;
+        }
+
+        public static int GetBuildVersion(string s)
+        {
+            var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
+            var match = Regex.Match(folderName, @"(.+?)(\d+)");
+            return int.Parse(match.Groups[2].Value);
         }
     }
 }

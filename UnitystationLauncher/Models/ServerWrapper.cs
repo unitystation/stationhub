@@ -4,23 +4,20 @@ using System.IO.Compression;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
-using System.Linq;
-using Mono.Unix;
 using System.Diagnostics;
-using System.Text.RegularExpressions;
+using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
 {
     public class ServerWrapper : Server
     {
-        public ServerWrapper(Server server)
+        private AuthManager authManager;
+        public ServerWrapper(Server server, AuthManager authManager)
         {
+            this.authManager = authManager;
             ServerName = server.ServerName;
             ForkName = server.ForkName;
             BuildVersion = server.BuildVersion;
@@ -51,25 +48,11 @@ namespace UnitystationLauncher.Models
             Start = ReactiveCommand.Create(StartImp, canStart);
         }
 
+        public Subject<int> Progress { get; set; } = new Subject<int>();
+
         public ReactiveCommand<Unit, Unit> Download { get; }
 
         public ReactiveCommand<Unit, Unit> Start { get; }
-
-        public string DownloadUrl
-        {
-            get
-            {
-                return 
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSXDownload :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
-                    throw new Exception("Failed to detect OS");
-            }
-        }
-
-        public string InstallationName => ForkName + BuildVersion;
-
-        public string InstallationPath => Path.Combine(Config.InstallationsPath, InstallationName);
 
         public async void DownloadAsync()
         {
@@ -94,11 +77,20 @@ namespace UnitystationLauncher.Models
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
             Log.Information("Download connection established");
+            using var progStream = new ProgressStream(responseStream);
+            var length = webResponse.ContentLength;
+            progStream.Progress
+                .Select(p => (int)(p * 100 / length))
+                .DistinctUntilChanged()
+                .Subscribe(p => {
+                    Progress.OnNext(p);
+                    Log.Information("Progress: {prog}", p);
+                    });
 
             await Task.Run(() =>
             {
                 Log.Information("Extracting...");
-                var archive = new ZipArchive(responseStream);
+                var archive = new ZipArchive(progStream);
                 archive.ExtractToDirectory(InstallationPath);
                 Log.Information("Download completed");
             });
@@ -109,23 +101,12 @@ namespace UnitystationLauncher.Models
             var exe = Installation.FindExecutable(InstallationPath);
             if(exe != null)
             {
-                Process.Start(exe);
+                var process = new Process();
+                process.StartInfo.FileName = exe;
+                process.StartInfo.Arguments =
+                    $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
+                process.Start();
             }
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is Server server &&
-                   ServerIP == server.ServerIP &&
-                   ServerPort == server.ServerPort;
-        }
-
-        public override int GetHashCode()
-        {
-            var hash = new HashCode();
-            hash.Add(ServerIP);
-            hash.Add(ServerPort);
-            return hash.ToHashCode();
         }
     }
 }

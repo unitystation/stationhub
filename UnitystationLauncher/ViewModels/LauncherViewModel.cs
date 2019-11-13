@@ -16,22 +16,29 @@ namespace UnitystationLauncher.ViewModels
 {
     public class LauncherViewModel : ViewModelBase
     {
-        private readonly FirebaseAuthLink authLink;
+        private readonly AuthManager authManager;
+        private readonly Lazy<LoginViewModel> logoutVM;
         string username;
         ViewModelBase news;
         PanelBase[] panels;
-        ViewModelBase selectedPanel;
+        ViewModelBase? selectedPanel;
 
-        public LauncherViewModel(FirebaseAuthLink authLink)
+        public LauncherViewModel(
+            AuthManager authManager, 
+            ServersPanelViewModel serversPanel, 
+            InstallationsPanelViewModel installationsPanel,
+            NewsViewModel news,
+            Lazy<LoginViewModel> logoutVM)
         {
-            this.authLink = authLink;
-            this.Username = authLink.User.DisplayName;
-            News = new NewsViewModel();
-            panels = new PanelBase[]
+            this.authManager = authManager;
+            this.logoutVM = logoutVM;
+            News = news;
+            Panels = new PanelBase[]
             {
-                new ServersPanelViewModel(),
-                new InstallationsPanelViewModel()
+                serversPanel,
+                installationsPanel
             };
+            Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
         }
 
@@ -53,7 +60,7 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref panels, value);
         }
 
-        public ViewModelBase SelectedPanel
+        public ViewModelBase? SelectedPanel
         {
             get => selectedPanel;
             set => this.RaiseAndSetIfChanged(ref selectedPanel, value);
@@ -63,7 +70,8 @@ namespace UnitystationLauncher.ViewModels
 
         ViewModelBase LogoutImp()
         {
-            return new LoginViewModel();
+            File.Delete("settings.json");
+            return logoutVM.Value;
         }
     }
 }

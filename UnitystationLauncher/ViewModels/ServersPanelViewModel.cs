@@ -1,8 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using Avalonia.Collections;
+using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnitystationLauncher.Models;
 
@@ -10,22 +16,37 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        ServerWrapper[] servers;
         ServerWrapper? selectedServer;
-        int refreshFrequency = 5000;
-        bool refreshing;
+        readonly DownloadManager downloadManager;
 
-        public ServersPanelViewModel()
+        public ServersPanelViewModel(
+            ServerManager serverManager, 
+            StateManager stateManager,
+            DownloadManager downloadManager,
+            DirectoryManager directoryManager)
         {
-            UpdateServers();
+            this.ServerManager = serverManager;
+            this.downloadManager = downloadManager;
+
+            SelectedDownload = stateManager.State
+                .CombineLatest(this.Changed, (s, e) => s)
+                .Select(state =>
+                    SelectedServer == null ? null :
+                    !state.ContainsKey(SelectedServer.Key) ? null :
+                    state[SelectedServer.Key].download);
+
+            Download = ReactiveCommand.Create(
+                DoDownload,
+                this.WhenAnyValue(x => x.SelectedServer)
+                    .CombineLatest(directoryManager.Directories, (s, d) => s)
+                    .Select(s => s != null && downloadManager.CanDownload(s))
+                    .ObserveOn(SynchronizationContext.Current));
         }
 
         public override string Name => "Servers";
-        public ServerWrapper[] Servers
-        {
-            get => servers;
-            set => this.RaiseAndSetIfChanged(ref servers, value);
-        }
+        public ServerManager ServerManager { get; }
+
+        public ReactiveCommand<Unit, Unit> Download { get; }
 
         public ServerWrapper? SelectedServer
         {
@@ -33,32 +54,11 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref selectedServer, value);
         }
 
-        public bool Refreshing
+        public IObservable<Download?> SelectedDownload { get; }
+
+        public void DoDownload()
         {
-            get => refreshing;
-            set => this.RaiseAndSetIfChanged(ref refreshing, value);
-        }
-
-        private async void UpdateServers()
-        {
-            using var httpClient = new HttpClient();
-            while (true)
-            {
-                Refreshing = true;
-                Log.Verbose("Refreshing server list...");
-                var response = await httpClient.GetStringAsync(Config.apiUrl);
-                var servers = JsonConvert.DeserializeObject<ServerList>(response).Servers;
-
-                if (!(Servers?.SequenceEqual(servers) ?? false))
-                {
-                    Servers = servers.Select(s => new ServerWrapper(s)).ToArray();
-                    Log.Debug("Server list changed");
-                }
-                Refreshing = false;
-                Log.Verbose("Server list refreshed");
-
-                await Task.Delay(refreshFrequency);
-            }
+            _ = downloadManager.Download(SelectedServer!).Start();
         }
     }
 }

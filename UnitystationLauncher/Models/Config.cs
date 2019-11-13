@@ -23,10 +23,10 @@ namespace UnitystationLauncher.Models
                 Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                     h => FileWatcher.Changed += h,
                     h => FileWatcher.Changed -= h)
+                .Do(o => Log.Debug("File refresh: {FileName}", o.EventArgs.Name))
                 .Select(e => Unit.Default),
                 Observable.Return(Unit.Default))
-                .ObserveOn(SynchronizationContext.Current)
-                .Do(o => Log.Debug("File refresh"));
+                .ObserveOn(SynchronizationContext.Current);
         }
 
         public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
