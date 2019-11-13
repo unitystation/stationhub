@@ -117,7 +117,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (creationSuccess)
             {
-                CreationMessage = $"Success! An email has been sent to {email}.\r\n" +
+                CreationMessage = $"Success! An email has been sent to \r\n{email}\r\n" +
                                   $"Please click the link in the email to verify\r\n" +
                                   $"your account before signing in.";
                 EndButtonText = "Done";

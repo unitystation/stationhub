@@ -7,33 +7,81 @@
              VerticalAlignment="Center"
              x:Class="UnitystationLauncher.Views.LoginView">
     
+    <UserControl.Styles>
+        <Style Selector="LayoutTransformControl.Rotating">
+            <Style.Animations>
+                <Animation Duration="0:0:2"
+                           IterationCount="Infinite">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="RotateTransform.Angle" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="RotateTransform.Angle" Value="360" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </UserControl.Styles>
     <StackPanel>
         
         <StackPanel.Background>
             <SolidColorBrush Color="White" Opacity="0.07" />
         </StackPanel.Background>
-        <Border BorderThickness="1" BorderBrush="Gray"/>
-        <StackPanel Orientation="Horizontal" Height="50" Margin="20" HorizontalAlignment="Center">
-            <Viewbox Margin="5">
-                <Image Source="/Assets/Unitystation.png" />
-            </Viewbox>
-            <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
-        </StackPanel>
-        <TextBox Text="{Binding Email}" Margin="15" Watermark="Email" MaxWidth="400">
-            <TextBox.KeyBindings>
-                <KeyBinding Command="{Binding Login}" Gesture="Return" />
-            </TextBox.KeyBindings>
-        </TextBox>
-        <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400">
-            <TextBox.KeyBindings>
-                <KeyBinding Command="{Binding Login}" Gesture="Return" />
-            </TextBox.KeyBindings>
-        </TextBox>
+        <Border BorderThickness="1" BorderBrush="Gray" />
 
-        <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
-            <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100">Create</Button>
-            <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center" MinWidth="100">Login</Button>
-        </Grid>
-        <Border BorderThickness="1" BorderBrush="Gray"/>
+        <!-- Login form content -->
+        <StackPanel IsVisible="{Binding IsFormVisible}">
+            <StackPanel Orientation="Horizontal" Height="50" Margin="20" HorizontalAlignment="Center">
+                <Viewbox Margin="5">
+                    <Image Source="/Assets/Unitystation.png" />
+                </Viewbox>
+                <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
+            </StackPanel>
+            <TextBox Text="{Binding Email}" Margin="15" Watermark="Email" MaxWidth="400">
+                <TextBox.KeyBindings>
+                    <KeyBinding Command="{Binding Login}" Gesture="Return" />
+                </TextBox.KeyBindings>
+            </TextBox>
+            <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400">
+                <TextBox.KeyBindings>
+                    <KeyBinding Command="{Binding Login}" Gesture="Return" />
+                </TextBox.KeyBindings>
+            </TextBox>
+
+            <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
+                <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
+                        MinWidth="100">
+                    Create
+                </Button>
+                <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
+                        MinWidth="100">
+                    Login
+                </Button>
+            </Grid>
+        </StackPanel>
+        
+        <!-- Please wait content -->
+        <StackPanel IsVisible="{Binding IsWaitingVisible}">
+            <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
+                       Text="Signing in, please wait..." />
+            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30" Margin="15">
+                <Image Source="/Assets/LoadingRing.png" />
+            </LayoutTransformControl>
+        </StackPanel>
+        
+        <!-- Login failed content -->
+        <StackPanel IsVisible="{Binding IsFailedVisible}">
+            <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
+                       Text="{Binding FailedMessage}" />
+
+            <Button Command="{Binding ResendEmail}" IsVisible="{Binding IsResendEmailVisible}" Padding="5" Margin="15"
+                    HorizontalAlignment="Center" MinWidth="100"
+                    Content="Resend" />
+            <Button Command="{Binding GoBack}" Padding="5" Margin="15" HorizontalAlignment="Center" MinWidth="100"
+                    Content="Back" />
+
+        </StackPanel>
+
+        <Border BorderThickness="1" BorderBrush="Gray" />
     </StackPanel>
 </UserControl>

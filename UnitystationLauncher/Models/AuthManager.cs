@@ -36,11 +36,15 @@ namespace UnitystationLauncher.Models
         public void Store()
         {
             var json = JsonConvert.SerializeObject(AuthLink);
-
             using (StreamWriter writer = System.IO.File.CreateText("settings.json"))
             {
                 writer.WriteLine(json);
             }
+        }
+
+        public void ResendVerificationEmail()
+        {
+            authProvider.SendEmailVerificationAsync(AuthLink);
         }
 
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
@@ -48,5 +52,7 @@ namespace UnitystationLauncher.Models
 
         internal Task<FirebaseAuthLink> CreateAccount(string username, string email, string password) =>
             authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
+
+        internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
     }
 }
