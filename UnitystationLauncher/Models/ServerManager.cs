@@ -18,10 +18,11 @@ namespace UnitystationLauncher.Models{
     {
         private readonly HttpClient http;
         private readonly BehaviorSubject<IReadOnlyList<ServerWrapper>> serversSubject;
+        private AuthManager authManager;
         TimeSpan refreshTimeout = TimeSpan.FromSeconds(5);
         bool refreshing;
 
-        public ServerManager(HttpClient http)
+        public ServerManager(HttpClient http, AuthManager authManager)
         {
             serversSubject = new BehaviorSubject<IReadOnlyList<ServerWrapper>>(new ServerWrapper[0]);
             Observable.Timer(TimeSpan.Zero, refreshTimeout)
@@ -31,10 +32,11 @@ namespace UnitystationLauncher.Models{
                 .Do(x => Refreshing = false)
                 .DistinctUntilChanged()
                 .Select(JsonConvert.DeserializeObject<ServerList>)
-                .Select(servers => servers.Servers.Select(s => new ServerWrapper(s)).ToList())
+                .Select(servers => servers.Servers.Select(s => new ServerWrapper(s, authManager)).ToList())
                 .Subscribe(serversSubject);
                 
             this.http = http;
+            this.authManager = authManager;
         }
 
         public IObservable<IReadOnlyList<ServerWrapper>> Servers => serversSubject;

@@ -14,8 +14,10 @@ namespace UnitystationLauncher.Models
 {
     public class ServerWrapper : Server
     {
-        public ServerWrapper(Server server)
+        private AuthManager authManager;
+        public ServerWrapper(Server server, AuthManager authManager)
         {
+            this.authManager = authManager;
             ServerName = server.ServerName;
             ForkName = server.ForkName;
             BuildVersion = server.BuildVersion;
@@ -102,7 +104,7 @@ namespace UnitystationLauncher.Models
                 var process = new Process();
                 process.StartInfo.FileName = exe;
                 process.StartInfo.Arguments =
-                    $"--server {ServerIP} --port {ServerPort} --refreshtoken {AuthManager.RefreshToken} --uid {AuthManager.UID}";
+                    $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
                 process.Start();
             }
         }

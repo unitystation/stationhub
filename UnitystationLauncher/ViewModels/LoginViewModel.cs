@@ -14,12 +14,15 @@ namespace UnitystationLauncher.ViewModels
     {
         private readonly AuthManager authManager;
         private readonly Lazy<LauncherViewModel> launcherVM;
+        private readonly Lazy<SignUpViewModel> signUpVM;
         string? email;
         string? password;
 
-        public LoginViewModel(AuthManager authManager, Lazy<LauncherViewModel> launcherVM)
+        public LoginViewModel(AuthManager authManager, Lazy<LauncherViewModel> launcherVM,
+            Lazy<SignUpViewModel> signUpVM)
         {
             this.authManager = authManager;
+            this.signUpVM = signUpVM;
             this.launcherVM = launcherVM;
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
@@ -33,8 +36,7 @@ namespace UnitystationLauncher.ViewModels
                 possibleCredentials);
 
             Create = ReactiveCommand.Create(
-                UserCreate,
-                possibleCredentials);
+                UserCreate);
         }
 
         public string? Email
@@ -50,7 +52,7 @@ namespace UnitystationLauncher.ViewModels
         }
 
         public ReactiveCommand<Unit, LauncherViewModel?> Login { get; }
-        public ReactiveCommand<Unit, LauncherViewModel?> Create { get; }
+        public ReactiveCommand<Unit, SignUpViewModel?> Create { get; }
         
         public async Task<LauncherViewModel?> UserLogin()
         {
@@ -69,9 +71,9 @@ namespace UnitystationLauncher.ViewModels
             return launcherVM.Value;
         }
 
-        public LauncherViewModel? UserCreate()
+        public SignUpViewModel? UserCreate()
         {
-            return null;
+            return signUpVM.Value;
         }
     }
 }

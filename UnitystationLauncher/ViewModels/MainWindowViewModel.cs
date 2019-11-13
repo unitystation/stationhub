@@ -11,9 +11,12 @@ namespace UnitystationLauncher.ViewModels
     {
         ViewModelBase content;
         private Lazy<LauncherViewModel> launcherVM;
+        private AuthManager authManager;
 
-        public MainWindowViewModel(LoginViewModel loginVM, Lazy<LauncherViewModel> launcherVM)
+        public MainWindowViewModel(LoginViewModel loginVM, Lazy<LauncherViewModel> launcherVM,
+            AuthManager authManager)
         {
+            this.authManager = authManager;
             this.launcherVM = launcherVM;
             Content = loginVM;
             CheckForExistingUser();
@@ -31,7 +34,7 @@ namespace UnitystationLauncher.ViewModels
         
         void CheckForExistingUser()
         {
-            if (AuthManager.Instance.AuthLink != null)
+            if (authManager.AuthLink != null)
             {
                 AttemptAuthRefresh();
             }
@@ -41,7 +44,7 @@ namespace UnitystationLauncher.ViewModels
         {
             try
             {
-                AuthManager.Instance.AuthLink = await AuthManager.Instance.AuthLink.GetFreshAuthAsync();
+                authManager.AuthLink = await authManager.AuthLink.GetFreshAuthAsync();
             }
             catch (Exception e)
             {
@@ -49,7 +52,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
             
-            AuthManager.Instance.Store();
+            authManager.Store();
             Content = launcherVM.Value;
         }
 
@@ -58,14 +61,16 @@ namespace UnitystationLauncher.ViewModels
             switch(Content)
             {
                 case LoginViewModel loginVM:
-                    SubscribeToVM(
-                        Observable.Merge(
-                            loginVM.Login,
-                            loginVM.Create));
+                    SubscribeToVM(loginVM.Login);
+                    SubscribeToVM(loginVM.Create);
                     break;
                 case LauncherViewModel launcherVM:
                     SubscribeToVM(launcherVM.Logout);
                     break;
+                case SignUpViewModel signUpViewModel:
+                    SubscribeToVM(signUpViewModel.Cancel);
+                    break;
+                    
             }
         }
 

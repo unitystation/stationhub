@@ -3,24 +3,15 @@ using System.IO;
 using System.Threading.Tasks;
 using Firebase.Auth;
 using Newtonsoft.Json;
-using Serilog;
-using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
     public class AuthManager
     {
         readonly FirebaseAuthProvider authProvider;
-        private static AuthManager authManager;
-
-        public static AuthManager Instance
-        {
-            get { return authManager; }
-        }
-
+        
         public AuthManager(FirebaseAuthProvider authProvider)
         {
-            authManager = this;
             this.authProvider = authProvider;
             if (File.Exists("settings.json"))
             {
@@ -32,14 +23,14 @@ namespace UnitystationLauncher.Models
         
         public FirebaseAuthLink? AuthLink { get; set; }
 
-        public static string RefreshToken
+        public string CurrentRefreshToken
         {
-            get { return Instance.AuthLink.RefreshToken; }
+            get { return AuthLink.RefreshToken; }
         }
 
-        public static string UID
+        public string UID
         {
-            get { return Instance.AuthLink.User.LocalId; }
+            get { return AuthLink.User.LocalId; }
         }
 
         public void Store()
