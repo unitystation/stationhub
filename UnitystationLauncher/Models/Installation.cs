@@ -92,7 +92,10 @@ namespace UnitystationLauncher.Models
         {
             try
             {
-                Process.Start(InstallationPath);
+                using var proc = new Process();
+                proc.StartInfo.UseShellExecute = true;
+                proc.StartInfo.FileName = InstallationPath;
+                proc.Start();
             }
             catch (Exception e)
             {
