@@ -8,8 +8,8 @@
   <ItemsControl Items="{Binding Commits}">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <Border Margin="5" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}">
-            <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+        <Border Margin="2" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}" MaxWidth="180">
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="10"/>
         </Border>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
