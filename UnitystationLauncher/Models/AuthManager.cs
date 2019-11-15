@@ -9,6 +9,8 @@ namespace UnitystationLauncher.Models
     public class AuthManager
     {
         readonly FirebaseAuthProvider authProvider;
+        public LoginMsg LoginMsg { get; set; }
+        public bool AttemptingAutoLogin { get; set; }
         
         public AuthManager(FirebaseAuthProvider authProvider)
         {
@@ -54,5 +56,11 @@ namespace UnitystationLauncher.Models
             authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
 
         internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
+    }
+
+    public class LoginMsg
+    {
+        public string Email { get; set; }
+        public string Pass { get; set; }
     }
 }

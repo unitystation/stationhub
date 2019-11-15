@@ -11,16 +11,19 @@ namespace UnitystationLauncher.ViewModels
     {
         ViewModelBase content;
         private Lazy<LauncherViewModel> launcherVM;
+        private Lazy<LoginStatusViewModel> loginStatusVM;
         private AuthManager authManager;
         private LoginViewModel loginVM;
-
-        public MainWindowViewModel(LoginViewModel loginVM, Lazy<LauncherViewModel> launcherVM,
+        
+        public MainWindowViewModel(LoginViewModel loginVM, Lazy<LoginStatusViewModel> loginStatusVM, Lazy<LauncherViewModel> launcherVM,
             AuthManager authManager)
         {
+            this.loginStatusVM = loginStatusVM;
             this.loginVM = loginVM;
             this.authManager = authManager;
             this.launcherVM = launcherVM;
             Content = loginVM;
+            authManager.AttemptingAutoLogin = false;
             CheckForExistingUser();
         }
 
@@ -38,7 +41,8 @@ namespace UnitystationLauncher.ViewModels
         {
             if (authManager.AuthLink != null)
             {
-                loginVM.ShowSigningInScreen();
+                authManager.AttemptingAutoLogin = true;
+                Content = loginStatusVM.Value;
                 AttemptAuthRefresh();
             }
         }
@@ -52,17 +56,19 @@ namespace UnitystationLauncher.ViewModels
             catch (Exception e)
             {
                 Log.Error(e, "Login failed");
-                loginVM.ShowLoginForm();
+                Content = loginVM;
+                authManager.AttemptingAutoLogin = false;
                 return;
             }
 
             var user = await authManager.GetUpdatedUser();
             if (!user.IsEmailVerified)
             {
-                loginVM.ShowLoginForm();
+                Content = loginVM;
+                authManager.AttemptingAutoLogin = false;
                 return;
             }
-            
+            authManager.AttemptingAutoLogin = false;
             authManager.Store();
             Content = launcherVM.Value;
         }
@@ -74,6 +80,10 @@ namespace UnitystationLauncher.ViewModels
                 LoginViewModel loginVM => Observable.Merge(
                     loginVM.Login.Select(vm => (ViewModelBase) vm),
                     loginVM.Create.Select(vm => (ViewModelBase) vm)),
+                
+                LoginStatusViewModel loginStatusVM => Observable.Merge(
+                    loginStatusVM.GoBack.Select(vm => (ViewModelBase) vm),
+                    loginStatusVM.OpenLauncher.Select(vm => (ViewModelBase) vm)),
                 
                 LauncherViewModel launcherVM => 
                     launcherVM.Logout,
