@@ -14,7 +14,7 @@
         <Button Command="{Binding Logout}" DockPanel.Dock="Right" Background="Transparent">Logout</Button>
       </DockPanel>
     </Border>
-    <Grid ColumnDefinitions="*,3*" Name="News" IsSharedSizeScope="true">
+    <Grid ColumnDefinitions="*,3*" Name="Columns" IsSharedSizeScope="true">
       <Border Grid.Column="0" BorderThickness="0 0 1 0" BorderBrush="gray" HorizontalAlignment="Left" Width="200">
         <StackPanel>
           <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0" Padding="0 5">
@@ -32,8 +32,10 @@
             </ListBox.DataTemplates>
           </ListBox>
           <Rectangle Height="1" Stretch="Uniform" Fill="gray"/>
-          <TextBlock Margin="5" FontSize="16" HorizontalAlignment="Center">Latest Commits</TextBlock>
-          <ContentControl Content="{Binding News}" HorizontalAlignment="Center" Width="{Binding ElementName=News, Path=ColumnDefinitions[0].ViewPortWidth}"/>
+          <TextBlock Margin="5" FontSize="16" HorizontalAlignment="Center">Merged PRs</TextBlock>
+          <ScrollViewer VerticalScrollBarVisibility="Visible" Height="363">
+            <ContentControl Content="{Binding News}" HorizontalAlignment="Center" Width="{Binding ElementName=Columns, Path=ColumnDefinitions[0].ViewPortWidth}"/>
+          </ScrollViewer>
         </StackPanel>
       </Border>
       <UserControl Grid.Column="1" Content="{Binding SelectedPanel}"/>

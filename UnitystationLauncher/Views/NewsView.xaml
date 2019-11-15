@@ -5,11 +5,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.NewsView">
-  <ItemsControl Items="{Binding Commits}">
+  <ItemsControl Items="{Binding PullRequests}">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <Border Margin="2" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}" MaxWidth="180">
-            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="10"/>
+        <Border Margin="2" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}" MaxWidth="180" MinHeight="40">
+            <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="12" Margin="2"/>
         </Border>
       </DataTemplate>
     </ItemsControl.ItemTemplate>

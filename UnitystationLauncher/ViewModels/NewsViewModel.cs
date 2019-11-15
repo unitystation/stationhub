@@ -10,23 +10,26 @@ namespace UnitystationLauncher.ViewModels{
     public class NewsViewModel : ViewModelBase
     {
         ObservableGitHubClient client;
-        ObservableCollection<Commit> commits = new ObservableCollection<Commit>();
+        ObservableCollection<PullRequest> pullRequests = new ObservableCollection<PullRequest>();
 
         public NewsViewModel()
         {
             client = new ObservableGitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            client.Repository.Commit
-                .GetAll("unitystation","unitystation")
+            PullRequestRequest options = new PullRequestRequest();
+            options.State = ItemStateFilter.Closed;
+
+            client.Repository.PullRequest
+                .GetAllForRepository("unitystation", "unitystation", options)
                 .Take(10)
                 .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(commit =>{
-                    Commits.Add(commit.Commit);
+                .Subscribe(pr => {
+                    PullRequests.Add(pr);
                 });
         }
 
-        public ObservableCollection<Commit> Commits{
-            get => commits;
-            set => this.RaiseAndSetIfChanged(ref commits, value);
+        public ObservableCollection<PullRequest> PullRequests{
+            get => pullRequests;
+            set => this.RaiseAndSetIfChanged(ref pullRequests, value);
         }
     }
 }

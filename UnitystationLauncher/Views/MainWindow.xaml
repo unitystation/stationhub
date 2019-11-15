@@ -9,7 +9,7 @@
         Title="Unitystation Hub"
         WindowStartupLocation="CenterScreen"
         Width="700"
-        Height="500"
+        Height="555"
         Background="#19212c">
         <Grid>
                 <Grid.Background>
