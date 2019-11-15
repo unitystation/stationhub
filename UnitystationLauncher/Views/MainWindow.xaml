@@ -8,7 +8,7 @@
         Icon="/Assets/Unitystation.png"
         Title="Unitystation Hub"
         WindowStartupLocation="CenterScreen"
-        Width="700"
+        Width="800"
         Height="555"
         Background="#19212c">
         <Grid>

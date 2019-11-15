@@ -6,10 +6,11 @@
              TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.NewsView">
   <ItemsControl Items="{Binding PullRequests}">
+
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <Border Margin="2" CornerRadius="6" Background="{DynamicResource ThemeControlMidBrush}" MaxWidth="180" MinHeight="40">
-            <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="12" Margin="2"/>
+        <Border Margin="2" CornerRadius="6" BorderThickness="1" BorderBrush="Gray" Background="#222D3C" MaxWidth="180" MinHeight="40">
+          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="12" Margin="4"/>
         </Border>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
