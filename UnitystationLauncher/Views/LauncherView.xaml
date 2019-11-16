@@ -10,20 +10,20 @@
   <DockPanel>
     <Border DockPanel.Dock="Top" BorderThickness="0 0 0 1" BorderBrush="gray">
       <DockPanel LastChildFill="False" Background="#2c3d50" Height="40">
-          <Image Source="/Assets/userico.jpg" DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="5 3 0 3" MaxWidth="40"/>
+        <Image Source="/Assets/userico.jpg" DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="5 3 0 3" MaxWidth="40"/>
         <Viewbox MaxWidth="130" MaxHeight="22" HorizontalAlignment="Left" VerticalAlignment="Center">
-        <Border Margin="4 0 0 0" BorderThickness="0 0 1 0" VerticalAlignment="Center" MinWidth="60" >
-          <Border.Background>
-            <ImageBrush Source="avares://UnitystationLauncher/Assets/userbg.png" Stretch="Fill" />
-          </Border.Background>
+          <Border Margin="4 0 0 0" BorderThickness="0 0 1 0" VerticalAlignment="Center" MinWidth="60" >
+            <Border.Background>
+              <ImageBrush Source="avares://UnitystationLauncher/Assets/userbg.png" Stretch="Fill" />
+            </Border.Background>
             <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1" HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" TextWrapping="Wrap" MaxWidth="130" MaxHeight="20"/>
-        </Border>
+          </Border>
         </Viewbox>
         <Button Command="{Binding Logout}" Margin="0 5 7 5" FontSize="14" BorderThickness="1" BorderBrush="Gray" DockPanel.Dock="Right" MinWidth="65" Background="#45458BD1">Logout</Button>
       </DockPanel>
     </Border>
-    <Grid ColumnDefinitions="*,2*" Name="Columns" IsSharedSizeScope="true">
-      <Border Grid.Column="0" BorderThickness="0 0 2 0" BorderBrush="gray" HorizontalAlignment="Left" Width="200">
+    <DockPanel Name="Columns">
+      <Border DockPanel.Dock="Left" BorderThickness="0 0 2 0" BorderBrush="gray" HorizontalAlignment="Left" Width="200">
         <StackPanel>
           <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0">
             <ListBox.DataTemplates>
@@ -36,7 +36,7 @@
                   </Viewbox>-->
                   <Image DockPanel.Dock="Left" Margin="10" Width="25" Height="25" Source="{Binding Icon}" HorizontalAlignment="Left"/>
                   <TextBlock Grid.Column="1" Margin="0 0 0 3" Text="{Binding Name}" FontSize="20" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="150"/>
-                    
+
                 </DockPanel>
               </DataTemplate>
             </ListBox.DataTemplates>
@@ -54,6 +54,6 @@
         </StackPanel.Background>
       </StackPanel>
       <UserControl Grid.Column="1" Content="{Binding SelectedPanel}"/>
-    </Grid>
+    </DockPanel>
   </DockPanel>
 </UserControl>

@@ -20,10 +20,10 @@ namespace UnitystationLauncher.ViewModels{
 
             client.Repository.PullRequest
                 .GetAllForRepository("unitystation", "unitystation", options)
-                .Take(10)
+                .Take(20)
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(pr => {
-                    PullRequests.Add(pr);
+                    if(pr.Merged) PullRequests.Add(pr);
                 });
         }
 
