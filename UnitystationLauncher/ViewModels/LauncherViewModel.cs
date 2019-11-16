@@ -40,6 +40,7 @@ namespace UnitystationLauncher.ViewModels
             };
             Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
+            SelectedPanel = serversPanel;
         }
 
         public string Username

@@ -10,6 +10,9 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
@@ -44,6 +47,8 @@ namespace UnitystationLauncher.ViewModels
         }
 
         public override string Name => "Servers";
+        public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
+            .Open(new Uri("avares://UnitystationLauncher/Assets/servericon.png")));
         public ServerManager ServerManager { get; }
 
         public ReactiveCommand<Unit, Unit> Download { get; }
