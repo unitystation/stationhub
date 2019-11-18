@@ -6,6 +6,9 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.ServersPanelView">
+  <UserControl.Background>
+    <ImageBrush Source="avares://UnitystationLauncher/Assets/bg.jpg" Stretch="UniformToFill"/>
+  </UserControl.Background>
   <UserControl.DataTemplates>
     <DataTemplate DataType="{x:Type models:Server}">
       <Border>

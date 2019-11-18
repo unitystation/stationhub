@@ -53,15 +53,7 @@
           </ScrollViewer>
         </StackPanel>
       </Border>
-      <StackPanel Grid.Column="1">
-        <StackPanel.Background>
-          <ImageBrush Source="/Assets/bg.jpg" />
-        </StackPanel.Background>
-      </StackPanel>
       <Border>
-        <Border.Background>
-          <ImageBrush Source="avares://UnitystationLauncher/Assets/bg.jpg" Stretch="UniformToFill"/>
-        </Border.Background>
         <UserControl Grid.Column="1" Content="{Binding SelectedPanel}"/>
       </Border>
     </DockPanel>
