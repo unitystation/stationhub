@@ -44,9 +44,9 @@ namespace UnitystationLauncher.Models{
 
         private ServerList AddTest(ServerList list)
         {
-            list.Servers.Add(new Server { ServerName = "TEST", BuildVersion = 12125, ForkName="fawf" });
-            list.Servers.Add(new Server { ServerName = "TEST2", BuildVersion = 121425, ForkName = "f3123f" });
-            list.Servers.Add(new Server { ServerName = "TEST44", BuildVersion = 25, ForkName = "dawda2" });
+            list.Servers.Add(new Server { ServerName = "TEST", BuildVersion = 12125, ForkName="fawf", ServerIP="10.1.1.12", ServerPort=1234});
+            list.Servers.Add(new Server { ServerName = "TEST2", BuildVersion = 121425, ForkName = "f3123f", ServerIP = "10.1.1.13", ServerPort = 1214 });
+            list.Servers.Add(new Server { ServerName = "TEST44", BuildVersion = 25, ForkName = "dawda2", ServerIP = "10.1.1.15", ServerPort = 1324 });
             return list;
         }
 

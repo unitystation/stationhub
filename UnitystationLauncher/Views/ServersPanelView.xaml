@@ -10,25 +10,25 @@
     <DataTemplate DataType="{x:Type models:Server}">
       <DockPanel>
       <Grid ColumnDefinitions="100,70,90,90,60,60,50,50" DockPanel.Dock="Top">
-      <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="0" VerticalAlignment="Center" Height="40">
+      <Border BorderThickness="1 1 0 1" CornerRadius="8 0 0 8" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="0" VerticalAlignment="Center" Height="40">
         <TextBlock Text="{Binding ServerName}" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="12" Width="100"/>
       </Border>
-      <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="1" VerticalAlignment="Center" Height="40">
+      <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="1" VerticalAlignment="Center" Height="40">
         <TextBlock Text="{Binding BuildVersion}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
       </Border>
-        <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="2" VerticalAlignment="Center" Height="40">
+        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="2" VerticalAlignment="Center" Height="40">
           <TextBlock Text="{Binding CurrentMap}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
         </Border>
-        <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="3" VerticalAlignment="Center" Height="40">
+        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="3" VerticalAlignment="Center" Height="40">
           <TextBlock Text="{Binding GameMode}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
         </Border>
-        <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="4" VerticalAlignment="Center" Height="40">
+        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="4" VerticalAlignment="Center" Height="40">
           <TextBlock Text="{Binding IngameTime}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
         </Border>
-        <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="5" VerticalAlignment="Center" Height="40">
+        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="5" VerticalAlignment="Center" Height="40">
           <TextBlock Text="{Binding PlayerCount}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
         </Border>
-        <Border BorderThickness="1" Margin="0 2 0 0" BorderBrush="Gray" Grid.Column="6" VerticalAlignment="Center" Height="40">
+        <Border BorderThickness="0 1 1 1" CornerRadius="0 8 8 0"  Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="6" VerticalAlignment="Center" Height="40">
           <TextBlock Text="5" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
         </Border>
       </Grid>
