@@ -7,7 +7,6 @@
              TextBlock.FontSize="18"
              Background="#19212c"
              x:Class="UnitystationLauncher.Views.LauncherView">
-
   <DockPanel>
     <Border DockPanel.Dock="Top" BorderThickness="0 0 0 2" BorderBrush="#505A64">
       <DockPanel LastChildFill="False" Background="#2c3d50" Height="40">
@@ -47,7 +46,7 @@
             </ListBox.DataTemplates>
           </ListBox>
           <TextBlock Margin="5" FontSize="14" HorizontalAlignment="Center">Latest Merged PRs</TextBlock>
-          <ScrollViewer Height="363">
+          <ScrollViewer VerticalScrollBarVisibility="Visible" Height="363">
             <ContentControl Content="{Binding News}" HorizontalAlignment="Center" Width="{Binding ElementName=Columns, Path=ColumnDefinitions[0].ViewPortWidth}"/>
           </ScrollViewer>
         </StackPanel>

@@ -10,34 +10,53 @@
   <UserControl.DataTemplates>
     <DataTemplate DataType="{x:Type models:Server}">
       <DockPanel>
-      <Grid ColumnDefinitions="0.22*,0.119*,0.17*,0.153*,0.102*,0.102*,0.085*,0.042*" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-      <Border BorderThickness="1 1 0 1" CornerRadius="8 0 0 8" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="0" VerticalAlignment="Center" Height="40">
-        <TextBlock Text="{Binding ServerName}" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="12" Width="100"/>
-      </Border>
-      <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="1" VerticalAlignment="Center" Height="40">
-        <TextBlock Text="{Binding BuildVersion}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
-      </Border>
-        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="2" VerticalAlignment="Center" Height="40">
-          <TextBlock Text="{Binding CurrentMap}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
-        </Border>
-        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="3" VerticalAlignment="Center" Height="40">
-          <TextBlock Text="{Binding GameMode}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
-        </Border>
-        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="4" VerticalAlignment="Center" Height="40">
-          <TextBlock Text="{Binding IngameTime}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
-        </Border>
-        <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="5" VerticalAlignment="Center" Height="40">
-          <TextBlock Text="{Binding PlayerCount}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
-        </Border>
-        <Border BorderThickness="0 1 1 1" CornerRadius="0 8 8 0"  Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="6" VerticalAlignment="Center" Height="40">
-          <TextBlock Text="5" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
-        </Border>
-      </Grid>
+        <Grid ColumnDefinitions="0.22*,0.119*,0.17*,0.153*,0.102*,0.102*,0.085*,0.042*" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+
+          <!--Background colors for the server entries: -->
+          <StackPanel Grid.ColumnSpan="7">
+            <Border Background="#505050" Height="40" VerticalAlignment="Center"
+                    Margin="0 8 0 0" CornerRadius="8" />
+          </StackPanel>
+          <StackPanel IsVisible="{Binding (ListBoxItem.IsPointerOver),
+                                RelativeSource={RelativeSource FindAncestor,
+                                    AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
+            <Border Background="#295077" Height="40" VerticalAlignment="Center"
+                    Margin="0 8 0 0" CornerRadius="8" />
+          </StackPanel>
+          <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
+                                RelativeSource={RelativeSource FindAncestor,
+                                    AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
+            <Border Background="#4f769d" Height="40" VerticalAlignment="Center"
+                    Margin="0 8 0 0" CornerRadius="8" />
+          </StackPanel>
+         
+          <Border BorderThickness="1 1 0 1" CornerRadius="8 0 0 8" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="0" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="{Binding ServerName}" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="12" Width="100"/>
+          </Border>
+          <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="1" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="{Binding BuildVersion}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+          </Border>
+          <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="2" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="{Binding CurrentMap}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+          </Border>
+          <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="3" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="{Binding GameMode}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+          </Border>
+          <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="4" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="{Binding IngameTime}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+          </Border>
+          <Border BorderThickness="0 1 0 1" Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="5" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="{Binding PlayerCount}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+          </Border>
+          <Border BorderThickness="0 1 1 1" CornerRadius="0 8 8 0"  Margin="0 8 0 0" BorderBrush="Gray" Grid.Column="6" VerticalAlignment="Center" Height="40">
+            <TextBlock Text="5" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+          </Border>
+        </Grid>
         <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
                                 RelativeSource={RelativeSource FindAncestor,
                                     AncestorType={x:Type ListBoxItem}}}" Height="40">
           <TextBlock Margin="5" Text="TODO: Add all the buttons in rollout here" FontSize="10"/>
-          
+
         </StackPanel>
       </DockPanel>
     </DataTemplate>
@@ -83,7 +102,7 @@
       <Border BorderThickness="1" BorderBrush="Gray" Grid.Column="7" Grid.Row="0" VerticalAlignment="Top" Height="25">
         <Button Background="#45458BD1">
           <Image Source="avares://UnitystationLauncher/Assets/refresh.png" Height="20" Width="20"/>
-          </Button>
+        </Button>
       </Border>
       <!--<ProgressBar IsIndeterminate="{Binding ServerManager.Refreshing}" Height="4" MinHeight="1" BorderThickness="0"/>-->
     </Grid>
@@ -95,10 +114,19 @@
         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
         Margin="2 0 2 4"
         BorderThickness="0"
-        Padding="0 0 0 10"/>
+        Padding="0 0 0 10">
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+          </Style>
+          <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+          </Style>
+        </ListBox.Styles>
+      </ListBox>
     </StackPanel>
-    </DockPanel>
-    <!--<Border BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}" DockPanel.Dock="Top">
+  </DockPanel>
+  <!--<Border BorderThickness="5 0 0 0" BorderBrush="{DynamicResource HighlightBrush}" DockPanel.Dock="Top">
       <StackPanel IsVisible="{Binding SelectedServer, Converter={x:Static ObjectConverters.IsNotNull}}">
         <StackPanel DataContext="{Binding SelectedServer}">
           <TextBlock Margin="5" Text="{Binding ServerName}"/>
@@ -144,5 +172,5 @@
     </Border>
   </DockPanel>-->
 
-  
+
 </UserControl>

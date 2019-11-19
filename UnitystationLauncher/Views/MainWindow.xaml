@@ -12,10 +12,10 @@
         Width="800"
         Height="555"
         Background="#19212c">
-        <Grid>
-                <Grid.Background>
-                        <ImageBrush Source="/Assets/bg.jpg" />
-                </Grid.Background>
-                <ContentControl Content="{Binding Content}" />
-        </Grid>
+  <Grid>
+    <Grid.Background>
+      <ImageBrush Source="/Assets/bg.jpg" />
+    </Grid.Background>
+    <ContentControl Content="{Binding Content}" />
+  </Grid>
 </Window>
