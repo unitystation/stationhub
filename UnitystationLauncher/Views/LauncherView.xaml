@@ -9,22 +9,24 @@
              x:Class="UnitystationLauncher.Views.LauncherView">
 
   <DockPanel>
-    <Border DockPanel.Dock="Top" BorderThickness="0 0 0 1" BorderBrush="gray">
+    <Border DockPanel.Dock="Top" BorderThickness="0 0 0 2" BorderBrush="#505A64">
       <DockPanel LastChildFill="False" Background="#2c3d50" Height="40">
         <Image Source="/Assets/userico.jpg" DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="5 3 0 3" MaxWidth="40"/>
         <Viewbox MaxWidth="130" MaxHeight="22" HorizontalAlignment="Left" VerticalAlignment="Center">
-          <Border Margin="4 0 0 0" BorderThickness="0 0 1 0" VerticalAlignment="Center" MinWidth="60" >
+          <Border Margin="4 0 0 0" VerticalAlignment="Center" MinWidth="60" >
             <Border.Background>
               <ImageBrush Source="avares://UnitystationLauncher/Assets/userbg.png" Stretch="Fill" />
             </Border.Background>
             <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1" HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" TextWrapping="Wrap" MaxWidth="130" MaxHeight="20"/>
           </Border>
         </Viewbox>
-        <Button Command="{Binding Logout}" Margin="0 5 7 5" FontSize="14" BorderThickness="1" BorderBrush="Gray" DockPanel.Dock="Right" MinWidth="65" Background="#45458BD1">Logout</Button>
+        <Button Command="{Binding Logout}" Margin="0 5 7 5" FontSize="14" BorderThickness="1" BorderBrush="Gray" DockPanel.Dock="Right" MinWidth="65" Background="#3A78B6">
+          <TextBlock Text="Logout" Foreground="White"/>
+        </Button>
       </DockPanel>
     </Border>
     <DockPanel Name="Columns">
-      <Border DockPanel.Dock="Left" BorderThickness="0 0 2 0" BorderBrush="gray" HorizontalAlignment="Left" Width="200">
+      <Border DockPanel.Dock="Left" HorizontalAlignment="Left" Width="200">
         <StackPanel>
           <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0">
             <ListBox.Styles>
@@ -44,9 +46,8 @@
               </DataTemplate>
             </ListBox.DataTemplates>
           </ListBox>
-          <Rectangle Height="1" Stretch="Uniform" Fill="gray"/>
           <TextBlock Margin="5" FontSize="14" HorizontalAlignment="Center">Latest Merged PRs</TextBlock>
-          <ScrollViewer VerticalScrollBarVisibility="Visible" Height="363">
+          <ScrollViewer Height="363">
             <ContentControl Content="{Binding News}" HorizontalAlignment="Center" Width="{Binding ElementName=Columns, Path=ColumnDefinitions[0].ViewPortWidth}"/>
           </ScrollViewer>
         </StackPanel>
