@@ -9,6 +9,7 @@ using ReactiveUI;
 using Serilog;
 using System.Diagnostics;
 using System.Reactive.Subjects;
+using Avalonia;
 
 namespace UnitystationLauncher.Models
 {
@@ -36,23 +37,27 @@ namespace UnitystationLauncher.Models
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
 
-            var canDownload = Config.InstallationChanges
-                .Select(e => !Directory.Exists(InstallationPath));
-
-            var canStart = Config.InstallationChanges
-                .Select(e => 
-                    Directory.Exists(InstallationPath) && 
-                    Installation.FindExecutable(InstallationPath) != null);
-
-            Download = ReactiveCommand.Create(DownloadAsync, canDownload);
-            Start = ReactiveCommand.Create(StartImp, canStart);
+            CanPlay.Subscribe(x => SetButtonText(x));
+            CanPlay.Value = ClientInstalled;
+            Start = ReactiveCommand.Create(StartImp, null);
         }
 
+        public Reactive.Bindings.ReactiveProperty<bool> CanPlay { get; } = new Reactive.Bindings.ReactiveProperty<bool>();
+        public Reactive.Bindings.ReactiveProperty<string> ButtonText { get; } = new Reactive.Bindings.ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
 
-        public ReactiveCommand<Unit, Unit> Download { get; }
-
         public ReactiveCommand<Unit, Unit> Start { get; }
+
+        private void SetButtonText(bool canPlay)
+        {
+            if (canPlay)
+            {
+                ButtonText.Value = "PLAY";
+            } else
+            {
+                ButtonText.Value = "DOWNLOAD";
+            }
+        }
 
         public async void DownloadAsync()
         {
@@ -82,10 +87,11 @@ namespace UnitystationLauncher.Models
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
-                .Subscribe(p => {
+                .Subscribe(p =>
+                {
                     Progress.OnNext(p);
                     Log.Information("Progress: {prog}", p);
-                    });
+                });
 
             await Task.Run(() =>
             {
@@ -96,16 +102,32 @@ namespace UnitystationLauncher.Models
             });
         }
 
+        bool ClientInstalled
+        {
+            get
+            {
+               return Directory.Exists(InstallationPath) &&
+                    Installation.FindExecutable(InstallationPath) != null;
+            }
+        }
+
         private void StartImp()
         {
-            var exe = Installation.FindExecutable(InstallationPath);
-            if(exe != null)
+            if (CanPlay.Value)
             {
-                var process = new Process();
-                process.StartInfo.FileName = exe;
-                process.StartInfo.Arguments =
-                    $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
-                process.Start();
+                var exe = Installation.FindExecutable(InstallationPath);
+                if (exe != null)
+                {
+                    Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+                    var process = new Process();
+                    process.StartInfo.FileName = exe;
+                    process.StartInfo.Arguments =
+                        $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
+                    process.Start();
+                }
+            } else
+            {
+                //DO DOWNLOAD
             }
         }
     }
