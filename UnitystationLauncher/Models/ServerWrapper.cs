@@ -11,6 +11,7 @@ using System.Reactive.Subjects;
 using Avalonia;
 using Reactive.Bindings;
 using System.Threading;
+using Humanizer.Bytes;
 
 namespace UnitystationLauncher.Models
 {
@@ -47,6 +48,7 @@ namespace UnitystationLauncher.Models
         public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
 
         public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
@@ -89,6 +91,7 @@ namespace UnitystationLauncher.Models
             Log.Information("Download connection established");
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
+            var maxFileSize = ByteSize.FromBytes(length);
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
@@ -97,8 +100,11 @@ namespace UnitystationLauncher.Models
                     if (cancelToken.IsCancellationRequested)
                     {
                         progStream.Inner.Dispose();
+                        Progress.OnNext(0);
                         return;
                     }
+                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
+                    DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
                     Log.Information("Progress: {prog}", p);
                 });
@@ -158,6 +164,7 @@ namespace UnitystationLauncher.Models
                 //DO DOWNLOAD
                 cancelSource = new CancellationTokenSource();
                 ButtonText.Value = "CANCEL";
+                DownloadProgText.Value = "Connecting..";
                 IsDownloading.Value = true;
                 await DownloadAsync(cancelSource.Token);
                 IsDownloading.Value = false;
