@@ -5,12 +5,13 @@ using System.Reactive.Linq;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading;
+using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels{
     public class NewsViewModel : ViewModelBase
     {
         ObservableGitHubClient client;
-        ObservableCollection<PullRequest> pullRequests = new ObservableCollection<PullRequest>();
+        ObservableCollection<PullRequestWrapper> pullRequests = new ObservableCollection<PullRequestWrapper>();
 
         public NewsViewModel()
         {
@@ -23,11 +24,11 @@ namespace UnitystationLauncher.ViewModels{
                 .Take(20)
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(pr => {
-                    if(pr.Merged) PullRequests.Add(pr);
+                    if(pr.Merged) PullRequests.Add(new PullRequestWrapper(pr));
                 });
         }
 
-        public ObservableCollection<PullRequest> PullRequests{
+        public ObservableCollection<PullRequestWrapper> PullRequests{
             get => pullRequests;
             set => this.RaiseAndSetIfChanged(ref pullRequests, value);
         }
