@@ -12,6 +12,7 @@ using Avalonia;
 using Reactive.Bindings;
 using System.Threading;
 using Humanizer.Bytes;
+using System.Net.NetworkInformation;
 
 namespace UnitystationLauncher.Models
 {
@@ -43,15 +44,38 @@ namespace UnitystationLauncher.Models
             CanPlay.Subscribe(x => OnCanPlayChange(x));
             CanPlay.Value = ClientInstalled;
             Start = ReactiveUI.ReactiveCommand.Create(StartImp, null);
+            Ping pingSender = new Ping();
+            pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
+            pingSender.SendAsync(ServerIP, 7);
         }
 
         public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
         public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
-
         public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
+
+        public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
+        {
+            // If an error occurred, display the exception to the user.  
+            if (e.Error != null)
+            {
+                Log.Information("Ping failed:");
+                Log.Information(e.Error.ToString());
+                return;
+            }
+            var tripTime = e.Reply.RoundtripTime;
+            if(tripTime == 0)
+            {
+                RoundTrip.Value = "null";
+            }
+            else
+            {
+                RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
+            }   
+        }
 
         private void OnCanPlayChange(bool canPlay)
         {
@@ -117,7 +141,8 @@ namespace UnitystationLauncher.Models
                     var archive = new ZipArchive(progStream);
                     archive.ExtractToDirectory(InstallationPath);
                     Log.Information("Download completed");
-                } catch
+                }
+                catch
                 {
                     Log.Information("Extracting stopped");
                 }
