@@ -5,17 +5,19 @@ using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using ReactiveUI;
 using Serilog;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using Avalonia;
+using Reactive.Bindings;
+using System.Threading;
 
 namespace UnitystationLauncher.Models
 {
     public class ServerWrapper : Server
     {
         private AuthManager authManager;
+        private CancellationTokenSource cancelSource;
         public ServerWrapper(Server server, AuthManager authManager)
         {
             this.authManager = authManager;
@@ -37,29 +39,31 @@ namespace UnitystationLauncher.Models
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
 
-            CanPlay.Subscribe(x => SetButtonText(x));
+            CanPlay.Subscribe(x => OnCanPlayChange(x));
             CanPlay.Value = ClientInstalled;
-            Start = ReactiveCommand.Create(StartImp, null);
+            Start = ReactiveUI.ReactiveCommand.Create(StartImp, null);
         }
 
-        public Reactive.Bindings.ReactiveProperty<bool> CanPlay { get; } = new Reactive.Bindings.ReactiveProperty<bool>();
-        public Reactive.Bindings.ReactiveProperty<string> ButtonText { get; } = new Reactive.Bindings.ReactiveProperty<string>();
+        public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
 
-        public ReactiveCommand<Unit, Unit> Start { get; }
+        public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
 
-        private void SetButtonText(bool canPlay)
+        private void OnCanPlayChange(bool canPlay)
         {
             if (canPlay)
             {
                 ButtonText.Value = "PLAY";
-            } else
+            }
+            else
             {
                 ButtonText.Value = "DOWNLOAD";
             }
         }
 
-        public async void DownloadAsync()
+        public async Task DownloadAsync(CancellationToken cancelToken)
         {
             Log.Information("Download requested...");
             Log.Information("Installation path: \"{Path}\"", InstallationPath);
@@ -74,7 +78,8 @@ namespace UnitystationLauncher.Models
 
             if (DownloadUrl is null)
             {
-                throw new Exception("OS download is null");
+                Log.Error("OS download is null");
+                return;
             }
 
             Log.Information("Download started...");
@@ -89,6 +94,11 @@ namespace UnitystationLauncher.Models
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        progStream.Inner.Dispose();
+                        return;
+                    }
                     Progress.OnNext(p);
                     Log.Information("Progress: {prog}", p);
                 });
@@ -96,9 +106,15 @@ namespace UnitystationLauncher.Models
             await Task.Run(() =>
             {
                 Log.Information("Extracting...");
-                var archive = new ZipArchive(progStream);
-                archive.ExtractToDirectory(InstallationPath);
-                Log.Information("Download completed");
+                try
+                {
+                    var archive = new ZipArchive(progStream);
+                    archive.ExtractToDirectory(InstallationPath);
+                    Log.Information("Download completed");
+                } catch
+                {
+                    Log.Information("Extracting stopped");
+                }
             });
         }
 
@@ -106,13 +122,24 @@ namespace UnitystationLauncher.Models
         {
             get
             {
-               return Directory.Exists(InstallationPath) &&
-                    Installation.FindExecutable(InstallationPath) != null;
+                return Directory.Exists(InstallationPath) &&
+                     Installation.FindExecutable(InstallationPath) != null;
             }
         }
 
-        private void StartImp()
+        private async void StartImp()
         {
+            if (IsDownloading.Value)
+            {
+                cancelSource.Cancel();
+                if (Directory.Exists(InstallationPath))
+                {
+                    Directory.Delete(InstallationPath);
+                }
+                Log.Information("User cancelled download");
+                return;
+            }
+
             if (CanPlay.Value)
             {
                 var exe = Installation.FindExecutable(InstallationPath);
@@ -125,9 +152,17 @@ namespace UnitystationLauncher.Models
                         $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
                     process.Start();
                 }
-            } else
+            }
+            else
             {
                 //DO DOWNLOAD
+                cancelSource = new CancellationTokenSource();
+                ButtonText.Value = "CANCEL";
+                IsDownloading.Value = true;
+                await DownloadAsync(cancelSource.Token);
+                IsDownloading.Value = false;
+                CanPlay.Value = ClientInstalled;
+                OnCanPlayChange(CanPlay.Value);
             }
         }
     }

@@ -9,7 +9,7 @@
 
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <Border Margin="2" CornerRadius="6" BorderThickness="1" BorderBrush="Gray" Background="#222D3C" MaxWidth="180" MinHeight="40">
+        <Border Margin="2" BorderThickness="1" BorderBrush="Gray" Background="#222D3C" MaxWidth="180" MinHeight="40">
           <TextBlock Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="12" Margin="4"/>
         </Border>
       </DataTemplate>

@@ -15,22 +15,22 @@
           <!--Background colors for the server entries: -->
           <StackPanel Grid.ColumnSpan="7">
             <Border Background="#5E7B98" Height="40" VerticalAlignment="Center"
-                    Margin="0 8 0 0" CornerRadius="8" />
+                    Margin="0 8 0 0" />
           </StackPanel>
           <StackPanel IsVisible="{Binding (ListBoxItem.IsPointerOver),
                                 RelativeSource={RelativeSource FindAncestor,
                                     AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
             <Border Background="#295077" Height="40" VerticalAlignment="Center"
-                    Margin="0 8 0 0" CornerRadius="8" />
+                    Margin="0 8 0 0" />
           </StackPanel>
           <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
                                 RelativeSource={RelativeSource FindAncestor,
                                     AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
             <Border Background="#6B9ED1" Height="40" VerticalAlignment="Center"
-                    Margin="0 8 0 0" CornerRadius="4" BorderThickness="1" BorderBrush="#c5c5c5"/>
+                    Margin="0 8 0 0"/>
           </StackPanel>
 
-          <Border CornerRadius="4 0 0 4" Margin="0 8 0 0" Grid.Column="0" VerticalAlignment="Center" Height="40">
+          <Border Margin="0 8 0 0" Grid.Column="0" VerticalAlignment="Center" Height="40">
             <TextBlock Text="{Binding ServerName}" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" FontSize="12" Width="100"/>
           </Border>
           <Border Margin="0 8 0 0" Grid.Column="1" VerticalAlignment="Center" Height="40">
@@ -48,34 +48,39 @@
           <Border Margin="0 8 0 0" Grid.Column="5" VerticalAlignment="Center" Height="40">
             <TextBlock Text="{Binding PlayerCount}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
           </Border>
-          <Border CornerRadius="0 4 4 0"  Margin="0 8 0 0" Grid.Column="6" VerticalAlignment="Center" Height="40">
+          <Border  Margin="0 8 0 0" Grid.Column="6" VerticalAlignment="Center" Height="40">
             <TextBlock Text="5" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
           </Border>
         </Grid>
         <Grid IsVisible="{Binding (ListBoxItem.IsSelected),
                                 RelativeSource={RelativeSource FindAncestor,
-                                    AncestorType={x:Type ListBoxItem}}}" Height="30" ColumnDefinitions="0.9*,0.1*">
-          <Border Background="#8b949d" CornerRadius="0 0 2 2" BorderThickness="1 0 1 1" BorderBrush="#c5c5c5" VerticalAlignment="Top" HorizontalAlignment="Right" Height="30" Width="300"  Grid.Column="0">
+                                    AncestorType={x:Type ListBoxItem}}}" Height="30" ColumnDefinitions="0.9*,0.1*" >
+          <Border Background="#5E7B98" VerticalAlignment="Top" HorizontalAlignment="Right" Height="30" Width="300"  Grid.Column="0">
             <DockPanel>
               <Viewbox  Height="20" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 8 0" DockPanel.Dock="Right">
                 <Button Command="{Binding Start}" FontSize="12" BorderThickness="1" Background="#4f769d" BorderBrush="#c5c5c5" Width="100">
                   <TextBlock Text="{Binding ButtonText^}" />
                 </Button>
               </Viewbox>
-              
-              <!--Client installed ready to play content-->
-              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+
+              <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" IsVisible="{Binding !IsDownloading^}">
+                <!--Client installed ready to play content-->
                 <TextBlock Text="Server: "  FontSize="12" IsVisible="{Binding CanPlay^}"/>
                 <TextBlock Text="{Binding ServerIP}" FontSize="12" IsVisible="{Binding CanPlay^}"/>
                 <TextBlock Text=":" FontSize="12" IsVisible="{Binding CanPlay^}"/>
                 <TextBlock Text="{Binding ServerPort}" FontSize="12" IsVisible="{Binding CanPlay^}"/>
-                <TextBlock Text="Update Required" FontWeight="Bold" FontSize="12" IsVisible="{Binding !CanPlay^}"/>
-                </StackPanel>
+
+                <!--Update required content-->
+                <TextBlock Text="Update Required" FontSize="12" IsVisible="{Binding !CanPlay^}"/>
+              </StackPanel>
+              <!--Downloading bar-->
+              <StackPanel DockPanel.Dock="Left" IsVisible="{Binding IsDownloading^}">
+                <ProgressBar Value="{Binding Progress^}" />
+              </StackPanel>
             </DockPanel>
           </Border>
         </Grid>
       </DockPanel>
-      
     </DataTemplate>
     <DataTemplate DataType="{x:Type models:Download}">
       <Border>
@@ -89,7 +94,7 @@
       </Border>
     </DataTemplate>
   </UserControl.DataTemplates>
-  
+
   <DockPanel>
     <Grid ColumnDefinitions="0.22*,0.119*,0.17*,0.153*,0.102*,0.102*,0.085*,0.042*" Margin="2 4 4 0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="#3E5D80"
           DockPanel.Dock="Top">
