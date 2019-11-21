@@ -27,7 +27,7 @@
     <StackPanel.Background>
       <SolidColorBrush Color="White" Opacity="0.07" />
     </StackPanel.Background>
-    <Border BorderThickness="1" BorderBrush="Gray" />
+    <Border BorderThickness="1" BorderBrush="#c5c5c5" />
 
     <!-- Please wait content -->
     <StackPanel IsVisible="{Binding IsWaitingVisible}">
@@ -51,6 +51,6 @@
 
     </StackPanel>
 
-    <Border BorderThickness="1" BorderBrush="Gray" />
+    <Border BorderThickness="1" BorderBrush="#c5c5c5" />
   </StackPanel>
 </UserControl>

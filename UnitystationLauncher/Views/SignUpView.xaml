@@ -28,7 +28,7 @@
             <SolidColorBrush Color="White" Opacity="0.07" />
         </StackPanel.Background>
 
-        <Border BorderThickness="1" BorderBrush="Gray" />
+        <Border BorderThickness="1" BorderBrush="#c5c5c5" />
         
         <!-- Sign up form -->
         <StackPanel IsVisible="{Binding IsFormVisible}">
@@ -84,6 +84,6 @@
                     Content="{Binding EndButtonText}" />
         </StackPanel>
         
-        <Border BorderThickness="1" BorderBrush="Gray" />
+        <Border BorderThickness="1" BorderBrush="#c5c5c5" />
     </StackPanel>
 </UserControl>

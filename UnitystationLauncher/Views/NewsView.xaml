@@ -9,7 +9,7 @@
     <ItemsControl.ItemTemplate>
       <DataTemplate>
         <Button Command="{Binding VisitURL}" Margin="2" BorderThickness="1" BorderBrush="Gray" Background="#222D3C" MaxWidth="180" MinHeight="40" Cursor="Hand">
-          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="12" Margin="1"/>
+          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" FontSize="12" Margin="1"/>
         </Button>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
