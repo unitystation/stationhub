@@ -34,7 +34,7 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                var data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, Refresh = "" });
+                var data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = "" });
                 File.WriteAllText("prefs.json", data);
                 AutoRemove.Value = true;
             }
@@ -92,7 +92,7 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove.Value, Refresh = "" });
+                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove.Value, LastLogin = "" });
             }
             File.WriteAllText("prefs.json", data);
             installationManager.AutoRemove = AutoRemove.Value;

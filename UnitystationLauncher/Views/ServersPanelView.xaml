@@ -106,7 +106,7 @@
         <TextBlock Text="GAMEMODE" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center"  FontSize="12"/>
       </Border>
       <Border BorderThickness="1" BorderBrush="DarkGray" Grid.Column="4" Grid.Row="0" VerticalAlignment="Top" Height="25">
-        <TextBlock Text="TIME" VerticalAlignment="Center" TextAlignment="Center"  FontSize="12"/>
+        <TextBlock Text="TIME" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center"  FontSize="12"/>
       </Border>
       <Border BorderThickness="1" BorderBrush="DarkGray" Grid.Column="5" Grid.Row="0" VerticalAlignment="Top" Height="25">
         <TextBlock Text="ONLINE" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center"  FontSize="12"/>
@@ -120,7 +120,8 @@
         </Button>
       </Border>
     </Grid>
-    <StackPanel>
+    <ScrollViewer>
+    <StackPanel>     
       <ListBox
         Name="ServerListBox"
         Items="{Binding ServerManager.Servers^}"
@@ -141,5 +142,6 @@
       </ListBox>
       <TextBlock Text="No Servers were found." FontSize="16" TextAlignment="Center" Margin="0 10 0 0" IsVisible="{Binding ServerManager.NoServersFound^}"/>
     </StackPanel>
+    </ScrollViewer>
   </DockPanel>
 </UserControl>

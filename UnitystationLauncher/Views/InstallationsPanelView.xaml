@@ -11,59 +11,57 @@
         <TextBlock Text=" Automatically Remove Old Versions" FontSize="12"/>
       </CheckBox>
     </Grid>
-    <StackPanel DockPanel.Dock="Top">
-      <ListBox Items="{Binding Installations^}" SelectedItem="{Binding SelectedInstallation}" Grid.Column="0" BorderThickness="0" Padding="0">
-        <ListBox.DataTemplates>
-          <DataTemplate>
-            <Grid ColumnDefinitions="0.15*,0.5*,0.35*" Margin="12 12 12 0" Height="70">
-              <!--Entry background-->
-              <StackPanel Grid.ColumnSpan="3">
-                <Border Background="#5C758D" Height="70" VerticalAlignment="Stretch"/>
-              </StackPanel>
-              <StackPanel IsVisible="{Binding (ListBoxItem.IsPointerOver),
+    <ScrollViewer>
+      <StackPanel>
+        <ListBox Items="{Binding Installations^}" SelectedItem="{Binding SelectedInstallation}" Grid.Column="0" BorderThickness="0" Padding="0">
+          <ListBox.DataTemplates>
+            <DataTemplate>
+              <Grid ColumnDefinitions="0.15*,0.5*,0.35*" Margin="12 12 12 0" Height="70">
+                <!--Entry background-->
+                <StackPanel Grid.ColumnSpan="3">
+                  <Border Background="#5C758D" Height="70" VerticalAlignment="Stretch"/>
+                </StackPanel>
+                <StackPanel IsVisible="{Binding (ListBoxItem.IsPointerOver),
                                 RelativeSource={RelativeSource FindAncestor,
                                     AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
-                <Border Background="#5C758D" Height="70" VerticalAlignment="Stretch"/>
-              </StackPanel>
-              <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
+                  <Border Background="#5C758D" Height="70" VerticalAlignment="Stretch"/>
+                </StackPanel>
+                <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
                                 RelativeSource={RelativeSource FindAncestor,
                                     AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
-                <Border Background="#5C758D" Height="70" VerticalAlignment="Stretch" />
-              </StackPanel>
-              <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                <Image Source="avares://UnitystationLauncher/Assets/folders.png" />
-              </StackPanel>
-              <StackPanel VerticalAlignment="Center" Margin="10 0 0 0" Grid.Column="1">
-                <TextBlock Text="Fork: Unitystation" FontSize="14" Grid.Column="0"/>
-                <TextBlock Text="Build: 3919" FontSize="16" Grid.Column="0"/>
-              </StackPanel>
-              <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                <Button Margin="3" FontSize="10" BorderThickness="1" Background="#4f769d" BorderBrush="#c5c5c5" Width="140" Height="24" >
-                  <!--<TextBlock Text="{Binding ButtonText^}" />-->
-                  <TextBlock Text="Open In File Browser" TextWrapping="Wrap" TextAlignment="Center"/>
-                </Button>
-                <Button Margin="3" FontSize="10" BorderThickness="1" Background="#4f769d" BorderBrush="#c5c5c5" Width="140" Height="24">
-                  <!--<TextBlock Text="{Binding ButtonText^}" />-->
-                  <TextBlock Text="Uninstall" TextWrapping="Wrap" TextAlignment="Center"/>
-                </Button>
-              </StackPanel>
-              <!--<TextBlock Text="{Binding ForkName}"/>
-        <TextBlock Text="{Binding BuildVersion}"/>-->
-
-            </Grid>
-          </DataTemplate>
-        </ListBox.DataTemplates>
-        <ListBox.Styles>
-          <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-          </Style>
-          <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-          </Style>
-        </ListBox.Styles>
-      </ListBox>
-    </StackPanel>
-
+                  <Border Background="#5C758D" Height="70" VerticalAlignment="Stretch" />
+                </StackPanel>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
+                  <Image Source="avares://UnitystationLauncher/Assets/folders.png" />
+                </StackPanel>
+                <StackPanel VerticalAlignment="Center" Margin="10 0 0 0" Grid.Column="1">
+                  <TextBlock Text="{Binding ForkName, 
+                 StringFormat='Fork: {0}'}" FontSize="14" Grid.Column="0"/>
+                  <TextBlock Text="{Binding BuildVersion, 
+                 StringFormat='Build: {0}'}" FontSize="16" Grid.Column="0"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                  <Button Command="{Binding Play}" Margin="3" FontSize="11" BorderThickness="1" Background="#4f769d" BorderBrush="#c5c5c5" Width="130" Height="24" >
+                    <TextBlock Text="Launch" TextWrapping="Wrap" TextAlignment="Center"/>
+                  </Button>
+                  <Button Margin="3" Command="{Binding Delete}" FontSize="11" BorderThickness="1" Background="#4f769d" BorderBrush="#c5c5c5" Width="130" Height="24">
+                    <TextBlock Text="Uninstall" TextWrapping="Wrap" TextAlignment="Center"/>
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </DataTemplate>
+          </ListBox.DataTemplates>
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+              <Setter Property="Background" Value="Transparent" />
+            </Style>
+          </ListBox.Styles>
+        </ListBox>
+      </StackPanel>
+    </ScrollViewer>
   </DockPanel>
   <!--<Grid ColumnDefinitions="2*,*">
     <StackPanel>

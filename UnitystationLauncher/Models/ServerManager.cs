@@ -4,7 +4,6 @@ using System.Net.Http;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
-using System.Reactive.Linq;
 using Reactive.Bindings;
 
 namespace UnitystationLauncher.Models
@@ -12,13 +11,16 @@ namespace UnitystationLauncher.Models
     public class ServerManager : ReactiveObject, IDisposable
     {
         private readonly HttpClient http;
+        private InstallationManager installManager;
         private AuthManager authManager;
         bool refreshing;
 
-        public ServerManager(HttpClient http, AuthManager authManager)
+        public ServerManager(HttpClient http, AuthManager authManager, InstallationManager installManager)
         {
             this.http = http;
             this.authManager = authManager;
+            this.installManager = installManager;
+            installManager.InstallListChange = RefreshInstalledStates;
             RefreshServerList();
         }
 
@@ -38,24 +40,15 @@ namespace UnitystationLauncher.Models
             }
             else
             {
-               // AddTest(serverList);
                 List<ServerWrapper> updatedList = new List<ServerWrapper>();
                 foreach (Server s in serverList.Servers)
                 {
-                    updatedList.Add(new ServerWrapper(s, authManager));
+                    updatedList.Add(new ServerWrapper(s, authManager, installManager));
                 }
 
                 Servers.Value = updatedList;
             }
             Refreshing = false;
-        }
-
-        private ServerList AddTest(ServerList list)
-        {
-            list.Servers.Add(new Server { ServerName = "TEST", BuildVersion = 12125, ForkName = "fawf", ServerIP = "10.1.1.12", ServerPort = 1234 });
-            list.Servers.Add(new Server { ServerName = "TEST2", BuildVersion = 121425, ForkName = "f3123f", ServerIP = "10.1.1.13", ServerPort = 1214 });
-            list.Servers.Add(new Server { ServerName = "TEST44", BuildVersion = 25, ForkName = "dawda2", ServerIP = "10.1.1.15", ServerPort = 1324 });
-            return list;
         }
 
         public ReactiveProperty<List<ServerWrapper>> Servers { get; private set; } = new ReactiveProperty<List<ServerWrapper>>();
@@ -64,6 +57,14 @@ namespace UnitystationLauncher.Models
         {
             get => refreshing;
             set => this.RaiseAndSetIfChanged(ref refreshing, value);
+        }
+
+        public void RefreshInstalledStates()
+        {
+            foreach(ServerWrapper wrapper in Servers.Value)
+            {
+                wrapper.CheckIfCanPlay();
+            }
         }
 
         public void Dispose()

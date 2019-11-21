@@ -19,10 +19,13 @@ namespace UnitystationLauncher.Models
     public class ServerWrapper : Server
     {
         private AuthManager authManager;
+        private InstallationManager installManager;
         private CancellationTokenSource cancelSource;
-        public ServerWrapper(Server server, AuthManager authManager)
+        public ServerWrapper(Server server, AuthManager authManager, 
+            InstallationManager installManager)
         {
             this.authManager = authManager;
+            this.installManager = installManager;
             ServerName = server.ServerName;
             ForkName = server.ForkName;
             BuildVersion = server.BuildVersion;
@@ -42,7 +45,7 @@ namespace UnitystationLauncher.Models
             }
 
             CanPlay.Subscribe(x => OnCanPlayChange(x));
-            CanPlay.Value = ClientInstalled;
+            CheckIfCanPlay();
             Start = ReactiveUI.ReactiveCommand.Create(StartImp, null);
             Ping pingSender = new Ping();
             pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
@@ -75,6 +78,11 @@ namespace UnitystationLauncher.Models
             {
                 RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
             }   
+        }
+
+        public void CheckIfCanPlay()
+        {
+            CanPlay.Value = ClientInstalled;
         }
 
         private void OnCanPlayChange(bool canPlay)
@@ -195,6 +203,7 @@ namespace UnitystationLauncher.Models
                 IsDownloading.Value = false;
                 CanPlay.Value = ClientInstalled;
                 OnCanPlayChange(CanPlay.Value);
+                installManager.TryAutoRemove();
             }
         }
     }

@@ -6,6 +6,6 @@ namespace UnitystationLauncher.Models
     public class Prefs
     {
         public bool AutoRemove;
-        public string Refresh;
+        public string LastLogin;
     }
 }
