@@ -5,19 +5,27 @@ using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using ReactiveUI;
 using Serilog;
 using System.Diagnostics;
 using System.Reactive.Subjects;
+using Avalonia;
+using Reactive.Bindings;
+using System.Threading;
+using Humanizer.Bytes;
+using System.Net.NetworkInformation;
 
 namespace UnitystationLauncher.Models
 {
     public class ServerWrapper : Server
     {
         private AuthManager authManager;
-        public ServerWrapper(Server server, AuthManager authManager)
+        private InstallationManager installManager;
+        private CancellationTokenSource cancelSource;
+        public ServerWrapper(Server server, AuthManager authManager, 
+            InstallationManager installManager)
         {
             this.authManager = authManager;
+            this.installManager = installManager;
             ServerName = server.ServerName;
             ForkName = server.ForkName;
             BuildVersion = server.BuildVersion;
@@ -36,25 +44,60 @@ namespace UnitystationLauncher.Models
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
 
-            var canDownload = Config.InstallationChanges
-                .Select(e => !Directory.Exists(InstallationPath));
-
-            var canStart = Config.InstallationChanges
-                .Select(e => 
-                    Directory.Exists(InstallationPath) && 
-                    Installation.FindExecutable(InstallationPath) != null);
-
-            Download = ReactiveCommand.Create(DownloadAsync, canDownload);
-            Start = ReactiveCommand.Create(StartImp, canStart);
+            CanPlay.Subscribe(x => OnCanPlayChange(x));
+            CheckIfCanPlay();
+            Start = ReactiveUI.ReactiveCommand.Create(StartImp, null);
+            Ping pingSender = new Ping();
+            pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
+            pingSender.SendAsync(ServerIP, 7);
         }
 
+        public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
+        public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
 
-        public ReactiveCommand<Unit, Unit> Download { get; }
+        public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
+        {
+            // If an error occurred, display the exception to the user.  
+            if (e.Error != null)
+            {
+                Log.Information("Ping failed:");
+                Log.Information(e.Error.ToString());
+                return;
+            }
+            var tripTime = e.Reply.RoundtripTime;
+            if(tripTime == 0)
+            {
+                RoundTrip.Value = "null";
+            }
+            else
+            {
+                RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
+            }   
+        }
 
-        public ReactiveCommand<Unit, Unit> Start { get; }
+        public void CheckIfCanPlay()
+        {
+            CanPlay.Value = ClientInstalled;
+        }
 
-        public async void DownloadAsync()
+        private void OnCanPlayChange(bool canPlay)
+        {
+            if (canPlay)
+            {
+                ButtonText.Value = "PLAY";
+            }
+            else
+            {
+                ButtonText.Value = "DOWNLOAD";
+            }
+        }
+
+        public async Task DownloadAsync(CancellationToken cancelToken)
         {
             Log.Information("Download requested...");
             Log.Information("Installation path: \"{Path}\"", InstallationPath);
@@ -69,7 +112,8 @@ namespace UnitystationLauncher.Models
 
             if (DownloadUrl is null)
             {
-                throw new Exception("OS download is null");
+                Log.Error("OS download is null");
+                return;
             }
 
             Log.Information("Download started...");
@@ -79,33 +123,87 @@ namespace UnitystationLauncher.Models
             Log.Information("Download connection established");
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
+            var maxFileSize = ByteSize.FromBytes(length);
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
-                .Subscribe(p => {
+                .Subscribe(p =>
+                {
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        progStream.Inner.Dispose();
+                        Progress.OnNext(0);
+                        return;
+                    }
+                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
+                    DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
                     Log.Information("Progress: {prog}", p);
-                    });
+                });
 
             await Task.Run(() =>
             {
                 Log.Information("Extracting...");
-                var archive = new ZipArchive(progStream);
-                archive.ExtractToDirectory(InstallationPath);
-                Log.Information("Download completed");
+                try
+                {
+                    var archive = new ZipArchive(progStream);
+                    archive.ExtractToDirectory(InstallationPath);
+                    Log.Information("Download completed");
+                }
+                catch
+                {
+                    Log.Information("Extracting stopped");
+                }
             });
         }
 
-        private void StartImp()
+        bool ClientInstalled
         {
-            var exe = Installation.FindExecutable(InstallationPath);
-            if(exe != null)
+            get
             {
-                var process = new Process();
-                process.StartInfo.FileName = exe;
-                process.StartInfo.Arguments =
-                    $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
-                process.Start();
+                return Directory.Exists(InstallationPath) &&
+                     Installation.FindExecutable(InstallationPath) != null;
+            }
+        }
+
+        private async void StartImp()
+        {
+            if (IsDownloading.Value)
+            {
+                cancelSource.Cancel();
+                if (Directory.Exists(InstallationPath))
+                {
+                    Directory.Delete(InstallationPath);
+                }
+                Log.Information("User cancelled download");
+                return;
+            }
+
+            if (CanPlay.Value)
+            {
+                var exe = Installation.FindExecutable(InstallationPath);
+                if (exe != null)
+                {
+                    Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+                    var process = new Process();
+                    process.StartInfo.FileName = exe;
+                    process.StartInfo.Arguments =
+                        $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
+                    process.Start();
+                }
+            }
+            else
+            {
+                //DO DOWNLOAD
+                cancelSource = new CancellationTokenSource();
+                ButtonText.Value = "CANCEL";
+                DownloadProgText.Value = "Connecting..";
+                IsDownloading.Value = true;
+                await DownloadAsync(cancelSource.Token);
+                IsDownloading.Value = false;
+                CanPlay.Value = ClientInstalled;
+                OnCanPlayChange(CanPlay.Value);
+                installManager.TryAutoRemove();
             }
         }
     }

@@ -5,28 +5,32 @@ using System.Reactive.Linq;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading;
+using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels{
     public class NewsViewModel : ViewModelBase
     {
         ObservableGitHubClient client;
-        ObservableCollection<Commit> commits = new ObservableCollection<Commit>();
+        ObservableCollection<PullRequestWrapper> pullRequests = new ObservableCollection<PullRequestWrapper>();
 
         public NewsViewModel()
         {
             client = new ObservableGitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            client.Repository.Commit
-                .GetAll("unitystation","unitystation")
-                .Take(10)
+            PullRequestRequest options = new PullRequestRequest();
+            options.State = ItemStateFilter.Closed;
+
+            client.Repository.PullRequest
+                .GetAllForRepository("unitystation", "unitystation", options)
+                .Take(20)
                 .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(commit =>{
-                    Commits.Add(commit.Commit);
+                .Subscribe(pr => {
+                    if(pr.Merged) PullRequests.Add(new PullRequestWrapper(pr));
                 });
         }
 
-        public ObservableCollection<Commit> Commits{
-            get => commits;
-            set => this.RaiseAndSetIfChanged(ref commits, value);
+        public ObservableCollection<PullRequestWrapper> PullRequests{
+            get => pullRequests;
+            set => this.RaiseAndSetIfChanged(ref pullRequests, value);
         }
     }
 }

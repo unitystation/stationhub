@@ -1,4 +1,8 @@
-﻿using Mono.Unix;
+﻿using Avalonia;
+using MessageBox.Avalonia;
+using MessageBox.Avalonia.DTO;
+using MessageBox.Avalonia.Models;
+using Mono.Unix;
 using ReactiveUI;
 using Serilog;
 using System;
@@ -64,7 +68,7 @@ namespace UnitystationLauncher.Models
             }
             else
             {
-                exe = files.SingleOrDefault(s => 
+                exe = files.SingleOrDefault(s =>
                     s.EndsWith("station") &&
                     (new UnixFileInfo(s).FileAccessPermissions & FileAccessPermissions.UserExecute) > 0);
             }
@@ -79,7 +83,11 @@ namespace UnitystationLauncher.Models
             {
                 try
                 {
-                    Process.Start(exe);
+                    Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+                    var process = new Process();
+                    process.StartInfo.FileName = exe;
+                    process.Start();
+
                 }
                 catch (Exception e)
                 {
@@ -100,11 +108,24 @@ namespace UnitystationLauncher.Models
             }
         }
 
-        private void DeleteImp()
+        private async void DeleteImp()
         {
             try
             {
-                Directory.Delete(InstallationPath, true);
+                var msgBox = MessageBoxWindow.CreateCustomWindow(new MessageBoxCustomParams
+                {
+                    Style = MessageBox.Avalonia.Enums.Style.None,
+                    Icon = MessageBox.Avalonia.Enums.Icon.None,
+                    ContentHeader = $"Remove {ForkName}-{BuildVersion}",
+                    ContentMessage = "This action cannot be undone. Proceed?",
+                    ButtonDefinitions = new[] { new ButtonDefinition { Name = "Cancel" }, new ButtonDefinition { Name = "Confirm" } }
+                });
+
+                var response = await msgBox.Show();
+                if (response.Equals("Confirm"))
+                {
+                    Directory.Delete(InstallationPath, true);
+                }
             }
             catch (Exception e)
             {

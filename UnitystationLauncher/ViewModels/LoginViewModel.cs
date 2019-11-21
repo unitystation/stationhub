@@ -1,9 +1,11 @@
 using System;
+using System.IO;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia.Interactivity;
 using DynamicData.Binding;
 using Firebase.Auth;
+using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
@@ -37,6 +39,8 @@ namespace UnitystationLauncher.ViewModels
 
             Create = ReactiveCommand.Create(
                 UserCreate);
+
+            CheckForLastLogin();
         }
 
         public string? Email
@@ -61,12 +65,41 @@ namespace UnitystationLauncher.ViewModels
                 Email = Email,
                 Pass = Password
             };
+
+            SaveLoginEmail();
+
             return loginStatusVM.Value;
         }
         
         public SignUpViewModel? UserCreate()
         {
             return signUpVM.Value;
+        }
+
+        void CheckForLastLogin()
+        {
+            if (File.Exists("prefs.json"))
+            {
+                var prefs = JsonConvert.DeserializeObject<Prefs>(File.ReadAllText("prefs.json"));
+                Email = prefs.LastLogin;
+            }
+        }
+
+        void SaveLoginEmail()
+        {
+            var data = "";
+            if (File.Exists("prefs.json"))
+            {
+                data = File.ReadAllText("prefs.json");
+                var prefs = JsonConvert.DeserializeObject<Prefs>(data);
+                prefs.LastLogin = email;
+                data = JsonConvert.SerializeObject(prefs);
+            }
+            else
+            {
+                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = email });
+            }
+            File.WriteAllText("prefs.json", data);
         }
     }
 }
