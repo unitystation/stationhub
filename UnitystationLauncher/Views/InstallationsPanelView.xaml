@@ -4,7 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UnitystationLauncher.Views.InstallationsPanelView">
-  <Grid ColumnDefinitions="2*,*">
+  <DockPanel>
+    <Grid ColumnDefinitions="*,*" Background="#3E5D80" Height="30" DockPanel.Dock="Top" 
+          VerticalAlignment="Top" HorizontalAlignment="Stretch">
+        <CheckBox IsChecked="{Binding AutoRemove.Value}" Command="{Binding CheckBoxClick}" Grid.Column="1" HorizontalAlignment="Center">
+          <TextBlock Text=" Automatically Remove Old Versions" FontSize="12"/>
+        </CheckBox>
+    </Grid>
+  </DockPanel>
+  <!--<Grid ColumnDefinitions="2*,*">
     <StackPanel>
       <TextBlock TextAlignment="Center" FontSize="22">Installations</TextBlock>
       <ListBox Items="{Binding Installations^}" SelectedItem="{Binding SelectedInstallation}" Grid.Column="0" BorderThickness="0" Padding="0">
@@ -25,5 +33,5 @@
         <Button Command="{Binding Delete}" Margin="0 5 0 0">Delete</Button>
       </StackPanel>
     </Border>
-  </Grid>
+  </Grid>-->
 </UserControl>

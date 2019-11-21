@@ -13,7 +13,7 @@ namespace UnitystationLauncher.Models
     public class InstallationManager : ReactiveObject
     {
         private readonly BehaviorSubject<IReadOnlyList<Installation>> installationsSubject;
-
+        public bool AutoRemove { get; set; }
         public InstallationManager()
         {
             installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
