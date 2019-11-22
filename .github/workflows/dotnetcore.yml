@@ -19,7 +19,7 @@ jobs:
     - name: Build win
       run: |
         dotnet publish -c Release -r win10-x64 /p:PublishSingleFile=true
-        zip --junk-paths win .
+        zip --junk-paths win /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/win10-x64/publish/
     - name: Create a Release
       uses: actions/create-release@v1
       env:
