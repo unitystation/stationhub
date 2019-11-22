@@ -20,6 +20,14 @@ jobs:
       run: |
         dotnet publish -c Release -r win10-x64 /p:PublishSingleFile=true
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/win10-x64/publish ; zip -r /home/runner/work/win.zip *
+    - name: Build win
+      run: |
+        dotnet publish -c Release -r osx-x64 /p:PublishSingleFile=true
+        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/osx-x64/publish ; zip -r /home/runner/work/osx.zip *
+    - name: Build win
+      run: |
+        dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
+        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/linux-x64/publish ; zip -r /home/runner/work/linux.zip *
     - name: Create a Release
       id: create_release
       uses: actions/create-release@v1
@@ -32,15 +40,31 @@ jobs:
           Unitystation Hub Release
           draft: false
           prerelease: false
-    - name: Upload Release Asset
-      id: upload-release-asset 
+    - name: Upload Win Assets
       uses: actions/upload-release-asset@v1.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path:  |
-          /home/runner/work/win.zip
+        asset_path: /home/runner/work/win.zip
         asset_name: win.zip
+        asset_content_type: application/zip
+    - name: Upload OSX Asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: /home/runner/work/osx.zip
+        asset_name: osx.zip
+        asset_content_type: application/zip
+    - name: Upload Linux Asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: /home/runner/work/linux.zip
+        asset_name: linux.zip
         asset_content_type: application/zip
 
