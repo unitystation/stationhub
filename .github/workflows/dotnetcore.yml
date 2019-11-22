@@ -3,7 +3,7 @@ name: .NET Core
 on:
   push:
     branches: 
-      - develop
+      - release
 
 jobs:
   build:
@@ -20,11 +20,11 @@ jobs:
       run: |
         dotnet publish -c Release -r win10-x64 /p:PublishSingleFile=true
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/win10-x64/publish ; zip -r /home/runner/work/win.zip *
-    - name: Build win
+    - name: Build osx
       run: |
         dotnet publish -c Release -r osx-x64 /p:PublishSingleFile=true
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/osx-x64/publish ; zip -r /home/runner/work/osx.zip *
-    - name: Build win
+    - name: Build linux
       run: |
         dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/linux-x64/publish ; zip -r /home/runner/work/linux.zip *
