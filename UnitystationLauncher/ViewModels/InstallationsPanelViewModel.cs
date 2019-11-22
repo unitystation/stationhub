@@ -6,7 +6,6 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using UnitystationLauncher.Models;
-using Reactive.Bindings;
 using Newtonsoft.Json;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
@@ -30,20 +29,20 @@ namespace UnitystationLauncher.ViewModels
             if (File.Exists("prefs.json"))
             {
                 var data = File.ReadAllText("prefs.json");
-                AutoRemove.Value = JsonConvert.DeserializeObject<Prefs>(data).AutoRemove;
+                AutoRemove = JsonConvert.DeserializeObject<Prefs>(data).AutoRemove;
             }
             else
             {
                 var data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = "" });
                 File.WriteAllText("prefs.json", data);
-                AutoRemove.Value = true;
+                AutoRemove = true;
             }
-            installationManager.AutoRemove = AutoRemove.Value;
-            CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick, null);
+            installationManager.AutoRemove = AutoRemove;
+            CheckBoxClick = ReactiveCommand.Create(OnCheckBoxClick, null);
         }
 
         public IObservable<IReadOnlyList<Installation>> Installations => installationManager.Installations;
-        public ReactiveProperty<bool> AutoRemove { get; } = new ReactiveProperty<bool>();
+        public bool AutoRemove { get; private set; } 
         public ReactiveCommand<Unit, Unit> CheckBoxClick { get; }
         public Installation? SelectedInstallation
         {
@@ -55,7 +54,7 @@ namespace UnitystationLauncher.ViewModels
         //message box.
         async void OnCheckBoxClick()
         {
-            if(AutoRemove.Value == true)
+            if (AutoRemove == true)
             {
                 var msgBox = MessageBoxWindow.CreateCustomWindow(new MessageBoxCustomParams
                 {
@@ -70,11 +69,13 @@ namespace UnitystationLauncher.ViewModels
                 if (response.Equals("Confirm"))
                 {
                     SaveChoice();
-                } else
-                {
-                    AutoRemove.Value = false;
                 }
-            } else
+                else
+                {
+                    AutoRemove = false;
+                }
+            }
+            else
             {
                 SaveChoice();
             }
@@ -87,15 +88,15 @@ namespace UnitystationLauncher.ViewModels
             {
                 data = File.ReadAllText("prefs.json");
                 var prefs = JsonConvert.DeserializeObject<Prefs>(data);
-                prefs.AutoRemove = AutoRemove.Value;
+                prefs.AutoRemove = AutoRemove;
                 data = JsonConvert.SerializeObject(prefs);
             }
             else
             {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove.Value, LastLogin = "" });
+                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove, LastLogin = "" });
             }
             File.WriteAllText("prefs.json", data);
-            installationManager.AutoRemove = AutoRemove.Value;
+            installationManager.AutoRemove = AutoRemove;
         }
     }
 }

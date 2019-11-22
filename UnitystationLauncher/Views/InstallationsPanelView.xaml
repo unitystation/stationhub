@@ -7,7 +7,7 @@
   <DockPanel>
     <Grid ColumnDefinitions="*,*" Background="#3E5D80" Height="30" DockPanel.Dock="Top"
           VerticalAlignment="Top" HorizontalAlignment="Stretch" >
-      <CheckBox IsChecked="{Binding AutoRemove.Value}" Command="{Binding CheckBoxClick}" Grid.Column="1" HorizontalAlignment="Center">
+      <CheckBox IsChecked="{Binding AutoRemove}" Command="{Binding CheckBoxClick}" Grid.Column="1" HorizontalAlignment="Center">
         <TextBlock Text=" Automatically Remove Old Versions" FontSize="12"/>
       </CheckBox>
     </Grid>

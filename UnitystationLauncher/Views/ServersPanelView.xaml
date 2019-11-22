@@ -49,7 +49,7 @@
             <TextBlock Text="{Binding PlayerCount}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
           </Border>
           <Border  Margin="0 8 0 0" Grid.Column="6" VerticalAlignment="Center" Height="40">
-            <TextBlock Text="{Binding RoundTrip.Value}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
+            <TextBlock Text="{Binding RoundTrip^}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
           </Border>
         </Grid>
         <Grid IsVisible="{Binding (ListBoxItem.IsSelected),
@@ -124,13 +124,13 @@
     <StackPanel>     
       <ListBox
         Name="ServerListBox"
-        Items="{Binding ServerManager.Servers^}"
+        Items="{Binding ServerManager.Servers}"
         SelectedItem="{Binding SelectedServer}"
         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
         Margin="2 0 2 4"
         BorderThickness="0"
         Padding="0 0 0 10"
-        IsVisible="{Binding !ServerManager.NoServersFound^}">
+        IsVisible="{Binding !ServerManager.NoServersFound}">
         <ListBox.Styles>
           <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
             <Setter Property="Background" Value="Transparent" />
@@ -140,7 +140,7 @@
           </Style>
         </ListBox.Styles>
       </ListBox>
-      <TextBlock Text="No Servers were found." FontSize="16" TextAlignment="Center" Margin="0 10 0 0" IsVisible="{Binding ServerManager.NoServersFound^}"/>
+      <TextBlock Text="No Servers were found." FontSize="16" TextAlignment="Center" Margin="0 10 0 0" IsVisible="{Binding ServerManager.NoServersFound}"/>
     </StackPanel>
     </ScrollViewer>
   </DockPanel>

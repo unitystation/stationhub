@@ -9,10 +9,10 @@ using Serilog;
 using System.Diagnostics;
 using System.Reactive.Subjects;
 using Avalonia;
-using Reactive.Bindings;
 using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
+using ReactiveUI;
 
 namespace UnitystationLauncher.Models
 {
@@ -44,25 +44,24 @@ namespace UnitystationLauncher.Models
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
 
-            CanPlay.Subscribe(x => OnCanPlayChange(x));
-            CheckIfCanPlay();
-            Start = ReactiveUI.ReactiveCommand.Create(StartImp, null);
+            Start = ReactiveCommand.Create(StartImp, null);
             Ping pingSender = new Ping();
             pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
             pingSender.SendAsync(ServerIP, 7);
+            CheckIfCanPlay();
         }
 
-        public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
-        public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
-        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
-        public Subject<int> Progress { get; set; } = new Subject<int>();
-        public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
+        public BehaviorSubject<bool> CanPlay { get; set; } = new BehaviorSubject<bool>(false);
+        public BehaviorSubject<bool> IsDownloading { get; private set; } = new BehaviorSubject<bool>(false);
+        public BehaviorSubject<string> ButtonText { get; private set; } = new BehaviorSubject<string>("");
+        public BehaviorSubject<string> DownloadProgText { get; private set; } = new BehaviorSubject<string>("");
+        public BehaviorSubject<string> RoundTrip { get; private set; } = new BehaviorSubject<string>("");
+        public BehaviorSubject<int> Progress { get; set; } = new BehaviorSubject<int>(0);
+        public ReactiveCommand<Unit, Unit> Start { get; }
 
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
-            // If an error occurred, display the exception to the user.  
+            //// If an error occurred, display the exception to the user.  
             if (e.Error != null)
             {
                 Log.Information("Ping failed:");
@@ -72,28 +71,24 @@ namespace UnitystationLauncher.Models
             var tripTime = e.Reply.RoundtripTime;
             if(tripTime == 0)
             {
-                RoundTrip.Value = "null";
+                RoundTrip.OnNext("null");
             }
             else
             {
-                RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
+                RoundTrip.OnNext($"{e.Reply.RoundtripTime}ms");
             }   
         }
 
         public void CheckIfCanPlay()
         {
-            CanPlay.Value = ClientInstalled;
-        }
-
-        private void OnCanPlayChange(bool canPlay)
-        {
-            if (canPlay)
+            CanPlay.OnNext(ClientInstalled);
+            if (CanPlay.Value)
             {
-                ButtonText.Value = "PLAY";
+                ButtonText.OnNext("PLAY");
             }
             else
             {
-                ButtonText.Value = "DOWNLOAD";
+                ButtonText.OnNext("DOWNLOAD");
             }
         }
 
@@ -136,7 +131,7 @@ namespace UnitystationLauncher.Models
                         return;
                     }
                     var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
-                    DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
+                    DownloadProgText.OnNext($" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB");
                     Progress.OnNext(p);
                     Log.Information("Progress: {prog}", p);
                 });
@@ -196,13 +191,13 @@ namespace UnitystationLauncher.Models
             {
                 //DO DOWNLOAD
                 cancelSource = new CancellationTokenSource();
-                ButtonText.Value = "CANCEL";
-                DownloadProgText.Value = "Connecting..";
-                IsDownloading.Value = true;
+                ButtonText.OnNext("CANCEL");
+                DownloadProgText.OnNext("Connecting..");
+                IsDownloading.OnNext(true);
                 await DownloadAsync(cancelSource.Token);
-                IsDownloading.Value = false;
-                CanPlay.Value = ClientInstalled;
-                OnCanPlayChange(CanPlay.Value);
+                IsDownloading.OnNext(false);
+                CanPlay.OnNext(ClientInstalled);
+                CheckIfCanPlay();
                 installManager.TryAutoRemove();
             }
         }

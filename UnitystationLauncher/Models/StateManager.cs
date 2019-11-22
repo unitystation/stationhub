@@ -25,10 +25,10 @@ namespace UnitystationLauncher.Models
             this.downloadManager = downloadManager;
             state = new BehaviorSubject<State>(new Dictionary<(string ForkName, int BuildVersion), (Installation? installation, Download? download, IReadOnlyList<ServerWrapper> servers)>());
 
-            var groupedServers = serverManager.Servers
-                .Select(servers => servers
-                    .GroupBy(s => s.Key))
-                .Do(x => Log.Logger.Information("Servers changed"));
+            //var groupedServers = serverManager.Servers
+            //    .Select(servers => servers
+            //        .GroupBy(s => s.Key))
+            //    .Do(x => Log.Logger.Information("Servers changed"));
 
             var downloads = Observable.Merge(
                 downloadManager.Downloads.GetWeakCollectionChangedObservable()
@@ -39,23 +39,23 @@ namespace UnitystationLauncher.Models
             var installations = installationManager.Installations
                 .Do(x => Log.Logger.Information("Installations changed"));
 
-            groupedServers
-                .CombineLatest(installations, (servers, installations) => (servers, installations))
-                .Select(d => d.servers.FullJoin(d.installations,
-                        s => s.Key,
-                        i => i.Key,
-                        s => (s.Key, ReadOnly(s), null),
-                        i => (i.Key, null, i),
-                        (servers, installation) => (servers.Key, servers: ReadOnly(servers), installation)))
-                .CombineLatest(downloads, (join, downloads) => (join, downloads))
-                .Select(x => x.join.LeftJoin(x.downloads,
-                        s => s.Key,
-                        d => d.Key,
-                        s => (s.Key, s.servers, s.installation, null),
-                        (s, download) => (s.Key, s.servers, s.installation, download)))
-                .Select(x => (State)x.ToDictionary(d => d.Key, d => (d.installation, d.download, d.servers)))
-                .Do(x => Log.Logger.Information("state changed"))
-                .Subscribe(state);
+            //groupedServers
+            //    .CombineLatest(installations, (servers, installations) => (servers, installations))
+            //    .Select(d => d.servers.FullJoin(d.installations,
+            //            s => s.Key,
+            //            i => i.Key,
+            //            s => (s.Key, ReadOnly(s), null),
+            //            i => (i.Key, null, i),
+            //            (servers, installation) => (servers.Key, servers: ReadOnly(servers), installation)))
+            //    .CombineLatest(downloads, (join, downloads) => (join, downloads))
+            //    .Select(x => x.join.LeftJoin(x.downloads,
+            //            s => s.Key,
+            //            d => d.Key,
+            //            s => (s.Key, s.servers, s.installation, null),
+            //            (s, download) => (s.Key, s.servers, s.installation, download)))
+            //    .Select(x => (State)x.ToDictionary(d => d.Key, d => (d.installation, d.download, d.servers)))
+            //    .Do(x => Log.Logger.Information("state changed"))
+            //    .Subscribe(state);
 
             State.Subscribe(x => Log.Logger.Information("State changed"));
         }

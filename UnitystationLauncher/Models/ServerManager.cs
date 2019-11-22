@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Serilog;
-using Reactive.Bindings;
 
 namespace UnitystationLauncher.Models
 {
@@ -26,17 +26,17 @@ namespace UnitystationLauncher.Models
 
         public async void RefreshServerList()
         {
-            NoServersFound.Value = false;
+            NoServersFound = false;
             if (Refreshing) return;
 
-            Servers.Value = new List<ServerWrapper>();
+            Servers = new List<ServerWrapper>();
             Refreshing = true;
             Log.Verbose("Refreshing server list...");
             var data = await http.GetStringAsync(Config.apiUrl);
             var serverList = JsonConvert.DeserializeObject<ServerList>(data);
             if (serverList.Servers.Count == 0)
             {
-                NoServersFound.Value = true;
+                NoServersFound = true;
             }
             else
             {
@@ -46,13 +46,15 @@ namespace UnitystationLauncher.Models
                     updatedList.Add(new ServerWrapper(s, authManager, installManager));
                 }
 
-                Servers.Value = updatedList;
+                Servers = updatedList;
             }
             Refreshing = false;
         }
 
-        public ReactiveProperty<List<ServerWrapper>> Servers { get; private set; } = new ReactiveProperty<List<ServerWrapper>>();
-        public ReactiveProperty<bool> NoServersFound { get; private set; } = new ReactiveProperty<bool>();
+        [Reactive]
+        public List<ServerWrapper> Servers { get; set; } = new List<ServerWrapper>();
+        [Reactive]
+        public bool NoServersFound { get; private set; }
         public bool Refreshing
         {
             get => refreshing;
@@ -61,15 +63,12 @@ namespace UnitystationLauncher.Models
 
         public void RefreshInstalledStates()
         {
-            foreach(ServerWrapper wrapper in Servers.Value)
+            foreach(ServerWrapper wrapper in Servers)
             {
                 wrapper.CheckIfCanPlay();
             }
         }
 
-        public void Dispose()
-        {
-            Servers.Dispose();
-        }
+        public void Dispose() { }
     }
 }
