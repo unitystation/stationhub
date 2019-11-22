@@ -19,7 +19,7 @@ jobs:
     - name: Build win
       run: |
         dotnet publish -c Release -r win10-x64 /p:PublishSingleFile=true
-        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/win10-x64/publish ; zip -r /win.zip *
+        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/Release/netcoreapp3.0/win10-x64/publish ; zip -r /home/runner/work/win.zip *
     - name: Create a Release
       id: create_release
       uses: actions/create-release@v1
@@ -40,7 +40,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
         asset_path:  |
-          /win.zip
+          /home/runner/work/win.zip
         asset_name: win.zip
         asset_content_type: application/zip
 
