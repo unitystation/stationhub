@@ -19,7 +19,7 @@ jobs:
     - name: Build win
       run: |
         dotnet publish -c Release -r win10-x64 /p:PublishSingleFile=true
-        zip --junk-paths win
+        zip --junk-paths win .
     - name: Create a Release
       uses: actions/create-release@v1
       env:
