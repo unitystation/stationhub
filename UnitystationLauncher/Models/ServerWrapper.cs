@@ -83,6 +83,7 @@ namespace UnitystationLauncher.Models
         public void CheckIfCanPlay()
         {
             CanPlay.Value = ClientInstalled;
+            OnCanPlayChange(CanPlay.Value);
         }
 
         private void OnCanPlayChange(bool canPlay)
@@ -201,8 +202,7 @@ namespace UnitystationLauncher.Models
                 IsDownloading.Value = true;
                 await DownloadAsync(cancelSource.Token);
                 IsDownloading.Value = false;
-                CanPlay.Value = ClientInstalled;
-                OnCanPlayChange(CanPlay.Value);
+                CheckIfCanPlay();
                 installManager.TryAutoRemove();
             }
         }
