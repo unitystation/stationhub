@@ -4,7 +4,7 @@ using Avalonia.Logging.Serilog;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
 using Serilog;
-using Serilog.Sinks.File;
+using Steamworks;
 using System.IO;
 using Serilog.Events;
 using Autofac;
@@ -52,9 +52,25 @@ namespace UnitystationLauncher
 
             try
             {
+                SteamClient.Init(801140);
+            }
+            catch (System.Exception e)
+            {
+                // Couldn't init for some reason (steam is closed etc)
+                Log.Error(e.Message);
+            }
+
+            try
+            {
                 var window = new MainWindow
                 {
                     DataContext = container.Resolve<MainWindowViewModel>(),
+                };
+
+                window.Closing += (s, e) =>
+                {
+                    SteamClient.Shutdown();
+                    Log.Information("Steam client closing");
                 };
 
                 app.Run(window);
