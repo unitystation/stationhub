@@ -13,6 +13,7 @@ using Reactive.Bindings;
 using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 
 namespace UnitystationLauncher.Models
 {
@@ -186,10 +187,20 @@ namespace UnitystationLauncher.Models
                 if (exe != null)
                 {
                     Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+
+                    ProcessStartInfo startInfo;
+
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        startInfo = new ProcessStartInfo("open", $"-a {exe} --args --server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}");
+                    } else
+                    {
+                        startInfo = new ProcessStartInfo(exe, $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}");
+                    }
+                    startInfo.UseShellExecute = false;
                     var process = new Process();
-                    process.StartInfo.FileName = exe;
-                    process.StartInfo.Arguments =
-                        $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}";
+                    process.StartInfo = startInfo;
+                                        
                     process.Start();
                 }
             }
