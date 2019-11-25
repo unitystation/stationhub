@@ -1,17 +1,43 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitystationLauncher", "UnitystationLauncher\UnitystationLauncher.csproj", "{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29418.71
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitystationLauncher", "UnitystationLauncher\UnitystationLauncher.csproj", "{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		ReleasePOSIX64|Any CPU = ReleasePOSIX64|Any CPU
+		ReleasePOSIX64|x64 = ReleasePOSIX64|x64
+		ReleaseWIN64|Any CPU = ReleaseWIN64|Any CPU
+		ReleaseWIN64|x64 = ReleaseWIN64|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Debug|x64.ActiveCfg = Debug|x64
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Debug|x64.Build.0 = Debug|x64
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Release|x64.ActiveCfg = Release|x64
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.Release|x64.Build.0 = Release|x64
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleasePOSIX64|Any CPU.ActiveCfg = ReleasePOSIX64|Any CPU
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleasePOSIX64|Any CPU.Build.0 = ReleasePOSIX64|Any CPU
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleasePOSIX64|x64.ActiveCfg = ReleasePOSIX64|x64
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleasePOSIX64|x64.Build.0 = ReleasePOSIX64|x64
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseWIN64|Any CPU.ActiveCfg = ReleaseWIN64|Any CPU
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseWIN64|Any CPU.Build.0 = ReleaseWIN64|Any CPU
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseWIN64|x64.ActiveCfg = ReleaseWIN64|x64
+		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseWIN64|x64.Build.0 = ReleaseWIN64|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {64162598-D2E6-4D45-AF9B-351EF0270DD5}
 	EndGlobalSection
 EndGlobal
