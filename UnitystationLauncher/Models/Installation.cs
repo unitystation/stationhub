@@ -66,6 +66,11 @@ namespace UnitystationLauncher.Models
             {
                 exe = files.SingleOrDefault(s => Regex.IsMatch(Path.GetFileName(s), @".*station\.exe"));
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                var archives = Directory.EnumerateDirectories(path);
+                exe = archives.SingleOrDefault(s => Regex.IsMatch(Path.GetFileName(s), @".*station\.app"));
+            }
             else
             {
                 exe = files.SingleOrDefault(s =>
