@@ -88,9 +88,20 @@ namespace UnitystationLauncher.Models
             {
                 try
                 {
-                    Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+                    ProcessStartInfo startInfo;
+
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        startInfo = new ProcessStartInfo("open", $"-a {exe}");
+                    }
+                    else
+                    {
+                        startInfo = new ProcessStartInfo(exe);
+                    }
+                    startInfo.UseShellExecute = true;
                     var process = new Process();
-                    process.StartInfo.FileName = exe;
+                    process.StartInfo = startInfo;
+
                     process.Start();
 
                 }
