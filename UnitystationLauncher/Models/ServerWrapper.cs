@@ -197,7 +197,7 @@ namespace UnitystationLauncher.Models
                     {
                         startInfo = new ProcessStartInfo(exe, $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}");
                     }
-                    startInfo.UseShellExecute = false;
+                    startInfo.UseShellExecute = true;
                     var process = new Process();
                     process.StartInfo = startInfo;
                                         
