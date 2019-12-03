@@ -15,6 +15,7 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models
 {
@@ -22,17 +23,9 @@ namespace UnitystationLauncher.Models
     {
         private Installation()
         {
-            Play = ReactiveCommand.Create(StartImp, Config.InstallationChanges
-                .Select(u => FindExecutable(InstallationPath) != null));
+            Play = ReactiveCommand.Create(StartImp);
             Open = ReactiveCommand.Create(OpenImp);
             Delete = ReactiveCommand.Create(DeleteImp);
-        }
-
-        public Installation(string forkName, int buildVersion) : this()
-        {
-            ForkName = forkName;
-            BuildVersion = buildVersion;
-            InstallationPath = Path.Combine(Config.InstallationsPath, ForkName + BuildVersion);
         }
 
         public Installation(string folderPath) : this()
@@ -88,9 +81,20 @@ namespace UnitystationLauncher.Models
             {
                 try
                 {
-                    Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+                    ProcessStartInfo startInfo;
+
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        startInfo = new ProcessStartInfo("open", $"-a {exe}");
+                    }
+                    else
+                    {
+                        startInfo = new ProcessStartInfo(exe);
+                    }
+                    startInfo.UseShellExecute = true;
                     var process = new Process();
-                    process.StartInfo.FileName = exe;
+                    process.StartInfo = startInfo;
+
                     process.Start();
 
                 }
@@ -129,7 +133,21 @@ namespace UnitystationLauncher.Models
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    Directory.Delete(InstallationPath, true);
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        ProcessStartInfo startInfo;
+                        startInfo = new ProcessStartInfo("rm", $"-r {InstallationPath}");
+                        startInfo.UseShellExecute = true;
+                        var process = new Process();
+                        process.StartInfo = startInfo;
+
+                        process.Start();
+                    }
+                    else
+                    {
+                        Directory.Delete(InstallationPath, true);
+                    }
                 }
             }
             catch (Exception e)
