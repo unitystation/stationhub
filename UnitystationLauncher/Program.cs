@@ -44,6 +44,8 @@ namespace UnitystationLauncher
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
+            Log.Information("Version 0.1");
+
             var builder = new ContainerBuilder();
             builder.RegisterModule(new StandardModule());
             builder.RegisterLogger();
