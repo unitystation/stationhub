@@ -14,6 +14,7 @@ using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using Mono.Unix;
 
 namespace UnitystationLauncher.Models
 {
@@ -167,17 +168,16 @@ namespace UnitystationLauncher.Models
         {
             try
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                 {
-                    ProcessStartInfo startInfo;
                     var exe = Installation.FindExecutable(path);
-                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {exe}");
-                    startInfo.UseShellExecute = true;
-                    var process = new Process();
-                    process.StartInfo = startInfo;
-
-                    process.Start();
+                    var unixFileInfo = new UnixFileInfo(Path.Combine(exe,"Contents/MacOS/unitystation"));
+                    // set file permission to 744
+                    unixFileInfo.FileAccessPermissions =
+                        FileAccessPermissions.UserRead | FileAccessPermissions.UserWrite
+                        | FileAccessPermissions.UserExecute
+                        | FileAccessPermissions.GroupRead
+                        | FileAccessPermissions.OtherRead;
                 }
             }
             catch (Exception e)
