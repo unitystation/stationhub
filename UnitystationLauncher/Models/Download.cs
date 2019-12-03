@@ -68,36 +68,15 @@ namespace UnitystationLauncher.Models
             {
                 Log.Information("Extracting...");
                 var archive = new ZipArchive(progStream);
+                
                 archive.ExtractToDirectory(InstallationPath);
                 Log.Information("Download completed");
-                SetPermissions(InstallationPath);
             });
+            
         }
 
         public async Task Cancel() { }
 
         public async Task Stop() => throw new NotSupportedException($"Stopping is not supported, try {nameof(Cancel)} instead");
-
-        private void SetPermissions(string path)
-        {
-            try
-            {
-                ProcessStartInfo startInfo;
-
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    startInfo = new ProcessStartInfo("chmod", $"744 {path}");
-                    startInfo.UseShellExecute = true;
-                    var process = new Process();
-                    process.StartInfo = startInfo;
-
-                    process.Start();
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "An exception occurred when setting the permissions");
-            }
-        }
     }
 }

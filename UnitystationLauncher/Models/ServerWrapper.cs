@@ -126,11 +126,13 @@ namespace UnitystationLauncher.Models
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
+            
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
+                    
                     if (cancelToken.IsCancellationRequested)
                     {
                         progStream.Inner.Dispose();
@@ -149,14 +151,39 @@ namespace UnitystationLauncher.Models
                 try
                 {
                     var archive = new ZipArchive(progStream);
-                    archive.ExtractToDirectory(InstallationPath);
+                    archive.ExtractToDirectory(InstallationPath, true);
+
                     Log.Information("Download completed");
+                    SetPermissions(InstallationPath);
                 }
                 catch
                 {
                     Log.Information("Extracting stopped");
                 }
             });
+        }
+
+        private void SetPermissions(string path)
+        {
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    ProcessStartInfo startInfo;
+                    var exe = Installation.FindExecutable(path);
+                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {exe}");
+                    startInfo.UseShellExecute = true;
+                    var process = new Process();
+                    process.StartInfo = startInfo;
+
+                    process.Start();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "An exception occurred when setting the permissions");
+            }
         }
 
         bool ClientInstalled
