@@ -14,6 +14,7 @@ using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using Mono.Unix;
 
 namespace UnitystationLauncher.Models
 {
@@ -170,14 +171,22 @@ namespace UnitystationLauncher.Models
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
-                    ProcessStartInfo startInfo;
                     var exe = Installation.FindExecutable(path);
-                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {exe}");
-                    startInfo.UseShellExecute = true;
-                    var process = new Process();
-                    process.StartInfo = startInfo;
+                    var unixFileInfo = new UnixFileInfo(exe);
+                    // set file permission to 744
+                    unixFileInfo.FileAccessPermissions =
+                        FileAccessPermissions.UserRead | FileAccessPermissions.UserWrite
+                        | FileAccessPermissions.UserExecute
+                        | FileAccessPermissions.GroupRead
+                        | FileAccessPermissions.OtherRead;
+                    //ProcessStartInfo startInfo;
+                    //var exe = Installation.FindExecutable(path);
+                    //startInfo = new ProcessStartInfo("chmod", $"-R 755 {exe}");
+                    //startInfo.UseShellExecute = true;
+                    //var process = new Process();
+                    //process.StartInfo = startInfo;
 
-                    process.Start();
+                    //process.Start();
                 }
             }
             catch (Exception e)
