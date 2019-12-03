@@ -133,12 +133,13 @@ namespace UnitystationLauncher.Models
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
+                    Log.Information($"Perform delete of {InstallationPath}");
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
                         ProcessStartInfo startInfo;
                         startInfo = new ProcessStartInfo("rm", $"-r {InstallationPath}");
-                        startInfo.UseShellExecute = true;
+                        startInfo.UseShellExecute = false;
                         var process = new Process();
                         process.StartInfo = startInfo;
 
