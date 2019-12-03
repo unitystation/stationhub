@@ -1,13 +1,13 @@
 ﻿using Serilog;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models
@@ -68,9 +68,11 @@ namespace UnitystationLauncher.Models
             {
                 Log.Information("Extracting...");
                 var archive = new ZipArchive(progStream);
+                
                 archive.ExtractToDirectory(InstallationPath);
                 Log.Information("Download completed");
             });
+            
         }
 
         public async Task Cancel() { }
