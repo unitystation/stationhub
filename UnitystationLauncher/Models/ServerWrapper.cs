@@ -168,16 +168,17 @@ namespace UnitystationLauncher.Models
         {
             try
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
+                    ProcessStartInfo startInfo;
                     var exe = Installation.FindExecutable(path);
-                    var unixFileInfo = new UnixFileInfo(Path.Combine(exe,"Contents/MacOS/unitystation"));
-                    // set file permission to 744
-                    unixFileInfo.FileAccessPermissions =
-                        FileAccessPermissions.UserRead | FileAccessPermissions.UserWrite
-                        | FileAccessPermissions.UserExecute
-                        | FileAccessPermissions.GroupRead
-                        | FileAccessPermissions.OtherRead;
+                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {exe}");
+                    startInfo.UseShellExecute = true;
+                    var process = new Process();
+                    process.StartInfo = startInfo;
+
+                    process.Start();
                 }
             }
             catch (Exception e)
