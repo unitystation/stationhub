@@ -17,7 +17,7 @@
         <StackPanel>
             <StackPanel Orientation="Horizontal" Height="50" Margin="20" HorizontalAlignment="Center">
                 <Viewbox Margin="5">
-                    <Image Source="/Assets/Unitystation.png" />
+                    <Image Source="/Assets/Ian512.png" />
                 </Viewbox>
                 <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
             </StackPanel>
