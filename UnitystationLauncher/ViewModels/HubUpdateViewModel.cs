@@ -3,7 +3,6 @@ using Humanizer.Bytes;
 using ReactiveUI;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -12,7 +11,6 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using UnitystationLauncher.Models;
@@ -34,6 +32,7 @@ namespace UnitystationLauncher.ViewModels
         {
             this.loginVM = loginVM;
             BeginDownload = ReactiveCommand.Create(UpdateHub);
+            RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
 
             UpdateTitle = "Update Required";
@@ -48,6 +47,7 @@ namespace UnitystationLauncher.ViewModels
         }
 
         public ReactiveCommand<Unit, Unit> BeginDownload { get; }
+        public ReactiveCommand<Unit, Unit> RestartHub { get; }
         public ReactiveCommand<Unit, ViewModelBase> Cancel { get; }
         public Subject<int> Progress { get; set; } = new Subject<int>();
 
@@ -95,7 +95,7 @@ namespace UnitystationLauncher.ViewModels
 
         public void UpdateHub()
         {
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 Config.SetPermissions(Config.UnixExeFullPath);
@@ -146,11 +146,6 @@ namespace UnitystationLauncher.ViewModels
                     archive.ExtractToDirectory(Config.RootFolder, true);
 
                     Log.Information("Download completed");
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-                        RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    {
-                        Config.SetPermissions(Config.UnixExeFullPath);
-                    }
                 }
                 catch
                 {
@@ -158,7 +153,20 @@ namespace UnitystationLauncher.ViewModels
                 }
             });
 
-            Application.Current.OnExit += OnExit;
+            DownloadComplete();
+        }
+
+        private void DownloadComplete()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                        RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Config.SetPermissions(Config.UnixExeFullPath);
+            }
+
+            DownloadBarVisible = false;
+            RestartButtonVisible = true;
+            UpdateTitle = "Download complete!\n\rClick the restart button to continue:";
         }
 
         private void OnExit(object? sender, EventArgs e)
@@ -170,7 +178,7 @@ namespace UnitystationLauncher.ViewModels
             process.Start();
         }
 
-        void RenameCurrentFiles()
+        void RenameCurrentFiles(bool reverseNames = false)
         {
             try
             {
@@ -179,13 +187,13 @@ namespace UnitystationLauncher.ViewModels
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    from = Config.WinExeFullPath;
-                    to = Config.WinExeOldFullPath;
+                    from = reverseNames ? Config.WinExeOldFullPath : Config.WinExeFullPath;
+                    to = reverseNames ? Config.WinExeFullPath : Config.WinExeOldFullPath;
                 }
                 else
                 {
-                    from = Config.UnixExeFullPath;
-                    to = Config.UnixExeOldFullPath;
+                    from = reverseNames ? Config.UnixExeOldFullPath : Config.UnixExeFullPath;
+                    to = reverseNames ? Config.UnixExeFullPath : Config.UnixExeOldFullPath;
                 }
 
                 File.Move(from, to);
@@ -198,8 +206,15 @@ namespace UnitystationLauncher.ViewModels
 
         ViewModelBase CancelInstall()
         {
-            Application.Current.Exit();
+            cancelSource.Cancel();
+            RenameCurrentFiles(true);
             return loginVM.Value;
+        }
+
+        void RestartApp()
+        {
+            Application.Current.OnExit += OnExit;
+            Application.Current.Exit();
         }
     }
 }

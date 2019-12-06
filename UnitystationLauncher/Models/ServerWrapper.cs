@@ -14,7 +14,6 @@ using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using Mono.Unix;
 
 namespace UnitystationLauncher.Models
 {
