@@ -1,8 +1,15 @@
-﻿using ReactiveUI;
+﻿using Humanizer.Bytes;
+using ReactiveUI;
+using Serilog;
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
+using System.Net;
 using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using UnitystationLauncher.Models;
 
@@ -10,6 +17,7 @@ namespace UnitystationLauncher.ViewModels
 {
     public class HubUpdateViewModel : ViewModelBase
     {
+        private CancellationTokenSource cancelSource;
         private readonly Lazy<LoginViewModel> loginVM;
         private string updateTitle;
         private string updateMessage;
@@ -37,6 +45,7 @@ namespace UnitystationLauncher.ViewModels
 
         public ReactiveCommand<Unit, Unit> BeginDownload { get; }
         public ReactiveCommand<Unit, ViewModelBase> Cancel { get; }
+        public Subject<int> Progress { get; set; } = new Subject<int>();
 
         public bool InstallButtonVisible
         {
@@ -82,14 +91,58 @@ namespace UnitystationLauncher.ViewModels
 
         public void UpdateHub()
         {
-            TryUpdate();
+            cancelSource = new CancellationTokenSource();
+            TryUpdate(cancelSource.Token);
         }
 
-        async Task TryUpdate()
+        async Task TryUpdate(CancellationToken cancelToken)
         {
             InstallButtonVisible = false;
             DownloadBarVisible = true;
             UpdateTitle = "Downloading...";
+
+            Log.Information("Download started...");
+            var webRequest = WebRequest.Create(Config.serverHubClientConfig.GetDownloadURL());
+            var webResponse = await webRequest.GetResponseAsync();
+            var responseStream = webResponse.GetResponseStream();
+            Log.Information("Download connection established");
+            using var progStream = new ProgressStream(responseStream);
+            var length = webResponse.ContentLength;
+            var maxFileSize = ByteSize.FromBytes(length);
+
+            progStream.Progress
+                .Select(p => (int)(p * 100 / length))
+                .DistinctUntilChanged()
+                .Subscribe(p =>
+                {
+
+                    if (cancelToken.IsCancellationRequested)
+                    {
+                        progStream.Inner.Dispose();
+                        Progress.OnNext(0);
+                        return;
+                    }
+                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
+                    DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
+                    Progress.OnNext(p);
+                    Log.Information("Progress: {prog}", p);
+                });
+
+            await Task.Run(() =>
+            {
+                Log.Information("Extracting...");
+                try
+                {
+                    var archive = new ZipArchive(progStream);
+                    archive.ExtractToDirectory(Config.RootFolder, true);
+
+                    Log.Information("Download completed");
+                }
+                catch
+                {
+                    Log.Information("Extracting stopped");
+                }
+            });
         }
 
         ViewModelBase CancelInstall()
