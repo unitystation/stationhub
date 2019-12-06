@@ -14,8 +14,27 @@ namespace UnitystationLauncher.Models
         public static string InstallationFolder = "Installations";
         public static string apiUrl = "https://api.unitystation.org/serverlist";
         public static string validateUrl = "https://api.unitystation.org/validatehubclient";
-        public static int currentBuild = 901;
+
+        //file names
+        public static string winExeName = "UnitystationLauncher.exe";
+        public static string winExeNameOld = "UnitystationLauncherOld.exe";
+
+        public static string unixExeName = "UnitystationLauncher";
+        public static string unixExeNameOld = "UnitystationLauncheOld";
+
+        public static string WinExeFullPath => Path.Combine(RootFolder, winExeName);
+        public static string WinExeOldFullPath => Path.Combine(RootFolder, winExeNameOld);
+
+        public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
+        public static string UnixExeOldFullPath => Path.Combine(RootFolder, unixExeNameOld);
+
+        public static int currentBuild = 900;
         public static HubClientConfig serverHubClientConfig;
+
+        public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
+        public static string RootFolder { get; }
+        public static FileSystemWatcher FileWatcher { get; }
+        public static IObservable<Unit> InstallationChanges { get; }
 
         static Config()
         {
@@ -32,12 +51,6 @@ namespace UnitystationLauncher.Models
                 Observable.Return(Unit.Default))
                 .ObserveOn(SynchronizationContext.Current);
         }
-
-        public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
-        public static string RootFolder { get; }
-        public static FileSystemWatcher FileWatcher { get; }
-
-        public static IObservable<Unit> InstallationChanges { get; }
     }
 
     [Serializable]
