@@ -28,7 +28,7 @@ namespace UnitystationLauncher.Models
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
         public static string UnixExeOldFullPath => Path.Combine(RootFolder, unixExeNameOld);
 
-        public static int currentBuild = 900;
+        public static int currentBuild = 899;
         public static HubClientConfig serverHubClientConfig;
 
         public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);

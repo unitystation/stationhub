@@ -166,8 +166,13 @@ namespace UnitystationLauncher.ViewModels
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                from = Path.Combine(Config.RootFolder, "UnitystationLauncher.exe");
-                to = Path.Combine(Config.RootFolder, "UnitystationLauncherOld.exe");
+                from = Config.winExeName;
+                to = Config.winExeNameOld;
+            }
+            else
+            {
+                from = Config.unixExeName;
+                to = Config.unixExeNameOld;
             }
 
             Console.WriteLine($"Try to rename from {from} to {to}");
