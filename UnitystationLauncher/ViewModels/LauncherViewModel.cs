@@ -1,16 +1,14 @@
 ﻿using ReactiveUI;
 using UnitystationLauncher.Models;
-using System.Net.Http;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
 using System.Reactive;
 using System.IO;
-using System.Runtime.InteropServices;
 using System;
-using System.Net;
-using System.IO.Compression;
-using System.Net.Sockets;
-using Firebase.Auth;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
+using Serilog;
+using System.Windows.Input;
+using System.Reactive.Linq;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -18,20 +16,27 @@ namespace UnitystationLauncher.ViewModels
     {
         private readonly AuthManager authManager;
         private readonly Lazy<LoginViewModel> logoutVM;
+        private readonly Lazy<HubUpdateViewModel> hubUpdateVM;
         string username;
         ViewModelBase news;
         PanelBase[] panels;
         ViewModelBase? selectedPanel;
+
+        private readonly HttpClient http;
 
         public LauncherViewModel(
             AuthManager authManager, 
             ServersPanelViewModel serversPanel, 
             InstallationsPanelViewModel installationsPanel,
             NewsViewModel news,
-            Lazy<LoginViewModel> logoutVM)
+            Lazy<LoginViewModel> logoutVM, 
+            HttpClient http,
+            Lazy<HubUpdateViewModel> hubUpdateVM)
         {
             this.authManager = authManager;
             this.logoutVM = logoutVM;
+            this.hubUpdateVM = hubUpdateVM;
+            this.http = http;
             News = news;
             Panels = new PanelBase[]
             {
@@ -40,7 +45,21 @@ namespace UnitystationLauncher.ViewModels
             };
             Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
+            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
+            ValidateClientVersion();
+        }
+
+        async Task ValidateClientVersion()
+        {
+            var data = await http.GetStringAsync(Config.validateUrl);
+            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+
+            if(Config.serverHubClientConfig.buildNumber != Config.currentBuild)
+            {
+                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
+                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
+            }
         }
 
         public string Username
@@ -67,12 +86,18 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref selectedPanel, value);
         }
 
-        public ReactiveCommand<Unit, ViewModelBase> Logout { get; }
+        public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
+        public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
 
-        ViewModelBase LogoutImp()
+        LoginViewModel LogoutImp()
         {
             File.Delete("settings.json");
             return logoutVM.Value;
+        }
+
+        HubUpdateViewModel ShowUpdateImp()
+        {
+            return hubUpdateVM.Value;
         }
     }
 }

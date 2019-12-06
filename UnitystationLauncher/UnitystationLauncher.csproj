@@ -25,7 +25,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWIN64|x64'">
     <DefineConstants>PLATFORM_WIN64;PLATFORM_WIN;PLATFORM_64</DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePOSIX64|AnyCPU'">
     <DefineConstants />
@@ -57,10 +57,12 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Views\HubUpdateView.xaml" />
     <AvaloniaResource Remove="Views\InstallationsPanelView.xaml" />
     <AvaloniaResource Remove="Views\ServersPanelView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\HubUpdateView.xaml" />
     <None Remove="Views\InstallationsPanelView.xaml" />
     <None Remove="Views\ServersPanelView.xaml" />
   </ItemGroup>
@@ -95,8 +97,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Update="steam_api64.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="Views\HubUpdateView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
