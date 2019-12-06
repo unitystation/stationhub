@@ -12,13 +12,21 @@
     <StackPanel.Background>
       <SolidColorBrush Color="White" Opacity="0.07" />
     </StackPanel.Background>
+    <Border BorderThickness="1" BorderBrush="#c5c5c5" />
 
     <StackPanel>
       <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10"
-                 Text="Update Required." />
-      <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Margin="5"
-                 Text="{Binding UpdateMessage}" />
+                 Text="{Binding UpdateTitle}" />
+      <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Margin="10"
+                 Text="{Binding UpdateMessage}" IsVisible="{Binding InstallButtonVisible}"/>
+      <Button Command="{Binding BeginDownload}" Padding="5" Margin="10"
+              HorizontalAlignment="Center" MinWidth="100"
+              Content="{Binding ButtonMessage}" IsVisible="{Binding InstallButtonVisible}"/>
+      <Button Command="{Binding Cancel}" Padding="5" Margin="10"
+              HorizontalAlignment="Center" MinWidth="100"
+              Content="Cancel" IsVisible="{Binding DownloadBarVisible}"/>
     </StackPanel>
+    <Border BorderThickness="1" BorderBrush="#c5c5c5" />
   </StackPanel>
 
 </UserControl>
