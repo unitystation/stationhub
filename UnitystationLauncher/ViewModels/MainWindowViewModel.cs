@@ -85,8 +85,9 @@ namespace UnitystationLauncher.ViewModels
                     loginStatusVM.GoBack.Select(vm => (ViewModelBase) vm),
                     loginStatusVM.OpenLauncher.Select(vm => (ViewModelBase) vm)),
                 
-                LauncherViewModel launcherVM => 
-                    launcherVM.Logout,
+                LauncherViewModel launcherVM => Observable.Merge(
+                    launcherVM.Logout.Select(vm => (ViewModelBase) vm),
+                    launcherVM.ShowUpdateReqd.Select(vm => (ViewModelBase) vm)),
                 
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,

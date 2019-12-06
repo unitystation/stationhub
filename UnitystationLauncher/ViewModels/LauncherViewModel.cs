@@ -40,7 +40,8 @@ namespace UnitystationLauncher.ViewModels
             };
             Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
-            SelectedPanel = serversPanel;
+            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
+            SelectedPanel = serversPanel;  
         }
 
         public string Username
@@ -68,10 +69,16 @@ namespace UnitystationLauncher.ViewModels
         }
 
         public ReactiveCommand<Unit, ViewModelBase> Logout { get; }
+        public ReactiveCommand<Unit, ViewModelBase> ShowUpdateReqd { get; }
 
         ViewModelBase LogoutImp()
         {
             File.Delete("settings.json");
+            return logoutVM.Value;
+        }
+
+        ViewModelBase ShowUpdateImp()
+        {
             return logoutVM.Value;
         }
     }
