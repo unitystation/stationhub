@@ -1,13 +1,17 @@
-﻿using Humanizer.Bytes;
+﻿using Avalonia;
+using Humanizer.Bytes;
 using ReactiveUI;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,7 +104,7 @@ namespace UnitystationLauncher.ViewModels
             InstallButtonVisible = false;
             DownloadBarVisible = true;
             UpdateTitle = "Downloading...";
-
+            RenameCurrentFiles();
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(Config.serverHubClientConfig.GetDownloadURL());
             var webResponse = await webRequest.GetResponseAsync();
@@ -109,7 +113,6 @@ namespace UnitystationLauncher.ViewModels
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
-
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
@@ -143,10 +146,37 @@ namespace UnitystationLauncher.ViewModels
                     Log.Information("Extracting stopped");
                 }
             });
+
+            Application.Current.OnExit += OnExit;
+        }
+
+        private void OnExit(object? sender, EventArgs e)
+        {
+            Console.WriteLine("Attempt to start new client");
+            var startInfo = new ProcessStartInfo(Path.Combine(Config.RootFolder, "UnitystationLauncher.exe"));
+            var process = new Process();
+            process.StartInfo = startInfo;
+            process.Start();
+        }
+
+        void RenameCurrentFiles()
+        {
+            var from = "";
+            var to = "";
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                from = Path.Combine(Config.RootFolder, "UnitystationLauncher.exe");
+                to = Path.Combine(Config.RootFolder, "UnitystationLauncherOld.exe");
+            }
+
+            Console.WriteLine($"Try to rename from {from} to {to}");
+            File.Move(from, to);
         }
 
         ViewModelBase CancelInstall()
         {
+            Application.Current.Exit();
             return loginVM.Value;
         }
     }

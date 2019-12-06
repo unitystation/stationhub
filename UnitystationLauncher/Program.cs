@@ -9,6 +9,7 @@ using System.IO;
 using Serilog.Events;
 using Autofac;
 using AutofacSerilogIntegration;
+using System.Runtime.InteropServices;
 
 namespace UnitystationLauncher
 {
@@ -45,13 +46,13 @@ namespace UnitystationLauncher
                 .CreateLogger();
 
             Log.Information($"Build Number: {Config.currentBuild}");
-            
+            CleanUpdateFiles();
             var builder = new ContainerBuilder();
             builder.RegisterModule(new StandardModule());
             builder.RegisterLogger();
 
             using var container = builder.Build();
-
+            
             try
             {
                 var window = new MainWindow
@@ -65,6 +66,27 @@ namespace UnitystationLauncher
             {
                 Log.Fatal(e, "A fatal exception occured");
                 throw;
+            }
+        }
+
+        //Gets rid of any old update files if they exist
+        static void CleanUpdateFiles()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                if (File.Exists(Config.winExeNameOld))
+                {
+                    Console.WriteLine("Delete update files!");
+                    File.Delete(Config.winExeNameOld);
+                }
+            }
+            else
+            {
+                if (File.Exists(Config.unixExeNameOld))
+                {
+                    Console.WriteLine("Delete update files!");
+                    File.Delete(Config.unixExeNameOld);
+                }
             }
         }
     }

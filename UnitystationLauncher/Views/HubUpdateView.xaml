@@ -19,6 +19,14 @@
                  Text="{Binding UpdateTitle}" />
       <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Margin="10"
                  Text="{Binding UpdateMessage}" IsVisible="{Binding InstallButtonVisible}"/>
+      <!--Downloading bar-->
+      <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Center" IsVisible="{Binding DownloadBarVisible}">
+        <Viewbox Margin="30 0 30 5" MaxHeight="25">
+          <ProgressBar Value="{Binding Progress^}" Background="#353F4F"/>
+        </Viewbox>
+        <TextBlock Text="{Binding DownloadMessage}" HorizontalAlignment="Center" FontSize="14" />
+      </StackPanel>
+      
       <Button Command="{Binding BeginDownload}" Padding="5" Margin="10"
               HorizontalAlignment="Center" MinWidth="100"
               Content="{Binding ButtonMessage}" IsVisible="{Binding InstallButtonVisible}"/>
