@@ -1,16 +1,12 @@
 ﻿using ReactiveUI;
 using UnitystationLauncher.Models;
-using System.Net.Http;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
 using System.Reactive;
 using System.IO;
-using System.Runtime.InteropServices;
 using System;
-using System.Net;
-using System.IO.Compression;
-using System.Net.Sockets;
-using Firebase.Auth;
+using System.Threading.Tasks;
+using System.Net.Http;
+using Newtonsoft.Json;
+using Serilog;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -23,15 +19,18 @@ namespace UnitystationLauncher.ViewModels
         PanelBase[] panels;
         ViewModelBase? selectedPanel;
 
+        private readonly HttpClient http;
+
         public LauncherViewModel(
             AuthManager authManager, 
             ServersPanelViewModel serversPanel, 
             InstallationsPanelViewModel installationsPanel,
             NewsViewModel news,
-            Lazy<LoginViewModel> logoutVM)
+            Lazy<LoginViewModel> logoutVM, HttpClient http )
         {
             this.authManager = authManager;
             this.logoutVM = logoutVM;
+            this.http = http;
             News = news;
             Panels = new PanelBase[]
             {
@@ -41,7 +40,20 @@ namespace UnitystationLauncher.ViewModels
             Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
-            SelectedPanel = serversPanel;  
+            SelectedPanel = serversPanel;
+            ValidateClientVersion();
+        }
+
+        async Task ValidateClientVersion()
+        {
+            var data = await http.GetStringAsync(Config.validateUrl);
+            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+
+            if(Config.serverHubClientConfig.buildNumber != Config.currentBuild)
+            {
+                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
+                ShowUpdateReqd.Execute().Subscribe();
+            }
         }
 
         public string Username

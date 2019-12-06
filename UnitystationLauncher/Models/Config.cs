@@ -12,6 +12,9 @@ namespace UnitystationLauncher.Models
         public static string email;
         public static string InstallationFolder = "Installations";
         public static string apiUrl = "https://api.unitystation.org/serverlist";
+        public static string validateUrl = "https://api.unitystation.org/validatehubclient";
+        public static int currentBuild = 901;
+        public static HubClientConfig serverHubClientConfig;
 
         static Config()
         {
@@ -34,5 +37,15 @@ namespace UnitystationLauncher.Models
         public static FileSystemWatcher FileWatcher { get; }
 
         public static IObservable<Unit> InstallationChanges { get; }
+    }
+
+    [Serializable]
+    public class HubClientConfig
+    {
+        public int buildNumber;
+        public string winURL;
+        public string osxURL;
+        public string linuxURL;
+        public string dailyMessage;
     }
 }

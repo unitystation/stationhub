@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Logging.Serilog;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
+using UnitystationLauncher.Models;
 using Serilog;
 using System.IO;
 using Serilog.Events;
@@ -43,8 +44,8 @@ namespace UnitystationLauncher
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
-            Log.Information("Version 0.11");
-
+            Log.Information($"Build Number: {Config.currentBuild}");
+            
             var builder = new ContainerBuilder();
             builder.RegisterModule(new StandardModule());
             builder.RegisterLogger();
