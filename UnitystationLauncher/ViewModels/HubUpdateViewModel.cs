@@ -95,6 +95,12 @@ namespace UnitystationLauncher.ViewModels
 
         public void UpdateHub()
         {
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Config.SetPermissions(Config.UnixExeFullPath);
+            }
+
             cancelSource = new CancellationTokenSource();
             TryUpdate(cancelSource.Token);
         }
@@ -140,6 +146,11 @@ namespace UnitystationLauncher.ViewModels
                     archive.ExtractToDirectory(Config.RootFolder, true);
 
                     Log.Information("Download completed");
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                        RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        Config.SetPermissions(Config.UnixExeFullPath);
+                    }
                 }
                 catch
                 {
@@ -152,8 +163,8 @@ namespace UnitystationLauncher.ViewModels
 
         private void OnExit(object? sender, EventArgs e)
         {
-            Console.WriteLine("Attempt to start new client");
-            var startInfo = new ProcessStartInfo(Path.Combine(Config.RootFolder, "UnitystationLauncher.exe"));
+            Log.Information("Attempt to start new client");
+            var startInfo = new ProcessStartInfo(Path.Combine(Config.GetHubExecutable()));
             var process = new Process();
             process.StartInfo = startInfo;
             process.Start();
@@ -161,22 +172,28 @@ namespace UnitystationLauncher.ViewModels
 
         void RenameCurrentFiles()
         {
-            var from = "";
-            var to = "";
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            try
             {
-                from = Config.winExeName;
-                to = Config.winExeNameOld;
-            }
-            else
-            {
-                from = Config.unixExeName;
-                to = Config.unixExeNameOld;
-            }
+                var from = "";
+                var to = "";
 
-            Console.WriteLine($"Try to rename from {from} to {to}");
-            File.Move(from, to);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    from = Config.WinExeFullPath;
+                    to = Config.WinExeOldFullPath;
+                }
+                else
+                {
+                    from = Config.UnixExeFullPath;
+                    to = Config.UnixExeOldFullPath;
+                }
+
+                File.Move(from, to);
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error: " + e.Message);
+            }
         }
 
         ViewModelBase CancelInstall()

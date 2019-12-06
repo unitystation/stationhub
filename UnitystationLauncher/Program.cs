@@ -74,18 +74,18 @@ namespace UnitystationLauncher
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (File.Exists(Config.winExeNameOld))
+                if (File.Exists(Config.WinExeOldFullPath))
                 {
                     Console.WriteLine("Delete update files!");
-                    File.Delete(Config.winExeNameOld);
+                    File.Delete(Config.WinExeOldFullPath);
                 }
             }
             else
             {
-                if (File.Exists(Config.unixExeNameOld))
+                if (File.Exists(Config.UnixExeOldFullPath))
                 {
                     Console.WriteLine("Delete update files!");
-                    File.Delete(Config.unixExeNameOld);
+                    File.Delete(Config.UnixExeOldFullPath);
                 }
             }
         }

@@ -1,5 +1,6 @@
 ﻿using Serilog;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -41,7 +42,16 @@ namespace UnitystationLauncher.Models
             Directory.CreateDirectory(InstallationsPath);
 
             FileWatcher = new FileSystemWatcher(InstallationsPath) { EnableRaisingEvents = true, IncludeSubdirectories = true };
-            RootFolder = Environment.CurrentDirectory;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                RootFolder = Environment.CurrentDirectory;
+            }
+            else
+            {
+                RootFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+            }
+
             InstallationChanges = Observable.Merge(
                 Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                     h => FileWatcher.Changed += h,
@@ -51,6 +61,39 @@ namespace UnitystationLauncher.Models
                 Observable.Return(Unit.Default))
                 .ObserveOn(SynchronizationContext.Current);
         }
+
+        public static void SetPermissions(string path)
+        {
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    ProcessStartInfo startInfo;
+                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {path}");
+                    var process = new Process();
+                    process.StartInfo = startInfo;
+
+                    process.Start();
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "An exception occurred when setting the permissions");
+            }
+        }
+
+        public static string GetHubExecutable()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return UnixExeFullPath;
+            }
+
+            return WinExeFullPath;
+        }
+
     }
 
     [Serializable]
