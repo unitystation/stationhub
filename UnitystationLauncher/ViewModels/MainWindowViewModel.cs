@@ -92,6 +92,10 @@ namespace UnitystationLauncher.ViewModels
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,
                     signUpViewModel.DoneButton),
+
+                HubUpdateViewModel hubUpdateViewModel => Observable.Merge(
+                    hubUpdateViewModel.GoBack),
+
                 
                 _  => throw new ArgumentException($"ViewModel type is not handled and will never be able to change")
             });

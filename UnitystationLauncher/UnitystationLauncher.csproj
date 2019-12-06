@@ -57,10 +57,12 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
   <ItemGroup>
+    <AvaloniaResource Remove="Views\HubUpdateView.xaml" />
     <AvaloniaResource Remove="Views\InstallationsPanelView.xaml" />
     <AvaloniaResource Remove="Views\ServersPanelView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\HubUpdateView.xaml" />
     <None Remove="Views\InstallationsPanelView.xaml" />
     <None Remove="Views\ServersPanelView.xaml" />
   </ItemGroup>
@@ -91,6 +93,11 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\InstallationsPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\HubUpdateView.xaml">
       <Generator>MSBuild:Compile</Generator>
     </EmbeddedResource>
   </ItemGroup>

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using Newtonsoft.Json;
 using Serilog;
+using System.Windows.Input;
+using System.Reactive.Linq;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -14,6 +16,7 @@ namespace UnitystationLauncher.ViewModels
     {
         private readonly AuthManager authManager;
         private readonly Lazy<LoginViewModel> logoutVM;
+        private readonly Lazy<HubUpdateViewModel> hubUpdateVM;
         string username;
         ViewModelBase news;
         PanelBase[] panels;
@@ -26,10 +29,13 @@ namespace UnitystationLauncher.ViewModels
             ServersPanelViewModel serversPanel, 
             InstallationsPanelViewModel installationsPanel,
             NewsViewModel news,
-            Lazy<LoginViewModel> logoutVM, HttpClient http )
+            Lazy<LoginViewModel> logoutVM, 
+            HttpClient http,
+            Lazy<HubUpdateViewModel> hubUpdateVM)
         {
             this.authManager = authManager;
             this.logoutVM = logoutVM;
+            this.hubUpdateVM = hubUpdateVM;
             this.http = http;
             News = news;
             Panels = new PanelBase[]
@@ -52,7 +58,7 @@ namespace UnitystationLauncher.ViewModels
             if(Config.serverHubClientConfig.buildNumber != Config.currentBuild)
             {
                 Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
-                ShowUpdateReqd.Execute().Subscribe();
+                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
             }
         }
 
@@ -80,18 +86,18 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref selectedPanel, value);
         }
 
-        public ReactiveCommand<Unit, ViewModelBase> Logout { get; }
-        public ReactiveCommand<Unit, ViewModelBase> ShowUpdateReqd { get; }
+        public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
+        public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
 
-        ViewModelBase LogoutImp()
+        LoginViewModel LogoutImp()
         {
             File.Delete("settings.json");
             return logoutVM.Value;
         }
 
-        ViewModelBase ShowUpdateImp()
+        HubUpdateViewModel ShowUpdateImp()
         {
-            return logoutVM.Value;
+            return hubUpdateVM.Value;
         }
     }
 }
