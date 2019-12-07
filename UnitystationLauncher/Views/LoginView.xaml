@@ -6,44 +6,43 @@
              TextBlock.FontSize="18"
              VerticalAlignment="Center"
              x:Class="UnitystationLauncher.Views.LoginView">
+
+  <StackPanel>
+    <Border BorderThickness="1" BorderBrush="#c5c5c5" />
     
+    <!-- Login form content -->
     <StackPanel>
-        <StackPanel.Background>
-            <SolidColorBrush Color="White" Opacity="0.07" />
-        </StackPanel.Background>
-        <Border BorderThickness="1" BorderBrush="#c5c5c5" />
+      <StackPanel.Background>
+        <SolidColorBrush Color="White" Opacity="0.07" />
+      </StackPanel.Background>
+      <StackPanel Orientation="Horizontal" Height="50" Margin="20" HorizontalAlignment="Center">
+        <Viewbox Margin="5">
+          <Image Source="/Assets/Ian512.png" />
+        </Viewbox>
+        <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
+      </StackPanel>
+      <TextBox Text="{Binding Email}" Margin="15" Watermark="Email" MaxWidth="400">
+        <TextBox.KeyBindings>
+          <KeyBinding Command="{Binding Login}" Gesture="Return" />
+        </TextBox.KeyBindings>
+      </TextBox>
+      <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400">
+        <TextBox.KeyBindings>
+          <KeyBinding Command="{Binding Login}" Gesture="Return" />
+        </TextBox.KeyBindings>
+      </TextBox>
 
-        <!-- Login form content -->
-        <StackPanel>
-            <StackPanel Orientation="Horizontal" Height="50" Margin="20" HorizontalAlignment="Center">
-                <Viewbox Margin="5">
-                    <Image Source="/Assets/Ian512.png" />
-                </Viewbox>
-                <TextBlock VerticalAlignment="Center" Margin="5">Login</TextBlock>
-            </StackPanel>
-            <TextBox Text="{Binding Email}" Margin="15" Watermark="Email" MaxWidth="400">
-                <TextBox.KeyBindings>
-                    <KeyBinding Command="{Binding Login}" Gesture="Return" />
-                </TextBox.KeyBindings>
-            </TextBox>
-            <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400">
-                <TextBox.KeyBindings>
-                    <KeyBinding Command="{Binding Login}" Gesture="Return" />
-                </TextBox.KeyBindings>
-            </TextBox>
-
-            <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
-                <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
-                        MinWidth="100">
-                    Create
-                </Button>
-                <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
-                        MinWidth="100">
-                    Login
-                </Button>
-            </Grid>
-        </StackPanel>
-        
-        <Border BorderThickness="1" BorderBrush="#c5c5c5" />
+      <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
+        <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
+                MinWidth="100">
+          Create
+        </Button>
+        <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
+                MinWidth="100">
+          Login
+        </Button>
+      </Grid>
     </StackPanel>
+    <Border BorderThickness="1" BorderBrush="#c5c5c5" />
+  </StackPanel>
 </UserControl>

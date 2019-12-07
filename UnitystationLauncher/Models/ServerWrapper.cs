@@ -14,7 +14,6 @@ using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
-using Mono.Unix;
 
 namespace UnitystationLauncher.Models
 {
@@ -155,36 +154,14 @@ namespace UnitystationLauncher.Models
                     archive.ExtractToDirectory(InstallationPath, true);
 
                     Log.Information("Download completed");
-                    SetPermissions(InstallationPath);
+                    var exe = Installation.FindExecutable(InstallationPath);
+                    Config.SetPermissions(exe);
                 }
                 catch
                 {
                     Log.Information("Extracting stopped");
                 }
             });
-        }
-
-        private void SetPermissions(string path)
-        {
-            try
-            {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    ProcessStartInfo startInfo;
-                    var exe = Installation.FindExecutable(path);
-                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {exe}");
-                    startInfo.UseShellExecute = true;
-                    var process = new Process();
-                    process.StartInfo = startInfo;
-
-                    process.Start();
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "An exception occurred when setting the permissions");
-            }
         }
 
         bool ClientInstalled
