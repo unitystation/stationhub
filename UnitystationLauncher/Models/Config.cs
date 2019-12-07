@@ -17,11 +17,11 @@ namespace UnitystationLauncher.Models
         public static string validateUrl = "https://api.unitystation.org/validatehubclient";
 
         //file names
-        public static string winExeName = "UnitystationLauncher.exe";
-        public static string winExeNameOld = "UnitystationLauncherOld.exe";
+        public static string winExeName = "StationHub.exe";
+        public static string winExeNameOld = "StationHubOld.exe";
 
-        public static string unixExeName = "UnitystationLauncher";
-        public static string unixExeNameOld = "UnitystationLauncheOld";
+        public static string unixExeName = "StationHub";
+        public static string unixExeNameOld = "StationHubOld";
 
         public static string WinExeFullPath => Path.Combine(RootFolder, winExeName);
         public static string WinExeOldFullPath => Path.Combine(RootFolder, winExeNameOld);

@@ -6,6 +6,11 @@
     <Nullable>enable</Nullable>
     <Configurations>Debug;Release;ReleasePOSIX64;ReleaseWIN64</Configurations>
     <Platforms>AnyCPU;x64</Platforms>
+    <PackageId>StationHub</PackageId>
+    <Product>StationHub</Product>
+    <Authors>Doobly, Deadline, Redline</Authors>
+    <Company>Unitystation Org</Company>
+    <AssemblyName>StationHub</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants></DefineConstants>
@@ -25,7 +30,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWIN64|x64'">
     <DefineConstants>PLATFORM_WIN64;PLATFORM_WIN;PLATFORM_64</DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleasePOSIX64|AnyCPU'">
     <DefineConstants />

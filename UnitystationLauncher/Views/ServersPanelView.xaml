@@ -116,7 +116,7 @@
       </Border>
       <Border BorderThickness="1" BorderBrush="DarkGray" Grid.Column="7" Grid.Row="0" VerticalAlignment="Top" Height="25">
         <Button Command="{Binding Refresh}" Background="#45458BD1">
-          <Image Source="avares://UnitystationLauncher/Assets/refresh.png" Height="20" Width="20"/>
+          <Image Source="avares://StationHub/Assets/refresh.png" Height="20" Width="20"/>
         </Button>
       </Border>
     </Grid>
