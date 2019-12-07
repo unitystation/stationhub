@@ -21,7 +21,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override string Name => "Servers";
         public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
-            .Open(new Uri("avares://UnitystationLauncher/Assets/servericon.png")));
+            .Open(new Uri("avares://StationHub/Assets/servericon.png")));
         
 
         public ServerWrapper? SelectedServer

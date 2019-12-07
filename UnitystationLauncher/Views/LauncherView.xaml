@@ -14,7 +14,7 @@
         <Viewbox MaxWidth="130" MaxHeight="22" HorizontalAlignment="Left" VerticalAlignment="Center">
           <Border Margin="4 0 0 0" VerticalAlignment="Center" MinWidth="60" >
             <Border.Background>
-              <ImageBrush Source="avares://UnitystationLauncher/Assets/userbg.png" Stretch="Fill" />
+              <ImageBrush Source="avares://StationHub/Assets/userbg.png" Stretch="Fill" />
             </Border.Background>
             <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1" HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" TextWrapping="Wrap" MaxWidth="130" MaxHeight="20"/>
           </Border>

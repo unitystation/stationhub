@@ -19,7 +19,7 @@ namespace UnitystationLauncher.ViewModels
     {
         public override string Name => "Installations";
         public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
-            .Open(new Uri("avares://UnitystationLauncher/Assets/archiveicon.png")));
+            .Open(new Uri("avares://StationHub/Assets/archiveicon.png")));
         private InstallationManager installationManager;
 
         private Installation? selectedInstallation;
