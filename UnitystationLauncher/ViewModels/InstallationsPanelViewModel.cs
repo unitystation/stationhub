@@ -23,6 +23,7 @@ namespace UnitystationLauncher.ViewModels
         private InstallationManager installationManager;
 
         private Installation? selectedInstallation;
+        string? buildNum;
 
         public InstallationsPanelViewModel(InstallationManager installationManager)
         {
@@ -38,6 +39,9 @@ namespace UnitystationLauncher.ViewModels
                 File.WriteAllText("prefs.json", data);
                 AutoRemove.Value = true;
             }
+
+            BuildNum = $"Hub Build Num: {Config.currentBuild}";
+
             installationManager.AutoRemove = AutoRemove.Value;
             CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick, null);
         }
@@ -49,6 +53,12 @@ namespace UnitystationLauncher.ViewModels
         {
             get => selectedInstallation;
             set => this.RaiseAndSetIfChanged(ref selectedInstallation, value);
+        }
+
+        public string? BuildNum
+        {
+            get => buildNum;
+            set => this.RaiseAndSetIfChanged(ref buildNum, value);
         }
 
         //This is a Reactive Command action as confirmation needs to happen with the
