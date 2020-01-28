@@ -14,6 +14,7 @@ using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace UnitystationLauncher.Models
 {
@@ -191,8 +192,10 @@ namespace UnitystationLauncher.Models
                 var exe = Installation.FindExecutable(InstallationPath);
                 if (exe != null)
                 {
-                    Application.Current.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
-
+                    if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+                    {
+                        desktopLifetime.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+                    }
                     ProcessStartInfo startInfo;
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
