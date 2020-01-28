@@ -10,6 +10,9 @@ using Serilog.Events;
 using Autofac;
 using AutofacSerilogIntegration;
 using System.Runtime.InteropServices;
+using Avalonia.ReactiveUI;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls;
 
 namespace UnitystationLauncher
 {
@@ -19,6 +22,7 @@ namespace UnitystationLauncher
         // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
         // yet and stuff might break.
         public static void Main(string[] args) => BuildAvaloniaApp().Start(AppMain, args);
+
 
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp()
@@ -34,7 +38,7 @@ namespace UnitystationLauncher
                 })
                 .LogToDebug()
                 .UseReactiveUI();
-
+     
         // Your application's entry point. Here you can initialize your MVVM framework, DI
         // container, etc.
         private static void AppMain(Application app, string[] args)

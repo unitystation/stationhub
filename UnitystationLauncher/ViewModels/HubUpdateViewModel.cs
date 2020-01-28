@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Humanizer.Bytes;
 using ReactiveUI;
 using Serilog;
@@ -213,8 +214,11 @@ namespace UnitystationLauncher.ViewModels
 
         void RestartApp()
         {
-            Application.Current.OnExit += OnExit;
-            Application.Current.Exit();
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                desktopLifetime.Exit += OnExit;
+                desktopLifetime.Shutdown();
+            }
         }
     }
 }

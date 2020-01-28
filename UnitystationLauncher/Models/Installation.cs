@@ -121,7 +121,7 @@ namespace UnitystationLauncher.Models
         {
             try
             {
-                var msgBox = MessageBoxWindow.CreateCustomWindow(new MessageBoxCustomParams
+                var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {
                     Style = MessageBox.Avalonia.Enums.Style.None,
                     Icon = MessageBox.Avalonia.Enums.Icon.None,
