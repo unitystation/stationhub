@@ -147,7 +147,7 @@ namespace UnitystationLauncher.Models
                     }
                     else
                     {
-                        Directory.Delete(InstallationPath, true);
+                        DeleteFolder(InstallationPath);
                     }
                 }
             }
@@ -155,6 +155,27 @@ namespace UnitystationLauncher.Models
             {
                 Log.Error(e, "An exception occurred during the deletion of an installation");
             }
+        }
+
+        private void DeleteFolder(string targetDir)
+        {
+            File.SetAttributes(targetDir, FileAttributes.Normal);
+
+            string[] files = Directory.GetFiles(targetDir);
+            string[] dirs = Directory.GetDirectories(targetDir);
+
+            foreach (string file in files)
+            {
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            foreach (string dir in dirs)
+            {
+                DeleteFolder(dir);
+            }
+
+            Directory.Delete(targetDir, false);
         }
 
         public static string GetForkName(string s)
