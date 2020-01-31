@@ -41,7 +41,8 @@ namespace UnitystationLauncher.Models
         {
             Directory.CreateDirectory(InstallationsPath);
 
-            FileWatcher = new FileSystemWatcher(InstallationsPath) { EnableRaisingEvents = true, IncludeSubdirectories = true };
+            FileWatcher = new FileSystemWatcher(InstallationsPath) { EnableRaisingEvents = true, IncludeSubdirectories = true, 
+                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName };
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -52,11 +53,10 @@ namespace UnitystationLauncher.Models
                 RootFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             }
 
-            InstallationChanges = Observable.Merge(
+                InstallationChanges = Observable.Merge(
                 Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                     h => FileWatcher.Changed += h,
                     h => FileWatcher.Changed -= h)
-                .Do(o => Log.Debug("File refresh: {FileName}", o.EventArgs.Name))
                 .Select(e => Unit.Default),
                 Observable.Return(Unit.Default))
                 .ObserveOn(SynchronizationContext.Current);

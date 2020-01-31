@@ -20,7 +20,7 @@ namespace UnitystationLauncher.Models
         {
             installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
             Config.InstallationChanges
-                .ThrottleSubsequent(TimeSpan.FromMilliseconds(200))
+                .ThrottleSubsequent(TimeSpan.FromMilliseconds(1000))
                 .Select(f =>
                     Directory.EnumerateDirectories(Config.InstallationsPath)
                         .Select(dir => new Installation(dir))
@@ -50,7 +50,7 @@ namespace UnitystationLauncher.Models
                 }
                 try
                 {
-                   Directory.Delete(i.InstallationPath, true);
+                   i.DeleteInstallation();
                 }
                 catch (Exception e)
                 {

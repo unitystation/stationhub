@@ -21,6 +21,8 @@ namespace UnitystationLauncher.Models
 {
     public class Installation
     {
+        private InstallationManager installManager;
+
         private Installation()
         {
             Play = ReactiveCommand.Create(StartImp);
@@ -67,8 +69,7 @@ namespace UnitystationLauncher.Models
             else
             {
                 exe = files.SingleOrDefault(s =>
-                    s.EndsWith("station") &&
-                    (new UnixFileInfo(s).FileAccessPermissions & FileAccessPermissions.UserExecute) > 0);
+                    s.EndsWith("station"));
             }
 
             return exe;
@@ -133,27 +134,32 @@ namespace UnitystationLauncher.Models
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    Log.Information($"Perform delete of {InstallationPath}");
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-                    || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    {
-                        ProcessStartInfo startInfo;
-                        startInfo = new ProcessStartInfo("rm", $"-r {InstallationPath}");
-                        startInfo.UseShellExecute = false;
-                        var process = new Process();
-                        process.StartInfo = startInfo;
-
-                        process.Start();
-                    }
-                    else
-                    {
-                        DeleteFolder(InstallationPath);
-                    }
+                    DeleteInstallation();
                 }
             }
             catch (Exception e)
             {
                 Log.Error(e, "An exception occurred during the deletion of an installation");
+            }
+        }
+
+        public void DeleteInstallation()
+        {
+            Log.Information($"Perform delete of {InstallationPath}");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+            || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                ProcessStartInfo startInfo;
+                startInfo = new ProcessStartInfo("rm", $"-r {InstallationPath}");
+                startInfo.UseShellExecute = false;
+                var process = new Process();
+                process.StartInfo = startInfo;
+
+                process.Start();
+            }
+            else
+            {
+                DeleteFolder(InstallationPath);
             }
         }
 
