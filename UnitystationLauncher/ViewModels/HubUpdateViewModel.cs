@@ -108,18 +108,25 @@ namespace UnitystationLauncher.ViewModels
 
         async Task TryUpdate(CancellationToken cancelToken)
         {
+            Directory.CreateDirectory(Config.TempFolder);
+            Config.SetPermissions(Config.TempFolder);
+
             InstallButtonVisible = false;
             DownloadBarVisible = true;
             UpdateTitle = "Downloading...";
-            RenameCurrentFiles();
+
             Log.Information("Download started...");
+
             var webRequest = WebRequest.Create(Config.serverHubClientConfig.GetDownloadURL());
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
+
             Log.Information("Download connection established");
+
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
+
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
@@ -144,7 +151,7 @@ namespace UnitystationLauncher.ViewModels
                 try
                 {
                     var archive = new ZipArchive(progStream);
-                    archive.ExtractToDirectory(Config.RootFolder, true);
+                    archive.ExtractToDirectory(Config.TempFolder, true);
 
                     Log.Information("Download completed");
                 }
@@ -162,6 +169,7 @@ namespace UnitystationLauncher.ViewModels
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                         RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
+                Config.SetPermissions(Config.UnixExeTempPath);
                 Config.SetPermissions(Config.UnixExeFullPath);
             }
 
@@ -172,43 +180,36 @@ namespace UnitystationLauncher.ViewModels
 
         private void OnExit(object? sender, EventArgs e)
         {
-            Log.Information("Attempt to start new client");
-            var startInfo = new ProcessStartInfo(Path.Combine(Config.GetHubExecutable()));
-            var process = new Process();
-            process.StartInfo = startInfo;
-            process.Start();
-        }
-
-        void RenameCurrentFiles(bool reverseNames = false)
-        {
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var from = "";
-                var to = "";
+                string argument = "/C Choice /C Y /N /D Y /T 1 & Del /F /Q \"{0}\" & Choice /C Y /N /D Y /T 1 & Move /Y \"{1}\" \"{0}\" & Del /F /Q \"{2}\" & rmdir /Q \"{2}\" & \"{0}\"";
 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    from = reverseNames ? Config.WinExeOldFullPath : Config.WinExeFullPath;
-                    to = reverseNames ? Config.WinExeFullPath : Config.WinExeOldFullPath;
-                }
-                else
-                {
-                    from = reverseNames ? Config.UnixExeOldFullPath : Config.UnixExeFullPath;
-                    to = reverseNames ? Config.UnixExeFullPath : Config.UnixExeOldFullPath;
-                }
-
-                File.Move(from, to);
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.Arguments = string.Format(argument, Config.WinExeFullPath, Config.WinExeTempPath, Config.TempFolder);
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                info.CreateNoWindow = true;
+                info.FileName = "cmd";
+                Process.Start(info);
             }
-            catch (Exception e)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                Log.Error("Error: " + e.Message);
+                string argument = "-c \" sleep 1; rm -f \"{0}\"; sleep 1; mv \"{1}\" \"{0}\"; rm -r \"{2}\"; \"{3}\";";
+
+                ProcessStartInfo info = new ProcessStartInfo();
+                
+                info.Arguments = string.Format(argument, Config.UnixExeFullPath, Config.UnixExeTempPath, Config.TempFolder, Config.UnixExeFullPath); ;
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                info.CreateNoWindow = true;
+                info.UseShellExecute = false;
+                info.FileName = "/bin/bash";
+                Process.Start(info);
             }
         }
 
         ViewModelBase CancelInstall()
         {
             cancelSource.Cancel();
-            RenameCurrentFiles(true);
             return loginVM.Value;
         }
 

@@ -18,32 +18,25 @@ namespace UnitystationLauncher.Models
 
         //file names
         public static string winExeName = "StationHub.exe";
-        public static string winExeNameOld = "StationHubOld.exe";
-
         public static string unixExeName = "StationHub";
-        public static string unixExeNameOld = "StationHubOld";
 
         public static string WinExeFullPath => Path.Combine(RootFolder, winExeName);
-        public static string WinExeOldFullPath => Path.Combine(RootFolder, winExeNameOld);
+        public static string WinExeTempPath => Path.Combine(TempFolder, winExeName);
 
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
-        public static string UnixExeOldFullPath => Path.Combine(RootFolder, unixExeNameOld);
+        public static string UnixExeTempPath => Path.Combine(TempFolder, unixExeName);
 
-        public static int currentBuild = 923;
+        public static int currentBuild = 924;
         public static HubClientConfig serverHubClientConfig;
 
-        public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
+        public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
         public static string RootFolder { get; }
+        public static string TempFolder => Path.Combine(RootFolder, "temp");
         public static FileSystemWatcher FileWatcher { get; }
         public static IObservable<Unit> InstallationChanges { get; }
 
         static Config()
         {
-            Directory.CreateDirectory(InstallationsPath);
-
-            FileWatcher = new FileSystemWatcher(InstallationsPath) { EnableRaisingEvents = true, IncludeSubdirectories = true, 
-                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName };
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 RootFolder = Environment.CurrentDirectory;
@@ -53,13 +46,22 @@ namespace UnitystationLauncher.Models
                 RootFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             }
 
-                InstallationChanges = Observable.Merge(
-                Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    h => FileWatcher.Changed += h,
-                    h => FileWatcher.Changed -= h)
-                .Select(e => Unit.Default),
-                Observable.Return(Unit.Default))
-                .ObserveOn(SynchronizationContext.Current);
+            Directory.CreateDirectory(InstallationsPath);
+            SetPermissions(InstallationsPath);
+            FileWatcher = new FileSystemWatcher(InstallationsPath)
+            {
+                EnableRaisingEvents = true,
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+            };
+
+            InstallationChanges = Observable.Merge(
+            Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                h => FileWatcher.Changed += h,
+                h => FileWatcher.Changed -= h)
+            .Select(e => Unit.Default),
+            Observable.Return(Unit.Default))
+            .ObserveOn(SynchronizationContext.Current);
         }
 
         public static void SetPermissions(string path)
@@ -70,7 +72,7 @@ namespace UnitystationLauncher.Models
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     ProcessStartInfo startInfo;
-                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {path}");
+                    startInfo = new ProcessStartInfo("/bin/bash", $"-c \" chmod -R 755 {path}; \"");
                     var process = new Process();
                     process.StartInfo = startInfo;
 
