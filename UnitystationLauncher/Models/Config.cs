@@ -29,19 +29,14 @@ namespace UnitystationLauncher.Models
         public static int currentBuild = 922;
         public static HubClientConfig serverHubClientConfig;
 
-        public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
+        public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
         public static string RootFolder { get; }
-        public static string TempFolder { get { return Path.Combine(RootFolder, "temp"); } }
+        public static string TempFolder => Path.Combine(RootFolder, "temp");
         public static FileSystemWatcher FileWatcher { get; }
         public static IObservable<Unit> InstallationChanges { get; }
 
         static Config()
         {
-            Directory.CreateDirectory(InstallationsPath);
-
-            FileWatcher = new FileSystemWatcher(InstallationsPath) { EnableRaisingEvents = true, IncludeSubdirectories = true, 
-                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName };
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 RootFolder = Environment.CurrentDirectory;
@@ -51,13 +46,22 @@ namespace UnitystationLauncher.Models
                 RootFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
             }
 
-                InstallationChanges = Observable.Merge(
-                Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    h => FileWatcher.Changed += h,
-                    h => FileWatcher.Changed -= h)
-                .Select(e => Unit.Default),
-                Observable.Return(Unit.Default))
-                .ObserveOn(SynchronizationContext.Current);
+            Directory.CreateDirectory(InstallationsPath);
+
+            FileWatcher = new FileSystemWatcher(InstallationsPath)
+            {
+                EnableRaisingEvents = true,
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+            };
+
+            InstallationChanges = Observable.Merge(
+            Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                h => FileWatcher.Changed += h,
+                h => FileWatcher.Changed -= h)
+            .Select(e => Unit.Default),
+            Observable.Return(Unit.Default))
+            .ObserveOn(SynchronizationContext.Current);
         }
 
         public static void SetPermissions(string path)

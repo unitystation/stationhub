@@ -182,7 +182,7 @@ namespace UnitystationLauncher.ViewModels
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string argument = "/C Choice /C Y /N /D Y /T 1 & Del /F /Q \"{0}\" & Choice /C Y /N /D Y /T 1 & Move /Y \"{1}\" \"{0}\" & Del /F /Q \"{2}\" & \"{0}\"";
+                string argument = "/C Choice /C Y /N /D Y /T 1 & Del /F /Q \"{0}\" & Choice /C Y /N /D Y /T 1 & Move /Y \"{1}\" \"{0}\" & Del /F /Q \"{2}\" & rmdir /Q \"{2}\" & \"{0}\"";
 
                 ProcessStartInfo info = new ProcessStartInfo();
                 info.Arguments = string.Format(argument, Config.WinExeFullPath, Config.WinExeTempPath, Config.TempFolder);
@@ -197,14 +197,8 @@ namespace UnitystationLauncher.ViewModels
                 string argument = "-c \" sleep 1; rm -f \"{0}\"; sleep 1; mv \"{1}\" \"{0}\"; rm -r \"{2}\"; \"{3}\";";
 
                 ProcessStartInfo info = new ProcessStartInfo();
-                string launchCmd = Config.UnixExeFullPath;
                 
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    launchCmd = "open " + Config.UnixExeFullPath;
-                }
-
-                info.Arguments = string.Format(argument, Config.UnixExeFullPath, Config.UnixExeTempPath, Config.TempFolder, launchCmd); ;
+                info.Arguments = string.Format(argument, Config.UnixExeFullPath, Config.UnixExeTempPath, Config.TempFolder, Config.UnixExeFullPath); ;
                 info.WindowStyle = ProcessWindowStyle.Hidden;
                 info.CreateNoWindow = true;
                 info.UseShellExecute = false;

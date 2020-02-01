@@ -12,7 +12,7 @@ namespace UnitystationLauncher
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
-                .With(new X11PlatformOptions { UseGpu = true, UseEGL = true })
+                .With(new X11PlatformOptions { UseGpu = true })
                 .With(new AvaloniaNativePlatformOptions { UseGpu = true, UseDeferredRendering = false })
                 .With(new MacOSPlatformOptions { ShowInDock = true })
                 .With(new Win32PlatformOptions
