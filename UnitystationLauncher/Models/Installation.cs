@@ -84,9 +84,13 @@ namespace UnitystationLauncher.Models
                 {
                     ProcessStartInfo startInfo;
 
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     {
-                        startInfo = new ProcessStartInfo("open", $"-a {exe}");
+                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" open -a '{exe}'; \"");
+                    }
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" '{exe}'; \"");
                     }
                     else
                     {
@@ -150,7 +154,7 @@ namespace UnitystationLauncher.Models
             || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 ProcessStartInfo startInfo;
-                startInfo = new ProcessStartInfo("rm", $"-r {InstallationPath}");
+                startInfo = new ProcessStartInfo("/bin/bash", $"-c \" rm -r '{InstallationPath}'; \"");
                 startInfo.UseShellExecute = false;
                 var process = new Process();
                 process.StartInfo = startInfo;
