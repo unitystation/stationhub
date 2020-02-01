@@ -18,22 +18,20 @@ namespace UnitystationLauncher.Models
 
         //file names
         public static string winExeName = "StationHub.exe";
-        public static string winExeNameOld = "StationHubOld.exe";
-
         public static string unixExeName = "StationHub";
-        public static string unixExeNameOld = "StationHubOld";
 
         public static string WinExeFullPath => Path.Combine(RootFolder, winExeName);
-        public static string WinExeOldFullPath => Path.Combine(RootFolder, winExeNameOld);
+        public static string WinExeTempPath => Path.Combine(TempFolder, winExeName);
 
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
-        public static string UnixExeOldFullPath => Path.Combine(RootFolder, unixExeNameOld);
+        public static string UnixExeTempPath => Path.Combine(TempFolder, unixExeName);
 
-        public static int currentBuild = 923;
+        public static int currentBuild = 922;
         public static HubClientConfig serverHubClientConfig;
 
         public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
         public static string RootFolder { get; }
+        public static string TempFolder { get { return Path.Combine(RootFolder, "temp"); } }
         public static FileSystemWatcher FileWatcher { get; }
         public static IObservable<Unit> InstallationChanges { get; }
 

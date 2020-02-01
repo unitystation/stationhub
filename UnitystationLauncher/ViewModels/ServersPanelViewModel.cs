@@ -17,6 +17,7 @@ namespace UnitystationLauncher.ViewModels
         {
             this.ServerManager = serverManager;
             Refresh = ReactiveCommand.Create(ServerManager.RefreshServerList, null);
+            Console.WriteLine(Config.TempFolder);
         }
 
         public override string Name => "Servers";

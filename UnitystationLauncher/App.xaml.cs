@@ -36,7 +36,6 @@ namespace UnitystationLauncher
                 .CreateLogger();
 
             Log.Information($"Build Number: {Config.currentBuild}");
-            CleanUpdateFiles();
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -47,26 +46,6 @@ namespace UnitystationLauncher
             }
 
             base.OnFrameworkInitializationCompleted();
-        }
-
-        static void CleanUpdateFiles()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                if (File.Exists(Config.WinExeOldFullPath))
-                {
-                    Console.WriteLine("Delete update files!");
-                    File.Delete(Config.WinExeOldFullPath);
-                }
-            }
-            else
-            {
-                if (File.Exists(Config.UnixExeOldFullPath))
-                {
-                    Console.WriteLine("Delete update files!");
-                    File.Delete(Config.UnixExeOldFullPath);
-                }
-            }
         }
     }
 }

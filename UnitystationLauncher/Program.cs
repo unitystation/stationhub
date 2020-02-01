@@ -17,8 +17,7 @@ namespace UnitystationLauncher
                 .With(new MacOSPlatformOptions { ShowInDock = true })
                 .With(new Win32PlatformOptions
                 {
-                    UseDeferredRendering = false,
-                    AllowEglInitialization = true
+                    UseDeferredRendering = false
                 })
                 .LogToDebug()
                 .UseReactiveUI(); 
