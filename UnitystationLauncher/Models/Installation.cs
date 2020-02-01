@@ -84,7 +84,7 @@ namespace UnitystationLauncher.Models
                 {
                     ProcessStartInfo startInfo;
 
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     {
                         startInfo = new ProcessStartInfo("open", $"-a {exe}");
                     }

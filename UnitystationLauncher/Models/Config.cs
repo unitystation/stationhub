@@ -72,7 +72,7 @@ namespace UnitystationLauncher.Models
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     ProcessStartInfo startInfo;
-                    startInfo = new ProcessStartInfo("/bin/bash", $"-c \" chmod -R 755 {path}; \"");
+                    startInfo = new ProcessStartInfo("/bin/bash", $"-c \" chmod -R 755 '{path}'; \"");
                     var process = new Process();
                     process.StartInfo = startInfo;
 
