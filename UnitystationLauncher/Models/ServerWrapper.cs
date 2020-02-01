@@ -210,9 +210,14 @@ namespace UnitystationLauncher.Models
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     {
-                        startInfo = new ProcessStartInfo("open", $"-a {exe} --args --server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}");
+                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" open -a '{exe}' --args --server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}; \"");
                         Log.Information("Start osx | linux");
                     }  
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
+                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" '{exe}' --args --server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}; \"");
+                        Log.Information("Start osx | linux");
+                    }
                     else
                     {
                         startInfo = new ProcessStartInfo(exe, $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}");
