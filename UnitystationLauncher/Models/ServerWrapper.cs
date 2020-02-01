@@ -94,6 +94,8 @@ namespace UnitystationLauncher.Models
 
         private void OnCanPlayChange(bool canPlay)
         {
+            if (isDownloading) return;
+
             if (canPlay)
             {
                 ButtonText.Value = "PLAY";

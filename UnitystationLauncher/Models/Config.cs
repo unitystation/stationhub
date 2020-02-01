@@ -26,7 +26,7 @@ namespace UnitystationLauncher.Models
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
         public static string UnixExeTempPath => Path.Combine(TempFolder, unixExeName);
 
-        public static int currentBuild = 922;
+        public static int currentBuild = 923;
         public static HubClientConfig serverHubClientConfig;
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
@@ -47,7 +47,7 @@ namespace UnitystationLauncher.Models
             }
 
             Directory.CreateDirectory(InstallationsPath);
-
+            SetPermissions(InstallationsPath);
             FileWatcher = new FileSystemWatcher(InstallationsPath)
             {
                 EnableRaisingEvents = true,
@@ -72,7 +72,7 @@ namespace UnitystationLauncher.Models
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     ProcessStartInfo startInfo;
-                    startInfo = new ProcessStartInfo("chmod", $"-R 755 {path}");
+                    startInfo = new ProcessStartInfo("/bin/bash", $"-c \" chmod -R 755 {path}; \"");
                     var process = new Process();
                     process.StartInfo = startInfo;
 
