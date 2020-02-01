@@ -23,6 +23,7 @@ namespace UnitystationLauncher.Models
         private AuthManager authManager;
         private InstallationManager installManager;
         private CancellationTokenSource cancelSource;
+        private bool isDownloading;
         public ServerWrapper(Server server, AuthManager authManager, 
             InstallationManager installManager)
         {
@@ -85,6 +86,9 @@ namespace UnitystationLauncher.Models
         public void CheckIfCanPlay()
         {
             CanPlay.Value = ClientInstalled;
+            
+            if (isDownloading) return;
+
             OnCanPlayChange(CanPlay.Value);
         }
 
@@ -119,6 +123,7 @@ namespace UnitystationLauncher.Models
                 return;
             }
 
+            isDownloading = true;
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(DownloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
@@ -138,6 +143,7 @@ namespace UnitystationLauncher.Models
                     {
                         progStream.Inner.Dispose();
                         Progress.OnNext(0);
+                        isDownloading = false;
                         return;
                     }
                     var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
@@ -157,6 +163,8 @@ namespace UnitystationLauncher.Models
                     Log.Information("Download completed");
                     var exe = Installation.FindExecutable(InstallationPath);
                     Config.SetPermissions(exe);
+                    isDownloading = false;
+                    CheckIfCanPlay();
                 }
                 catch
                 {
