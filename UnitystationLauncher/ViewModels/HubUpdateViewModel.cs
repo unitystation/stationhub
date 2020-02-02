@@ -182,12 +182,13 @@ namespace UnitystationLauncher.ViewModels
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string argument = "/C Choice /C Y /N /D Y /T 1 & Del /F /Q \"{0}\" & Choice /C Y /N /D Y /T 1 & Move /Y \"{1}\" \"{0}\" & Del /F /Q \"{2}\" & rmdir /Q \"{2}\" & \"{0}\"";
+                string argument = "/C echo \"{3}\" & Choice /C Y /N /D Y /T 4 & Del /F /Q \"{0}\" & Choice /C Y /N /D Y /T 1 & Move /Y \"{1}\" & echo \"{4}\" & \"{0}\"";
 
                 ProcessStartInfo info = new ProcessStartInfo();
-                info.Arguments = string.Format(argument, Config.WinExeFullPath, Config.WinExeTempPath, Config.TempFolder);
-                info.WindowStyle = ProcessWindowStyle.Hidden;
-                info.CreateNoWindow = true;
+                info.Arguments = string.Format(argument, Config.WinExeFullPath, Config.WinExeTempPath, Config.TempFolder,
+                    "Updating hub please wait..", "Update complete.");
+                info.WindowStyle = ProcessWindowStyle.Normal;
+                info.UseShellExecute = false;
                 info.FileName = "cmd";
                 Process.Start(info);
             }
