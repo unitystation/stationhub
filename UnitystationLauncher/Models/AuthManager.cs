@@ -49,6 +49,11 @@ namespace UnitystationLauncher.Models
             authProvider.SendEmailVerificationAsync(AuthLink);
         }
 
+        public void SendForgotPasswordEmail(string email)
+        {
+            authProvider.SendPasswordResetEmailAsync(email);
+        }
+
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
             authProvider.SignInWithEmailAndPasswordAsync(email, password);
 
