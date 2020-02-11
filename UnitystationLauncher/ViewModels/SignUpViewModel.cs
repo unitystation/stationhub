@@ -38,6 +38,7 @@ namespace UnitystationLauncher.ViewModels
                 (u, p, i) =>
                     !string.IsNullOrWhiteSpace(u) &&
                     !string.IsNullOrWhiteSpace(p) &&
+                    p.Length > 6 &&
                     !string.IsNullOrEmpty(i));
 
             Submit = ReactiveCommand.Create(
@@ -124,7 +125,10 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                CreationMessage = $"Invalid email address or password length.\r\nPlease try again.";
+                CreationMessage = $"Something went wrong with the verification email server.\r\n" +
+                    $"A reset password email has been sent to {email} as a work around.\r\n" +
+                    $"Please reset your password and try to log in.";
+                authManager.SendForgotPasswordEmail(email);
                 EndButtonText = "Back";
             }
             
@@ -139,12 +143,12 @@ namespace UnitystationLauncher.ViewModels
         
         public LoginViewModel? CreationEndButton()
         {
-            if (!creationSuccess)
-            {
-                IsCreatedVisible = false;
-                IsFormVisible = true;
-                return null;
-            }
+            //if (!creationSuccess)
+            //{
+            //    IsCreatedVisible = false;
+            //    IsFormVisible = true;
+            //    return null;
+            //}
             return loginVM.Value;
         }
     }
