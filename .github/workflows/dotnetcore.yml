@@ -18,15 +18,15 @@ jobs:
         dotnet-version: 3.0.100
     - name: Build win
       run: |
-        dotnet publish /p:Configuration=ReleaseWIN64 /p:Platform="x64" -r win10-x64 /p:PublishSingleFile=true
+        dotnet publish /p:Configuration=ReleaseWIN64 /p:Platform="x64" -r win10-x64 /p:PublishSingleFile=false
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/x64/ReleaseWIN64/netcoreapp3.0/win10-x64/publish/ ; zip -r /home/runner/work/win.zip *
     - name: Build osx
       run: |
-        dotnet publish /p:Configuration=ReleasePOSIX64 /p:Platform="x64" -r osx-x64 /p:PublishSingleFile=true
+        dotnet publish /p:Configuration=ReleasePOSIX64 /p:Platform="x64" -r osx-x64 /p:PublishSingleFile=false
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/x64/ReleasePOSIX64/netcoreapp3.0/osx-x64/publish/ ; zip -r /home/runner/work/osx.zip *
     - name: Build linux
       run: |
-        dotnet publish /p:Configuration=ReleasePOSIX64 /p:Platform="x64" -r linux-x64 /p:PublishSingleFile=true
+        dotnet publish /p:Configuration=ReleasePOSIX64 /p:Platform="x64" -r linux-x64 /p:PublishSingleFile=false
         cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/x64/ReleasePOSIX64/netcoreapp3.0/linux-x64/publish/ ; zip -r /home/runner/work/linux.zip *
     - name: Create a Release
       id: create_release
