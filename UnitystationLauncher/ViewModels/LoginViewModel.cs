@@ -1,13 +1,8 @@
 using System;
 using System.IO;
 using System.Reactive;
-using System.Threading.Tasks;
-using Avalonia.Interactivity;
-using DynamicData.Binding;
-using Firebase.Auth;
 using Newtonsoft.Json;
 using ReactiveUI;
-using Serilog;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
@@ -15,17 +10,21 @@ namespace UnitystationLauncher.ViewModels
     public class LoginViewModel : ViewModelBase
     {
         private readonly Lazy<SignUpViewModel> signUpVM;
+        private readonly Lazy<ForgotPasswordViewModel> forgotVM;
         private readonly Lazy<LoginStatusViewModel> loginStatusVM;
         private readonly AuthManager authManager;
         string? email;
         string? password;
 
         public LoginViewModel(Lazy<LoginStatusViewModel> loginStatusVM,
-            Lazy<SignUpViewModel> signUpVM, AuthManager authManager)
+            Lazy<SignUpViewModel> signUpVM, Lazy<ForgotPasswordViewModel> forgotVM,
+            AuthManager authManager)
         {
             this.authManager = authManager;
             this.signUpVM = signUpVM;
             this.loginStatusVM = loginStatusVM;
+            this.forgotVM = forgotVM;
+
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
                 x => x.Password,
@@ -39,6 +38,9 @@ namespace UnitystationLauncher.ViewModels
 
             Create = ReactiveCommand.Create(
                 UserCreate);
+
+            ForgotPW = ReactiveCommand.Create(
+                ForgotPass);
 
             CheckForLastLogin();
         }
@@ -57,6 +59,7 @@ namespace UnitystationLauncher.ViewModels
 
         public ReactiveCommand<Unit, LoginStatusViewModel?> Login { get; }
         public ReactiveCommand<Unit, SignUpViewModel?> Create { get; }
+        public ReactiveCommand<Unit, ForgotPasswordViewModel?> ForgotPW { get; }
 
         public LoginStatusViewModel? UserLogin()
         {
@@ -74,6 +77,11 @@ namespace UnitystationLauncher.ViewModels
         public SignUpViewModel? UserCreate()
         {
             return signUpVM.Value;
+        }
+
+        public ForgotPasswordViewModel? ForgotPass()
+        {
+            return forgotVM.Value;
         }
 
         void CheckForLastLogin()

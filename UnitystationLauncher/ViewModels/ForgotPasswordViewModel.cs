@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Reactive;
-using System.Collections.Generic;
-using System.Text;
 using UnitystationLauncher.Models;
 using ReactiveUI;
-using Serilog;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -42,11 +39,18 @@ namespace UnitystationLauncher.ViewModels
 
             Submit = ReactiveCommand.Create(
                 TrySendResetPassword, inputValidation);
+
+            DoneButton = ReactiveCommand.Create(ReturnToLogin);
         }
 
         void TrySendResetPassword()
         {
             authManager.SendForgotPasswordEmail(Email);
+        }
+
+        public LoginViewModel? ReturnToLogin()
+        {
+            return loginVM.Value;
         }
     }
 }

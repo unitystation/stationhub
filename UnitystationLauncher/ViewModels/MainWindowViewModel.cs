@@ -14,7 +14,7 @@ namespace UnitystationLauncher.ViewModels
         private Lazy<LoginStatusViewModel> loginStatusVM;
         private AuthManager authManager;
         private LoginViewModel loginVM;
-        
+
         public MainWindowViewModel(LoginViewModel loginVM, Lazy<LoginStatusViewModel> loginStatusVM, Lazy<LauncherViewModel> launcherVM,
             AuthManager authManager)
         {
@@ -36,7 +36,7 @@ namespace UnitystationLauncher.ViewModels
                 ContentChanged();
             }
         }
-        
+
         void CheckForExistingUser()
         {
             if (authManager.AuthLink != null)
@@ -78,17 +78,18 @@ namespace UnitystationLauncher.ViewModels
             SubscribeToVM(Content switch
             {
                 LoginViewModel loginVM => Observable.Merge(
-                    loginVM.Login.Select(vm => (ViewModelBase) vm),
-                    loginVM.Create.Select(vm => (ViewModelBase) vm)),
-                
+                    loginVM.Login.Select(vm => (ViewModelBase)vm),
+                    loginVM.Create.Select(vm => (ViewModelBase)vm),
+                    loginVM.ForgotPW.Select(vm => (ViewModelBase)vm)),
+
                 LoginStatusViewModel loginStatusVM => Observable.Merge(
-                    loginStatusVM.GoBack.Select(vm => (ViewModelBase) vm),
-                    loginStatusVM.OpenLauncher.Select(vm => (ViewModelBase) vm)),
-                
+                    loginStatusVM.GoBack.Select(vm => (ViewModelBase)vm),
+                    loginStatusVM.OpenLauncher.Select(vm => (ViewModelBase)vm)),
+
                 LauncherViewModel launcherVM => Observable.Merge(
-                    launcherVM.Logout.Select(vm => (ViewModelBase) vm),
-                    launcherVM.ShowUpdateReqd.Select(vm => (ViewModelBase) vm)),
-                
+                    launcherVM.Logout.Select(vm => (ViewModelBase)vm),
+                    launcherVM.ShowUpdateReqd.Select(vm => (ViewModelBase)vm)),
+
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,
                     signUpViewModel.DoneButton),
@@ -96,8 +97,11 @@ namespace UnitystationLauncher.ViewModels
                 HubUpdateViewModel hubUpdateViewModel => Observable.Merge(
                     hubUpdateViewModel.Cancel),
 
-                
-                _  => throw new ArgumentException($"ViewModel type is not handled and will never be able to change")
+                ForgotPasswordViewModel forgotPasswordViewModel => Observable.Merge(
+                    forgotPasswordViewModel.DoneButton),
+
+
+                _ => throw new ArgumentException($"ViewModel type is not handled and will never be able to change")
             });
         }
 
