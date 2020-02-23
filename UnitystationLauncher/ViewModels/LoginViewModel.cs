@@ -105,7 +105,7 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = email });
+                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = false, LastLogin = email });
             }
             File.WriteAllText("prefs.json", data);
         }

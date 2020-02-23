@@ -90,6 +90,8 @@ namespace UnitystationLauncher.ViewModels
 
         LoginViewModel LogoutImp()
         {
+            authManager.SignOutUser();
+            File.WriteAllText("prefs.json", JsonConvert.SerializeObject(new Prefs()));
             File.Delete("settings.json");
             return logoutVM.Value;
         }

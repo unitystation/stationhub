@@ -41,8 +41,6 @@ namespace UnitystationLauncher.Models
         public void Store()
         {
             var json = JsonConvert.SerializeObject(AuthLink);
-            Console.WriteLine("Expires in: " + AuthLink.ExpiresIn);
-            Console.WriteLine("Refresh token: " + AuthLink.RefreshToken);
 
             using (StreamWriter writer = System.IO.File.CreateText("settings.json"))
             {
@@ -63,12 +61,15 @@ namespace UnitystationLauncher.Models
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
             authProvider.SignInWithEmailAndPasswordAsync(email, password);
 
+        internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
+            authProvider.SignInWithCustomTokenAsync(token);
+
         internal Task<FirebaseAuthLink> CreateAccount(string username, string email, string password) =>
             authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
 
         internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
 
-        public async Task<bool> GetCustomToken(RefreshToken refreshToken)
+        public async Task<string> GetCustomToken(RefreshToken refreshToken, string email)
         {
             var url = "https://api.unitystation.org/validatetoken?data=";
 
@@ -83,19 +84,53 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                return false;
+                Console.Write("Error: " + e.Message);
+                return "";
             }
 
             string msg = await res.Content.ReadAsStringAsync();
             var response = JsonConvert.DeserializeObject<ApiResponse>(msg);
-            
-            if(response.errorCode != 0)
+
+            if (response.errorCode != 0)
             {
                 Console.WriteLine("Error: " + response.errorMsg);
-                return false;
+                return "";
             }
 
-            return true;
+            return response.message;
+        }
+
+        public async void SignOutUser()
+        {
+            if (AuthLink == null) return;
+
+            var token = new RefreshToken
+            {
+                userID = UID,
+                refreshToken = CurrentRefreshToken
+            };
+
+            var url = "https://api.unitystation.org/signout?data=";
+
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(token)));
+
+            CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
+
+            HttpResponseMessage res;
+            try
+            {
+                res = await http.SendAsync(r, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.Write("Error: " + e.Message);
+                return;
+            }
+
+            string msg = await res.Content.ReadAsStringAsync();
+
+            Console.WriteLine(msg);
+            AuthLink = null;
         }
     }
 

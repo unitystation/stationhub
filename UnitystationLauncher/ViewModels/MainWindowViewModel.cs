@@ -49,9 +49,25 @@ namespace UnitystationLauncher.ViewModels
 
         async void AttemptAuthRefresh()
         {
+            var refreshToken = new RefreshToken
+            {
+                userID = authManager.AuthLink.User.LocalId,
+                refreshToken = authManager.AuthLink.RefreshToken
+            };
+
+            var token = await authManager.GetCustomToken(refreshToken, authManager.AuthLink.User.Email);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Log.Error("Login failed");
+                Content = loginVM;
+                authManager.AttemptingAutoLogin = false;
+                return;
+            }
+
             try
             {
-                authManager.AuthLink = await authManager.AuthLink.GetFreshAuthAsync();
+                authManager.AuthLink = await authManager.SignInWithCustomToken(token);
             }
             catch (Exception e)
             {
