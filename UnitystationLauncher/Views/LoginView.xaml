@@ -33,15 +33,26 @@
       </TextBox>
 
       <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
-        <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
+        <Button Command="{Binding Create}" Grid.Column="1" Padding="5" Margin="15" HorizontalAlignment="Center"
                 MinWidth="100">
           Create
         </Button>
-        <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
+        <Button Command="{Binding Login}" Grid.Column="0" Padding="5" Margin="15" HorizontalAlignment="Center"
                 MinWidth="100">
           Login
         </Button>
+        
       </Grid>
+      <Button Command="{Binding ForgotPW}" Padding="5" Margin="0,5,0,25" HorizontalAlignment="Center"
+                MinWidth="100">
+        <Button.Template>
+          <ControlTemplate>
+            <TextBlock FontSize="14" Foreground="Silver">
+              Forgot Password?
+            </TextBlock>
+          </ControlTemplate>
+        </Button.Template>
+      </Button>
     </StackPanel>
     <Border BorderThickness="1" BorderBrush="#c5c5c5" />
   </StackPanel>
