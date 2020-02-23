@@ -10,6 +10,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly Lazy<LoginViewModel> loginVM;
         private readonly AuthManager authManager;
         private bool isFormVisible;
+        private bool isSuccessVisible;
         string? email;
         public string? Email
         {
@@ -26,9 +27,16 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref isFormVisible, value);
         }
 
+        public bool IsSuccessVisible
+        {
+            get => isSuccessVisible;
+            set => this.RaiseAndSetIfChanged(ref isSuccessVisible, value);
+        }
+
         public ForgotPasswordViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVM)
         {
             IsFormVisible = true;
+            IsSuccessVisible = false;
             this.authManager = authManager;
             this.loginVM = loginVM;
             
@@ -46,6 +54,8 @@ namespace UnitystationLauncher.ViewModels
         void TrySendResetPassword()
         {
             authManager.SendForgotPasswordEmail(Email);
+            IsFormVisible = false;
+            IsSuccessVisible = true;
         }
 
         public LoginViewModel? ReturnToLogin()
