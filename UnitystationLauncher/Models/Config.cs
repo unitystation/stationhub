@@ -37,7 +37,8 @@ namespace UnitystationLauncher.Models
 
         static Config()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 RootFolder = Environment.CurrentDirectory;
             }
