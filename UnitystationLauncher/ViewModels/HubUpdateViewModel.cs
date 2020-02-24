@@ -114,7 +114,7 @@ namespace UnitystationLauncher.ViewModels
         async Task TryUpdate(CancellationToken cancelToken)
         {
             Directory.CreateDirectory(Config.TempFolder);
-            Console.WriteLine("Config temp folder: " + Config.TempFolder);
+
             Config.SetPermissions(Config.TempFolder);
 
             InstallButtonVisible = false;

@@ -37,14 +37,14 @@ namespace UnitystationLauncher.Models
 
         static Config()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 RootFolder = Environment.CurrentDirectory;
             }
             else
             {
-                RootFolder = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+                Process[] processes = Process.GetProcessesByName("StationHub");
+                RootFolder = Path.GetDirectoryName(processes[0].MainModule.FileName);
             }
 
             Directory.CreateDirectory(InstallationsPath);
