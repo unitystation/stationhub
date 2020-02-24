@@ -73,6 +73,7 @@ namespace UnitystationLauncher.ViewModels
             Logout = ReactiveCommand.Create(LogoutImp);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
+
             ValidateClientVersion();
         }
 

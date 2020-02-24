@@ -5,6 +5,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace UnitystationLauncher.Models
@@ -24,7 +25,6 @@ namespace UnitystationLauncher.Models
         public static string WinExeTempPath => Path.Combine(TempFolder, winExeName);
 
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
-        public static string UnixExeTempPath => Path.Combine(TempFolder, unixExeName);
 
         public static int currentBuild = 925;
         public static HubClientConfig serverHubClientConfig;
@@ -72,7 +72,7 @@ namespace UnitystationLauncher.Models
                     || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 {
                     ProcessStartInfo startInfo;
-                    startInfo = new ProcessStartInfo("/bin/bash", $"-c \" chmod -R 755 '{path}'; \"");
+                    startInfo = new ProcessStartInfo("/bin/bash", $"-c \" chmod -R 755 {Regex.Escape(path)}; \"");
                     var process = new Process();
                     process.StartInfo = startInfo;
 

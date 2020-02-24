@@ -31,7 +31,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseWIN64|x64'">
     <DefineConstants>PLATFORM_WIN64;PLATFORM_WIN;PLATFORM_64</DefineConstants>
     <PlatformTarget>x64</PlatformTarget>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <!-- beauty into sub-directory, default is libs, quote with "" if contains space  -->
     <BeautyLibsDir>Lib</BeautyLibsDir>
     <!-- set to True if you want to disable -->
