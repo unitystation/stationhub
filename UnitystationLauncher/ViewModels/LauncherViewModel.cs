@@ -82,6 +82,10 @@ namespace UnitystationLauncher.ViewModels
             var data = await http.GetStringAsync(Config.validateUrl);
             Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
 
+            Config.serverHubClientConfig.buildNumber = 926;
+            Config.serverHubClientConfig.winURL = "https://unitystationfile.b-cdn.net/win926.zip";
+            Config.serverHubClientConfig.linuxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
+            Config.serverHubClientConfig.osxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
             if (Config.serverHubClientConfig.buildNumber != Config.currentBuild)
             {
                 Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
