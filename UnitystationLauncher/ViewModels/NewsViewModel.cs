@@ -12,12 +12,18 @@ namespace UnitystationLauncher.ViewModels{
         GitHubClient client;
         ObservableCollection<PullRequestWrapper> pullRequests = new ObservableCollection<PullRequestWrapper>();
 
+        public ObservableCollection<PullRequestWrapper> PullRequests
+        {
+            get => pullRequests;
+            set => this.RaiseAndSetIfChanged(ref pullRequests, value);
+        }
+
         public NewsViewModel()
         {
             GetPullRequests();
         }
 
-        async void GetPullRequests()
+        public async void GetPullRequests()
         {
             client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
             PullRequestRequest options = new PullRequestRequest();
@@ -25,6 +31,10 @@ namespace UnitystationLauncher.ViewModels{
             apiOptions.PageCount = 1;
             apiOptions.PageSize = 10;
             options.State = ItemStateFilter.Closed;
+            for(int i = PullRequests.Count - 1; i > 0; i--)
+            {
+                PullRequests.RemoveAt(i);
+            }
 
             try
             {
@@ -38,11 +48,6 @@ namespace UnitystationLauncher.ViewModels{
             {
                 //Rate limit has probably exceeded
             }
-        }
-
-        public ObservableCollection<PullRequestWrapper> PullRequests{
-            get => pullRequests;
-            set => this.RaiseAndSetIfChanged(ref pullRequests, value);
         }
     }
 }

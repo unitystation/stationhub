@@ -23,44 +23,6 @@ namespace UnitystationLauncher.ViewModels
 
         private readonly HttpClient http;
 
-        public LauncherViewModel(
-            AuthManager authManager, 
-            ServersPanelViewModel serversPanel, 
-            InstallationsPanelViewModel installationsPanel,
-            NewsViewModel news,
-            Lazy<LoginViewModel> logoutVM, 
-            HttpClient http,
-            Lazy<HubUpdateViewModel> hubUpdateVM)
-        {
-            this.authManager = authManager;
-            this.logoutVM = logoutVM;
-            this.hubUpdateVM = hubUpdateVM;
-            this.http = http;
-            News = news;
-            Panels = new PanelBase[]
-            {
-                serversPanel,
-                installationsPanel
-            };
-            Username = this.authManager!.AuthLink.User.DisplayName;
-            Logout = ReactiveCommand.Create(LogoutImp);
-            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
-            SelectedPanel = serversPanel;
-            ValidateClientVersion();
-        }
-
-        async Task ValidateClientVersion()
-        {
-            var data = await http.GetStringAsync(Config.validateUrl);
-            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
-
-            if(Config.serverHubClientConfig.buildNumber != Config.currentBuild)
-            {
-                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
-                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
-            }
-        }
-
         public string Username
         {
             get => username;
@@ -87,6 +49,44 @@ namespace UnitystationLauncher.ViewModels
 
         public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
+
+        public LauncherViewModel(
+            AuthManager authManager,
+            ServersPanelViewModel serversPanel,
+            InstallationsPanelViewModel installationsPanel,
+            NewsViewModel news,
+            Lazy<LoginViewModel> logoutVM,
+            HttpClient http,
+            Lazy<HubUpdateViewModel> hubUpdateVM)
+        {
+            this.authManager = authManager;
+            this.logoutVM = logoutVM;
+            this.hubUpdateVM = hubUpdateVM;
+            this.http = http;
+            News = news;
+            Panels = new PanelBase[]
+            {
+                serversPanel,
+                installationsPanel
+            };
+            Username = this.authManager!.AuthLink.User.DisplayName;
+            Logout = ReactiveCommand.Create(LogoutImp);
+            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
+            SelectedPanel = serversPanel;
+            ValidateClientVersion();
+        }
+
+        async Task ValidateClientVersion()
+        {
+            var data = await http.GetStringAsync(Config.validateUrl);
+            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+
+            if (Config.serverHubClientConfig.buildNumber != Config.currentBuild)
+            {
+                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
+                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
+            }
+        }
 
         LoginViewModel LogoutImp()
         {

@@ -1,9 +1,5 @@
 using System;
 using System.Reactive;
-using System.Threading.Tasks;
-using Avalonia.Interactivity;
-using DynamicData.Binding;
-using Firebase.Auth;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
@@ -23,31 +19,6 @@ namespace UnitystationLauncher.ViewModels
         private bool isWaitingVisible;
         private bool isCreatedVisible;
         private bool creationSuccess = false;
-
-        public SignUpViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVM)
-        {
-            IsFormVisible = true;
-            IsWaitingVisible = false;
-            IsCreatedVisible = false;
-            this.authManager = authManager;
-            this.loginVM = loginVM;
-            var possibleCredentials = this.WhenAnyValue(
-                x => x.Email,
-                x => x.Password,
-                x => x.Username,
-                (u, p, i) =>
-                    !string.IsNullOrWhiteSpace(u) &&
-                    !string.IsNullOrWhiteSpace(p) &&
-                    p.Length > 6 &&
-                    !string.IsNullOrEmpty(i));
-
-            Submit = ReactiveCommand.Create(
-                UserCreate, possibleCredentials);
-
-            Cancel = ReactiveCommand.Create(ReturnToLogin);
-            
-            DoneButton = ReactiveCommand.Create(CreationEndButton);
-        }
 
         public string? Username
         {
@@ -101,6 +72,31 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, LoginViewModel?> DoneButton { get; }
         public ReactiveCommand<Unit, Unit> Submit { get; }
 
+        public SignUpViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVM)
+        {
+            IsFormVisible = true;
+            IsWaitingVisible = false;
+            IsCreatedVisible = false;
+            this.authManager = authManager;
+            this.loginVM = loginVM;
+            var possibleCredentials = this.WhenAnyValue(
+                x => x.Email,
+                x => x.Password,
+                x => x.Username,
+                (u, p, i) =>
+                    !string.IsNullOrWhiteSpace(u) &&
+                    !string.IsNullOrWhiteSpace(p) &&
+                    p.Length > 6 &&
+                    !string.IsNullOrEmpty(i));
+
+            Submit = ReactiveCommand.Create(
+                UserCreate, possibleCredentials);
+
+            Cancel = ReactiveCommand.Create(ReturnToLogin);
+
+            DoneButton = ReactiveCommand.Create(CreationEndButton);
+        }
+
         public async void UserCreate()
         {
             IsFormVisible = false;
@@ -143,12 +139,6 @@ namespace UnitystationLauncher.ViewModels
         
         public LoginViewModel? CreationEndButton()
         {
-            //if (!creationSuccess)
-            //{
-            //    IsCreatedVisible = false;
-            //    IsFormVisible = true;
-            //    return null;
-            //}
             return loginVM.Value;
         }
     }

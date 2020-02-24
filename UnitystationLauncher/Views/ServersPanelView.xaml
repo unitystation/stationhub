@@ -23,9 +23,7 @@
             <Border Background="#295077" Height="40" VerticalAlignment="Center"
                     Margin="0 8 0 0" />
           </StackPanel>
-          <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
-                                RelativeSource={RelativeSource FindAncestor,
-                                    AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
+          <StackPanel IsVisible="{Binding IsSelected^}" Grid.ColumnSpan="7">
             <Border Background="#6B9ED1" Height="40" VerticalAlignment="Center"
                     Margin="0 8 0 0"/>
           </StackPanel>
@@ -52,9 +50,7 @@
             <TextBlock Text="{Binding RoundTrip.Value}" VerticalAlignment="Center" TextAlignment="Center" FontSize="10"/>
           </Border>
         </Grid>
-        <Grid IsVisible="{Binding (ListBoxItem.IsSelected),
-                                RelativeSource={RelativeSource FindAncestor,
-                                    AncestorType={x:Type ListBoxItem}}}" Height="30" ColumnDefinitions="0.9*,0.1*" >
+        <Grid IsVisible="{Binding IsSelected^}" Height="30" ColumnDefinitions="0.9*,0.1*" >
           <Border Background="#5E7B98" VerticalAlignment="Top" HorizontalAlignment="Right" Height="30" Width="300"  Grid.Column="0">
             <DockPanel>
               <Viewbox  Height="20" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 8 0" DockPanel.Dock="Right" Width="100">
