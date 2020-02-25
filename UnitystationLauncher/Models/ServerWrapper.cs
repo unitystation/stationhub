@@ -24,11 +24,39 @@ namespace UnitystationLauncher.Models
         private InstallationManager installManager;
         private CancellationTokenSource cancelSource;
         private bool isDownloading;
-        public ServerWrapper(Server server, AuthManager authManager, 
+        private Ping pingSender;
+        public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<bool> IsSelected { get; } = new ReactiveProperty<bool>();
+        public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
+        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
+        public Subject<int> Progress { get; set; } = new Subject<int>();
+        public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
+
+        public ServerWrapper(Server server, AuthManager authManager,
             InstallationManager installManager)
         {
             this.authManager = authManager;
             this.installManager = installManager;
+
+            pingSender = new Ping();
+            pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
+
+            UpdateDetails(server);
+
+            if (!Directory.Exists(Config.InstallationsPath))
+            {
+                Directory.CreateDirectory(Config.InstallationsPath);
+            }
+
+            CanPlay.Subscribe(x => OnCanPlayChange(x));
+            CheckIfCanPlay();
+            Start = ReactiveUI.ReactiveCommand.Create(StartImp, null); 
+        }
+
+        public void UpdateDetails(Server server)
+        {
             ServerName = server.ServerName;
             ForkName = server.ForkName;
             BuildVersion = server.BuildVersion;
@@ -41,27 +69,8 @@ namespace UnitystationLauncher.Models
             WinDownload = server.WinDownload;
             OSXDownload = server.OSXDownload;
             LinuxDownload = server.LinuxDownload;
-
-            if (!Directory.Exists(Config.InstallationsPath))
-            {
-                Directory.CreateDirectory(Config.InstallationsPath);
-            }
-
-            CanPlay.Subscribe(x => OnCanPlayChange(x));
-            CheckIfCanPlay();
-            Start = ReactiveUI.ReactiveCommand.Create(StartImp, null);
-            Ping pingSender = new Ping();
-            pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
             pingSender.SendAsync(ServerIP, 7);
         }
-
-        public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
-        public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
-        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
-        public Subject<int> Progress { get; set; } = new Subject<int>();
-        public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
 
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {

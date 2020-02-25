@@ -12,6 +12,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using UnitystationLauncher.Models;
@@ -29,23 +30,7 @@ namespace UnitystationLauncher.ViewModels
         private bool installButtonVisible;
         private bool downloadBarVisible;
         private bool restartButtonVisible;
-        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM)
-        {
-            this.loginVM = loginVM;
-            BeginDownload = ReactiveCommand.Create(UpdateHub);
-            RestartHub = ReactiveCommand.Create(RestartApp);
-            Cancel = ReactiveCommand.Create(CancelInstall);
-
-            UpdateTitle = "Update Required";
-            UpdateMessage = $"An update is required before you can continue.\n\rPlease install" +
-                $" the latest version by clicking the button below:";
-
-            ButtonMessage = $"Update Hub";
-
-            InstallButtonVisible = true;
-            DownloadBarVisible = false;
-            RestartButtonVisible = false;
-        }
+        private Process thisProcess;
 
         public ReactiveCommand<Unit, Unit> BeginDownload { get; }
         public ReactiveCommand<Unit, Unit> RestartHub { get; }
@@ -94,6 +79,26 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref downloadMessage, value);
         }
 
+        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM)
+        {
+            this.loginVM = loginVM;
+            BeginDownload = ReactiveCommand.Create(UpdateHub);
+            RestartHub = ReactiveCommand.Create(RestartApp);
+            Cancel = ReactiveCommand.Create(CancelInstall);
+
+            UpdateTitle = "Update Required";
+            UpdateMessage = $"An update is required before you can continue.\n\rPlease install" +
+                $" the latest version by clicking the button below:";
+
+            ButtonMessage = $"Update Hub";
+            Process[] myProcesses = Process.GetProcessesByName("StationHub");
+            thisProcess = myProcesses[0];
+
+            InstallButtonVisible = true;
+            DownloadBarVisible = false;
+            RestartButtonVisible = false;
+        }
+
         public void UpdateHub()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
@@ -109,6 +114,7 @@ namespace UnitystationLauncher.ViewModels
         async Task TryUpdate(CancellationToken cancelToken)
         {
             Directory.CreateDirectory(Config.TempFolder);
+
             Config.SetPermissions(Config.TempFolder);
 
             InstallButtonVisible = false;
@@ -139,8 +145,8 @@ namespace UnitystationLauncher.ViewModels
                         Progress.OnNext(0);
                         return;
                     }
-                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
-                    DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
+                    var downloadedAmt = (int)((float)maxFileSize.Kilobytes * ((float)p / 100f));
+                    DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Kilobytes} KB";
                     Progress.OnNext(p);
                     Log.Information("Progress: {prog}", p);
                 });
@@ -169,43 +175,43 @@ namespace UnitystationLauncher.ViewModels
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                         RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Config.SetPermissions(Config.UnixExeTempPath);
-                Config.SetPermissions(Config.UnixExeFullPath);
+                Config.SetPermissions(Config.TempFolder);
             }
 
             DownloadBarVisible = false;
-            RestartButtonVisible = true;
-            UpdateTitle = "Download complete!\n\rClick the restart button to continue:";
+            //RestartButtonVisible = true;
+            //UpdateTitle = "Download complete!\n\rClick the restart button to continue:";
+            RestartApp();
         }
 
         private void OnExit(object? sender, EventArgs e)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                string argument = "/C echo \"{3}\" & Choice /C Y /N /D Y /T 4 & Del /F /Q \"{0}\" & Choice /C Y /N /D Y /T 1 & Move /Y \"{1}\" & echo \"{4}\" & \"{0}\"";
+                string argument = "-c \" sleep 1; cp -a {0}/. {1}; rm -rf {0}; {2}";
 
                 ProcessStartInfo info = new ProcessStartInfo();
-                info.Arguments = string.Format(argument, Config.WinExeFullPath, Config.WinExeTempPath, Config.TempFolder,
-                    "Updating hub please wait..", "Update complete.");
+                info.Arguments = string.Format(argument, Regex.Escape(Config.TempFolder), Regex.Escape(Config.RootFolder), Regex.Escape(Config.UnixExeFullPath));
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                info.CreateNoWindow = true;
+                info.FileName = "/bin/bash";
+                Process.Start(info);
+            }
+            else
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                string argument = "/C echo \"{2}\" & Choice /C Y /N /D Y /T 1 & xcopy /Y \"{0}\" \"{1}\" & rmdir /q /s \"{0}\" & echo \"{3}\" & \"{4}\"";
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.Arguments = string.Format(argument, Config.TempFolder, Config.RootFolder,
+                    "Updating hub please wait..", "Update complete.", Config.WinExeFullPath);
                 info.WindowStyle = ProcessWindowStyle.Normal;
                 info.UseShellExecute = false;
                 info.FileName = "cmd";
                 Process.Start(info);
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                string argument = "-c \" sleep 1; rm -f \"{0}\"; sleep 1; mv \"{1}\" \"{0}\"; rm -r \"{2}\"; \"{3}\";";
 
-                ProcessStartInfo info = new ProcessStartInfo();
-                
-                info.Arguments = string.Format(argument, Config.UnixExeFullPath, Config.UnixExeTempPath, Config.TempFolder, Config.UnixExeFullPath); ;
-                info.WindowStyle = ProcessWindowStyle.Hidden;
-                info.CreateNoWindow = true;
-                info.UseShellExecute = false;
-                info.FileName = "/bin/bash";
-                Process.Start(info);
-            }
+            thisProcess.Kill();
         }
 
         ViewModelBase CancelInstall()
@@ -216,6 +222,7 @@ namespace UnitystationLauncher.ViewModels
 
         void RestartApp()
         {
+
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
                 desktopLifetime.Exit += OnExit;

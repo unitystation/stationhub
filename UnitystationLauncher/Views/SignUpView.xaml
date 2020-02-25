@@ -56,11 +56,11 @@
             </TextBox>
 
             <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
-                <Button Command="{Binding Cancel}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
+                <Button Command="{Binding Cancel}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
                         MinWidth="100">
                     Cancel
                 </Button>
-                <Button Command="{Binding Submit}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
+                <Button Command="{Binding Submit}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
                         MinWidth="100">
                     Submit
                 </Button>

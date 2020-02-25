@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
 using Reactive.Bindings;
+using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
@@ -14,12 +15,22 @@ namespace UnitystationLauncher.Models
         private InstallationManager installManager;
         private AuthManager authManager;
         bool refreshing;
+        public Action onRefresh;
+
+        public ReactiveProperty<List<ServerWrapper>> Servers { get; private set; } = new ReactiveProperty<List<ServerWrapper>>();
+        public ReactiveProperty<bool> NoServersFound { get; private set; } = new ReactiveProperty<bool>();
+        public bool Refreshing
+        {
+            get => refreshing;
+            set => this.RaiseAndSetIfChanged(ref refreshing, value);
+        }
 
         public ServerManager(HttpClient http, AuthManager authManager, InstallationManager installManager)
         {
             this.http = http;
             this.authManager = authManager;
             this.installManager = installManager;
+            Servers.Value = new List<ServerWrapper>();
             installManager.InstallListChange = RefreshInstalledStates;
             RefreshServerList();
         }
@@ -29,34 +40,43 @@ namespace UnitystationLauncher.Models
             NoServersFound.Value = false;
             if (Refreshing) return;
 
-            Servers.Value = new List<ServerWrapper>();
+            var newList = new List<ServerWrapper>();
             Refreshing = true;
-            Log.Verbose("Refreshing server list...");
+            
+            if(onRefresh != null)
+            {
+                onRefresh.Invoke();
+            }
+
             var data = await http.GetStringAsync(Config.apiUrl);
             var serverList = JsonConvert.DeserializeObject<ServerList>(data);
+
             if (serverList.Servers.Count == 0)
             {
                 NoServersFound.Value = true;
             }
             else
             {
-                List<ServerWrapper> updatedList = new List<ServerWrapper>();
                 foreach (Server s in serverList.Servers)
                 {
-                    updatedList.Add(new ServerWrapper(s, authManager, installManager));
+                    var index = Servers.Value.FindIndex(x => x.ServerIP == s.ServerIP);
+                    if (index != -1)
+                    {
+                        Servers.Value[index].UpdateDetails(s);
+                        newList.Add(Servers.Value[index]);
+                    }
+                    else
+                    {
+                        newList.Add(new ServerWrapper(s, authManager, installManager));
+                    }
                 }
-
-                Servers.Value = updatedList;
             }
-            Refreshing = false;
-        }
 
-        public ReactiveProperty<List<ServerWrapper>> Servers { get; private set; } = new ReactiveProperty<List<ServerWrapper>>();
-        public ReactiveProperty<bool> NoServersFound { get; private set; } = new ReactiveProperty<bool>();
-        public bool Refreshing
-        {
-            get => refreshing;
-            set => this.RaiseAndSetIfChanged(ref refreshing, value);
+            Refreshing = false;
+            Servers.Value = new List<ServerWrapper>(); //for some reason you need to do this
+            Servers.Value = newList;
+
+            RefreshInstalledStates();
         }
 
         public void RefreshInstalledStates()

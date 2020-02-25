@@ -3,18 +3,22 @@ using System.IO;
 using System.Threading.Tasks;
 using Firebase.Auth;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Threading;
 
 namespace UnitystationLauncher.Models
 {
     public class AuthManager
     {
         readonly FirebaseAuthProvider authProvider;
+        private readonly HttpClient http;
         public LoginMsg LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
-        
-        public AuthManager(FirebaseAuthProvider authProvider)
+
+        public AuthManager(HttpClient http, FirebaseAuthProvider authProvider)
         {
             this.authProvider = authProvider;
+            this.http = http;
             if (File.Exists("settings.json"))
             {
                 var json = File.ReadAllText("settings.json");
@@ -22,9 +26,8 @@ namespace UnitystationLauncher.Models
                 AuthLink = authLink;
             }
         }
-        
-        public FirebaseAuthLink? AuthLink { get; set; }
 
+        public FirebaseAuthLink? AuthLink { get; set; }
         public string CurrentRefreshToken
         {
             get { return AuthLink.RefreshToken; }
@@ -38,6 +41,7 @@ namespace UnitystationLauncher.Models
         public void Store()
         {
             var json = JsonConvert.SerializeObject(AuthLink);
+
             using (StreamWriter writer = System.IO.File.CreateText("settings.json"))
             {
                 writer.WriteLine(json);
@@ -57,15 +61,97 @@ namespace UnitystationLauncher.Models
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
             authProvider.SignInWithEmailAndPasswordAsync(email, password);
 
+        internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
+            authProvider.SignInWithCustomTokenAsync(token);
+
         internal Task<FirebaseAuthLink> CreateAccount(string username, string email, string password) =>
             authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
 
         internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
+
+        public async Task<string> GetCustomToken(RefreshToken refreshToken, string email)
+        {
+            var url = "https://api.unitystation.org/validatetoken?data=";
+
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(refreshToken)));
+
+            CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
+
+            HttpResponseMessage res;
+            try
+            {
+                res = await http.SendAsync(r, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.Write("Error: " + e.Message);
+                return "";
+            }
+
+            string msg = await res.Content.ReadAsStringAsync();
+            var response = JsonConvert.DeserializeObject<ApiResponse>(msg);
+
+            if (response.errorCode != 0)
+            {
+                Console.WriteLine("Error: " + response.errorMsg);
+                return "";
+            }
+
+            return response.message;
+        }
+
+        public async void SignOutUser()
+        {
+            if (AuthLink == null) return;
+
+            var token = new RefreshToken
+            {
+                userID = UID,
+                refreshToken = CurrentRefreshToken
+            };
+
+            var url = "https://api.unitystation.org/signout?data=";
+
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(token)));
+
+            CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
+
+            HttpResponseMessage res;
+            try
+            {
+                res = await http.SendAsync(r, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.Write("Error: " + e.Message);
+                return;
+            }
+
+            string msg = await res.Content.ReadAsStringAsync();
+
+            Console.WriteLine(msg);
+            AuthLink = null;
+        }
     }
 
     public class LoginMsg
     {
         public string Email { get; set; }
         public string Pass { get; set; }
+    }
+
+    [Serializable]
+    public class RefreshToken
+    {
+        public string refreshToken;
+        public string userID;
+    }
+
+    [Serializable]
+    public class ApiResponse
+    {
+        public int errorCode = 0; //0 = all good, read the message variable now, otherwise read errorMsg
+        public string errorMsg;
+        public string message;
     }
 }

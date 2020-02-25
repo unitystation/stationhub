@@ -23,44 +23,6 @@ namespace UnitystationLauncher.ViewModels
 
         private readonly HttpClient http;
 
-        public LauncherViewModel(
-            AuthManager authManager, 
-            ServersPanelViewModel serversPanel, 
-            InstallationsPanelViewModel installationsPanel,
-            NewsViewModel news,
-            Lazy<LoginViewModel> logoutVM, 
-            HttpClient http,
-            Lazy<HubUpdateViewModel> hubUpdateVM)
-        {
-            this.authManager = authManager;
-            this.logoutVM = logoutVM;
-            this.hubUpdateVM = hubUpdateVM;
-            this.http = http;
-            News = news;
-            Panels = new PanelBase[]
-            {
-                serversPanel,
-                installationsPanel
-            };
-            Username = this.authManager!.AuthLink.User.DisplayName;
-            Logout = ReactiveCommand.Create(LogoutImp);
-            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
-            SelectedPanel = serversPanel;
-            ValidateClientVersion();
-        }
-
-        async Task ValidateClientVersion()
-        {
-            var data = await http.GetStringAsync(Config.validateUrl);
-            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
-
-            if(Config.serverHubClientConfig.buildNumber != Config.currentBuild)
-            {
-                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
-                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
-            }
-        }
-
         public string Username
         {
             get => username;
@@ -88,8 +50,55 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
 
+        public LauncherViewModel(
+            AuthManager authManager,
+            ServersPanelViewModel serversPanel,
+            InstallationsPanelViewModel installationsPanel,
+            NewsViewModel news,
+            Lazy<LoginViewModel> logoutVM,
+            HttpClient http,
+            Lazy<HubUpdateViewModel> hubUpdateVM)
+        {
+            this.authManager = authManager;
+            this.logoutVM = logoutVM;
+            this.hubUpdateVM = hubUpdateVM;
+            this.http = http;
+            News = news;
+            Panels = new PanelBase[]
+            {
+                serversPanel,
+                installationsPanel
+            };
+            Username = this.authManager!.AuthLink.User.DisplayName;
+            Logout = ReactiveCommand.Create(LogoutImp);
+            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
+            SelectedPanel = serversPanel;
+
+            ValidateClientVersion();
+        }
+
+        async Task ValidateClientVersion()
+        {
+            var data = await http.GetStringAsync(Config.validateUrl);
+            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+
+            //use for hub updater testing:
+            //Config.serverHubClientConfig.buildNumber = 926;
+            //Config.serverHubClientConfig.winURL = "https://unitystationfile.b-cdn.net/win926.zip";
+            //Config.serverHubClientConfig.linuxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
+            //Config.serverHubClientConfig.osxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
+
+            if (Config.serverHubClientConfig.buildNumber != Config.currentBuild)
+            {
+                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
+                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
+            }
+        }
+
         LoginViewModel LogoutImp()
         {
+            authManager.SignOutUser();
+            File.WriteAllText("prefs.json", JsonConvert.SerializeObject(new Prefs()));
             File.Delete("settings.json");
             return logoutVM.Value;
         }
