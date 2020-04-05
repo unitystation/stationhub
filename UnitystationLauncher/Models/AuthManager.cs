@@ -5,6 +5,7 @@ using Firebase.Auth;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace UnitystationLauncher.Models
 {
@@ -66,9 +67,9 @@ namespace UnitystationLauncher.Models
 
         /// <summary>
         /// Asks firebase to create the user's account.
-        /// TODO The provided email's domain is checked against a list of disposable email addresses.
-        /// TODO If the domain is not in the list (or if GitHub is down) then account creation continues.
-        /// TODO Otherwise an exception is thrown.
+        /// The provided email's domain is checked against a list of disposable email addresses.
+        /// If the domain is not in the list (or if GitHub is down) then account creation continues.
+        /// Otherwise an exception is thrown.
         /// </summary>
         /// <returns></returns>
         internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
@@ -78,18 +79,41 @@ namespace UnitystationLauncher.Models
             HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url);
 
             CancellationToken cancellationToken = new CancellationTokenSource(60000).Token;
-
             HttpResponseMessage res;
+            bool isDomainBlacklisted = false;
             try
             {
                 res = await http.SendAsync(r, cancellationToken);
+                string msg = await res.Content.ReadAsStringAsync();
+
+                // Turn msg into a hashset of all domains
+                using StringReader sr = new StringReader(msg);
+                string line;
+                var lines = new List<string>();
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//")) ;
+                    {
+                        lines.Add(line);
+                    }
+                }
+                var blocklist = new HashSet<string>(lines, StringComparer.OrdinalIgnoreCase);
+
+                System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(email);
+                if (blocklist.Contains(address.Host))
+                {
+                    isDomainBlacklisted = true;
+                }
             }
             catch (Exception e)
             {
-                Console.Write("List of disposable emails: Timeout. " + e.Message);
+                Console.Write("Error or timeout in check for email domain blacklist. Check has been skipped." + e.Message);
             }
 
-            //TODO The list of disposable addresses is successfully retrieved, but 
+            if (isDomainBlacklisted)
+            {
+                throw new Exception("The email domain provided by the user is on our blacklist.");
+            }
 
             return await authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
         }
