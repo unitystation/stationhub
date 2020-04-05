@@ -64,8 +64,35 @@ namespace UnitystationLauncher.Models
         internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
             authProvider.SignInWithCustomTokenAsync(token);
 
-        internal Task<FirebaseAuthLink> CreateAccount(string username, string email, string password) =>
-            authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
+        /// <summary>
+        /// Asks firebase to create the user's account.
+        /// TODO The provided email's domain is checked against a list of disposable email addresses.
+        /// TODO If the domain is not in the list (or if GitHub is down) then account creation continues.
+        /// TODO Otherwise an exception is thrown.
+        /// </summary>
+        /// <returns></returns>
+        internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
+        {
+            // Client-side check for disposable email address.
+            var url = "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url);
+
+            CancellationToken cancellationToken = new CancellationTokenSource(60000).Token;
+
+            HttpResponseMessage res;
+            try
+            {
+                res = await http.SendAsync(r, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                Console.Write("List of disposable emails: Timeout. " + e.Message);
+            }
+
+            //TODO The list of disposable addresses is successfully retrieved, but 
+
+            return await authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
+        }
 
         internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
 
