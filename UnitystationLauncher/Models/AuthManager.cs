@@ -75,33 +75,34 @@ namespace UnitystationLauncher.Models
         internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
         {
             // Client-side check for disposable email address.
-            var url = "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url);
+            const string url = "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
-            CancellationToken cancellationToken = new CancellationTokenSource(60000).Token;
-            HttpResponseMessage res;
-            bool isDomainBlacklisted = false;
+            var cancellationToken = new CancellationTokenSource(60000).Token;
+            var isDomainBlacklisted = false;
             try
             {
-                res = await http.SendAsync(r, cancellationToken);
-                string msg = await res.Content.ReadAsStringAsync();
+                var response = await http.SendAsync(requestMessage, cancellationToken);
+                var msg = await response.Content.ReadAsStringAsync();
 
                 // Turn msg into a hashset of all domains
-                using StringReader sr = new StringReader(msg);
+                using var stringReader = new StringReader(msg);
                 string line;
                 var lines = new List<string>();
-                while ((line = sr.ReadLine()) != null)
+                while ((line = stringReader.ReadLine()) != null)
                 {
                     if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//")) ;
                     {
                         lines.Add(line);
                     }
                 }
-                var blocklist = new HashSet<string>(lines, StringComparer.OrdinalIgnoreCase);
+                var blacklist = new HashSet<string>(lines, StringComparer.OrdinalIgnoreCase);
 
-                System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(email);
-                if (blocklist.Contains(address.Host))
+                var address = new System.Net.Mail.MailAddress(email);
+                if (blacklist.Contains(address.Host))
                 {
+                    // Randomly wait before failing. Might frustrate users who try different disposable emails.
+                    await Task.Delay(new Random().Next(3000, 12000), cancellationToken);
                     isDomainBlacklisted = true;
                 }
             }
