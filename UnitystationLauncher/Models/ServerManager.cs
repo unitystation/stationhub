@@ -73,7 +73,6 @@ namespace UnitystationLauncher.Models
             }
 
             Refreshing = false;
-            Servers.Value = new List<ServerWrapper>(); //for some reason you need to do this
             Servers.Value = newList;
 
             RefreshInstalledStates();
