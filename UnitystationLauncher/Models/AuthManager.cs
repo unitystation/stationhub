@@ -5,6 +5,7 @@ using Firebase.Auth;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace UnitystationLauncher.Models
 {
@@ -64,8 +65,59 @@ namespace UnitystationLauncher.Models
         internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
             authProvider.SignInWithCustomTokenAsync(token);
 
-        internal Task<FirebaseAuthLink> CreateAccount(string username, string email, string password) =>
-            authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
+        /// <summary>
+        /// Asks firebase to create the user's account.
+        /// The provided email's domain is checked against a list of disposable email addresses.
+        /// If the domain is not in the list (or if GitHub is down) then account creation continues.
+        /// Otherwise an exception is thrown.
+        /// </summary>
+        /// <returns></returns>
+        internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
+        {
+            // Client-side check for disposable email address.
+            const string url = "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+
+            var cancellationToken = new CancellationTokenSource(60000).Token;
+            var isDomainBlacklisted = false;
+            try
+            {
+                var response = await http.SendAsync(requestMessage, cancellationToken);
+                var msg = await response.Content.ReadAsStringAsync();
+
+                // Turn msg into a hashset of all domains
+                using var stringReader = new StringReader(msg);
+                string line;
+                var lines = new List<string>();
+                while ((line = stringReader.ReadLine()) != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//")) ;
+                    {
+                        lines.Add(line);
+                    }
+                }
+                var blacklist = new HashSet<string>(lines, StringComparer.OrdinalIgnoreCase);
+
+                var address = new System.Net.Mail.MailAddress(email);
+                if (blacklist.Contains(address.Host))
+                {
+                    // Randomly wait before failing. Might frustrate users who try different disposable emails.
+                    await Task.Delay(new Random().Next(3000, 12000), cancellationToken);
+                    isDomainBlacklisted = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Write("Error or timeout in check for email domain blacklist. Check has been skipped." + e.Message);
+            }
+
+            if (isDomainBlacklisted)
+            {
+                throw new Exception("The email domain provided by the user is on our blacklist.");
+            }
+
+            return await authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
+        }
 
         internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
 
