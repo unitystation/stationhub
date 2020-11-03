@@ -31,7 +31,7 @@ namespace UnitystationLauncher
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
-                .WriteTo.File(Path.Combine("Logs", "Launcher.log"), rollingInterval: RollingInterval.Day)
+                .WriteTo.File(Path.Combine(Config.RootFolder, "Logs", "Launcher.log"), rollingInterval: RollingInterval.Day)
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
