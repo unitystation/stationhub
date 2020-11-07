@@ -28,15 +28,15 @@ namespace UnitystationLauncher.ViewModels
         public InstallationsPanelViewModel(InstallationManager installationManager)
         {
             this.installationManager = installationManager;
-            if (File.Exists("prefs.json"))
+            if (File.Exists(Path.Combine(Config.RootFolder, "prefs.json")))
             {
-                var data = File.ReadAllText("prefs.json");
+                var data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
                 AutoRemove.Value = JsonConvert.DeserializeObject<Prefs>(data).AutoRemove;
             }
             else
             {
                 var data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = "" });
-                File.WriteAllText("prefs.json", data);
+                File.WriteAllText(Path.Combine(Config.RootFolder, "prefs.json"), data);
                 AutoRemove.Value = true;
             }
 
@@ -93,9 +93,9 @@ namespace UnitystationLauncher.ViewModels
         void SaveChoice()
         {
             var data = "";
-            if (File.Exists("prefs.json"))
+            if (File.Exists(Path.Combine(Config.RootFolder, "prefs.json")))
             {
-                data = File.ReadAllText("prefs.json");
+                data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
                 var prefs = JsonConvert.DeserializeObject<Prefs>(data);
                 prefs.AutoRemove = AutoRemove.Value;
                 data = JsonConvert.SerializeObject(prefs);
@@ -104,7 +104,7 @@ namespace UnitystationLauncher.ViewModels
             {
                 data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove.Value, LastLogin = "" });
             }
-            File.WriteAllText("prefs.json", data);
+            File.WriteAllText((Path.Combine(Config.RootFolder, "prefs.json")), data);
             installationManager.AutoRemove = AutoRemove.Value;
         }
     }

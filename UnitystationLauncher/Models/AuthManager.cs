@@ -20,9 +20,9 @@ namespace UnitystationLauncher.Models
         {
             this.authProvider = authProvider;
             this.http = http;
-            if (File.Exists("settings.json"))
+            if (File.Exists(Path.Combine(Config.RootFolder, "settings.json")))
             {
-                var json = File.ReadAllText("settings.json");
+                var json = File.ReadAllText(Path.Combine(Config.RootFolder, "settings.json"));
                 var authLink = JsonConvert.DeserializeObject<FirebaseAuthLink>(json);
                 AuthLink = authLink;
             }
@@ -43,7 +43,7 @@ namespace UnitystationLauncher.Models
         {
             var json = JsonConvert.SerializeObject(AuthLink);
 
-            using (StreamWriter writer = System.IO.File.CreateText("settings.json"))
+            using (StreamWriter writer = System.IO.File.CreateText(Path.Combine(Config.RootFolder,"settings.json")))
             {
                 writer.WriteLine(json);
             }
