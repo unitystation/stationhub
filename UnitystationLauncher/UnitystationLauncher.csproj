@@ -127,6 +127,31 @@
     <PackageReference Include="Autofac" Version="5.0.0" />
     <PackageReference Include="Humanizer" Version="2.7.9" />
     <PackageReference Include="AutofacSerilogIntegration" Version="2.1.0" />
+    <PackageReference Include="runtime.unix.System.Console" Version="4.3.0"/>
+    <PackageReference Include="runtime.any.System.Runtime.InteropServices" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.System.Diagnostics.Debug" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.IO" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Reflection" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Reflection.Primitives" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Runtime" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.Microsoft.Win32.Primitives" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Collections" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Diagnostics.Tools" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Diagnostics.Tracing" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Globalization" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Globalization.Calendars" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.System.IO.FileSystem" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.System.Net.Primitives" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.System.Net.Sockets" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Reflection.Extensions" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Resources.ResourceManager" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.System.Runtime.Extensions" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Runtime.Handles" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Text.Encoding" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Text.Encoding.Extensions" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Threading.Tasks" Version="4.3.0" />
+    <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
+    <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\ServersPanelView.xaml">

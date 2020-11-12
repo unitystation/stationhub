@@ -86,9 +86,9 @@ namespace UnitystationLauncher.ViewModels
 
         void CheckForLastLogin()
         {
-            if (File.Exists("prefs.json"))
+            if (File.Exists(Config.RootFolder + "prefs.json"))
             {
-                var prefs = JsonConvert.DeserializeObject<Prefs>(File.ReadAllText("prefs.json"));
+                var prefs = JsonConvert.DeserializeObject<Prefs>(File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json")));
                 Email = prefs.LastLogin;
             }
         }
@@ -96,9 +96,9 @@ namespace UnitystationLauncher.ViewModels
         void SaveLoginEmail()
         {
             var data = "";
-            if (File.Exists("prefs.json"))
+            if (File.Exists(Config.RootFolder + "prefs.json"))
             {
-                data = File.ReadAllText("prefs.json");
+                data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
                 var prefs = JsonConvert.DeserializeObject<Prefs>(data);
                 prefs.LastLogin = email;
                 data = JsonConvert.SerializeObject(prefs);
@@ -107,7 +107,7 @@ namespace UnitystationLauncher.ViewModels
             {
                 data = JsonConvert.SerializeObject(new Prefs { AutoRemove = false, LastLogin = email });
             }
-            File.WriteAllText("prefs.json", data);
+            File.WriteAllText(Path.Combine(Config.RootFolder, "prefs.json"), data);
         }
     }
 }

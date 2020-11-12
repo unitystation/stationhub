@@ -15,6 +15,7 @@ using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
+using System.Text.RegularExpressions;
 
 namespace UnitystationLauncher.Models
 {
@@ -24,7 +25,6 @@ namespace UnitystationLauncher.Models
         private InstallationManager installManager;
         private CancellationTokenSource cancelSource;
         private bool isDownloading;
-        private Ping pingSender;
         public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<bool> IsSelected { get; } = new ReactiveProperty<bool>();
@@ -33,16 +33,27 @@ namespace UnitystationLauncher.Models
         public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
         public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
+	// Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
+	// Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
+        #if FLATPAK
+	private Process pingSender;
+	#else
+	private Ping pingSender;
+	#endif
+
+
 
         public ServerWrapper(Server server, AuthManager authManager,
             InstallationManager installManager)
         {
             this.authManager = authManager;
             this.installManager = installManager;
-
+            #if FLATPAK
+	    pingSender = new Process();
+            #else
             pingSender = new Ping();
             pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
-
+            #endif
             UpdateDetails(server);
 
             if (!Directory.Exists(Config.InstallationsPath))
@@ -69,9 +80,24 @@ namespace UnitystationLauncher.Models
             WinDownload = server.WinDownload;
             OSXDownload = server.OSXDownload;
             LinuxDownload = server.LinuxDownload;
-            pingSender.SendAsync(ServerIP, 7);
+	    #if FLATPAK
+	    pingSender.StartInfo.UseShellExecute = false;
+	    pingSender.StartInfo.RedirectStandardOutput = true;
+	    pingSender.StartInfo.RedirectStandardError = true;
+	    pingSender.StartInfo.FileName = "/usr/bin/flatpak-spawn";
+	    pingSender.StartInfo.Arguments = $"--host ping {ServerIP} -c 1";
+	    pingSender.Start();
+	    StreamReader reader = pingSender.StandardOutput;
+            string e = reader.ReadToEnd(); 
+            Regex pingReg = new Regex(@"time=(.*?)\.");
+            var pingTrunc = pingReg.Match(e);
+	    var pingOut = pingTrunc.Groups[1].ToString();
+            RoundTrip.Value = $"{pingOut}ms";
+	    pingSender.WaitForExit();
+            #else
+	    pingSender.SendAsync(ServerIP, 7);
+            #endif
         }
-
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
             // If an error occurred, display the exception to the user.  
@@ -81,7 +107,7 @@ namespace UnitystationLauncher.Models
                 Log.Information(e.Error.ToString());
                 return;
             }
-            var tripTime = e.Reply.RoundtripTime;
+	    var tripTime = e.Reply.RoundtripTime;
             if(tripTime == 0)
             {
                 RoundTrip.Value = "null";
@@ -91,7 +117,6 @@ namespace UnitystationLauncher.Models
                 RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
             }   
         }
-
         public void CheckIfCanPlay()
         {
             CanPlay.Value = ClientInstalled;

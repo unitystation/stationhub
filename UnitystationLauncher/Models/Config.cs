@@ -43,8 +43,16 @@ namespace UnitystationLauncher.Models
             }
             else
             {
-                Process[] processes = Process.GetProcessesByName("StationHub");
-                RootFolder = Path.GetDirectoryName(processes[0].MainModule.FileName);
+            	//If ran with the FLATPAK compiler symbol, will put mutable files where the Flatpak standard says
+            	//else, will put in the modern standard Linux folder (which is still legal on MacOS)
+            	#if FLATPAK
+            	RootFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.var/app/org.unitystation.StationHub";
+            	#else
+            	RootFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.local/share/StationHub";
+            	#endif
+            	//Legacy - Run in Install Dir
+                //Process[] processes = Process.GetProcessesByName("StationHub");
+                //RootFolder = Path.GetDirectoryName(processes[0].MainModule.FileName);
             }
 
             Directory.CreateDirectory(InstallationsPath);
