@@ -84,8 +84,8 @@ namespace UnitystationLauncher.Models
 	    pingSender.StartInfo.UseShellExecute = false;
 	    pingSender.StartInfo.RedirectStandardOutput = true;
 	    pingSender.StartInfo.RedirectStandardError = true;
-	    pingSender.StartInfo.FileName = "/usr/bin/flatpak-spawn";
-	    pingSender.StartInfo.Arguments = $"--host ping {ServerIP} -c 1";
+	    pingSender.StartInfo.FileName = "ping";
+	    pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
 	    pingSender.Start();
 	    StreamReader reader = pingSender.StandardOutput;
             string e = reader.ReadToEnd(); 
