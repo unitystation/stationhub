@@ -46,9 +46,9 @@
 </screenshots>
 
 <releases>
-	<release version="927" date="2020-11-12">
+	<release version="927" date="2020-11-15">
 		<description>
-			<p>Initial support for Flatpak added</p>
+			<p>Bug fixes and lots of work towards making crossplatform distribution easier</p>
 		</description>
 	</release>
 </releases>
