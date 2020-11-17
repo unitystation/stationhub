@@ -89,10 +89,10 @@ namespace UnitystationLauncher.Models
 	    pingSender.Start();
 	    StreamReader reader = pingSender.StandardOutput;
             string e = reader.ReadToEnd(); 
-			Console.WriteLine(e);
-            Regex pingReg = new Regex(@"mdev= (.*?)/");
+	    Console.WriteLine(e);
+            Regex pingReg = new Regex(@"time=(.*?)\ ");
             var pingTrunc = pingReg.Match(e);
-	    	var pingOut = pingTrunc.Groups[1].ToString();
+	    var pingOut = pingTrunc.Groups[1].ToString();
             RoundTrip.Value = $"{pingOut}ms";
 	    pingSender.WaitForExit();
             #else
