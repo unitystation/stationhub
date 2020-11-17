@@ -15,7 +15,7 @@
 	</p>
 </description>
 
-<launchable type="desktop-id">org.unitystation.StationHub.desktop</launchable>
+<launchable type="desktop-id">StationHub.desktop</launchable>
 
 <url type="homepage">https://unitystation.org/</url>
 

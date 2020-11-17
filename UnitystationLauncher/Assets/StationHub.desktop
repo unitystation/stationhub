@@ -9,6 +9,6 @@ Comment=Connect to Unitystation servers & manage your installs
 # And then place somewhere appropriate in the path
 Exec=stationhub.sh
 Type=Application
-Icon=org.unitystation.StationHub
+Icon=Ian
 Categories=Game
-Name[en_US]=StationHub.desktop
+Name[en_US]=StationHub
