@@ -88,6 +88,7 @@ namespace UnitystationLauncher.Models
 	    pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
 	    pingSender.Start();
 	    StreamReader reader = pingSender.StandardOutput;
+	    Console.WriteLine(reader);
             string e = reader.ReadToEnd(); 
             Regex pingReg = new Regex(@"time=(.*?)\.");
             var pingTrunc = pingReg.Match(e);
