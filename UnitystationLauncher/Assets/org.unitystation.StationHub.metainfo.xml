@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2020 Unitystation Team -->
 <component type="desktop-application">
-<developer_name>Unitystation Team</developer_name>
+
 <id>org.unitystation.StationHub</id>
 <metadata_license>CC0-1.0</metadata_license> 
 <project_license>AGPL-3.0-or-later</project_license>
 <name>StationHub</name>
 <summary>Launcher for the Unitystation Space Station 13 remake</summary>
+<developer_name>Unitystation Team</developer_name>
 
 <description>
 	<p>
@@ -15,7 +16,7 @@
 	</p>
 </description>
 
-<launchable type="desktop-id">StationHub</launchable>
+<launchable type="desktop-id">org.unitystation.StationHub.desktop</launchable>
 
 <url type="homepage">https://unitystation.org/</url>
 
@@ -46,9 +47,9 @@
 </screenshots>
 
 <releases>
-	<release version="926" date="2020-11-17">
+	<release version="926" date="2020-11-15">
 		<description>
-			<p>Added support for sandboxed environments</p>
+			<p>Support for sandboxed environments</p>
 		</description>
 	</release>
 </releases>
