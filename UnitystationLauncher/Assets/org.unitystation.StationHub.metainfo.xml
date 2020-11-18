@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2020 Unitystation Team -->
 <component type="desktop-application">
-
+<developer_name>Unitystation Team</developer_name>
 <id>org.unitystation.StationHub</id>
 <metadata_license>CC0-1.0</metadata_license> 
 <project_license>AGPL-3.0-or-later</project_license>
@@ -15,7 +15,7 @@
 	</p>
 </description>
 
-<launchable type="desktop-id">org.unitystation.StationHub.desktop</launchable>
+<launchable type="desktop-id">StationHub</launchable>
 
 <url type="homepage">https://unitystation.org/</url>
 
@@ -46,9 +46,9 @@
 </screenshots>
 
 <releases>
-	<release version="927" date="2020-11-15">
+	<release version="926" date="2020-11-17">
 		<description>
-			<p>Bug fixes and lots of work towards making crossplatform distribution easier</p>
+			<p>Added support for sandboxed environments</p>
 		</description>
 	</release>
 </releases>

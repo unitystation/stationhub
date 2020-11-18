@@ -13,4 +13,3 @@ Type=Application
 #The provided icons are named "Ian" to not break from non-linux targets
 Icon=org.unitystation.StationHub
 Categories=Game
-Name=StationHub
