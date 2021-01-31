@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Logging.Serilog;
+using Avalonia;
 using Avalonia.ReactiveUI;
 
 namespace UnitystationLauncher
