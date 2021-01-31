@@ -1,4 +1,4 @@
-﻿using Serilog;
+using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -26,7 +26,7 @@ namespace UnitystationLauncher.Models
 
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
 
-        public static int currentBuild = 927;
+        public static int currentBuild = 928;
         public static HubClientConfig serverHubClientConfig;
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
