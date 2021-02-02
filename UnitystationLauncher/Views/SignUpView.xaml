@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              TextBlock.FontSize="18"
              VerticalAlignment="Center"
              x:Class="UnitystationLauncher.Views.SignUpView">
@@ -57,11 +57,11 @@
 
             <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
                 <Button Command="{Binding Cancel}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
-                        MinWidth="100">
+                        MinWidth="100" Classes="SmallButton">
                     Cancel
                 </Button>
                 <Button Command="{Binding Submit}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
-                        MinWidth="100">
+                        MinWidth="100" Classes="SmallButton">
                     Submit
                 </Button>
             </Grid>
@@ -81,7 +81,7 @@
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="{Binding CreationMessage}" />
             <Button Command="{Binding DoneButton}" Padding="5" Margin="15" HorizontalAlignment="Center" MinWidth="100"
-                    Content="{Binding EndButtonText}" />
+                    Content="{Binding EndButtonText}" Classes="SmallButton"/>
         </StackPanel>
         
         <Border BorderThickness="1" BorderBrush="#c5c5c5" />

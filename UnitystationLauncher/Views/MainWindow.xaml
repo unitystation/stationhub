@@ -13,6 +13,44 @@
         Height="555"
         Background="#19212c">
   <Grid>
+    <Grid.Styles>
+      <!-- SmallButton -->
+      <Style Selector="Button.SmallButton">
+        <Setter Property="FontFamily" Value="Cera Pro Bold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="Width" Value="80" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="BorderThickness" Value="0" />
+
+        <Setter Property="Background">
+          <Setter.Value>
+            <ImageBrush Source="/Assets/bg_button.png" Stretch="Fill"/>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style Selector="Button.SmallButton:pointerover">
+        <Setter Property="Background">
+          <Setter.Value>
+            <ImageBrush Source="/Assets/bg_button_activaty.png" Stretch="Fill"/>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <Style Selector="Button.SmallButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background">
+          <Setter.Value>
+            <ImageBrush Source="/Assets/bg_button_activaty.png" Stretch="Fill"/>
+          </Setter.Value>
+        </Setter>
+      </Style>
+      <!-- Dangerous zone -->
+      <Style Selector="TextBox">
+        <Setter Property="FontFamily" Value="Cera Pro Bold"/>
+      </Style>
+      <Style Selector="TextBlock">
+        <Setter Property="FontFamily" Value="Cera Pro Bold"/>
+      </Style>
+    </Grid.Styles>
     <Grid.Background>
       <ImageBrush Source="/Assets/bg.jpg" />
     </Grid.Background>

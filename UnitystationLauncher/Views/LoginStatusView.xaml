@@ -32,7 +32,7 @@
     <!-- Please wait content -->
     <StackPanel IsVisible="{Binding IsWaitingVisible}">
       <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
-                 Text="Signing in, please wait..." />
+                 Text="Signing in, please wait..."/>
       <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30" Margin="15">
         <Image Source="/Assets/LoadingRing.png" />
       </LayoutTransformControl>
@@ -45,9 +45,9 @@
 
       <Button Command="{Binding ResendEmail}" IsVisible="{Binding IsResendEmailVisible}" Padding="5" Margin="15"
               HorizontalAlignment="Center" MinWidth="100"
-              Content="Resend" />
+              Content="Resend" Classes="SmallButton"/>
       <Button Command="{Binding GoBack}" Padding="5" Margin="15" HorizontalAlignment="Center" MinWidth="100"
-              Content="Back" />
+              Content="Back" Classes="SmallButton"/>
 
     </StackPanel>
 
