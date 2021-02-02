@@ -16,7 +16,7 @@
     <Grid.Styles>
       <!-- SmallButton -->
       <Style Selector="Button.SmallButton">
-        <Setter Property="FontFamily" Value="resm:Assets.Fonts.CeraPro-Bold.ttf#CeraProBold"/>
+        <Setter Property="FontFamily" Value="resm:Assets.Fonts.Inter-Bold.ttf#InterBold"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontSize" Value="20" />
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -46,10 +46,10 @@
       </Style>
       <!-- Dangerous zone -->
       <Style Selector="TextBox">
-        <Setter Property="FontFamily" Value="CeraProBold"/>
+        <Setter Property="FontFamily" Value="InterBold"/>
       </Style>
       <Style Selector="TextBlock">
-        <Setter Property="FontFamily" Value="CeraProBold"/>
+        <Setter Property="FontFamily" Value="InterBold"/>
       </Style>
     </Grid.Styles>
     <Grid.Background>
