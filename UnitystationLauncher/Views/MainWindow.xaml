@@ -16,9 +16,10 @@
     <Grid.Styles>
       <!-- SmallButton -->
       <Style Selector="Button.SmallButton">
-        <Setter Property="FontFamily" Value="Cera Pro Bold"/>
+        <Setter Property="FontFamily" Value="resm:Assets.Fonts.CeraPro-Bold.ttf#CeraProBold"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="FontSize" Value="20" />
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="Width" Value="80" />
         <Setter Property="Height" Value="40" />
         <Setter Property="BorderThickness" Value="0" />
@@ -45,10 +46,10 @@
       </Style>
       <!-- Dangerous zone -->
       <Style Selector="TextBox">
-        <Setter Property="FontFamily" Value="Cera Pro Bold"/>
+        <Setter Property="FontFamily" Value="CeraProBold"/>
       </Style>
       <Style Selector="TextBlock">
-        <Setter Property="FontFamily" Value="Cera Pro Bold"/>
+        <Setter Property="FontFamily" Value="CeraProBold"/>
       </Style>
     </Grid.Styles>
     <Grid.Background>

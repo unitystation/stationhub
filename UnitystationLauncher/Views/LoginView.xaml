@@ -25,7 +25,7 @@
           <KeyBinding Command="{Binding Login}" Gesture="Return" />
         </TextBox.KeyBindings>
       </TextBox>
-      <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400" FontFamily="Cera Pro Bold">
+      <TextBox Text="{Binding Password}" Margin="15" PasswordChar="*" Watermark="Password" MaxWidth="400">
         <TextBox.KeyBindings>
           <KeyBinding Command="{Binding Login}" Gesture="Return" />
         </TextBox.KeyBindings>

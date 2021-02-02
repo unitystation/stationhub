@@ -179,4 +179,7 @@
   <ItemGroup>
     <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9.2" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Assets\Fonts\" />
+  </ItemGroup>
 </Project>
