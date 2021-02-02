@@ -29,13 +29,13 @@
       
       <Button Command="{Binding BeginDownload}" Padding="5" Margin="10"
               HorizontalAlignment="Center" MinWidth="100"
-              Content="{Binding ButtonMessage}" IsVisible="{Binding InstallButtonVisible}"/>
+              Content="{Binding ButtonMessage}" IsVisible="{Binding InstallButtonVisible}" Classes="SmallButton" FontSize="15"/>
       <Button Command="{Binding Cancel}" Padding="5" Margin="10"
               HorizontalAlignment="Center" MinWidth="100"
-              Content="Cancel" IsVisible="{Binding DownloadBarVisible}"/>
+              Content="Cancel" IsVisible="{Binding DownloadBarVisible}" Classes="SmallButton"/>
       <Button Command="{Binding RestartHub}" Padding="5" Margin="10"
               HorizontalAlignment="Center" MinWidth="100"
-              Content="Restart" IsVisible="{Binding RestartButtonVisible}"/>
+              Content="Restart" IsVisible="{Binding RestartButtonVisible}" Classes="SmallButton"/>
     </StackPanel>
     <Border BorderThickness="1" BorderBrush="#c5c5c5" />
   </StackPanel>
