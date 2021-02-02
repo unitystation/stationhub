@@ -14,11 +14,11 @@
       <StackPanel.Background>
         <SolidColorBrush Color="White" Opacity="0.07" />
       </StackPanel.Background>
-      <StackPanel Orientation="Horizontal" Height="60" Margin="20" HorizontalAlignment="Center">
+      <StackPanel Orientation="Horizontal" Height="60" Margin="20,0,60,0" HorizontalAlignment="Center">
         <Viewbox Margin="5">
           <Image Source="/Assets/Ian512.png" />
         </Viewbox>
-        <TextBlock VerticalAlignment="Center" Margin="5" FontFamily="Cera Pro Bold" FontSize="44">Login</TextBlock>
+        <TextBlock VerticalAlignment="Center" Margin="5" FontSize="44">Login</TextBlock>
       </StackPanel>
       <TextBox Text="{Binding Email}" Margin="15" Watermark="Email" MaxWidth="400">
         <TextBox.KeyBindings>

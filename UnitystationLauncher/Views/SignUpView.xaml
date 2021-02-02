@@ -33,7 +33,7 @@
         <!-- Sign up form -->
         <StackPanel IsVisible="{Binding IsFormVisible}">
             <StackPanel Orientation="Horizontal" Height="50" Margin="10" HorizontalAlignment="Center">
-                <TextBlock VerticalAlignment="Center" Margin="5">Create Account:</TextBlock>
+                <TextBlock VerticalAlignment="Center" Margin="5" FontSize="44">Create Account:</TextBlock>
             </StackPanel>
 
             <TextBox Text="{Binding Username}" Margin="15" Watermark="User Name" MaxWidth="400">
