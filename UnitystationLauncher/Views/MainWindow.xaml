@@ -13,6 +13,10 @@
         Height="555"
         Background="#19212c">
   <Grid>
+    <Grid.Resources>
+      <SolidColorBrush x:Key="PrimaryBrush" Color="#0078a3" />
+      <SolidColorBrush x:Key="DarkerPrimaryBrush" Color="#00516f" />
+    </Grid.Resources>
     <Grid.Styles>
       <!-- SmallButton -->
       <Style Selector="Button.SmallButton">
@@ -24,25 +28,13 @@
         <Setter Property="Height" Value="40" />
         <Setter Property="BorderThickness" Value="0" />
 
-        <Setter Property="Background">
-          <Setter.Value>
-            <ImageBrush Source="/Assets/bg_button.png" Stretch="Fill"/>
-          </Setter.Value>
-        </Setter>
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
       </Style>
       <Style Selector="Button.SmallButton:pointerover">
-        <Setter Property="Background">
-          <Setter.Value>
-            <ImageBrush Source="/Assets/bg_button_activaty.png" Stretch="Fill"/>
-          </Setter.Value>
-        </Setter>
+        <Setter Property="Background" Value="{StaticResource DarkerPrimaryBrush}"/>
       </Style>
       <Style Selector="Button.SmallButton:pressed /template/ ContentPresenter">
-        <Setter Property="Background">
-          <Setter.Value>
-            <ImageBrush Source="/Assets/bg_button_activaty.png" Stretch="Fill"/>
-          </Setter.Value>
-        </Setter>
+        <Setter Property="Background" Value="{StaticResource DarkerPrimaryBrush}"/>
       </Style>
       <!-- Dangerous zone -->
       <Style Selector="TextBox">
