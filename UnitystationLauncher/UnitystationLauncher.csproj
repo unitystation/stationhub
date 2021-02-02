@@ -104,7 +104,6 @@
     <AvaloniaResource Remove="Views\ServersPanelView.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Assets\bg_textbox.png" />
     <None Remove="Views\ForgotPasswordView.xaml" />
     <None Remove="Views\HubUpdateView.xaml" />
     <None Remove="Views\InstallationsPanelView.xaml" />
