@@ -9,6 +9,7 @@ Comment=Connect to Unitystation servers & manage your installs
 # And then place somewhere appropriate in the path
 Exec=stationhub.sh
 Type=Application
+#Rename the Icon according to freedesktop standards. 
+#The provided icons are named "Ian" to not break from non-linux targets
 Icon=org.unitystation.StationHub
 Categories=Game
-Name[en_US]=StationHub.desktop
