@@ -8,7 +8,7 @@
   <ItemsControl Items="{Binding PullRequests}">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <ItemsControl Background="#dddddd" BorderBrush="#3377a0" BorderThickness="0.5" MaxHeight="500" Margin="5 5 5 5" Padding="4 4 4 4">
+        <ItemsControl Background="#182837" BorderBrush="#ffffff" BorderThickness="0.5" MaxHeight="500" Margin="5 5 5 5" Padding="4 4 4 4">
           <Grid>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"></RowDefinition>
@@ -16,8 +16,8 @@
               <RowDefinition Height="2*"></RowDefinition>
               <RowDefinition Height="2*"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Text="{Binding MergedAt}" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="10" Foreground="Black" Grid.Row="0" Margin="0,0,3,0"/>
-            <TextBlock Text="{Binding Title}" TextWrapping="WrapWithOverflow" HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="10" Foreground="Black" Grid.Row="1" Margin="0,0,3,0"/>
+            <TextBlock Text="{Binding MergedAt}" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="10" Grid.Row="0" Margin="0,0,3,0"/>
+            <TextBlock Text="{Binding Title}" TextWrapping="WrapWithOverflow" HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="10" Grid.Row="1" Margin="0,0,3,0"/>
             <Grid Margin="0 3 0 3" Grid.Row="2">
               <Grid.Background>
                 <ImageBrush Source="/Assets/line.png" Stretch="Uniform"/>

@@ -212,7 +212,7 @@
       </DockPanel>
       <Border Name="ContentControl" BorderThickness="0.4 0 0.4 0.4" Margin="0 0.4 0 0" BorderBrush="#ffffff" Grid.Row="1">
         <Border.Background>
-          <ImageBrush Source="/Assets/bg.jpg" />
+          <ImageBrush Source="/Assets/bg.jpg" Stretch="UniformToFill"/>
         </Border.Background>
         <ContentControl Margin="0.6 0 0.6 0" Content="{Binding Content}"/>
       </Border>
