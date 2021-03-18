@@ -10,14 +10,17 @@ namespace UnitystationLauncher.Views
 {
     public class MainWindow : Window
     {
-
         private Button _minimiseButton; //CustomButton Window
         private Button _closeButton; //CustomButton Window
         private Button _maximizeeButton; //CustomButton Window
-        private Path _maximizeIcon; //Update Icon
-        private ToolTip _maximizeToolTip; //Update ToolTip 
-        private DockPanel _titleBar; //For move WINDOW and hiding if user don't use Windows.
-        private Border _contentcontrol;  //If user don't use Windows OS then Grid.Row update and Grid.RowSpan
+        /// <summary>
+        /// This is used for moving the window when the titlebar is grabbed, also for disabling on non-windows OSs.
+        /// </summary>
+        private DockPanel _titleBar;
+        /// <summary>
+        /// If user don't use Windows OS then Grid.Row update and Grid.RowSpan
+        /// </summary>
+        private Border _contentcontrol;
 
         public MainWindow()
         {
@@ -46,9 +49,6 @@ namespace UnitystationLauncher.Views
                 _maximizeeButton = this.FindControl<Button>("MaximizeeButton");
                 _closeButton = this.FindControl<Button>("CloseButton");
 
-                _maximizeIcon = this.FindControl<Path>("MaximizeIcon");
-                _maximizeToolTip = this.FindControl<ToolTip>("MaximizeToolTip");
-
                 _minimiseButton.Click += (sender, ee) => { WindowState = WindowState.Minimized; };
 
                 _maximizeeButton.Click += (sender, ee) => { ToggleWindowState(); };
@@ -67,14 +67,10 @@ namespace UnitystationLauncher.Views
         {
             if (_titleBar.IsPointerOver)
             {
-
                 if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
                 {
                     BeginMoveDrag(e);
                 }
-            }
-            else
-            {
             }
             base.OnPointerPressed(e);
         }
@@ -86,15 +82,11 @@ namespace UnitystationLauncher.Views
                 case WindowState.Maximized:
                     WindowState = WindowState.Normal;
                     _contentcontrol.BorderThickness = new Thickness(0.4, 0, 0.4, 0.4);
-                    _maximizeIcon.Data = Avalonia.Media.Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
-                    _maximizeToolTip.Content = "Maximize";
                     break;
 
                 case WindowState.Normal:
                     WindowState = WindowState.Maximized;
                     _contentcontrol.BorderThickness = new Thickness();
-                    _maximizeIcon.Data = Avalonia.Media.Geometry.Parse("M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z");
-                    _maximizeToolTip.Content = "Restore Down";
                     break;
             }
         }

@@ -157,10 +157,9 @@
                       Fill="White"
                       Data="M2048 1229v-205h-2048v205h2048z"></Path>
               </Button>
-              <Button Width="40" Name="MaximizeeButton">
+              <Button Width="40" Name="MaximizeeButton" Command="{Binding CommandMaximizee}">
                 <ToolTip.Tip>
-                  <ToolTip Content="Maximize"
-                           Name="MaximizeToolTip"></ToolTip>
+                  <ToolTip Content="{Binding MaximizeToolTip}"></ToolTip>
                 </ToolTip.Tip>
                 <Button.Resources>
                   <CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
@@ -179,8 +178,7 @@
                 <Path Margin="10,0,10,0"
                       Stretch="Uniform"
                       Fill="#dedede"
-                      Name="MaximizeIcon"
-                      Data="M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z"></Path>
+                      Data="{Binding MaximizeIcon}"></Path>
               </Button>
               <Button Width="40" Name="CloseButton" ToolTip.Tip="Close">
                 <Button.Resources>

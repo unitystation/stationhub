@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using Avalonia.Platform;
 using ReactiveUI;
 using Avalonia.Media.Imaging;
@@ -17,7 +17,7 @@ namespace UnitystationLauncher.ViewModels
 
         ViewModelBase news;
 
-        Bitmap backGrounImage;
+        Bitmap backGroundImage;
 
         private List<string> Videos;
 
@@ -30,8 +30,8 @@ namespace UnitystationLauncher.ViewModels
 
         public Bitmap BackGroundImage 
         { 
-            get => backGrounImage; 
-            set => this.RaiseAndSetIfChanged(ref backGrounImage, value); 
+            get => backGroundImage; 
+            set => this.RaiseAndSetIfChanged(ref backGroundImage, value); 
         }
 
         public ViewModelBase News
@@ -50,7 +50,7 @@ namespace UnitystationLauncher.ViewModels
             NextVideo = ReactiveCommand.Create(Next, null);
             PastVideo = ReactiveCommand.Create(Back, null);
 
-            LoadImage(new Uri("avares://StationHub/Assets/BG_News.png"));
+            LoadImage(new Uri("avares://StationHub/Assets/bgnews.png"));
         }
         
         private void LoadImage(Uri url)

@@ -17,13 +17,9 @@
             <Border Height="75" VerticalAlignment="Center"
                     Margin="0 6 4 0" />
           </StackPanel>
-          <StackPanel IsVisible="{Binding (ListBoxItem.IsPointerOver),
-                                RelativeSource={RelativeSource FindAncestor,
-                                    AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="8" Grid.RowSpan="2">
-          </StackPanel>
 
           <Border Margin="0 2 0 2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
-            <Image Source="avares://StationHub/Assets/unity_ico.png" Width="100" Height="65" Stretch="Uniform"/>
+            <Image Source="avares://StationHub/Assets/unityico.png" Width="100" Height="65" Stretch="Uniform"/>
           </Border>
           <Border Margin="0 2 4 0" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="0" VerticalAlignment="Center" Height="45">
             <TextBlock Text="{Binding ServerName}" FontFamily="InterBold" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" FontSize="19"/>

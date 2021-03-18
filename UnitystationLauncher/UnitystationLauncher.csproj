@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>8.0</LangVersion>
@@ -106,12 +106,12 @@
     <AvaloniaResource Remove="Views\SettingsPanelView.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Assets\BG_News.png" />
-    <None Remove="Assets\button_context.png" />
+    <None Remove="Assets\bgnews.png" />
+    <None Remove="Assets\buttoncontext.png" />
     <None Remove="Assets\leftbutton.png" />
     <None Remove="Assets\line.png" />
     <None Remove="Assets\rightbutton.png" />
-    <None Remove="Assets\unity_ico.png" />
+    <None Remove="Assets\unityico.png" />
     <None Remove="Views\ForgotPasswordView.xaml" />
     <None Remove="Views\HubUpdateView.xaml" />
     <None Remove="Views\InstallationsPanelView.xaml" />

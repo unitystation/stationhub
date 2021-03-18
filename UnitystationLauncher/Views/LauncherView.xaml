@@ -26,17 +26,17 @@
                   <Setter Property="BorderThickness" Value="0"/>
 
                   <Setter Property="Background">
-                    <ImageBrush Source="avares://StationHub/Assets/button_context.png"/>
+                    <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png"/>
                   </Setter>
                 </Style>
                 <Style Selector="Button:pointerover">
                   <Setter Property="Background">
-                    <ImageBrush Source="avares://StationHub/Assets/button_context.png"/>
+                    <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png"/>
                   </Setter>
                 </Style>
                 <Style Selector="Button:pressed /template/ ContentPresenter">
                   <Setter Property="Background">
-                    <ImageBrush Source="avares://StationHub/Assets/button_context.png"/>
+                    <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png"/>
                   </Setter>
                 </Style>
               </Button.Styles>
