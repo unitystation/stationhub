@@ -8,7 +8,6 @@ using System.IO;
 using Serilog.Events;
 using Autofac;
 using AutofacSerilogIntegration;
-using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 

@@ -101,25 +101,35 @@
     <AvaloniaResource Remove="Views\ForgotPasswordView.xaml" />
     <AvaloniaResource Remove="Views\HubUpdateView.xaml" />
     <AvaloniaResource Remove="Views\InstallationsPanelView.xaml" />
+    <AvaloniaResource Remove="Views\NewsPanelView.xaml" />
     <AvaloniaResource Remove="Views\ServersPanelView.xaml" />
+    <AvaloniaResource Remove="Views\SettingsPanelView.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Assets\BG_News.png" />
+    <None Remove="Assets\button_context.png" />
+    <None Remove="Assets\leftbutton.png" />
+    <None Remove="Assets\line.png" />
+    <None Remove="Assets\rightbutton.png" />
+    <None Remove="Assets\unity_ico.png" />
     <None Remove="Views\ForgotPasswordView.xaml" />
     <None Remove="Views\HubUpdateView.xaml" />
     <None Remove="Views\InstallationsPanelView.xaml" />
+    <None Remove="Views\NewsPanelView.xaml" />
     <None Remove="Views\ServersPanelView.xaml" />
+    <None Remove="Views\SettingsPanelView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.0" />
     <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
-    <PackageReference Include="MessageBox.Avalonia" Version="1.0.1" />
+    <PackageReference Include="MessageBox.Avalonia" Version="1.0.6" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="FirebaseAuthentication.net" Version="3.4.0" />
     <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.3" />
-    <PackageReference Include="Octokit" Version="0.48.0" />
-    <PackageReference Include="ReactiveProperty" Version="7.7.0" />
+    <PackageReference Include="Octokit" Version="0.50.0" />
+    <PackageReference Include="ReactiveProperty" Version="7.8.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
@@ -152,6 +162,16 @@
     <PackageReference Include="runtime.any.System.Threading.Tasks" Version="4.3.0" />
     <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\NewsPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\SettingsPanelView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Views\ServersPanelView.xaml">

@@ -18,8 +18,6 @@ namespace UnitystationLauncher.ViewModels
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
-        public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
-            .Open(new Uri("avares://StationHub/Assets/archiveicon.png")));
         private InstallationManager installationManager;
 
         private Installation? selectedInstallation;
@@ -71,6 +69,7 @@ namespace UnitystationLauncher.ViewModels
                 {
                     Style = MessageBox.Avalonia.Enums.Style.None,
                     Icon = MessageBox.Avalonia.Enums.Icon.None,
+                    ShowInCenter = true,
                     ContentHeader = "Are you sure?",
                     ContentMessage = "This will remove older installations from disk. Proceed?",
                     ButtonDefinitions = new[] { new ButtonDefinition { Name = "Cancel" }, new ButtonDefinition { Name = "Confirm" } }
