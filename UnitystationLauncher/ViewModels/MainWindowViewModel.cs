@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using Serilog;
 using System.Threading;
 using UnitystationLauncher.Models;
+using Avalonia.Media;
 
 namespace UnitystationLauncher.ViewModels
 {
