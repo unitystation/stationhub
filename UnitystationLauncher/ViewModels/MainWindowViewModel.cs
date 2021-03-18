@@ -1,9 +1,11 @@
-﻿using System;
+using System;
 using ReactiveUI;
 using System.Reactive.Linq;
 using Serilog;
 using System.Threading;
 using UnitystationLauncher.Models;
+using System.Reactive;
+using Avalonia.Media;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -15,6 +17,23 @@ namespace UnitystationLauncher.ViewModels
         private AuthManager authManager;
         private LoginViewModel loginVM;
 
+        private Geometry maximizeIcon;
+        private string maximizeToolTip;
+
+        public Geometry MaximizeIcon
+        {
+            get => maximizeIcon;
+            set => this.RaiseAndSetIfChanged(ref maximizeIcon, value);
+        }
+
+        public string MaximizeToolTip
+        {
+            get => maximizeToolTip;
+            set => this.RaiseAndSetIfChanged(ref maximizeToolTip, value);
+        }
+
+        public ReactiveCommand<Unit,Unit> CommandMaximizee { get; }
+
         public MainWindowViewModel(LoginViewModel loginVM, Lazy<LoginStatusViewModel> loginStatusVM, Lazy<LauncherViewModel> launcherVM,
             AuthManager authManager)
         {
@@ -24,7 +43,25 @@ namespace UnitystationLauncher.ViewModels
             this.launcherVM = launcherVM;
             Content = loginVM;
             authManager.AttemptingAutoLogin = false;
+            MaximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
+            MaximizeToolTip = "Maximize";
+            CommandMaximizee = ReactiveCommand.Create(Maximize, null);
             CheckForExistingUser();
+        }
+
+        private void Maximize()
+        {
+            switch (MaximizeToolTip)
+            {
+                case "Maximize":
+                    MaximizeIcon = Geometry.Parse("M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z");
+                    MaximizeToolTip = "Restore Down";
+                    break;
+                case "Restore Down":
+                    MaximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
+                    MaximizeToolTip = "Maximize";
+                    break;
+            }
         }
 
         public ViewModelBase Content

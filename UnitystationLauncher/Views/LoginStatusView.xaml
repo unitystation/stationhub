@@ -34,7 +34,7 @@
       <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                  Text="Signing in, please wait..."/>
       <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30" Margin="15">
-        <Image Source="/Assets/LoadingRing.png" />
+        <Image Source="/Assets/loadingring.png" />
       </LayoutTransformControl>
     </StackPanel>
 

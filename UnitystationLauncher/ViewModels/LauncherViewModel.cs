@@ -1,4 +1,4 @@
-﻿using ReactiveUI;
+using ReactiveUI;
 using UnitystationLauncher.Models;
 using System.Reactive;
 using System.IO;
@@ -17,7 +17,6 @@ namespace UnitystationLauncher.ViewModels
         private readonly Lazy<LoginViewModel> logoutVM;
         private readonly Lazy<HubUpdateViewModel> hubUpdateVM;
         string username;
-        ViewModelBase news;
         PanelBase[] panels;
         ViewModelBase? selectedPanel;
 
@@ -27,12 +26,6 @@ namespace UnitystationLauncher.ViewModels
         {
             get => username;
             set => this.RaiseAndSetIfChanged(ref username, value);
-        }
-
-        public ViewModelBase News
-        {
-            get => news;
-            set => this.RaiseAndSetIfChanged(ref news, value);
         }
 
         public PanelBase[] Panels
@@ -50,32 +43,38 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
 
+        public ReactiveCommand<Unit, Unit> Refresh { get; }
+
         public LauncherViewModel(
             AuthManager authManager,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
-            NewsViewModel news,
             Lazy<LoginViewModel> logoutVM,
             HttpClient http,
-            Lazy<HubUpdateViewModel> hubUpdateVM)
+            Lazy<HubUpdateViewModel> hubUpdateVM, 
+            NewsPanelViewModel news,
+            SettingsPanelViewModel settings)
         {
             this.authManager = authManager;
             this.logoutVM = logoutVM;
             this.hubUpdateVM = hubUpdateVM;
             this.http = http;
-            News = news;
             Panels = new PanelBase[]
             {
+                news,
                 serversPanel,
-                installationsPanel
+                installationsPanel,
+                settings
             };
             Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
+            Refresh = ReactiveCommand.Create(serversPanel.OnRefresh, null);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
             ValidateClientVersion();
         }
+
 
         async Task ValidateClientVersion()
         {

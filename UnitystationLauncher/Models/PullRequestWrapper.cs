@@ -1,8 +1,9 @@
-﻿using Octokit;
+using Octokit;
 using ReactiveUI;
 using System.Reactive;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace UnitystationLauncher.Models
 {
@@ -11,6 +12,7 @@ namespace UnitystationLauncher.Models
         public PullRequestWrapper(PullRequest pr)
         {
             Title = pr.Title;
+            MergedAt = pr.MergedAt;
             Url = pr.HtmlUrl;
             VisitURL = ReactiveCommand.Create(LaunchURL, null);
         }

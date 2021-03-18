@@ -8,9 +8,26 @@
   <ItemsControl Items="{Binding PullRequests}">
     <ItemsControl.ItemTemplate>
       <DataTemplate>
-        <Button Command="{Binding VisitURL}" Margin="2" BorderThickness="1" BorderBrush="Gray" Background="#222D3C" MaxWidth="180" MinHeight="40" Cursor="Hand">
-          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" FontSize="12" Margin="1"/>
-        </Button>
+        <ItemsControl Background="#182837" BorderBrush="#ffffff" BorderThickness="0.5" MaxHeight="500" Margin="5 5 5 5" Padding="4 4 4 4">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"></RowDefinition>
+              <RowDefinition Height="4*"></RowDefinition>
+              <RowDefinition Height="2*"></RowDefinition>
+              <RowDefinition Height="2*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Text="{Binding MergedAt}" TextWrapping="WrapWithOverflow" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="10" Grid.Row="0" Margin="0,0,3,0"/>
+            <TextBlock Text="{Binding Title}" TextWrapping="WrapWithOverflow" HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="10" Grid.Row="1" Margin="0,0,3,0"/>
+            <Grid Margin="0 3 0 3" Grid.Row="2">
+              <Grid.Background>
+                <ImageBrush Source="/Assets/line.png" Stretch="Uniform"/>
+              </Grid.Background>
+            </Grid>
+            <Button Command="{Binding VisitURL}" VerticalContentAlignment="Center" HorizontalAlignment="Left" Background="#3377a0" Width="54" Height="18" Cursor="Hand" Grid.Row="3">
+              <TextBlock FontSize="7">Read</TextBlock>
+            </Button>
+          </Grid>
+        </ItemsControl>
       </DataTemplate>
     </ItemsControl.ItemTemplate>
   </ItemsControl>

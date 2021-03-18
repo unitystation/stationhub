@@ -1,4 +1,4 @@
-﻿using Avalonia;
+using Avalonia;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Models;
@@ -130,6 +130,7 @@ namespace UnitystationLauncher.Models
                 {
                     Style = MessageBox.Avalonia.Enums.Style.None,
                     Icon = MessageBox.Avalonia.Enums.Icon.None,
+                    ShowInCenter = true,
                     ContentHeader = $"Remove {ForkName}-{BuildVersion}",
                     ContentMessage = "This action cannot be undone. Proceed?",
                     ButtonDefinitions = new[] { new ButtonDefinition { Name = "Cancel" }, new ButtonDefinition { Name = "Confirm" } }

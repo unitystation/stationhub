@@ -11,39 +11,12 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        ServerWrapper? selectedServer;
         public ServerManager ServerManager { get; }
         public NewsViewModel NewsViewModel { get; }
 
         Timer stateTimer;
 
         public override string Name => "Servers";
-        public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
-            .Open(new Uri("avares://StationHub/Assets/servericon.png")));
-
-
-        public ServerWrapper? SelectedServer
-        {
-            get => selectedServer;
-            set {
-                if (value == null)
-                {
-                    return;
-                }
-
-                this.RaiseAndSetIfChanged(ref selectedServer, value);
-                foreach(var s in ServerManager.Servers.Value)
-                {
-                    if(value != s)
-                    {
-                        s.IsSelected.Value = false;
-                    } else
-                    {
-                        s.IsSelected.Value = true;
-                    }
-                }
-            }
-        }
 
         public ReactiveCommand<Unit, Unit> Refresh { get; }
 
@@ -53,11 +26,9 @@ namespace UnitystationLauncher.ViewModels
         {
             this.ServerManager = serverManager;
             this.NewsViewModel = newsViewModel;
-
-            Refresh = ReactiveCommand.Create(OnRefresh, null);
         }
 
-        private void OnRefresh()
+        public void OnRefresh()
         {
             ServerManager.RefreshServerList();
             NewsViewModel.GetPullRequests();

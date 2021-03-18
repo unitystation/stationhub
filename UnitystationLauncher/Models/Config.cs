@@ -35,6 +35,9 @@ namespace UnitystationLauncher.Models
         public static FileSystemWatcher FileWatcher { get; }
         public static IObservable<Unit> InstallationChanges { get; }
 
+        public const string SiteUrl = "https://unitystation.org/";
+        public const string SupportUrl = "https://www.patreon.com/unitystation";
+        public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
         static Config()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
