@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Platform;
 using ReactiveUI;
 using Avalonia.Media.Imaging;
@@ -19,14 +19,9 @@ namespace UnitystationLauncher.ViewModels
 
         Bitmap backGroundImage;
 
-        private List<string> Videos;
-
         public ReactiveCommand<Unit,Unit> OpenSite { get; }
         public ReactiveCommand<Unit,Unit> OpenSupport { get; }
         public ReactiveCommand<Unit,Unit> OpenReport { get; }
-
-        public ReactiveCommand<Unit,Unit> NextVideo { get; }
-        public ReactiveCommand<Unit,Unit> PastVideo { get; }
 
         public Bitmap BackGroundImage 
         { 
@@ -47,9 +42,6 @@ namespace UnitystationLauncher.ViewModels
             OpenReport = ReactiveCommand.Create(OpenUriReport, null);
             OpenSupport = ReactiveCommand.Create(OpenUriSupport, null);
 
-            NextVideo = ReactiveCommand.Create(Next, null);
-            PastVideo = ReactiveCommand.Create(Back, null);
-
             LoadImage(new Uri("avares://StationHub/Assets/bgnews.png"));
         }
         
@@ -57,16 +49,6 @@ namespace UnitystationLauncher.ViewModels
         {
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             BackGroundImage = new Bitmap(assets.Open(url));
-        }
-
-        private void Next()
-        {
-
-        }
-
-        private void Back()
-        {
-
         }
 
         public static String[] GetFilesFrom(String searchFolder, String[] filters, bool isRecursive)
