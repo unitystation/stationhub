@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using Serilog;
 using System.Threading;
 using UnitystationLauncher.Models;
+using System.Reactive;
 using Avalonia.Media;
 
 namespace UnitystationLauncher.ViewModels
@@ -45,7 +46,6 @@ namespace UnitystationLauncher.ViewModels
             MaximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             MaximizeToolTip = "Maximize";
             CommandMaximizee = ReactiveCommand.Create(Maximize, null);
-            DownloadAssets();
             CheckForExistingUser();
         }
 
