@@ -25,7 +25,7 @@ namespace UnitystationLauncher.Models
         public static string WinExeTempPath => Path.Combine(TempFolder, winExeName);
 
         public static string UnixExeFullPath => Path.Combine(RootFolder, unixExeName);
-
+        //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/StationHub.metainfo.xml for Linux software stores. Thank you.
         public static int currentBuild = 927;
         public static HubClientConfig serverHubClientConfig;
 
