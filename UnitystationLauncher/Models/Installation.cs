@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Models;
@@ -201,6 +201,14 @@ namespace UnitystationLauncher.Models
             var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
             var match = Regex.Match(folderName, @"(.+?)(\d+)");
             return int.Parse(match.Groups[2].Value);
+        }
+
+        public static void MakeExecutableExecutable(string installationPath)
+        {
+            var exe = FindExecutable(installationPath);
+            
+            var fileInfo = new UnixFileInfo(exe);
+            fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
         }
     }
 }

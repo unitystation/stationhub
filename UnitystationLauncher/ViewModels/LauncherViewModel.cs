@@ -1,4 +1,4 @@
-using ReactiveUI;
+﻿using ReactiveUI;
 using UnitystationLauncher.Models;
 using System.Reactive;
 using System.IO;
@@ -78,8 +78,8 @@ namespace UnitystationLauncher.ViewModels
 
         async Task ValidateClientVersion()
         {
-            var data = await http.GetStringAsync(Config.validateUrl);
-            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+            var data = await http.GetStringAsync(Config.ValidateUrl);
+            Config.ServerHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
 
             //use for hub updater testing:
             //Config.serverHubClientConfig.buildNumber = 926;
@@ -87,9 +87,9 @@ namespace UnitystationLauncher.ViewModels
             //Config.serverHubClientConfig.linuxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
             //Config.serverHubClientConfig.osxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
 
-            if (Config.serverHubClientConfig.buildNumber != Config.currentBuild)
+            if (Config.ServerHubClientConfig.BuildNumber != Config.CurrentBuild)
             {
-                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
+                Log.Information($"Client is old ({Config.CurrentBuild}) new version is ({Config.ServerHubClientConfig.BuildNumber})");
                 Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
             }
         }
