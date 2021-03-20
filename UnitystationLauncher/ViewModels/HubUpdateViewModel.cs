@@ -24,6 +24,7 @@ namespace UnitystationLauncher.ViewModels
     {
         private CancellationTokenSource cancelSource;
         private readonly Lazy<LoginViewModel> loginVM;
+        private readonly Config config;
         private string updateTitle;
         private string updateMessage;
         private string buttonMessage;
@@ -80,9 +81,10 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref downloadMessage, value);
         }
 
-        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM)
+        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM, Config config)
         {
             this.loginVM = loginVM;
+            this.config = config;
             BeginDownload = ReactiveCommand.Create(UpdateHub);
             RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
@@ -124,7 +126,7 @@ namespace UnitystationLauncher.ViewModels
 
             Log.Information("Download started...");
 
-            var webRequest = WebRequest.Create(Config.ServerHubClientConfig.GetDownloadUrl());
+            var webRequest = WebRequest.Create((await config.GetServerHubClientConfig()).GetDownloadUrl());
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
 

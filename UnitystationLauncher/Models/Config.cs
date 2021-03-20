@@ -2,14 +2,17 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Http;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace UnitystationLauncher.Models
 {
-    class Config
+    public class Config
     {
         //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/StationHub.metainfo.xml for Linux software stores. Thank you.
         public const int CurrentBuild = 927;
@@ -23,6 +26,12 @@ namespace UnitystationLauncher.Models
         public const string SiteUrl = "https://unitystation.org/";
         public const string SupportUrl = "https://www.patreon.com/unitystation";
         public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
+
+        private readonly HttpClient http;
+        public Config(HttpClient http)
+        {
+            this.http = http;
+        }
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
         public static string TempFolder => Path.Combine(RootFolder, "temp");
@@ -47,24 +56,17 @@ namespace UnitystationLauncher.Models
             }
         }
 
-        public static HubClientConfig? ServerHubClientConfig { get; set; }
-    }
-
-    [Serializable]
-    public class HubClientConfig
-    {
-        public int? BuildNumber { get; }
-        public string? WinUrl { get; }
-        public string? OsxUrl { get; }
-        public string? LinuxUrl { get; }
-        public string? DailyMessage { get; }
-
-        public string? GetDownloadUrl()
+        private HubClientConfig? clientConfig;
+        public async Task<HubClientConfig> GetServerHubClientConfig()
         {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinUrl :
-                RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OsxUrl :
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxUrl :
-                null;
+            if (clientConfig == null)
+            {
+                
+                var data = await http.GetStringAsync(ValidateUrl);
+                clientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+            }
+
+            return clientConfig;
         }
     }
 }
