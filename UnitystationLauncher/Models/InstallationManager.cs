@@ -4,7 +4,9 @@ using System.Linq;
 using ReactiveUI;
 using System.Reactive.Linq;
 using System.IO;
+using System.Reactive;
 using System.Reactive.Subjects;
+using System.Threading;
 using UnitystationLauncher.Infrastructure;
 using Serilog;
 
@@ -19,7 +21,18 @@ namespace UnitystationLauncher.Models
         public InstallationManager()
         {
             installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
-            Config.InstallationChanges
+            var fileWatcher = new FileSystemWatcher(Config.InstallationsPath)
+            {
+                EnableRaisingEvents = true,
+                IncludeSubdirectories = true,
+                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+            };
+            Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                    h => fileWatcher.Changed += h,
+                    h => fileWatcher.Changed -= h)
+                .Select(e => Unit.Default)
+                .Merge(Observable.Return(Unit.Default))
+                .ObserveOn(SynchronizationContext.Current)
                 .ThrottleSubsequent(TimeSpan.FromMilliseconds(1000))
                 .Select(f =>
                     Directory.EnumerateDirectories(Config.InstallationsPath)

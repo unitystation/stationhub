@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Mono.Unix;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
@@ -23,6 +24,7 @@ namespace UnitystationLauncher.ViewModels
     {
         private CancellationTokenSource cancelSource;
         private readonly Lazy<LoginViewModel> loginVM;
+        private readonly Config config;
         private string updateTitle;
         private string updateMessage;
         private string buttonMessage;
@@ -79,9 +81,10 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref downloadMessage, value);
         }
 
-        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM)
+        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM, Config config)
         {
             this.loginVM = loginVM;
+            this.config = config;
             BeginDownload = ReactiveCommand.Create(UpdateHub);
             RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
@@ -104,7 +107,7 @@ namespace UnitystationLauncher.ViewModels
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Config.SetPermissions(Config.UnixExeFullPath);
+                GiveAllOwnerPermissions(Config.UnixExeFullPath);
             }
 
             cancelSource = new CancellationTokenSource();
@@ -115,7 +118,7 @@ namespace UnitystationLauncher.ViewModels
         {
             Directory.CreateDirectory(Config.TempFolder);
 
-            Config.SetPermissions(Config.TempFolder);
+            GiveAllOwnerPermissions(Config.TempFolder);
 
             InstallButtonVisible = false;
             DownloadBarVisible = true;
@@ -123,7 +126,7 @@ namespace UnitystationLauncher.ViewModels
 
             Log.Information("Download started...");
 
-            var webRequest = WebRequest.Create(Config.serverHubClientConfig.GetDownloadURL());
+            var webRequest = WebRequest.Create((await config.GetServerHubClientConfig()).GetDownloadUrl());
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
 
@@ -175,7 +178,7 @@ namespace UnitystationLauncher.ViewModels
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                         RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Config.SetPermissions(Config.TempFolder);
+                GiveAllOwnerPermissions(Config.TempFolder);
             }
 
             DownloadBarVisible = false;
@@ -228,6 +231,15 @@ namespace UnitystationLauncher.ViewModels
                 desktopLifetime.Exit += OnExit;
                 desktopLifetime.Shutdown();
             }
+        }
+
+        private void GiveAllOwnerPermissions(string path)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return;
+            }
+            new UnixFileInfo(path).FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
         }
     }
 }

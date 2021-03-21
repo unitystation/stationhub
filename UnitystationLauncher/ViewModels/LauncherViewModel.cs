@@ -1,4 +1,4 @@
-using ReactiveUI;
+﻿using ReactiveUI;
 using UnitystationLauncher.Models;
 using System.Reactive;
 using System.IO;
@@ -16,6 +16,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly AuthManager authManager;
         private readonly Lazy<LoginViewModel> logoutVM;
         private readonly Lazy<HubUpdateViewModel> hubUpdateVM;
+        private readonly Config config;
         string username;
         PanelBase[] panels;
         ViewModelBase? selectedPanel;
@@ -53,11 +54,13 @@ namespace UnitystationLauncher.ViewModels
             HttpClient http,
             Lazy<HubUpdateViewModel> hubUpdateVM, 
             NewsPanelViewModel news,
-            SettingsPanelViewModel settings)
+            SettingsPanelViewModel settings,
+            Config config)
         {
             this.authManager = authManager;
             this.logoutVM = logoutVM;
             this.hubUpdateVM = hubUpdateVM;
+            this.config = config;
             this.http = http;
             Panels = new PanelBase[]
             {
@@ -78,18 +81,10 @@ namespace UnitystationLauncher.ViewModels
 
         async Task ValidateClientVersion()
         {
-            var data = await http.GetStringAsync(Config.validateUrl);
-            Config.serverHubClientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
-
-            //use for hub updater testing:
-            //Config.serverHubClientConfig.buildNumber = 926;
-            //Config.serverHubClientConfig.winURL = "https://unitystationfile.b-cdn.net/win926.zip";
-            //Config.serverHubClientConfig.linuxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
-            //Config.serverHubClientConfig.osxURL = "https://unitystationfile.b-cdn.net/linux926.zip";
-
-            if (Config.serverHubClientConfig.buildNumber != Config.currentBuild)
+            var clientConfig = await config.GetServerHubClientConfig();
+            if (clientConfig.BuildNumber != Config.CurrentBuild)
             {
-                Log.Information($"Client is old ({Config.currentBuild}) new version is ({Config.serverHubClientConfig.buildNumber})");
+                Log.Information($"Client is old ({Config.CurrentBuild}) new version is ({clientConfig.BuildNumber})");
                 Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
             }
         }

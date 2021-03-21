@@ -3,78 +3,88 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:models="clr-namespace:UnitystationLauncher.Models"
+             xmlns:vm="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              TextBlock.FontSize="18"
-             x:Class="UnitystationLauncher.Views.ServersPanelView"
-             >
-  <UserControl.DataTemplates>
-    <DataTemplate DataType="{x:Type models:Server}">
-      <DockPanel>
-        <Grid ColumnDefinitions="0.15*,0.155*,0.155*,0.156*,0.159*,0.122*,0.105*,0.092*" RowDefinitions="0.3*,0.7*" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+             x:Class="UnitystationLauncher.Views.ServersPanelView">
+    <UserControl.DataTemplates>
+        <DataTemplate DataType="{x:Type models:ServerWrapper}">
+            <DockPanel>
+                <Grid ColumnDefinitions="0.15*,0.155*,0.155*,0.156*,0.159*,0.122*,0.105*,0.092*"
+                      RowDefinitions="0.3*,0.7*" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
 
-          <!--Background colors for the server entries: -->
-          <StackPanel Grid.ColumnSpan="8" Grid.RowSpan="2">
-            <Border Height="75" VerticalAlignment="Center"
-                    Margin="0 6 4 0" />
-          </StackPanel>
+                    <!--Background colors for the server entries: -->
+                    <StackPanel Grid.ColumnSpan="8" Grid.RowSpan="2">
+                        <Border Height="75" VerticalAlignment="Center"
+                                Margin="0 6 4 0" />
+                    </StackPanel>
 
-          <Border Margin="0 2 0 2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
-            <Image Source="avares://StationHub/Assets/unityico.png" Width="100" Height="65" Stretch="Uniform"/>
-          </Border>
-          <Border Margin="0 2 4 0" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="0" VerticalAlignment="Center" Height="45">
-            <TextBlock Text="{Binding ServerName}" FontFamily="InterBold" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Left" FontSize="19"/>
-          </Border>
-          <Border Margin="0 0 4 0" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="1">
-            <TextBlock Text="{Binding Description}" FontFamily="InterBold" VerticalAlignment="Top" TextAlignment="Left" TextWrapping="Wrap" FontSize="11"/>
-          </Border>
-          <Border Grid.Column="5" Grid.RowSpan="2" Grid.Row="0" Height="75">
-            <TextBlock Text="{Binding PlayerCount}" FontFamily="InterBold" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" FontSize="17"/>
-          </Border>
-          <Border Grid.Column="6" Grid.RowSpan="2" Grid.Row="0">
-            <TextBlock Text="{Binding RoundTrip.Value}" FontFamily="InterBold" FontWeight="Bold" VerticalAlignment="Center" TextAlignment="Center" FontSize="17"/>
-          </Border>
-          <Border Grid.Column="7" Grid.Row="0" Grid.RowSpan="2" Margin="0 0 4 0">
-            <DockPanel Margin="0 0 2 0" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="80">
-              <Viewbox  IsVisible="{Binding !IsDownloading^}">
-                <Button Command="{Binding Start}" BorderThickness="0.5" Background="#1d3b50" BorderBrush="#fcfcfd" Height="30" Width="80">
-                  <TextBlock FontSize="12" Text="{Binding ButtonText^}" />
-                </Button>
-              </Viewbox>
-              <!--Downloading bar-->
-              <Viewbox IsVisible="{Binding IsDownloading^}">
-                <ProgressBar Value="{Binding Progress^}" Background="#353F4F"/>
-              </Viewbox>
+                    <Border Margin="0 2 0 2" Grid.Column="0" Grid.Row="0" Grid.RowSpan="2">
+                        <Image Source="avares://StationHub/Assets/unityico.png" Width="100" Height="65"
+                               Stretch="Uniform" />
+                    </Border>
+                    <Border Margin="0 2 4 0" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="0"
+                            VerticalAlignment="Center" Height="45">
+                        <TextBlock Text="{Binding ServerName}" FontFamily="InterBold" FontWeight="Bold"
+                                   VerticalAlignment="Center" TextAlignment="Left" FontSize="19" />
+                    </Border>
+                    <Border Margin="0 0 4 0" Grid.Column="1" Grid.ColumnSpan="4" Grid.Row="1">
+                        <TextBlock Text="{Binding Description}" FontFamily="InterBold" VerticalAlignment="Top"
+                                   TextAlignment="Left" TextWrapping="Wrap" FontSize="11" />
+                    </Border>
+                    <Border Grid.Column="5" Grid.RowSpan="2" Grid.Row="0" Height="75">
+                        <TextBlock Text="{Binding PlayerCount}" FontFamily="InterBold" FontWeight="Bold"
+                                   VerticalAlignment="Center" TextAlignment="Center" FontSize="17" />
+                    </Border>
+                    <Border Grid.Column="6" Grid.RowSpan="2" Grid.Row="0">
+                        <TextBlock Text="{Binding RoundTrip.Value}" FontFamily="InterBold" FontWeight="Bold"
+                                   VerticalAlignment="Center" TextAlignment="Center" FontSize="17" />
+                    </Border>
+                    <Border Grid.Column="7" Grid.Row="0" Grid.RowSpan="2" Margin="0 0 4 0">
+                        <DockPanel Margin="0 0 2 0" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30"
+                                   Width="80">
+                            <Viewbox IsVisible="{Binding !IsDownloading^}">
+                                <Button Command="{Binding Start}" BorderThickness="0.5" Background="#1d3b50"
+                                        BorderBrush="#fcfcfd" Height="30" Width="80">
+                                    <TextBlock FontSize="12" Text="{Binding ButtonText^}" />
+                                </Button>
+                            </Viewbox>
+                            <!--Downloading bar-->
+                            <Viewbox IsVisible="{Binding IsDownloading^}">
+                                <ProgressBar Value="{Binding Progress^}" Background="#353F4F" />
+                            </Viewbox>
+                        </DockPanel>
+                    </Border>
+                </Grid>
             </DockPanel>
-          </Border>
-        </Grid>
-      </DockPanel>
-    </DataTemplate>
-  </UserControl.DataTemplates>
+        </DataTemplate>
+    </UserControl.DataTemplates>
 
-  <DockPanel>
-    <ScrollViewer Margin="0 1 0 0">
-    <StackPanel>     
-      <ListBox
-        Name="ServerListBox"
-        Items="{Binding ServerManager.Servers^}"
-        SelectedItem="{Binding SelectedServer}"
-        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-        Margin="2 0 0 4"
-        BorderThickness="0"
-        Padding="0 0 0 10"
-        IsVisible="{Binding !ServerManager.NoServersFound^}"
-        Background="Transparent">
-        <ListBox.Styles>
-          <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-          </Style>
-          <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-          </Style>
-        </ListBox.Styles>
-      </ListBox>
-      <TextBlock Text="No Servers were found." FontSize="16" TextAlignment="Center" Margin="0 10 0 0" IsVisible="{Binding ServerManager.NoServersFound^}"/>
-    </StackPanel>
-    </ScrollViewer>
-  </DockPanel>
+    <DockPanel>
+        <ScrollViewer Margin="0 1 0 0">
+            <StackPanel>
+                <ListBox
+                    Name="ServerListBox"
+                    Items="{Binding ServerManager.Servers^}"
+                    SelectedItem="{Binding SelectedServer}"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    Margin="2 0 0 4"
+                    BorderThickness="0"
+                    Padding="0 0 0 10"
+                    IsVisible="{Binding !ServerManager.NoServersFound^}"
+                    Background="Transparent">
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                    </ListBox.Styles>
+                </ListBox>
+                <TextBlock Text="No Servers were found." FontSize="16" TextAlignment="Center" Margin="0 10 0 0"
+                           IsVisible="{Binding ServerManager.NoServersFound^}" />
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

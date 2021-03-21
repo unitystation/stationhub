@@ -1,15 +1,19 @@
 using System;
+using System.Diagnostics;
 using Avalonia;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
 using UnitystationLauncher.Models;
 using Serilog;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Serilog.Events;
 using Autofac;
 using AutofacSerilogIntegration;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Mono.Unix;
 
 namespace UnitystationLauncher
 {
@@ -19,6 +23,9 @@ namespace UnitystationLauncher
 
         public override void Initialize()
         {
+            Directory.CreateDirectory(Config.InstallationsPath);
+            GiveAllOwnerPermissions(Config.InstallationsPath);
+            
             var builder = new ContainerBuilder();
             builder.RegisterModule(new StandardModule());
             builder.RegisterLogger();
@@ -34,7 +41,7 @@ namespace UnitystationLauncher
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
-            Log.Information($"Build Number: {Config.currentBuild}");
+            Log.Information($"Build Number: {Config.CurrentBuild}");
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -45,6 +52,24 @@ namespace UnitystationLauncher
             }
 
             base.OnFrameworkInitializationCompleted();
+        }
+
+        private static void GiveAllOwnerPermissions(string path)
+        {
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return;
+                }
+
+                var fileInfo = new UnixFileInfo(path);
+                fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "An exception occurred when setting the permissions");
+            }
         }
     }
 }

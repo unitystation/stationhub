@@ -48,7 +48,7 @@ namespace UnitystationLauncher.Models
                 onRefresh.Invoke();
             }
 
-            var data = await http.GetStringAsync(Config.apiUrl);
+            var data = await http.GetStringAsync(Config.ApiUrl);
             var serverList = JsonConvert.DeserializeObject<ServerList>(data);
 
             if (serverList.Servers.Count == 0)

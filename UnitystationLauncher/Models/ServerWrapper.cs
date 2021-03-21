@@ -197,8 +197,7 @@ namespace UnitystationLauncher.Models
                     archive.ExtractToDirectory(InstallationPath, true);
 
                     Log.Information("Download completed");
-                    var exe = Installation.FindExecutable(InstallationPath);
-                    Config.SetPermissions(exe);
+                    Installation.MakeExecutableExecutable(InstallationPath);
                     isDownloading = false;
                     CheckIfCanPlay();
                 }

@@ -38,7 +38,7 @@ namespace UnitystationLauncher.ViewModels
                 AutoRemove.Value = true;
             }
 
-            BuildNum = $"Hub Build Num: {Config.currentBuild}";
+            BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
             installationManager.AutoRemove = AutoRemove.Value;
             CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick, null);

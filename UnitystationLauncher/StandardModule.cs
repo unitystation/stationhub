@@ -8,6 +8,7 @@ namespace UnitystationLauncher{
     {
         protected override void Load(ContainerBuilder builder){
             builder.RegisterType<HttpClient>().SingleInstance();
+            builder.RegisterType<Config>().SingleInstance();
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("Manager"))
                 .SingleInstance();
