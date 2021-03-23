@@ -8,77 +8,77 @@ namespace UnitystationLauncher.ViewModels
 {
     public class SignUpViewModel : ViewModelBase
     {
-        private readonly AuthManager authManager;
-        private readonly Lazy<LoginViewModel> loginVM;
-        string? email;
-        string? password;
-        string? username;
-        private string creationMessage;
-        private string endButtonText;
-        private bool isFormVisible;
-        private bool isWaitingVisible;
-        private bool isCreatedVisible;
-        private bool creationSuccess = false;
+        private readonly AuthManager _authManager;
+        private readonly Lazy<LoginViewModel> _loginVm;
+        string _email = "";
+        string _password = "";
+        string _username = "";
+        private string? _creationMessage;
+        private string? _endButtonText;
+        private bool _isFormVisible;
+        private bool _isWaitingVisible;
+        private bool _isCreatedVisible;
+        private bool _creationSuccess;
 
-        public string? Username
+        public string Username
         {
-            get => username;
-            set => this.RaiseAndSetIfChanged(ref username, value);
+            get => _username;
+            set => this.RaiseAndSetIfChanged(ref _username, value);
         }
 
-        public string? Email
+        public string Email
         {
-            get => email;
-            set => this.RaiseAndSetIfChanged(ref email, value);
+            get => _email;
+            set => this.RaiseAndSetIfChanged(ref _email, value);
         }
 
-        public string? Password
+        public string Password
         {
-            get => password;
-            set => this.RaiseAndSetIfChanged(ref password, value);
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
         public bool IsFormVisible
         {
-            get => isFormVisible;
-            set => this.RaiseAndSetIfChanged(ref isFormVisible, value);
+            get => _isFormVisible;
+            set => this.RaiseAndSetIfChanged(ref _isFormVisible, value);
         }
 
         public bool IsCreatedVisible
         {
-            get => isCreatedVisible;
-            set => this.RaiseAndSetIfChanged(ref isCreatedVisible, value);
+            get => _isCreatedVisible;
+            set => this.RaiseAndSetIfChanged(ref _isCreatedVisible, value);
         }
         
         public bool IsWaitingVisible
         {
-            get => isWaitingVisible;
-            set => this.RaiseAndSetIfChanged(ref isWaitingVisible, value);
+            get => _isWaitingVisible;
+            set => this.RaiseAndSetIfChanged(ref _isWaitingVisible, value);
         }
 
-        public string CreationMessage
+        public string? CreationMessage
         {
-            get => creationMessage;
-            set => this.RaiseAndSetIfChanged(ref creationMessage, value);
+            get => _creationMessage;
+            set => this.RaiseAndSetIfChanged(ref _creationMessage, value);
         }
 
-        public string EndButtonText
+        public string? EndButtonText
         {
-            get => endButtonText;
-            set => this.RaiseAndSetIfChanged(ref endButtonText, value);
+            get => _endButtonText;
+            set => this.RaiseAndSetIfChanged(ref _endButtonText, value);
         }
 
-        public ReactiveCommand<Unit, LoginViewModel?> Cancel { get; }
-        public ReactiveCommand<Unit, LoginViewModel?> DoneButton { get; }
+        public ReactiveCommand<Unit, LoginViewModel> Cancel { get; }
+        public ReactiveCommand<Unit, LoginViewModel> DoneButton { get; }
         public ReactiveCommand<Unit, Unit> Submit { get; }
 
-        public SignUpViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVM)
+        public SignUpViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVm)
         {
             IsFormVisible = true;
             IsWaitingVisible = false;
             IsCreatedVisible = false;
-            this.authManager = authManager;
-            this.loginVM = loginVM;
+            _authManager = authManager;
+            _loginVm = loginVm;
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
                 x => x.Password,
@@ -100,21 +100,21 @@ namespace UnitystationLauncher.ViewModels
         public async void UserCreate()
         {
             IsFormVisible = false;
-            creationSuccess = true;
+            _creationSuccess = true;
             IsWaitingVisible = true;
             
             try
             { 
-                var authLink = await authManager.CreateAccount(username, email, password);
+                await _authManager.CreateAccount(_username, _email, _password);
             } catch (Exception e)
             {
                 Log.Error(e, "Login failed");
-                creationSuccess = false;
+                _creationSuccess = false;
             }
 
-            if (creationSuccess)
+            if (_creationSuccess)
             {
-                CreationMessage = $"Success! An email has been sent to \r\n{email}\r\n" +
+                CreationMessage = $"Success! An email has been sent to \r\n{_email}\r\n" +
                                   $"Please click the link in the email to verify\r\n" +
                                   $"your account before signing in.";
                 EndButtonText = "Done";
@@ -122,9 +122,9 @@ namespace UnitystationLauncher.ViewModels
             else
             {
                 CreationMessage = $"Something went wrong with the verification email server.\r\n" +
-                    $"A reset password email has been sent to {email} as a work around.\r\n" +
+                    $"A reset password email has been sent to {_email} as a work around.\r\n" +
                     $"Please reset your password and try to log in.";
-                authManager.SendForgotPasswordEmail(email);
+                _authManager.SendForgotPasswordEmail(_email);
                 EndButtonText = "Back";
             }
             
@@ -132,14 +132,14 @@ namespace UnitystationLauncher.ViewModels
             IsCreatedVisible = true;
         }
 
-        public LoginViewModel? ReturnToLogin()
+        public LoginViewModel ReturnToLogin()
         {
-            return loginVM.Value;
+            return _loginVm.Value;
         }
         
-        public LoginViewModel? CreationEndButton()
+        public LoginViewModel CreationEndButton()
         {
-            return loginVM.Value;
+            return _loginVm.Value;
         }
     }
 }

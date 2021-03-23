@@ -9,21 +9,23 @@ namespace UnitystationLauncher.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        private readonly Lazy<SignUpViewModel> signUpVM;
-        private readonly Lazy<ForgotPasswordViewModel> forgotVM;
-        private readonly Lazy<LoginStatusViewModel> loginStatusVM;
-        private readonly AuthManager authManager;
-        string? email;
-        string? password;
+        private readonly Lazy<SignUpViewModel> _signUpVm;
+        private readonly Lazy<ForgotPasswordViewModel> _forgotVm;
+        private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
+        private readonly AuthManager _authManager;
+        string _email = "";
+        string _password = "";
 
-        public LoginViewModel(Lazy<LoginStatusViewModel> loginStatusVM,
-            Lazy<SignUpViewModel> signUpVM, Lazy<ForgotPasswordViewModel> forgotVM,
+        public LoginViewModel(
+            Lazy<LoginStatusViewModel> loginStatusVm,
+            Lazy<SignUpViewModel> signUpVm, 
+            Lazy<ForgotPasswordViewModel> forgotVm,
             AuthManager authManager)
         {
-            this.authManager = authManager;
-            this.signUpVM = signUpVM;
-            this.loginStatusVM = loginStatusVM;
-            this.forgotVM = forgotVM;
+            _authManager = authManager;
+            _signUpVm = signUpVm;
+            _loginStatusVm = loginStatusVm;
+            _forgotVm = forgotVm;
 
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
@@ -39,31 +41,31 @@ namespace UnitystationLauncher.ViewModels
             Create = ReactiveCommand.Create(
                 UserCreate);
 
-            ForgotPW = ReactiveCommand.Create(
+            ForgotPw = ReactiveCommand.Create(
                 ForgotPass);
 
             CheckForLastLogin();
         }
 
-        public string? Email
+        public string Email
         {
-            get => email;
-            set => this.RaiseAndSetIfChanged(ref email, value);
+            get => _email;
+            set => this.RaiseAndSetIfChanged(ref _email, value);
         }
 
-        public string? Password
+        public string Password
         {
-            get => password;
-            set => this.RaiseAndSetIfChanged(ref password, value);
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
-        public ReactiveCommand<Unit, LoginStatusViewModel?> Login { get; }
-        public ReactiveCommand<Unit, SignUpViewModel?> Create { get; }
-        public ReactiveCommand<Unit, ForgotPasswordViewModel?> ForgotPW { get; }
+        public ReactiveCommand<Unit, LoginStatusViewModel> Login { get; }
+        public ReactiveCommand<Unit, SignUpViewModel> Create { get; }
+        public ReactiveCommand<Unit, ForgotPasswordViewModel> ForgotPw { get; }
 
-        public LoginStatusViewModel? UserLogin()
+        public LoginStatusViewModel UserLogin()
         {
-            authManager.LoginMsg = new LoginMsg
+            _authManager.LoginMsg = new LoginMsg
             {
                 Email = Email,
                 Pass = Password
@@ -71,17 +73,17 @@ namespace UnitystationLauncher.ViewModels
 
             SaveLoginEmail();
 
-            return loginStatusVM.Value;
+            return _loginStatusVm.Value;
         }
         
-        public SignUpViewModel? UserCreate()
+        public SignUpViewModel UserCreate()
         {
-            return signUpVM.Value;
+            return _signUpVm.Value;
         }
 
-        public ForgotPasswordViewModel? ForgotPass()
+        public ForgotPasswordViewModel ForgotPass()
         {
-            return forgotVM.Value;
+            return _forgotVm.Value;
         }
 
         void CheckForLastLogin()
@@ -89,7 +91,7 @@ namespace UnitystationLauncher.ViewModels
             if (File.Exists(Config.RootFolder + "prefs.json"))
             {
                 var prefs = JsonConvert.DeserializeObject<Prefs>(File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json")));
-                Email = prefs.LastLogin;
+                Email = prefs.LastLogin ?? "";
             }
         }
 
@@ -100,12 +102,12 @@ namespace UnitystationLauncher.ViewModels
             {
                 data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
                 var prefs = JsonConvert.DeserializeObject<Prefs>(data);
-                prefs.LastLogin = email;
+                prefs.LastLogin = _email;
                 data = JsonConvert.SerializeObject(prefs);
             }
             else
             {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = false, LastLogin = email });
+                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = false, LastLogin = _email });
             }
             File.WriteAllText(Path.Combine(Config.RootFolder, "prefs.json"), data);
         }

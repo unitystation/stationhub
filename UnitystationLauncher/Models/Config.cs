@@ -1,12 +1,7 @@
-using Serilog;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
-using System.Reactive.Linq;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -27,10 +22,10 @@ namespace UnitystationLauncher.Models
         public const string SupportUrl = "https://www.patreon.com/unitystation";
         public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
 
-        private readonly HttpClient http;
+        private readonly HttpClient _http;
         public Config(HttpClient http)
         {
-            this.http = http;
+            _http = http;
         }
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
@@ -56,17 +51,17 @@ namespace UnitystationLauncher.Models
             }
         }
 
-        private HubClientConfig? clientConfig;
+        private HubClientConfig? _clientConfig;
         public async Task<HubClientConfig> GetServerHubClientConfig()
         {
-            if (clientConfig == null)
+            if (_clientConfig == null)
             {
                 
-                var data = await http.GetStringAsync(ValidateUrl);
-                clientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+                var data = await _http.GetStringAsync(ValidateUrl);
+                _clientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
             }
 
-            return clientConfig;
+            return _clientConfig;
         }
     }
 }

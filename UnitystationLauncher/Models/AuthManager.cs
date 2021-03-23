@@ -11,15 +11,15 @@ namespace UnitystationLauncher.Models
 {
     public class AuthManager
     {
-        readonly FirebaseAuthProvider authProvider;
-        private readonly HttpClient http;
-        public LoginMsg LoginMsg { get; set; }
+        readonly FirebaseAuthProvider _authProvider;
+        private readonly HttpClient _http;
+        public LoginMsg? LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
 
         public AuthManager(HttpClient http, FirebaseAuthProvider authProvider)
         {
-            this.authProvider = authProvider;
-            this.http = http;
+            _authProvider = authProvider;
+            _http = http;
             if (File.Exists(Path.Combine(Config.RootFolder, "settings.json")))
             {
                 var json = File.ReadAllText(Path.Combine(Config.RootFolder, "settings.json"));
@@ -29,21 +29,15 @@ namespace UnitystationLauncher.Models
         }
 
         public FirebaseAuthLink? AuthLink { get; set; }
-        public string CurrentRefreshToken
-        {
-            get { return AuthLink.RefreshToken; }
-        }
+        public string? CurrentRefreshToken => AuthLink?.RefreshToken;
 
-        public string UID
-        {
-            get { return AuthLink.User.LocalId; }
-        }
+        public string? Uid => AuthLink?.User.LocalId;
 
         public void Store()
         {
             var json = JsonConvert.SerializeObject(AuthLink);
 
-            using (StreamWriter writer = System.IO.File.CreateText(Path.Combine(Config.RootFolder,"settings.json")))
+            using (StreamWriter writer = File.CreateText(Path.Combine(Config.RootFolder,"settings.json")))
             {
                 writer.WriteLine(json);
             }
@@ -51,19 +45,19 @@ namespace UnitystationLauncher.Models
 
         public void ResendVerificationEmail()
         {
-            authProvider.SendEmailVerificationAsync(AuthLink);
+            _authProvider.SendEmailVerificationAsync(AuthLink);
         }
 
         public void SendForgotPasswordEmail(string email)
         {
-            authProvider.SendPasswordResetEmailAsync(email);
+            _authProvider.SendPasswordResetEmailAsync(email);
         }
 
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
-            authProvider.SignInWithEmailAndPasswordAsync(email, password);
+            _authProvider.SignInWithEmailAndPasswordAsync(email, password);
 
         internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
-            authProvider.SignInWithCustomTokenAsync(token);
+            _authProvider.SignInWithCustomTokenAsync(token);
 
         /// <summary>
         /// Asks firebase to create the user's account.
@@ -82,18 +76,21 @@ namespace UnitystationLauncher.Models
             var isDomainBlacklisted = false;
             try
             {
-                var response = await http.SendAsync(requestMessage, cancellationToken);
+                var response = await _http.SendAsync(requestMessage, cancellationToken);
                 var msg = await response.Content.ReadAsStringAsync();
 
                 // Turn msg into a hashset of all domains
                 using var stringReader = new StringReader(msg);
-                string line;
                 var lines = new List<string>();
-                while ((line = stringReader.ReadLine()) != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//")) ;
+                    string line;
+                    
+                    while ((line = stringReader.ReadLine()!) != null)
                     {
-                        lines.Add(line);
+                        if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//"))
+                        {
+                            lines.Add(line);
+                        }
                     }
                 }
                 var blacklist = new HashSet<string>(lines, StringComparer.OrdinalIgnoreCase);
@@ -116,10 +113,10 @@ namespace UnitystationLauncher.Models
                 throw new Exception("The email domain provided by the user is on our blacklist.");
             }
 
-            return await authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
+            return await _authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
         }
 
-        internal Task<User> GetUpdatedUser() => authProvider.GetUserAsync(AuthLink);
+        internal Task<User> GetUpdatedUser() => _authProvider.GetUserAsync(AuthLink);
 
         public async Task<string> GetCustomToken(RefreshToken refreshToken, string email)
         {
@@ -132,7 +129,7 @@ namespace UnitystationLauncher.Models
             HttpResponseMessage res;
             try
             {
-                res = await http.SendAsync(r, cancellationToken);
+                res = await _http.SendAsync(r, cancellationToken);
             }
             catch (Exception e)
             {
@@ -143,22 +140,24 @@ namespace UnitystationLauncher.Models
             string msg = await res.Content.ReadAsStringAsync();
             var response = JsonConvert.DeserializeObject<ApiResponse>(msg);
 
-            if (response.errorCode != 0)
+            if (response.ErrorCode != 0)
             {
-                Console.WriteLine("Error: " + response.errorMsg);
+                Console.WriteLine("Error: " + response.ErrorMsg);
                 return "";
             }
 
-            return response.message;
+            return response.Message ?? "";
         }
 
         public async void SignOutUser()
         {
             if (AuthLink == null) return;
 
+            if (Uid == null || CurrentRefreshToken == null) return;
+
             var token = new RefreshToken
             {
-                userID = UID,
+                userID = Uid,
                 refreshToken = CurrentRefreshToken
             };
 
@@ -171,7 +170,7 @@ namespace UnitystationLauncher.Models
             HttpResponseMessage res;
             try
             {
-                res = await http.SendAsync(r, cancellationToken);
+                res = await _http.SendAsync(r, cancellationToken);
             }
             catch (Exception e)
             {
@@ -188,8 +187,8 @@ namespace UnitystationLauncher.Models
 
     public class LoginMsg
     {
-        public string Email { get; set; }
-        public string Pass { get; set; }
+        public string Email { get; set; } = "";
+        public string Pass { get; set; } = "";
     }
 
     [Serializable]
@@ -202,8 +201,12 @@ namespace UnitystationLauncher.Models
     [Serializable]
     public class ApiResponse
     {
-        public int errorCode = 0; //0 = all good, read the message variable now, otherwise read errorMsg
-        public string errorMsg;
-        public string message;
+        /// <summary>
+        /// 0 = all good, read the message variable now, otherwise read errorMsg
+        /// </summary>
+        public int ErrorCode { get; set; } = 0;
+
+        public string? ErrorMsg { get; set; }
+        public string? Message { get; set; }
     }
 }

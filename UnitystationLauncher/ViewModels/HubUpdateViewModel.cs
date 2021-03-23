@@ -22,17 +22,17 @@ namespace UnitystationLauncher.ViewModels
 {
     public class HubUpdateViewModel : ViewModelBase
     {
-        private CancellationTokenSource cancelSource;
-        private readonly Lazy<LoginViewModel> loginVM;
-        private readonly Config config;
-        private string updateTitle;
-        private string updateMessage;
-        private string buttonMessage;
-        private string downloadMessage;
-        private bool installButtonVisible;
-        private bool downloadBarVisible;
-        private bool restartButtonVisible;
-        private Process thisProcess;
+        private CancellationTokenSource? _cancelSource;
+        private readonly Lazy<LoginViewModel> _loginVm;
+        private readonly Config _config;
+        private string? _updateTitle;
+        private string? _updateMessage;
+        private string? _buttonMessage;
+        private string? _downloadMessage;
+        private bool _installButtonVisible;
+        private bool _downloadBarVisible;
+        private bool _restartButtonVisible;
+        private Process _thisProcess;
 
         public ReactiveCommand<Unit, Unit> BeginDownload { get; }
         public ReactiveCommand<Unit, Unit> RestartHub { get; }
@@ -41,50 +41,50 @@ namespace UnitystationLauncher.ViewModels
 
         public bool InstallButtonVisible
         {
-            get => installButtonVisible;
-            set => this.RaiseAndSetIfChanged(ref installButtonVisible, value);
+            get => _installButtonVisible;
+            set => this.RaiseAndSetIfChanged(ref _installButtonVisible, value);
         }
 
         public bool DownloadBarVisible
         {
-            get => downloadBarVisible;
-            set => this.RaiseAndSetIfChanged(ref downloadBarVisible, value);
+            get => _downloadBarVisible;
+            set => this.RaiseAndSetIfChanged(ref _downloadBarVisible, value);
         }
 
         public bool RestartButtonVisible
         {
-            get => restartButtonVisible;
-            set => this.RaiseAndSetIfChanged(ref restartButtonVisible, value);
+            get => _restartButtonVisible;
+            set => this.RaiseAndSetIfChanged(ref _restartButtonVisible, value);
         }
 
-        public string UpdateTitle
+        public string? UpdateTitle
         {
-            get => updateTitle;
-            set => this.RaiseAndSetIfChanged(ref updateTitle, value);
+            get => _updateTitle;
+            set => this.RaiseAndSetIfChanged(ref _updateTitle, value);
         }
 
-        public string UpdateMessage
+        public string? UpdateMessage
         {
-            get => updateMessage;
-            set => this.RaiseAndSetIfChanged(ref updateMessage, value);
+            get => _updateMessage;
+            set => this.RaiseAndSetIfChanged(ref _updateMessage, value);
         }
 
-        public string ButtonMessage
+        public string? ButtonMessage
         {
-            get => buttonMessage;
-            set => this.RaiseAndSetIfChanged(ref buttonMessage, value);
+            get => _buttonMessage;
+            set => this.RaiseAndSetIfChanged(ref _buttonMessage, value);
         }
 
-        public string DownloadMessage
+        public string? DownloadMessage
         {
-            get => downloadMessage;
-            set => this.RaiseAndSetIfChanged(ref downloadMessage, value);
+            get => _downloadMessage;
+            set => this.RaiseAndSetIfChanged(ref _downloadMessage, value);
         }
 
-        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM, Config config)
+        public HubUpdateViewModel(Lazy<LoginViewModel> loginVm, Config config)
         {
-            this.loginVM = loginVM;
-            this.config = config;
+            _loginVm = loginVm;
+            _config = config;
             BeginDownload = ReactiveCommand.Create(UpdateHub);
             RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
@@ -94,8 +94,7 @@ namespace UnitystationLauncher.ViewModels
                 $" the latest version by clicking the button below:";
 
             ButtonMessage = $"Update Hub";
-            Process[] myProcesses = Process.GetProcessesByName("StationHub");
-            thisProcess = myProcesses[0];
+            _thisProcess = Process.GetCurrentProcess();
 
             InstallButtonVisible = true;
             DownloadBarVisible = false;
@@ -110,11 +109,11 @@ namespace UnitystationLauncher.ViewModels
                 GiveAllOwnerPermissions(Config.UnixExeFullPath);
             }
 
-            cancelSource = new CancellationTokenSource();
-            TryUpdate(cancelSource.Token);
+            _cancelSource = new CancellationTokenSource();
+            TryUpdate(_cancelSource.Token);
         }
 
-        async Task TryUpdate(CancellationToken cancelToken)
+        async void TryUpdate(CancellationToken cancelToken)
         {
             Directory.CreateDirectory(Config.TempFolder);
 
@@ -125,8 +124,14 @@ namespace UnitystationLauncher.ViewModels
             UpdateTitle = "Downloading...";
 
             Log.Information("Download started...");
+            var downloadUrl = (await _config.GetServerHubClientConfig()).GetDownloadUrl();
+            if (downloadUrl == null)
+            {
+                Log.Error("DownloadUrl is null");
+                return;
+            }
 
-            var webRequest = WebRequest.Create((await config.GetServerHubClientConfig()).GetDownloadUrl());
+            var webRequest = WebRequest.Create(downloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
 
@@ -148,10 +153,10 @@ namespace UnitystationLauncher.ViewModels
                         Progress.OnNext(0);
                         return;
                     }
-                    var downloadedAmt = (int)((float)maxFileSize.Kilobytes * ((float)p / 100f));
+                    var downloadedAmt = (int)((float)maxFileSize.Kilobytes * (p / 100f));
                     DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Kilobytes} KB";
                     Progress.OnNext(p);
-                    Log.Information("Progress: {prog}", p);
+                    Log.Information("Progress: {Progress}", p);
                 });
 
             await Task.Run(() =>
@@ -182,8 +187,6 @@ namespace UnitystationLauncher.ViewModels
             }
 
             DownloadBarVisible = false;
-            //RestartButtonVisible = true;
-            //UpdateTitle = "Download complete!\n\rClick the restart button to continue:";
             RestartApp();
         }
 
@@ -214,13 +217,13 @@ namespace UnitystationLauncher.ViewModels
                 Process.Start(info);
             }
 
-            thisProcess.Kill();
+            _thisProcess.Kill();
         }
 
         ViewModelBase CancelInstall()
         {
-            cancelSource.Cancel();
-            return loginVM.Value;
+            _cancelSource?.Cancel();
+            return _loginVm.Value;
         }
 
         void RestartApp()

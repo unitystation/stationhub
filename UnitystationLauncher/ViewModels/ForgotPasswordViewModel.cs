@@ -7,38 +7,39 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ForgotPasswordViewModel : ViewModelBase
     {
-        private readonly Lazy<LoginViewModel> loginVM;
-        private readonly AuthManager authManager;
-        private bool isFormVisible;
-        private bool isSuccessVisible;
-        string? email;
-        public string? Email
+        private readonly Lazy<LoginViewModel> _loginVm;
+        private readonly AuthManager _authManager;
+        private bool _isFormVisible;
+        private bool _isSuccessVisible;
+        string _email = "";
+        
+        public string Email
         {
-            get => email;
-            set => this.RaiseAndSetIfChanged(ref email, value);
+            get => _email;
+            set => this.RaiseAndSetIfChanged(ref _email, value);
         }
 
         public ReactiveCommand<Unit, Unit> Submit { get; }
-        public ReactiveCommand<Unit, LoginViewModel?> DoneButton { get; }
+        public ReactiveCommand<Unit, LoginViewModel> DoneButton { get; }
 
         public bool IsFormVisible
         {
-            get => isFormVisible;
-            set => this.RaiseAndSetIfChanged(ref isFormVisible, value);
+            get => _isFormVisible;
+            set => this.RaiseAndSetIfChanged(ref _isFormVisible, value);
         }
 
         public bool IsSuccessVisible
         {
-            get => isSuccessVisible;
-            set => this.RaiseAndSetIfChanged(ref isSuccessVisible, value);
+            get => _isSuccessVisible;
+            set => this.RaiseAndSetIfChanged(ref _isSuccessVisible, value);
         }
 
-        public ForgotPasswordViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVM)
+        public ForgotPasswordViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVm)
         {
             IsFormVisible = true;
             IsSuccessVisible = false;
-            this.authManager = authManager;
-            this.loginVM = loginVM;
+            _authManager = authManager;
+            _loginVm = loginVm;
             
             var inputValidation = this.WhenAnyValue(
                 x => x.Email,
@@ -53,14 +54,14 @@ namespace UnitystationLauncher.ViewModels
 
         void TrySendResetPassword()
         {
-            authManager.SendForgotPasswordEmail(Email);
+            _authManager.SendForgotPasswordEmail(Email);
             IsFormVisible = false;
             IsSuccessVisible = true;
         }
 
-        public LoginViewModel? ReturnToLogin()
+        public LoginViewModel ReturnToLogin()
         {
-            return loginVM.Value;
+            return _loginVm.Value;
         }
     }
 }

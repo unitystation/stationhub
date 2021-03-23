@@ -2,9 +2,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using UnitystationLauncher.Models;
 using Reactive.Bindings;
 using Newtonsoft.Json;
@@ -20,8 +17,8 @@ namespace UnitystationLauncher.ViewModels
         public override string Name => "Installations";
         private InstallationManager installationManager;
 
-        private Installation? selectedInstallation;
-        string? buildNum;
+        private Installation? _selectedInstallation;
+        string? _buildNum;
 
         public InstallationsPanelViewModel(InstallationManager installationManager)
         {
@@ -41,7 +38,7 @@ namespace UnitystationLauncher.ViewModels
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
             installationManager.AutoRemove = AutoRemove.Value;
-            CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick, null);
+            CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick);
         }
 
         public IObservable<IReadOnlyList<Installation>> Installations => installationManager.Installations;
@@ -49,21 +46,21 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> CheckBoxClick { get; }
         public Installation? SelectedInstallation
         {
-            get => selectedInstallation;
-            set => this.RaiseAndSetIfChanged(ref selectedInstallation, value);
+            get => _selectedInstallation;
+            set => this.RaiseAndSetIfChanged(ref _selectedInstallation, value);
         }
 
         public string? BuildNum
         {
-            get => buildNum;
-            set => this.RaiseAndSetIfChanged(ref buildNum, value);
+            get => _buildNum;
+            set => this.RaiseAndSetIfChanged(ref _buildNum, value);
         }
 
         //This is a Reactive Command action as confirmation needs to happen with the
         //message box.
         async void OnCheckBoxClick()
         {
-            if(AutoRemove.Value == true)
+            if(AutoRemove.Value)
             {
                 var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {

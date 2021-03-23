@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Net.Http;
 using Avalonia.Collections;
 using Serilog;
 
@@ -11,29 +8,28 @@ namespace UnitystationLauncher.Models
 
     public class DownloadManager
     {
-        private readonly HttpClient http;
-        private readonly AvaloniaList<Download> downloads;
+        private readonly AvaloniaList<Download> _downloads;
 
-        public DownloadManager(HttpClient http)
+        public DownloadManager()
         {
-            downloads = new AvaloniaList<Download>();
-            this.http = http;
+            _downloads = new AvaloniaList<Download>();
             Downloads.GetWeakCollectionChangedObservable().Subscribe(x => Log.Information("Downloads changed"));
         }
 
-        public IAvaloniaReadOnlyList<Download> Downloads => downloads;
+        public IAvaloniaReadOnlyList<Download> Downloads => _downloads;
 
         public Download AddDownload(string url, string installationPath)
         {
-            var download = new Download(url, installationPath, http);
-            downloads.Add(download);
+            var download = new Download(url, installationPath);
+            _downloads.Add(download);
             return download;
         }
 
         public Download Download(Server server)
         {
-            var download = new Download(server.DownloadUrl, server.InstallationPath, http);
-            downloads.Add(download);
+            if (server.DownloadUrl == null) throw new ArgumentNullException(nameof(server.DownloadUrl));
+            var download = new Download(server.DownloadUrl, server.InstallationPath);
+            _downloads.Add(download);
             return download;
         }
 

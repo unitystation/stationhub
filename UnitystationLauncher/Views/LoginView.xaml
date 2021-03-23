@@ -41,7 +41,7 @@
          Login
         </Button>
       </Grid>
-      <Button Command="{Binding ForgotPW}" Padding="5" Margin="0,5,0,25" HorizontalAlignment="Center"
+      <Button Command="{Binding ForgotPw}" Padding="5" Margin="0,5,0,25" HorizontalAlignment="Center"
                 MinWidth="100">
         <Button.Template>
           <ControlTemplate>

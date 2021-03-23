@@ -1,10 +1,5 @@
-﻿using ReactiveUI;
-using System;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
+﻿using System;
 using UnitystationLauncher.Models;
-using System.Reactive;
 using System.Timers;
 
 namespace UnitystationLauncher.ViewModels
@@ -14,18 +9,18 @@ namespace UnitystationLauncher.ViewModels
         public ServerManager ServerManager { get; }
         public NewsViewModel NewsViewModel { get; }
 
-        Timer stateTimer;
+        Timer _stateTimer;
 
         public override string Name => "Servers";
-
-        public ReactiveCommand<Unit, Unit> Refresh { get; }
 
         public ServersPanelViewModel(
             ServerManager serverManager,
             NewsViewModel newsViewModel)
         {
-            this.ServerManager = serverManager;
-            this.NewsViewModel = newsViewModel;
+            ServerManager = serverManager;
+            NewsViewModel = newsViewModel;
+            _stateTimer = new Timer(10000);
+            _stateTimer.Elapsed += OnTimedEvent;
         }
 
         public void OnRefresh()
@@ -36,15 +31,13 @@ namespace UnitystationLauncher.ViewModels
 
         public void OnFocused()
         {
-            stateTimer = new Timer(10000);
-            stateTimer.Elapsed += OnTimedEvent;
-            stateTimer.AutoReset = true;
-            stateTimer.Enabled = true;
+            _stateTimer.AutoReset = true;
+            _stateTimer.Enabled = true;
         }
 
         public void OnUnFocused()
         {
-            stateTimer.Dispose();
+            _stateTimer.Enabled = false;
         }
 
         private void OnTimedEvent(Object source, ElapsedEventArgs e)

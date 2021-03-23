@@ -5,7 +5,7 @@ namespace UnitystationLauncher.Models
     [Serializable]
     public class Prefs
     {
-        public bool AutoRemove;
-        public string LastLogin;
+        public bool AutoRemove { get; set; }
+        public string? LastLogin { get; set; }
     }
 }

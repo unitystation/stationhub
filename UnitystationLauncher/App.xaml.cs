@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using Avalonia;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
@@ -7,7 +6,6 @@ using UnitystationLauncher.Models;
 using Serilog;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using Serilog.Events;
 using Autofac;
 using AutofacSerilogIntegration;
@@ -19,7 +17,7 @@ namespace UnitystationLauncher
 {
     public class App : Application
     {
-        private IContainer container;
+        private IContainer _container = null!;
 
         public override void Initialize()
         {
@@ -29,7 +27,7 @@ namespace UnitystationLauncher
             var builder = new ContainerBuilder();
             builder.RegisterModule(new StandardModule());
             builder.RegisterLogger();
-            container = builder.Build();
+            _container = builder.Build();
             AvaloniaXamlLoader.Load(this);
         }
 
@@ -41,13 +39,13 @@ namespace UnitystationLauncher
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
-            Log.Information($"Build Number: {Config.CurrentBuild}");
+            Log.Information("Build Number: {CurrentBuild}", Config.CurrentBuild);
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = container.Resolve<MainWindowViewModel>(),
+                    DataContext = _container.Resolve<MainWindowViewModel>(),
                 };
             }
 

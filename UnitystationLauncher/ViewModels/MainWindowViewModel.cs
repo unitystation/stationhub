@@ -11,41 +11,41 @@ namespace UnitystationLauncher.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        ViewModelBase content;
-        private Lazy<LauncherViewModel> launcherVM;
-        private Lazy<LoginStatusViewModel> loginStatusVM;
-        private AuthManager authManager;
-        private LoginViewModel loginVM;
+        private readonly Lazy<LauncherViewModel> _launcherVm;
+        private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
+        private readonly AuthManager _authManager;
+        private readonly LoginViewModel _loginVm;
 
-        private Geometry maximizeIcon;
-        private string maximizeToolTip;
+        ViewModelBase _content;
+        private Geometry _maximizeIcon;
+        private string _maximizeToolTip;
 
         public Geometry MaximizeIcon
         {
-            get => maximizeIcon;
-            set => this.RaiseAndSetIfChanged(ref maximizeIcon, value);
+            get => _maximizeIcon;
+            set => this.RaiseAndSetIfChanged(ref _maximizeIcon, value);
         }
 
         public string MaximizeToolTip
         {
-            get => maximizeToolTip;
-            set => this.RaiseAndSetIfChanged(ref maximizeToolTip, value);
+            get => _maximizeToolTip;
+            set => this.RaiseAndSetIfChanged(ref _maximizeToolTip, value);
         }
 
         public ReactiveCommand<Unit,Unit> CommandMaximizee { get; }
 
-        public MainWindowViewModel(LoginViewModel loginVM, Lazy<LoginStatusViewModel> loginStatusVM, Lazy<LauncherViewModel> launcherVM,
+        public MainWindowViewModel(LoginViewModel loginVm, Lazy<LoginStatusViewModel> loginStatusVm, Lazy<LauncherViewModel> launcherVm,
             AuthManager authManager)
         {
-            this.loginStatusVM = loginStatusVM;
-            this.loginVM = loginVM;
-            this.authManager = authManager;
-            this.launcherVM = launcherVM;
-            Content = loginVM;
+            _loginStatusVm = loginStatusVm;
+            _loginVm = loginVm;
+            _authManager = authManager;
+            _launcherVm = launcherVm;
+            _content = loginVm;
             authManager.AttemptingAutoLogin = false;
-            MaximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
-            MaximizeToolTip = "Maximize";
-            CommandMaximizee = ReactiveCommand.Create(Maximize, null);
+            _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
+            _maximizeToolTip = "Maximize";
+            CommandMaximizee = ReactiveCommand.Create(Maximize);
             CheckForExistingUser();
         }
 
@@ -66,82 +66,90 @@ namespace UnitystationLauncher.ViewModels
 
         public ViewModelBase Content
         {
-            get => content;
+            get => _content;
             private set
             {
-                this.RaiseAndSetIfChanged(ref content, value);
+                this.RaiseAndSetIfChanged(ref _content, value);
                 ContentChanged();
             }
         }
 
         void CheckForExistingUser()
         {
-            if (authManager.AuthLink != null)
+            if (_authManager.AuthLink != null)
             {
-                authManager.AttemptingAutoLogin = true;
-                Content = loginStatusVM.Value;
+                _authManager.AttemptingAutoLogin = true;
+                Content = _loginStatusVm.Value;
                 AttemptAuthRefresh();
             }
         }
 
         async void AttemptAuthRefresh()
         {
+            if (_authManager.AuthLink == null)
+            {
+                Log.Error("Login failed");
+                Content = _loginVm;
+                _authManager.AttemptingAutoLogin = false;
+                return;
+            }
+            
             var refreshToken = new RefreshToken
             {
-                userID = authManager.AuthLink.User.LocalId,
-                refreshToken = authManager.AuthLink.RefreshToken
+                userID = _authManager.AuthLink.User.LocalId,
+                refreshToken = _authManager.AuthLink.RefreshToken
             };
 
-            var token = await authManager.GetCustomToken(refreshToken, authManager.AuthLink.User.Email);
+            var token = await _authManager.GetCustomToken(refreshToken, _authManager.AuthLink.User.Email);
 
             if (string.IsNullOrEmpty(token))
             {
                 Log.Error("Login failed");
-                Content = loginVM;
-                authManager.AttemptingAutoLogin = false;
+                Content = _loginVm;
+                _authManager.AttemptingAutoLogin = false;
                 return;
             }
 
             try
             {
-                authManager.AuthLink = await authManager.SignInWithCustomToken(token);
+                _authManager.AuthLink = await _authManager.SignInWithCustomToken(token);
             }
             catch (Exception e)
             {
                 Log.Error(e, "Login failed");
-                Content = loginVM;
-                authManager.AttemptingAutoLogin = false;
+                Content = _loginVm;
+                _authManager.AttemptingAutoLogin = false;
                 return;
             }
 
-            var user = await authManager.GetUpdatedUser();
+            var user = await _authManager.GetUpdatedUser();
             if (!user.IsEmailVerified)
             {
-                Content = loginVM;
-                authManager.AttemptingAutoLogin = false;
+                Content = _loginVm;
+                _authManager.AttemptingAutoLogin = false;
                 return;
             }
-            authManager.AttemptingAutoLogin = false;
-            authManager.Store();
-            Content = launcherVM.Value;
+            _authManager.AttemptingAutoLogin = false;
+            _authManager.Store();
+            Content = _launcherVm.Value;
         }
 
         private void ContentChanged()
         {
-            SubscribeToVM(Content switch
+            SubscribeToVm(Content switch
             {
-                LoginViewModel loginVM => Observable.Merge(
-                    loginVM.Login.Select(vm => (ViewModelBase)vm),
-                    loginVM.Create.Select(vm => (ViewModelBase)vm),
-                    loginVM.ForgotPW.Select(vm => (ViewModelBase)vm)),
+                LoginViewModel loginVm => Observable.Merge(
+                    loginVm.Login.Select(vm => (ViewModelBase)vm),
+                    loginVm.Create.Select(vm => (ViewModelBase)vm),
+                    loginVm.ForgotPw.Select(vm => (ViewModelBase)vm)),
 
-                LoginStatusViewModel loginStatusVM => Observable.Merge(
-                    loginStatusVM.GoBack.Select(vm => (ViewModelBase)vm),
-                    loginStatusVM.OpenLauncher.Select(vm => (ViewModelBase)vm)),
+                LoginStatusViewModel loginStatusVm => Observable.Merge(
+                    loginStatusVm.GoBack.Select(vm => (ViewModelBase)vm),
+                    loginStatusVm.OpenLauncher.Select(vm => (ViewModelBase)vm)),
 
-                LauncherViewModel launcherVM => Observable.Merge(
-                    launcherVM.Logout.Select(vm => (ViewModelBase)vm),
-                    launcherVM.ShowUpdateReqd.Select(vm => (ViewModelBase)vm)),
+                LauncherViewModel launcherVm => Observable.Merge(
+                    launcherVm.Logout.Select(vm => (ViewModelBase)vm),
+                    launcherVm.ShowUpdateReqd.Select(vm => (ViewModelBase)vm)),
 
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,
@@ -158,12 +166,13 @@ namespace UnitystationLauncher.ViewModels
             });
         }
 
-        private void SubscribeToVM(IObservable<ViewModelBase?> observable)
+        private void SubscribeToVm(IObservable<ViewModelBase?> observable)
         {
             observable
                 .SkipWhile(vm => vm == null)
+                .Select(vm => vm!)
                 .Take(1)
-                .ObserveOn(SynchronizationContext.Current)
+                .ObserveOn(SynchronizationContext.Current!)
                 .Subscribe(vm => Content = vm);
         }
     }

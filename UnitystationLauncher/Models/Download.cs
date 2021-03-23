@@ -1,34 +1,28 @@
 ﻿using Serilog;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Net.Http;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models
 {
     public class Download
     {
-        readonly HttpClient http;
         public string Url { get; }
         public string InstallationPath { get; }
-        public Subject<int>? Progress { get; set; }
+        public Subject<int> Progress { get; set; } = new Subject<int>();
         public float Speed { get; set; }
         public long Downloaded { get; set; }
         public long Size { get; set; }
         public long Time { get; set; }
 
-        public Download(string url, string installationPath, HttpClient http)
+        public Download(string url, string installationPath)
         {
             Url = url;
             InstallationPath = installationPath;
-            this.http = http;
-            Progress = new Subject<int>();
         }
 
         public (string, int) Key => (ForkName, BuildVersion);
@@ -47,21 +41,26 @@ namespace UnitystationLauncher.Models
                 return;
             }
 
-            Log.Information("Download URL: \"{URL}\"", Url);
+            Log.Information("Download URL: \"{Url}\"", Url);
 
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(Url);
             var webResponse = await webRequest.GetResponseAsync();
             var responseStream = webResponse.GetResponseStream();
+            if (responseStream == null)
+            {
+                Log.Error("Could not get responseStream");
+                return;
+            }
             Log.Information("Download connection established");
-            using var progStream = new ProgressStream(responseStream);
+            await using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
                 .Subscribe(p => {
                     Progress.OnNext(p);
-                    Log.Information("Progress: {prog}", p);
+                    Log.Information("Progress: {Prog}", p);
                 });
 
             await Task.Run(() =>
@@ -74,9 +73,5 @@ namespace UnitystationLauncher.Models
             });
             
         }
-
-        public async Task Cancel() { }
-
-        public async Task Stop() => throw new NotSupportedException($"Stopping is not supported, try {nameof(Cancel)} instead");
     }
 }

@@ -15,9 +15,9 @@ namespace UnitystationLauncher.ViewModels
     {
         public override string Name => "News";
 
-        ViewModelBase news;
+        ViewModelBase _news;
 
-        Bitmap backGroundImage;
+        Bitmap _backGroundImage;
 
         public ReactiveCommand<Unit,Unit> OpenSite { get; }
         public ReactiveCommand<Unit,Unit> OpenSupport { get; }
@@ -25,30 +25,25 @@ namespace UnitystationLauncher.ViewModels
 
         public Bitmap BackGroundImage 
         { 
-            get => backGroundImage; 
-            set => this.RaiseAndSetIfChanged(ref backGroundImage, value); 
+            get => _backGroundImage; 
+            set => this.RaiseAndSetIfChanged(ref _backGroundImage, value); 
         }
 
         public ViewModelBase News
         {
-            get => news;
-            set => this.RaiseAndSetIfChanged(ref news, value);
+            get => _news;
+            set => this.RaiseAndSetIfChanged(ref _news, value);
         }
 
         public NewsPanelViewModel(NewsViewModel news)
         {
-            News = news;
-            OpenSite = ReactiveCommand.Create(OpenUriSite, null);
-            OpenReport = ReactiveCommand.Create(OpenUriReport, null);
-            OpenSupport = ReactiveCommand.Create(OpenUriSupport, null);
+            _news = news;
+            OpenSite = ReactiveCommand.Create(OpenUriSite);
+            OpenReport = ReactiveCommand.Create(OpenUriReport);
+            OpenSupport = ReactiveCommand.Create(OpenUriSupport);
 
-            LoadImage(new Uri("avares://StationHub/Assets/bgnews.png"));
-        }
-        
-        private void LoadImage(Uri url)
-        {
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            BackGroundImage = new Bitmap(assets.Open(url));
+            _backGroundImage = new Bitmap(assets.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
         }
 
         public static String[] GetFilesFrom(String searchFolder, String[] filters, bool isRecursive)
