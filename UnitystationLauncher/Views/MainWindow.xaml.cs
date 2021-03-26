@@ -1,7 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using System.Runtime.InteropServices;
@@ -35,8 +33,8 @@ namespace UnitystationLauncher.Views
                 ExtendClientAreaToDecorationsHint = false;
                 ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.SystemChrome;
 
-                this.Width = 800;
-                this.Height = 555;
+                Width = 800;
+                Height = 555;
 
                 _titleBar.IsVisible = false;
                 Grid.SetRow(_contentcontrol, 0);

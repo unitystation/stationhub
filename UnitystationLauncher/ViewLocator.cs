@@ -14,17 +14,15 @@ namespace UnitystationLauncher
 
         public IControl Build(object data)
         {
-            var name = data.GetType().FullName.Replace("ViewModel", "View");
-            var type = Type.GetType(name);
+            var viewName = data.GetType().FullName!.Replace("ViewModel", "View");
+            var type = Type.GetType(viewName);
 
             if (type != null)
             {
                 return (Control)Activator.CreateInstance(type);
             }
-            else
-            {
-                return new TextBlock { Text = "Not Found: " + name };
-            }
+
+            return new TextBlock { Text = "Not Found: " + viewName };
         }
 
         public bool Match(object data)

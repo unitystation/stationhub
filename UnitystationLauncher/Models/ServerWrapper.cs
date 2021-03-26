@@ -15,16 +15,15 @@ using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using Avalonia.Controls.ApplicationLifetimes;
-using System.Text.RegularExpressions;
 
 namespace UnitystationLauncher.Models
 {
     public class ServerWrapper : Server
     {
-        private AuthManager authManager;
-        private InstallationManager installManager;
-        private CancellationTokenSource cancelSource;
-        private bool isDownloading;
+        private readonly AuthManager _authManager;
+        private readonly InstallationManager _installManager;
+        private CancellationTokenSource? _cancelSource;
+        private bool _isDownloading;
         public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
         public ReactiveProperty<bool> IsSelected { get; } = new ReactiveProperty<bool>();
@@ -46,13 +45,13 @@ namespace UnitystationLauncher.Models
         public ServerWrapper(Server server, AuthManager authManager,
             InstallationManager installManager)
         {
-            this.authManager = authManager;
-            this.installManager = installManager;
+            _authManager = authManager;
+            _installManager = installManager;
             #if FLATPAK
-	    pingSender = new Process();
+	        pingSender = new Process();
             #else
             pingSender = new Ping();
-            pingSender.PingCompleted += new PingCompletedEventHandler(PingCompletedCallback);
+            pingSender.PingCompleted += PingCompletedCallback;
             #endif
             UpdateDetails(server);
 
@@ -63,7 +62,7 @@ namespace UnitystationLauncher.Models
 
             CanPlay.Subscribe(x => OnCanPlayChange(x));
             CheckIfCanPlay();
-            Start = ReactiveUI.ReactiveCommand.Create(StartImp, null); 
+            Start = ReactiveUI.ReactiveCommand.Create(StartImp); 
         }
 
         public void UpdateDetails(Server server)
@@ -73,12 +72,12 @@ namespace UnitystationLauncher.Models
             BuildVersion = server.BuildVersion;
             CurrentMap = server.CurrentMap;
             GameMode = server.GameMode;
-            IngameTime = server.IngameTime;
+            InGameTime = server.InGameTime;
             PlayerCount = server.PlayerCount;
-            ServerIP = server.ServerIP;
+            ServerIp = server.ServerIp;
             ServerPort = server.ServerPort;
             WinDownload = server.WinDownload;
-            OSXDownload = server.OSXDownload;
+            OsxDownload = server.OsxDownload;
             LinuxDownload = server.LinuxDownload;
 	    #if FLATPAK
 	    pingSender.StartInfo.UseShellExecute = false;
@@ -95,7 +94,10 @@ namespace UnitystationLauncher.Models
             RoundTrip.Value = $"{pingOut}ms";
 	    pingSender.WaitForExit();
             #else
-	    pingSender.SendAsync(ServerIP, 7);
+            if (ServerIp != null)
+            {
+                pingSender.SendAsync(ServerIp, 7);
+            }
             #endif
         }
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
@@ -103,11 +105,10 @@ namespace UnitystationLauncher.Models
             // If an error occurred, display the exception to the user.  
             if (e.Error != null)
             {
-                Log.Information("Ping failed:");
-                Log.Information(e.Error.ToString());
+                Log.Error(e.Error, "Ping failed");
                 return;
             }
-	    var tripTime = e.Reply.RoundtripTime;
+	        var tripTime = e.Reply.RoundtripTime;
             if(tripTime == 0)
             {
                 RoundTrip.Value = "null";
@@ -121,14 +122,14 @@ namespace UnitystationLauncher.Models
         {
             CanPlay.Value = ClientInstalled;
             
-            if (isDownloading) return;
+            if (_isDownloading) return;
 
             OnCanPlayChange(CanPlay.Value);
         }
 
         private void OnCanPlayChange(bool canPlay)
         {
-            if (isDownloading) return;
+            if (_isDownloading) return;
 
             if (canPlay)
             {
@@ -151,7 +152,7 @@ namespace UnitystationLauncher.Models
                 return;
             }
 
-            Log.Information("Download URL: \"{URL}\"", DownloadUrl);
+            Log.Information("Download URL: \"{Url}\"", DownloadUrl);
 
             if (DownloadUrl is null)
             {
@@ -159,7 +160,7 @@ namespace UnitystationLauncher.Models
                 return;
             }
 
-            isDownloading = true;
+            _isDownloading = true;
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(DownloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
@@ -179,13 +180,13 @@ namespace UnitystationLauncher.Models
                     {
                         progStream.Inner.Dispose();
                         Progress.OnNext(0);
-                        isDownloading = false;
+                        _isDownloading = false;
                         return;
                     }
-                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
+                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * (p / 100f));
                     DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
-                    Log.Information("Progress: {prog}", p);
+                    Log.Information("Progress: {Percentage}", p);
                 });
 
             await Task.Run(() =>
@@ -198,7 +199,7 @@ namespace UnitystationLauncher.Models
 
                     Log.Information("Download completed");
                     Installation.MakeExecutableExecutable(InstallationPath);
-                    isDownloading = false;
+                    _isDownloading = false;
                     CheckIfCanPlay();
                 }
                 catch
@@ -221,59 +222,82 @@ namespace UnitystationLauncher.Models
         {
             if (IsDownloading.Value)
             {
-                cancelSource.Cancel();
-                if (Directory.Exists(InstallationPath))
-                {
-                    Directory.Delete(InstallationPath);
-                }
-                Log.Information("User cancelled download");
+                CancelDownload();
                 return;
             }
 
             if (CanPlay.Value)
             {
-                var exe = Installation.FindExecutable(InstallationPath);
-                if (exe != null)
-                {
-                    if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-                    {
-                        desktopLifetime.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
-                    }
-                    ProcessStartInfo startInfo;
-
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    {
-                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" open -a '{exe}' --args --server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}; \"");
-                        Log.Information("Start osx | linux");
-                    }  
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    {
-                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" '{exe}' --args --server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}; \"");
-                        Log.Information("Start osx | linux");
-                    }
-                    else
-                    {
-                        startInfo = new ProcessStartInfo(exe, $"--server {ServerIP} --port {ServerPort} --refreshtoken {authManager.CurrentRefreshToken} --uid {authManager.UID}");
-                    }
-                    startInfo.UseShellExecute = false;
-                    var process = new Process();
-                    process.StartInfo = startInfo;
-                                        
-                    process.Start();
-                }
+                StartClient();
             }
             else
             {
-                //DO DOWNLOAD
-                cancelSource = new CancellationTokenSource();
-                ButtonText.Value = "CANCEL";
-                DownloadProgText.Value = "Connecting..";
-                IsDownloading.Value = true;
-                await DownloadAsync(cancelSource.Token);
-                IsDownloading.Value = false;
-                CheckIfCanPlay();
-                installManager.TryAutoRemove();
+                await DownloadClient();
             }
+        }
+
+        private async Task DownloadClient()
+        {
+            //DO DOWNLOAD
+            _cancelSource = new CancellationTokenSource();
+            ButtonText.Value = "CANCEL";
+            DownloadProgText.Value = "Connecting..";
+            IsDownloading.Value = true;
+            await DownloadAsync(_cancelSource.Token);
+            IsDownloading.Value = false;
+            CheckIfCanPlay();
+            _installManager.TryAutoRemove();
+        }
+
+        private void StartClient()
+        {
+            var exe = Installation.FindExecutable(InstallationPath);
+            if (exe == null)
+            {
+                return;
+            }
+
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                desktopLifetime.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+            }
+
+            ProcessStartInfo startInfo;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                startInfo = new ProcessStartInfo("/bin/bash",
+                    $"-c \" open -a '{exe}' --args --server {ServerIp} --port {ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
+                Log.Information("Start osx | linux");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                startInfo = new ProcessStartInfo("/bin/bash",
+                    $"-c \" '{exe}' --args --server {ServerIp} --port {ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
+                Log.Information("Start osx | linux");
+            }
+            else
+            {
+                startInfo = new ProcessStartInfo(exe,
+                    $"--server {ServerIp} --port {ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}");
+            }
+
+            startInfo.UseShellExecute = false;
+            var process = new Process();
+            process.StartInfo = startInfo;
+
+            process.Start();
+        }
+
+        private void CancelDownload()
+        {
+            _cancelSource?.Cancel();
+            if (Directory.Exists(InstallationPath))
+            {
+                Directory.Delete(InstallationPath);
+            }
+
+            Log.Information("User cancelled download");
         }
     }
 }

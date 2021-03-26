@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 
 namespace UnitystationLauncher.Infrastructure
 {
@@ -24,8 +22,8 @@ namespace UnitystationLauncher.Infrastructure
             TimeSpan dueTime, 
             IScheduler scheduler)
         {
-            return source.Publish(_source => _source
-                .Window(() => _source
+            return source.Publish(s => s
+                .Window(() => s
                     .Select(x => Observable.Interval(dueTime, scheduler))
                     .Switch()
                 ))

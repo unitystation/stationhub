@@ -1,37 +1,26 @@
-﻿using Avalonia;
-using MessageBox.Avalonia;
+﻿using MessageBox.Avalonia;
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Models;
 using Mono.Unix;
 using ReactiveUI;
 using Serilog;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models
 {
     public class Installation
     {
-        private InstallationManager installManager;
-
-        private Installation()
+        public Installation(string folderPath)
         {
             Play = ReactiveCommand.Create(StartImp);
             Open = ReactiveCommand.Create(OpenImp);
             Delete = ReactiveCommand.Create(DeleteImp);
-        }
-
-        public Installation(string folderPath) : this()
-        {
             ForkName = GetForkName(folderPath);
             BuildVersion = GetBuildVersion(folderPath);
             InstallationPath = folderPath;
@@ -150,7 +139,7 @@ namespace UnitystationLauncher.Models
 
         public void DeleteInstallation()
         {
-            Log.Information($"Perform delete of {InstallationPath}");
+            Log.Information("Perform delete of {InstallationPath}", InstallationPath);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
             || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {

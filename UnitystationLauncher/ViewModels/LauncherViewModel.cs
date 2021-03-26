@@ -3,42 +3,34 @@ using UnitystationLauncher.Models;
 using System.Reactive;
 using System.IO;
 using System;
-using System.Threading.Tasks;
-using System.Net.Http;
 using Newtonsoft.Json;
 using Serilog;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LauncherViewModel : ViewModelBase
     {
-        private readonly AuthManager authManager;
-        private readonly Lazy<LoginViewModel> logoutVM;
-        private readonly Lazy<HubUpdateViewModel> hubUpdateVM;
-        private readonly Config config;
-        string username;
-        PanelBase[] panels;
-        ViewModelBase? selectedPanel;
+        private readonly AuthManager _authManager;
+        private readonly Lazy<LoginViewModel> _logoutVm;
+        private readonly Lazy<HubUpdateViewModel> _hubUpdateVm;
+        private readonly Config _config;
+        PanelBase[] _panels;
+        ViewModelBase? _selectedPanel;
 
-        private readonly HttpClient http;
-
-        public string Username
-        {
-            get => username;
-            set => this.RaiseAndSetIfChanged(ref username, value);
-        }
+        public string Username => _authManager.AuthLink?.User.DisplayName ?? "";
 
         public PanelBase[] Panels
         {
-            get => panels;
-            set => this.RaiseAndSetIfChanged(ref panels, value);
+            get => _panels;
+            set => this.RaiseAndSetIfChanged(ref _panels, value);
         }
 
         public ViewModelBase? SelectedPanel
         {
-            get => selectedPanel;
-            set => this.RaiseAndSetIfChanged(ref selectedPanel, value);
+            get => _selectedPanel;
+            set => this.RaiseAndSetIfChanged(ref _selectedPanel, value);
         }
 
         public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
@@ -50,28 +42,25 @@ namespace UnitystationLauncher.ViewModels
             AuthManager authManager,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
-            Lazy<LoginViewModel> logoutVM,
-            HttpClient http,
-            Lazy<HubUpdateViewModel> hubUpdateVM, 
+            Lazy<LoginViewModel> logoutVm,
+            Lazy<HubUpdateViewModel> hubUpdateVm, 
             NewsPanelViewModel news,
             SettingsPanelViewModel settings,
             Config config)
         {
-            this.authManager = authManager;
-            this.logoutVM = logoutVM;
-            this.hubUpdateVM = hubUpdateVM;
-            this.config = config;
-            this.http = http;
-            Panels = new PanelBase[]
+            _authManager = authManager;
+            _logoutVm = logoutVm;
+            _hubUpdateVm = hubUpdateVm;
+            _config = config;
+            _panels = new PanelBase[]
             {
                 news,
                 serversPanel,
                 installationsPanel,
                 settings
             };
-            Username = this.authManager!.AuthLink.User.DisplayName;
             Logout = ReactiveCommand.Create(LogoutImp);
-            Refresh = ReactiveCommand.Create(serversPanel.OnRefresh, null);
+            Refresh = ReactiveCommand.Create(serversPanel.OnRefresh);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
@@ -81,25 +70,27 @@ namespace UnitystationLauncher.ViewModels
 
         async Task ValidateClientVersion()
         {
-            var clientConfig = await config.GetServerHubClientConfig();
-            if (clientConfig.BuildNumber != Config.CurrentBuild)
+            var clientConfig = await _config.GetServerHubClientConfig();
+            if (clientConfig.BuildNumber > Config.CurrentBuild)
             {
-                Log.Information($"Client is old ({Config.CurrentBuild}) new version is ({clientConfig.BuildNumber})");
+                Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}", 
+                    Config.CurrentBuild,
+                    clientConfig.BuildNumber);
                 Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
             }
         }
 
         LoginViewModel LogoutImp()
         {
-            authManager.SignOutUser();
+            _authManager.SignOutUser();
             File.WriteAllText(Path.Combine(Path.Combine(Config.RootFolder, "prefs.json")), JsonConvert.SerializeObject(new Prefs()));
             File.Delete(Path.Combine(Config.RootFolder, "settings.json"));
-            return logoutVM.Value;
+            return _logoutVm.Value;
         }
 
         HubUpdateViewModel ShowUpdateImp()
         {
-            return hubUpdateVM.Value;
+            return _hubUpdateVm.Value;
         }
     }
 }

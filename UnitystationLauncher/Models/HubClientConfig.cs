@@ -6,11 +6,11 @@ namespace UnitystationLauncher.Models
     [Serializable]
     public class HubClientConfig
     {
-        public int? BuildNumber { get; }
-        public string? WinUrl { get; }
-        public string? OsxUrl { get; }
-        public string? LinuxUrl { get; }
-        public string? DailyMessage { get; }
+        public int? BuildNumber { get; set; }
+        public string? WinUrl { get; set; }
+        public string? OsxUrl { get; set; }
+        public string? LinuxUrl { get; set; }
+        public string? DailyMessage { get; set; }
 
         public string? GetDownloadUrl()
         {

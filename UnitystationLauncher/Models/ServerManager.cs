@@ -3,33 +3,30 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Newtonsoft.Json;
 using ReactiveUI;
-using Serilog;
 using Reactive.Bindings;
-using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
     public class ServerManager : ReactiveObject, IDisposable
     {
-        private readonly HttpClient http;
-        private InstallationManager installManager;
-        private AuthManager authManager;
-        bool refreshing;
-        public Action onRefresh;
+        private readonly HttpClient _http;
+        private readonly InstallationManager _installManager;
+        private readonly AuthManager _authManager;
+        bool _refreshing;
 
         public ReactiveProperty<List<ServerWrapper>> Servers { get; private set; } = new ReactiveProperty<List<ServerWrapper>>();
         public ReactiveProperty<bool> NoServersFound { get; private set; } = new ReactiveProperty<bool>();
         public bool Refreshing
         {
-            get => refreshing;
-            set => this.RaiseAndSetIfChanged(ref refreshing, value);
+            get => _refreshing;
+            set => this.RaiseAndSetIfChanged(ref _refreshing, value);
         }
 
         public ServerManager(HttpClient http, AuthManager authManager, InstallationManager installManager)
         {
-            this.http = http;
-            this.authManager = authManager;
-            this.installManager = installManager;
+            _http = http;
+            _authManager = authManager;
+            _installManager = installManager;
             Servers.Value = new List<ServerWrapper>();
             installManager.InstallListChange = RefreshInstalledStates;
             RefreshServerList();
@@ -42,13 +39,8 @@ namespace UnitystationLauncher.Models
 
             var newList = new List<ServerWrapper>();
             Refreshing = true;
-            
-            if(onRefresh != null)
-            {
-                onRefresh.Invoke();
-            }
 
-            var data = await http.GetStringAsync(Config.ApiUrl);
+            var data = await _http.GetStringAsync(Config.ApiUrl);
             var serverList = JsonConvert.DeserializeObject<ServerList>(data);
 
             if (serverList.Servers.Count == 0)
@@ -59,7 +51,7 @@ namespace UnitystationLauncher.Models
             {
                 foreach (Server s in serverList.Servers)
                 {
-                    var index = Servers.Value.FindIndex(x => x.ServerIP == s.ServerIP);
+                    var index = Servers.Value.FindIndex(x => x.ServerIp == s.ServerIp);
                     if (index != -1)
                     {
                         Servers.Value[index].UpdateDetails(s);
@@ -67,7 +59,7 @@ namespace UnitystationLauncher.Models
                     }
                     else
                     {
-                        newList.Add(new ServerWrapper(s, authManager, installManager));
+                        newList.Add(new ServerWrapper(s, _authManager, _installManager));
                     }
                 }
             }

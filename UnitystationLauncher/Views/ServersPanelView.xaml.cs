@@ -1,8 +1,5 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
-using System;
-using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Views
 {

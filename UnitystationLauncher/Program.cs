@@ -18,7 +18,7 @@ namespace UnitystationLauncher
                 {
                     UseDeferredRendering = false
                 })
-                .LogToDebug()
+                .LogToTrace()
                 .UseReactiveUI(); 
     }
 }

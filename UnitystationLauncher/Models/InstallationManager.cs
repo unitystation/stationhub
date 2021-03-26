@@ -14,13 +14,14 @@ namespace UnitystationLauncher.Models
 {
     public class InstallationManager : ReactiveObject
     {
-        private readonly BehaviorSubject<IReadOnlyList<Installation>> installationsSubject;
-        private bool autoRemove;
-        public bool AutoRemove { get => autoRemove; set { autoRemove = value; if (autoRemove) TryAutoRemove(); } }
-        public Action InstallListChange;
+        private readonly BehaviorSubject<IReadOnlyList<Installation>> _installationsSubject;
+        private bool _autoRemove;
+        public bool AutoRemove { get => _autoRemove; set { _autoRemove = value; if (_autoRemove) TryAutoRemove(); } }
+        public Action? InstallListChange;
+        
         public InstallationManager()
         {
-            installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
+            _installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
             var fileWatcher = new FileSystemWatcher(Config.InstallationsPath)
             {
                 EnableRaisingEvents = true,
@@ -32,16 +33,16 @@ namespace UnitystationLauncher.Models
                     h => fileWatcher.Changed -= h)
                 .Select(e => Unit.Default)
                 .Merge(Observable.Return(Unit.Default))
-                .ObserveOn(SynchronizationContext.Current)
+                .ObserveOn(SynchronizationContext.Current!)
                 .ThrottleSubsequent(TimeSpan.FromMilliseconds(1000))
                 .Select(f =>
                     Directory.EnumerateDirectories(Config.InstallationsPath)
                         .Select(dir => new Installation(dir))
                         .OrderByDescending(x => x.ForkName + x.BuildVersion)
                         .ToList())
-                .Subscribe(installationsSubject);
+                .Subscribe(_installationsSubject);
 
-            installationsSubject.Subscribe(ListHasChanged);
+            _installationsSubject.Subscribe(ListHasChanged);
         }
 
         void ListHasChanged(IReadOnlyList<Installation> list)
@@ -51,10 +52,10 @@ namespace UnitystationLauncher.Models
 
         public void TryAutoRemove()
         {
-            if (!autoRemove) return;
+            if (!_autoRemove) return;
 
             var key = "";
-            foreach(Installation i in installationsSubject.Value)
+            foreach(Installation i in _installationsSubject.Value)
             {
                 if (!key.Equals(i.ForkName))
                 {
@@ -72,6 +73,6 @@ namespace UnitystationLauncher.Models
             }
         }
 
-        public IObservable<IReadOnlyList<Installation>> Installations => installationsSubject;
+        public IObservable<IReadOnlyList<Installation>> Installations => _installationsSubject;
     }
 }

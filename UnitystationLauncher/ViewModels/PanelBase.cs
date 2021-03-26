@@ -1,6 +1,4 @@
-﻿using Avalonia.Media.Imaging;
-
-namespace UnitystationLauncher.ViewModels
+﻿namespace UnitystationLauncher.ViewModels
 {
     public abstract class PanelBase : ViewModelBase
     {
