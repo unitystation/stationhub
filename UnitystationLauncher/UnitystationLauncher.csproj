@@ -13,7 +13,6 @@
     <Company>Unitystation Org</Company>
     <AssemblyName>StationHub</AssemblyName>
     <ApplicationIcon>ian.ico</ApplicationIcon>
-    <DefineConstants>PLATFORM_POSIX64;PLATFORM_POSIX;PLATFORM_64</DefineConstants>
     <!-- beauty into sub-directory, default is libs, quote with "" if contains space  -->
     <BeautyLibsDir>Lib</BeautyLibsDir>
     <!-- set to True if you want to disable -->
