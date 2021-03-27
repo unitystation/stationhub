@@ -29,7 +29,7 @@ jobs:
           dotnet test
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --publish /publish
+          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --output /publish
       - name: Upload Build
         uses: actions/upload-artifact@v2
         with:
