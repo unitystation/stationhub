@@ -195,7 +195,7 @@ namespace UnitystationLauncher.Models
         public static void MakeExecutableExecutable(string installationPath)
         {
             var exe = FindExecutable(installationPath);
-            
+
             var fileInfo = new UnixFileInfo(exe);
             fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
         }

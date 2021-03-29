@@ -6,17 +6,17 @@ namespace UnitystationLauncher.Models
 {
     public class Server
     {
-        public string? ServerName { get; set;}
-        public string? ForkName { get; set;}
-        public int BuildVersion { get; set;}
-        public string? CurrentMap { get; set;}
-        public string? GameMode { get; set;}
-        public string? InGameTime { get; set;}
-        public int? PlayerCount { get; set;}
-        public string? ServerIp { get; set;  }
-        public int ServerPort { get; set;  }
-        public string? WinDownload { get; set;}
-        public string? OsxDownload { get; set;}
+        public string? ServerName { get; set; }
+        public string? ForkName { get; set; }
+        public int BuildVersion { get; set; }
+        public string? CurrentMap { get; set; }
+        public string? GameMode { get; set; }
+        public string? InGameTime { get; set; }
+        public int? PlayerCount { get; set; }
+        public string? ServerIp { get; set; }
+        public int ServerPort { get; set; }
+        public string? WinDownload { get; set; }
+        public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }
         public (string?, int) Key => (ForkName, BuildVersion);
 

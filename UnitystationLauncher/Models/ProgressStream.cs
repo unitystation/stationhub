@@ -11,7 +11,7 @@ namespace UnitystationLauncher.Models
             Inner = inner;
         }
 
-        public Stream Inner {get;set;}
+        public Stream Inner { get; set; }
         public IObservable<long> Progress => _progress;
         private readonly Subject<long> _progress = new Subject<long>();
         private long _position;

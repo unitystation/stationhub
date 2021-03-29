@@ -23,7 +23,7 @@ namespace UnitystationLauncher
         {
             Directory.CreateDirectory(Config.InstallationsPath);
             GiveAllOwnerPermissions(Config.InstallationsPath);
-            
+
             var builder = new ContainerBuilder();
             builder.RegisterModule(new StandardModule());
             builder.RegisterLogger();

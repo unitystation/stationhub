@@ -12,7 +12,7 @@ namespace UnitystationLauncher.ViewModels
         private bool _isFormVisible;
         private bool _isSuccessVisible;
         string _email = "";
-        
+
         public string Email
         {
             get => _email;
@@ -40,7 +40,7 @@ namespace UnitystationLauncher.ViewModels
             IsSuccessVisible = false;
             _authManager = authManager;
             _loginVm = loginVm;
-            
+
             var inputValidation = this.WhenAnyValue(
                 x => x.Email,
                 (e) => !string.IsNullOrWhiteSpace(e) &&

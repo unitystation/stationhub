@@ -35,7 +35,7 @@ namespace UnitystationLauncher.ViewModels
             ResendEmail = ReactiveCommand.Create(OnResend, hasAlreadyResent);
 
             GoBack = ReactiveCommand.Create(GoBackToLogin);
-            
+
             OpenLauncher = ReactiveCommand.Create(SignInComplete);
 
             if (!authManager.AttemptingAutoLogin)
@@ -47,7 +47,7 @@ namespace UnitystationLauncher.ViewModels
                 IsWaitingVisible = true;
             }
         }
-        
+
         public bool IsFailedVisible
         {
             get => _isFailedVisible;
@@ -77,7 +77,7 @@ namespace UnitystationLauncher.ViewModels
             get => _isWaitingVisible;
             set => this.RaiseAndSetIfChanged(ref _isWaitingVisible, value);
         }
-        
+
         public ReactiveCommand<Unit, LoginViewModel> GoBack { get; }
         public ReactiveCommand<Unit, Unit> ResendEmail { get; }
         public ReactiveCommand<Unit, LauncherViewModel> OpenLauncher { get; }
@@ -88,7 +88,7 @@ namespace UnitystationLauncher.ViewModels
             ResendClicked = false;
             IsResendEmailVisible = false;
             IsWaitingVisible = true;
-            
+
             if (string.IsNullOrEmpty(_authManager.LoginMsg?.Email) ||
                 string.IsNullOrEmpty(_authManager.LoginMsg.Pass))
             {
@@ -98,7 +98,7 @@ namespace UnitystationLauncher.ViewModels
                                 "and try again.";
                 return;
             }
-            
+
             try
             {
                 _authManager.AuthLink = await _authManager.SignInWithEmailAndPasswordAsync(_authManager.LoginMsg.Email,
@@ -129,7 +129,7 @@ namespace UnitystationLauncher.ViewModels
             }
 
             _authManager.LoginMsg = null;
-            
+
             IsWaitingVisible = false;
             if (!signInSuccess)
             {
@@ -139,9 +139,9 @@ namespace UnitystationLauncher.ViewModels
 
             _authManager.Store();
 
-            Observable.Start(() => {}).InvokeCommand(this, vm => vm.OpenLauncher);
+            Observable.Start(() => { }).InvokeCommand(this, vm => vm.OpenLauncher);
         }
-        
+
         public void OnResend()
         {
             _authManager.ResendVerificationEmail();

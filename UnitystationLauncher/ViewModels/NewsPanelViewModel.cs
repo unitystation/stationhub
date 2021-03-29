@@ -19,14 +19,14 @@ namespace UnitystationLauncher.ViewModels
 
         Bitmap _backGroundImage;
 
-        public ReactiveCommand<Unit,Unit> OpenSite { get; }
-        public ReactiveCommand<Unit,Unit> OpenSupport { get; }
-        public ReactiveCommand<Unit,Unit> OpenReport { get; }
+        public ReactiveCommand<Unit, Unit> OpenSite { get; }
+        public ReactiveCommand<Unit, Unit> OpenSupport { get; }
+        public ReactiveCommand<Unit, Unit> OpenReport { get; }
 
-        public Bitmap BackGroundImage 
-        { 
-            get => _backGroundImage; 
-            set => this.RaiseAndSetIfChanged(ref _backGroundImage, value); 
+        public Bitmap BackGroundImage
+        {
+            get => _backGroundImage;
+            set => this.RaiseAndSetIfChanged(ref _backGroundImage, value);
         }
 
         public ViewModelBase News

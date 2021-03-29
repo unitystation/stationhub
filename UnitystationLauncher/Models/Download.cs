@@ -58,7 +58,8 @@ namespace UnitystationLauncher.Models
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
-                .Subscribe(p => {
+                .Subscribe(p =>
+                {
                     Progress.OnNext(p);
                     Log.Information("Progress: {Prog}", p);
                 });
@@ -67,11 +68,10 @@ namespace UnitystationLauncher.Models
             {
                 Log.Information("Extracting...");
                 var archive = new ZipArchive(progStream);
-                
+
                 archive.ExtractToDirectory(InstallationPath);
                 Log.Information("Download completed");
             });
-            
         }
     }
 }

@@ -43,7 +43,7 @@ namespace UnitystationLauncher.ViewModels
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
             Lazy<LoginViewModel> logoutVm,
-            Lazy<HubUpdateViewModel> hubUpdateVm, 
+            Lazy<HubUpdateViewModel> hubUpdateVm,
             NewsPanelViewModel news,
             SettingsPanelViewModel settings,
             Config config)
@@ -73,7 +73,7 @@ namespace UnitystationLauncher.ViewModels
             var clientConfig = await _config.GetServerHubClientConfig();
             if (clientConfig.BuildNumber > Config.CurrentBuild)
             {
-                Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}", 
+                Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
                     Config.CurrentBuild,
                     clientConfig.BuildNumber);
                 Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);

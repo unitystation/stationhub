@@ -56,7 +56,6 @@ namespace UnitystationLauncher.Models
         {
             if (_clientConfig == null)
             {
-                
                 var data = await _http.GetStringAsync(ValidateUrl);
                 _clientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
             }

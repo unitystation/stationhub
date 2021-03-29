@@ -32,7 +32,7 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _maximizeToolTip, value);
         }
 
-        public ReactiveCommand<Unit,Unit> CommandMaximizee { get; }
+        public ReactiveCommand<Unit, Unit> CommandMaximizee { get; }
 
         public MainWindowViewModel(LoginViewModel loginVm, Lazy<LoginStatusViewModel> loginStatusVm, Lazy<LauncherViewModel> launcherVm,
             AuthManager authManager)
@@ -93,7 +93,7 @@ namespace UnitystationLauncher.ViewModels
                 _authManager.AttemptingAutoLogin = false;
                 return;
             }
-            
+
             var refreshToken = new RefreshToken
             {
                 userID = _authManager.AuthLink.User.LocalId,
