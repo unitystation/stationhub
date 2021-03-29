@@ -26,7 +26,6 @@ namespace UnitystationLauncher.Models
         public Config(HttpClient http)
         {
             _http = http;
-            
         }
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
