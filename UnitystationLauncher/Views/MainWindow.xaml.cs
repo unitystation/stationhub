@@ -24,7 +24,7 @@ namespace UnitystationLauncher.Views
         {
             InitializeComponent();
 
-            _titleBar = this.FindControl<DockPanel>("TitleBar"); 
+            _titleBar = this.FindControl<DockPanel>("TitleBar");
             _contentcontrol = this.FindControl<Border>("ContentControl");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)

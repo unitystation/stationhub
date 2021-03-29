@@ -18,7 +18,7 @@ namespace UnitystationLauncher.ViewModels
 
         public LoginViewModel(
             Lazy<LoginStatusViewModel> loginStatusVm,
-            Lazy<SignUpViewModel> signUpVm, 
+            Lazy<SignUpViewModel> signUpVm,
             Lazy<ForgotPasswordViewModel> forgotVm,
             AuthManager authManager)
         {
@@ -75,7 +75,7 @@ namespace UnitystationLauncher.ViewModels
 
             return _loginStatusVm.Value;
         }
-        
+
         public SignUpViewModel UserCreate()
         {
             return _signUpVm.Value;

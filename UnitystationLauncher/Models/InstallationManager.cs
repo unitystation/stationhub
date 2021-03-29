@@ -18,7 +18,7 @@ namespace UnitystationLauncher.Models
         private bool _autoRemove;
         public bool AutoRemove { get => _autoRemove; set { _autoRemove = value; if (_autoRemove) TryAutoRemove(); } }
         public Action? InstallListChange;
-        
+
         public InstallationManager()
         {
             _installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
@@ -55,7 +55,7 @@ namespace UnitystationLauncher.Models
             if (!_autoRemove) return;
 
             var key = "";
-            foreach(Installation i in _installationsSubject.Value)
+            foreach (Installation i in _installationsSubject.Value)
             {
                 if (!key.Equals(i.ForkName))
                 {
@@ -64,7 +64,7 @@ namespace UnitystationLauncher.Models
                 }
                 try
                 {
-                   i.DeleteInstallation();
+                    i.DeleteInstallation();
                 }
                 catch (Exception e)
                 {

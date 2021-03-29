@@ -32,13 +32,13 @@ namespace UnitystationLauncher.Models
         public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
         public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
-	// Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
-	// Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
-        #if FLATPAK
-	private Process pingSender;
-	#else
-	private Ping pingSender;
-	#endif
+        // Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
+        // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
+#if FLATPAK
+	    private Process pingSender;
+#else
+        private Ping pingSender;
+#endif
 
 
 
@@ -47,12 +47,12 @@ namespace UnitystationLauncher.Models
         {
             _authManager = authManager;
             _installManager = installManager;
-            #if FLATPAK
+#if FLATPAK
 	        pingSender = new Process();
-            #else
+#else
             pingSender = new Ping();
             pingSender.PingCompleted += PingCompletedCallback;
-            #endif
+#endif
             UpdateDetails(server);
 
             if (!Directory.Exists(Config.InstallationsPath))
@@ -62,7 +62,7 @@ namespace UnitystationLauncher.Models
 
             CanPlay.Subscribe(x => OnCanPlayChange(x));
             CheckIfCanPlay();
-            Start = ReactiveUI.ReactiveCommand.Create(StartImp); 
+            Start = ReactiveUI.ReactiveCommand.Create(StartImp);
         }
 
         public void UpdateDetails(Server server)
@@ -79,26 +79,26 @@ namespace UnitystationLauncher.Models
             WinDownload = server.WinDownload;
             OsxDownload = server.OsxDownload;
             LinuxDownload = server.LinuxDownload;
-	    #if FLATPAK
-	    pingSender.StartInfo.UseShellExecute = false;
-	    pingSender.StartInfo.RedirectStandardOutput = true;
-	    pingSender.StartInfo.RedirectStandardError = true;
-	    pingSender.StartInfo.FileName = "ping";
-	    pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
-	    pingSender.Start();
-	    StreamReader reader = pingSender.StandardOutput;
-            string e = reader.ReadToEnd(); 
-            Regex pingReg = new Regex(@"time=(.*?)\ ");
-            var pingTrunc = pingReg.Match(e);
-	    var pingOut = pingTrunc.Groups[1].ToString();
-            RoundTrip.Value = $"{pingOut}ms";
-	    pingSender.WaitForExit();
-            #else
+#if FLATPAK
+            pingSender.StartInfo.UseShellExecute = false;
+            pingSender.StartInfo.RedirectStandardOutput = true;
+            pingSender.StartInfo.RedirectStandardError = true;
+            pingSender.StartInfo.FileName = "ping";
+            pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
+            pingSender.Start();
+            StreamReader reader = pingSender.StandardOutput;
+                string e = reader.ReadToEnd(); 
+                Regex pingReg = new Regex(@"time=(.*?)\ ");
+                var pingTrunc = pingReg.Match(e);
+            var pingOut = pingTrunc.Groups[1].ToString();
+                RoundTrip.Value = $"{pingOut}ms";
+            pingSender.WaitForExit();
+#else
             if (ServerIp != null)
             {
                 pingSender.SendAsync(ServerIp, 7);
             }
-            #endif
+#endif
         }
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
@@ -108,20 +108,20 @@ namespace UnitystationLauncher.Models
                 Log.Error(e.Error, "Ping failed");
                 return;
             }
-	        var tripTime = e.Reply.RoundtripTime;
-            if(tripTime == 0)
+            var tripTime = e.Reply.RoundtripTime;
+            if (tripTime == 0)
             {
                 RoundTrip.Value = "null";
             }
             else
             {
                 RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
-            }   
+            }
         }
         public void CheckIfCanPlay()
         {
             CanPlay.Value = ClientInstalled;
-            
+
             if (_isDownloading) return;
 
             OnCanPlayChange(CanPlay.Value);
@@ -169,13 +169,13 @@ namespace UnitystationLauncher.Models
             using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
-            
+
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
-                    
+
                     if (cancelToken.IsCancellationRequested)
                     {
                         progStream.Inner.Dispose();

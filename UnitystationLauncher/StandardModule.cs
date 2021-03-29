@@ -3,10 +3,12 @@ using Autofac;
 using Firebase.Auth;
 using UnitystationLauncher.Models;
 
-namespace UnitystationLauncher{
+namespace UnitystationLauncher
+{
     public class StandardModule : Module
     {
-        protected override void Load(ContainerBuilder builder){
+        protected override void Load(ContainerBuilder builder)
+        {
             builder.RegisterType<HttpClient>().SingleInstance();
             builder.RegisterType<Config>().SingleInstance();
             builder.RegisterAssemblyTypes(ThisAssembly)

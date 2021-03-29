@@ -49,7 +49,7 @@ namespace UnitystationLauncher.ViewModels
             get => _isCreatedVisible;
             set => this.RaiseAndSetIfChanged(ref _isCreatedVisible, value);
         }
-        
+
         public bool IsWaitingVisible
         {
             get => _isWaitingVisible;
@@ -102,11 +102,12 @@ namespace UnitystationLauncher.ViewModels
             IsFormVisible = false;
             _creationSuccess = true;
             IsWaitingVisible = true;
-            
+
             try
-            { 
+            {
                 await _authManager.CreateAccount(_username, _email, _password);
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 Log.Error(e, "Login failed");
                 _creationSuccess = false;
@@ -127,7 +128,7 @@ namespace UnitystationLauncher.ViewModels
                 _authManager.SendForgotPasswordEmail(_email);
                 EndButtonText = "Back";
             }
-            
+
             IsWaitingVisible = false;
             IsCreatedVisible = true;
         }
@@ -136,7 +137,7 @@ namespace UnitystationLauncher.ViewModels
         {
             return _loginVm.Value;
         }
-        
+
         public LoginViewModel CreationEndButton()
         {
             return _loginVm.Value;

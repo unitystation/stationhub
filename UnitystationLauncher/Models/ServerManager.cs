@@ -72,7 +72,7 @@ namespace UnitystationLauncher.Models
 
         public void RefreshInstalledStates()
         {
-            foreach(ServerWrapper wrapper in Servers.Value)
+            foreach (ServerWrapper wrapper in Servers.Value)
             {
                 wrapper.CheckIfCanPlay();
             }

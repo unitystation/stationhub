@@ -37,7 +37,7 @@ namespace UnitystationLauncher.Models
         {
             var json = JsonConvert.SerializeObject(AuthLink);
 
-            using (StreamWriter writer = File.CreateText(Path.Combine(Config.RootFolder,"settings.json")))
+            using (StreamWriter writer = File.CreateText(Path.Combine(Config.RootFolder, "settings.json")))
             {
                 writer.WriteLine(json);
             }
@@ -84,7 +84,7 @@ namespace UnitystationLauncher.Models
                 var lines = new List<string>();
                 {
                     string line;
-                    
+
                     while ((line = stringReader.ReadLine()!) != null)
                     {
                         if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//"))

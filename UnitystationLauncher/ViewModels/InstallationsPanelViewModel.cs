@@ -60,7 +60,7 @@ namespace UnitystationLauncher.ViewModels
         //message box.
         async void OnCheckBoxClick()
         {
-            if(AutoRemove.Value)
+            if (AutoRemove.Value)
             {
                 var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {
@@ -76,11 +76,13 @@ namespace UnitystationLauncher.ViewModels
                 if (response.Equals("Confirm"))
                 {
                     SaveChoice();
-                } else
+                }
+                else
                 {
                     AutoRemove.Value = false;
                 }
-            } else
+            }
+            else
             {
                 SaveChoice();
             }

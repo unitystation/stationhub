@@ -3,7 +3,8 @@ using Octokit;
 using System.Collections.ObjectModel;
 using UnitystationLauncher.Models;
 
-namespace UnitystationLauncher.ViewModels{
+namespace UnitystationLauncher.ViewModels
+{
     public class NewsViewModel : ViewModelBase
     {
         GitHubClient _client;
@@ -28,7 +29,7 @@ namespace UnitystationLauncher.ViewModels{
             apiOptions.PageCount = 1;
             apiOptions.PageSize = 10;
             options.State = ItemStateFilter.Closed;
-            for(int i = PullRequests.Count - 1; i > 0; i--)
+            for (int i = PullRequests.Count - 1; i > 0; i--)
             {
                 PullRequests.RemoveAt(i);
             }
@@ -41,7 +42,8 @@ namespace UnitystationLauncher.ViewModels{
                 {
                     if (pr.Merged) PullRequests.Add(new PullRequestWrapper(pr));
                 }
-            } catch
+            }
+            catch
             {
                 //Rate limit has probably exceeded
             }
