@@ -5,6 +5,8 @@ using Serilog;
 using System.Threading;
 using UnitystationLauncher.Models;
 using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 using Avalonia.Media;
 
 namespace UnitystationLauncher.ViewModels
@@ -46,7 +48,7 @@ namespace UnitystationLauncher.ViewModels
             _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             _maximizeToolTip = "Maximize";
             CommandMaximizee = ReactiveCommand.Create(Maximize);
-            CheckForExistingUser();
+            RxApp.MainThreadScheduler.Schedule(async () => await CheckForExistingUser());
         }
 
         private void Maximize()
@@ -74,17 +76,17 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
-        void CheckForExistingUser()
+        async Task CheckForExistingUser()
         {
             if (_authManager.AuthLink != null)
             {
                 _authManager.AttemptingAutoLogin = true;
                 Content = _loginStatusVm.Value;
-                AttemptAuthRefresh();
+                await AttemptAuthRefresh();
             }
         }
 
-        async void AttemptAuthRefresh()
+        async Task AttemptAuthRefresh()
         {
             if (_authManager.AuthLink == null)
             {

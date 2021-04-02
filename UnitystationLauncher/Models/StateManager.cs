@@ -5,60 +5,66 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
 {
-    using State = IReadOnlyDictionary<(string ForkName, int BuildVersion), (Installation? installation, Download? download, IReadOnlyList<ServerWrapper> servers)>;
-
     public class StateManager
     {
-        private readonly BehaviorSubject<State> _state;
-
         public StateManager(ServerManager serverManager, InstallationManager installationManager, DownloadManager downloadManager)
         {
-            _state = new BehaviorSubject<State>(new Dictionary<(string ForkName, int BuildVersion), (Installation? installation, Download? download, IReadOnlyList<ServerWrapper> servers)>());
-
             var groupedServerEvents = serverManager.Servers
                 .Select(servers => servers
-                    .GroupBy(s => s.Key))
+                    .GroupBy(s => s.ForkAndVersion))
                 .Do(x => Log.Logger.Information("Servers changed"));
 
             var downloadEvents = Observable.Merge(
-                downloadManager.Downloads.GetWeakCollectionChangedObservable()
-                    .Select(d => downloadManager.Downloads),
-                Observable.Return(downloadManager.Downloads))
+                    downloadManager.Downloads.GetWeakCollectionChangedObservable()
+                        .Select(d => downloadManager.Downloads),
+                    Observable.Return(downloadManager.Downloads))
                 .Do(x => Log.Logger.Information("Downloads changed"));
 
             var installationEvvents = installationManager.Installations
                 .Do(x => Log.Logger.Information("Installations changed"));
 
-            groupedServerEvents
+            State = groupedServerEvents
                 .CombineLatest(installationEvvents, (servers, installations) => (servers, installations))
                 .Select(d => d.servers.FullJoin(d.installations,
-                        s => s.Key,
-                        i => i.Key,
-                        s => (s.Key, ReadOnly(s), null),
-                        i => (i.Key, null, i),
-                        (servers, installation) => (servers.Key, servers: ReadOnly(servers), installation)))
+                    s => s.Key,
+                    i => i.ForkAndVersion,
+                    servers => new ForkInstall(null, null, servers.ToArray()),
+                    installation => new ForkInstall(null, installation, new List<Server>()),
+                    (servers, installation) => new ForkInstall(null, installation, servers.ToArray())))
                 .CombineLatest(downloadEvents, (join, downloads) => (join, downloads))
                 .Select(x => x.join.LeftJoin(x.downloads,
-                        s => s.Key,
-                        d => d.Key,
-                        s => (s.Key, s.servers, s.installation, null),
-                        (s, download) => (s.Key, s.servers, s.installation, download)))
-                .Select(x => (State)x.ToDictionary(d => d.Key, d => (d.installation, d.download, d.servers)))
+                    s => s.ForkAndVersion,
+                    d => d.ForkAndVersion,
+                    s => s,
+                    (s, download) => new ForkInstall(download, s.Installation, s.Servers)))
+                .Select(x => x.ToDictionary(d => d.ForkAndVersion, d => d))
                 .Do(x => Log.Logger.Information("state changed"))
-                .Subscribe(_state);
-
-            State.Subscribe(x => Log.Logger.Information("State changed"));
+                .PublishLast();
         }
 
-        public IObservable<State> State => _state;
+        public IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> State { get; }
 
-        private IReadOnlyList<T> ReadOnly<T>(IEnumerable<T> items)
+        public class ForkInstall
         {
-            return items.ToArray();
+            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<Server> servers)
+            {
+                Download = download;
+                Installation = installation;
+                Servers = servers;
+            }
+
+            public (string, int) ForkAndVersion =>
+                Download?.ForkAndVersion ??
+                Installation?.ForkAndVersion ??
+                Servers.FirstOrDefault()?.ForkAndVersion ??
+                throw new ArgumentNullException("All parameters are null or empty");
+
+            public Download? Download { get; }
+            public Installation? Installation { get; }
+            public IReadOnlyList<Server> Servers { get; }
         }
     }
 }

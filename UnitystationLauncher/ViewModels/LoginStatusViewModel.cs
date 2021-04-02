@@ -1,6 +1,8 @@
 using System;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
@@ -40,7 +42,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (!authManager.AttemptingAutoLogin)
             {
-                UserLogin();
+                RxApp.MainThreadScheduler.Schedule(async () => await UserLogin());
             }
             else
             {
@@ -82,7 +84,7 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> ResendEmail { get; }
         public ReactiveCommand<Unit, LauncherViewModel> OpenLauncher { get; }
 
-        public async void UserLogin()
+        public async Task UserLogin()
         {
             bool signInSuccess = true;
             ResendClicked = false;

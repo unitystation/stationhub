@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
 {
-    public class DirectoryManager
+    public class DirectoryManager : IDisposable
     {
         public IObservable<IReadOnlyList<string>> Directories { get; }
+        private FileSystemWatcher fw = new FileSystemWatcher(Config.InstallationsPath) { EnableRaisingEvents = true };
 
         public DirectoryManager()
         {
@@ -18,18 +18,18 @@ namespace UnitystationLauncher.Models
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
 
-            var fw = new FileSystemWatcher(Config.InstallationsPath) { EnableRaisingEvents = true };
-            var bs = new BehaviorSubject<IReadOnlyList<string>>(GetDirectories());
-
-            Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+            Directories = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                 h => fw.Changed += h,
                 h => fw.Changed -= h)
                 .Select(e => GetDirectories())
-                .Subscribe(bs);
-
-            Directories = bs;
+                .PublishLast();
         }
 
         private static string[] GetDirectories() => Directory.EnumerateDirectories(Config.InstallationsPath).ToArray();
+
+        public void Dispose()
+        {
+            fw.Dispose();
+        }
     }
 }

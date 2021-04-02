@@ -1,9 +1,8 @@
 ﻿using ReactiveUI;
 using UnitystationLauncher.Models;
 using System.Reactive;
-using System.IO;
 using System;
-using Newtonsoft.Json;
+using System.Reactive.Concurrency;
 using Serilog;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -59,12 +58,12 @@ namespace UnitystationLauncher.ViewModels
                 installationsPanel,
                 settings
             };
-            Logout = ReactiveCommand.Create(LogoutImp);
+            Logout = ReactiveCommand.CreateFromTask(LogoutImp);
             Refresh = ReactiveCommand.Create(serversPanel.OnRefresh);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
-            ValidateClientVersion();
+            RxApp.MainThreadScheduler.Schedule(async () => await ValidateClientVersion());
         }
 
 
@@ -80,11 +79,11 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
-        LoginViewModel LogoutImp()
+        async Task<LoginViewModel> LogoutImp()
         {
             _authManager.SignOutUser();
-            File.WriteAllText(Path.Combine(Path.Combine(Config.RootFolder, "prefs.json")), JsonConvert.SerializeObject(new Prefs()));
-            File.Delete(Path.Combine(Config.RootFolder, "settings.json"));
+            var prefs = await _config.GetPreferences();
+            prefs.LastLogin = "";
             return _logoutVm.Value;
         }
 

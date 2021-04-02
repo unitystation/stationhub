@@ -21,7 +21,6 @@ namespace UnitystationLauncher.Models
     public class ServerWrapper : Server
     {
         private readonly AuthManager _authManager;
-        private readonly InstallationManager _installManager;
         private CancellationTokenSource? _cancelSource;
         private bool _isDownloading;
         public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
@@ -42,11 +41,9 @@ namespace UnitystationLauncher.Models
 
 
 
-        public ServerWrapper(Server server, AuthManager authManager,
-            InstallationManager installManager)
+        public ServerWrapper(Server server, AuthManager authManager)
         {
             _authManager = authManager;
-            _installManager = installManager;
 #if FLATPAK
 	        pingSender = new Process();
 #else
@@ -246,7 +243,6 @@ namespace UnitystationLauncher.Models
             await DownloadAsync(_cancelSource.Token);
             IsDownloading.Value = false;
             CheckIfCanPlay();
-            _installManager.TryAutoRemove();
         }
 
         private void StartClient()
