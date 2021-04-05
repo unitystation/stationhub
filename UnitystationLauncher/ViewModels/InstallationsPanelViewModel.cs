@@ -14,9 +14,9 @@ namespace UnitystationLauncher.ViewModels
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
-        private InstallationManager _installationManager;
+        private readonly InstallationManager _installationManager;
+        private readonly Config _config;
         private Installation? _selectedInstallation;
-        private Config _config;
         string? _buildNum;
         private bool _autoRemove;
 
@@ -27,7 +27,7 @@ namespace UnitystationLauncher.ViewModels
 
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
-            CheckBoxClick = ReactiveUI.ReactiveCommand.CreateFromTask(OnCheckBoxClick);
+            CheckBoxClick = ReactiveCommand.CreateFromTask(OnCheckBoxClick);
 
             RxApp.MainThreadScheduler.Schedule(async () =>
             {

@@ -13,8 +13,8 @@ namespace UnitystationLauncher.Models
     public class InstallationManager : ReactiveObject, IDisposable
     {
         private bool _autoRemove;
-        private FileSystemWatcher _fileWatcher;
-        private IDisposable _autoRemoveSub;
+        private readonly FileSystemWatcher _fileWatcher;
+        private readonly IDisposable _autoRemoveSub;
 
         public InstallationManager()
         {
@@ -78,7 +78,7 @@ namespace UnitystationLauncher.Models
             // For each fork delete all installations except the one with the highest version number
             var installationsToDelete = installations
                 .GroupBy(installation => installation.ForkName)
-                .SelectMany(installations => installations
+                .SelectMany(installationsForFork => installationsForFork
                     .OrderByDescending(installation => installation.BuildVersion)
                     .Skip(1));
 

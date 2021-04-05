@@ -8,8 +8,7 @@ namespace UnitystationLauncher.Models
 {
     public class DirectoryManager : IDisposable
     {
-        public IObservable<IReadOnlyList<string>> Directories { get; }
-        private FileSystemWatcher fw = new FileSystemWatcher(Config.InstallationsPath) { EnableRaisingEvents = true };
+        private readonly FileSystemWatcher _fw = new FileSystemWatcher(Config.InstallationsPath) { EnableRaisingEvents = true };
 
         public DirectoryManager()
         {
@@ -19,17 +18,19 @@ namespace UnitystationLauncher.Models
             }
 
             Directories = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                h => fw.Changed += h,
-                h => fw.Changed -= h)
+                h => _fw.Changed += h,
+                h => _fw.Changed -= h)
                 .Select(e => GetDirectories())
                 .PublishLast();
         }
+
+        public IObservable<IReadOnlyList<string>> Directories { get; }
 
         private static string[] GetDirectories() => Directory.EnumerateDirectories(Config.InstallationsPath).ToArray();
 
         public void Dispose()
         {
-            fw.Dispose();
+            _fw.Dispose();
         }
     }
 }
