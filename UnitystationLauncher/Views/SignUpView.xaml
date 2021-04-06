@@ -29,7 +29,7 @@
         </StackPanel.Background>
 
         <Border BorderThickness="1" BorderBrush="#c5c5c5" />
-        
+
         <!-- Sign up form -->
         <StackPanel IsVisible="{Binding IsFormVisible}">
             <StackPanel Orientation="Horizontal" Height="50" Margin="10" HorizontalAlignment="Center">
@@ -66,24 +66,25 @@
                 </Button>
             </Grid>
         </StackPanel>
-        
-            <!-- Please wait content -->
+
+        <!-- Please wait content -->
         <StackPanel IsVisible="{Binding IsWaitingVisible}">
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="Creating account, please wait..." />
-            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30" Margin="15">
+            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30"
+                                    Margin="15">
                 <Image Source="/Assets/loadingring.png" />
             </LayoutTransformControl>
         </StackPanel>
-        
-            <!-- Success or Failed content -->
+
+        <!-- Success or Failed content -->
         <StackPanel IsVisible="{Binding IsCreatedVisible}">
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="{Binding CreationMessage}" />
             <Button Command="{Binding DoneButton}" Padding="5" Margin="15" HorizontalAlignment="Center" MinWidth="100"
-                    Content="{Binding EndButtonText}" Classes="SmallButton"/>
+                    Content="{Binding EndButtonText}" Classes="SmallButton" />
         </StackPanel>
-        
+
         <Border BorderThickness="1" BorderBrush="#c5c5c5" />
     </StackPanel>
 </UserControl>

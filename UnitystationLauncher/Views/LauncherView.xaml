@@ -2,105 +2,108 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:avc="clr-namespace:Avalonia.Data.Converters;assembly=Avalonia"
+             xmlns:vm="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              TextBlock.FontSize="18"
              Background="Transparent"
              x:Class="UnitystationLauncher.Views.LauncherView">
-  <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="54"/>
-      <RowDefinition/>
-    </Grid.RowDefinitions>
-    <Grid Background="#1d3b50" Grid.Row="0">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="160"/>
-        <ColumnDefinition/>
-      </Grid.ColumnDefinitions>
-      <StackPanel Grid.Column="0" Orientation="Horizontal">
-        <Border Margin="5 5 0 6" BorderThickness="0.3" BorderBrush="#f7f7f8" Background="#13212e">
-          <StackPanel Orientation="Horizontal">
-            <Button Margin="2" Command="{Binding #ContextMenu.Open}">
-              <Button.Styles>
-                <Style Selector="Button">
-                  <Setter Property="BorderThickness" Value="0"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="54" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Background="#1d3b50" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="160" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <Border Margin="5 5 0 6" BorderThickness="0.3" BorderBrush="#f7f7f8" Background="#13212e">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Margin="2" Command="{Binding #ContextMenu.Open}">
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="BorderThickness" Value="0" />
 
-                  <Setter Property="Background">
-                    <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png"/>
-                  </Setter>
-                </Style>
-                <Style Selector="Button:pointerover">
-                  <Setter Property="Background">
-                    <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png"/>
-                  </Setter>
-                </Style>
-                <Style Selector="Button:pressed /template/ ContentPresenter">
-                  <Setter Property="Background">
-                    <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png"/>
-                  </Setter>
-                </Style>
-              </Button.Styles>
-              <Button.ContextMenu>
-                <ContextMenu Name="ContextMenu" PlacementMode="Bottom">
-                  <MenuItem Header="Refresh" Command="{Binding Refresh}">
-
-                  </MenuItem>
-                  <MenuItem Header="Logout" Command="{Binding Logout}">
-
-                  </MenuItem>
-                </ContextMenu>
-              </Button.ContextMenu>
-            </Button>
-            <Image Source="/Assets/userico.jpg" HorizontalAlignment="Left" ToolTip.Tip="Profile Icon" Margin="0 2 1 2"/>
-          </StackPanel>
-        </Border>
-        <Viewbox Height="22" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="Username">
-          <Border Margin="4 0 0 0" VerticalAlignment="Center">
-            <Border.Background>
-              <ImageBrush Source="avares://StationHub/Assets/userbg.png" Stretch="Fill" />
-            </Border.Background>
-            <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1" HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" TextWrapping="Wrap" MaxWidth="130" MaxHeight="20"/>
-          </Border>
-        </Viewbox>
-      </StackPanel>
-      <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0" ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent" Grid.Column="1" HorizontalAlignment="Left">
-        <ListBox.ItemsPanel>
-          <ItemsPanelTemplate>
-            <StackPanel Orientation="Horizontal"/>
-          </ItemsPanelTemplate>
-        </ListBox.ItemsPanel>
-        <ListBox.Styles>
-          <Style Selector="ListBoxItem">
-            <Setter Property="Margin" Value="5 0 5 0"/>
-          </Style>
-          <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background">
-              <Setter.Value>
-                <ImageBrush Source="/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center"/>
-              </Setter.Value>
-            </Setter>
-          </Style>
-          <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background">
-              <Setter.Value>
-                <ImageBrush Source="/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center"/>
-              </Setter.Value>
-            </Setter>
-          </Style>
-        </ListBox.Styles>
-        <ListBox.DataTemplates>
-          <DataTemplate>
-            <DockPanel MinWidth="80" MaxWidth="108">
-              <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="19" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="150" FontFamily="InterBold" FontWeight="Bold"/>
-            </DockPanel>
-          </DataTemplate>
-        </ListBox.DataTemplates>
-      </ListBox>
+                                    <Setter Property="Background">
+                                        <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png" />
+                                    </Setter>
+                                </Style>
+                                <Style Selector="Button:pointerover">
+                                    <Setter Property="Background">
+                                        <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png" />
+                                    </Setter>
+                                </Style>
+                                <Style Selector="Button:pressed /template/ ContentPresenter">
+                                    <Setter Property="Background">
+                                        <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png" />
+                                    </Setter>
+                                </Style>
+                            </Button.Styles>
+                            <Button.ContextMenu>
+                                <ContextMenu Name="ContextMenu" PlacementMode="Bottom">
+                                    <MenuItem Header="Refresh" Command="{Binding Refresh}" />
+                                    <MenuItem Header="Logout" Command="{Binding Logout}" />
+                                </ContextMenu>
+                            </Button.ContextMenu>
+                        </Button>
+                        <Image Source="/Assets/userico.jpg" HorizontalAlignment="Left" ToolTip.Tip="Profile Icon"
+                               Margin="0 2 1 2" />
+                    </StackPanel>
+                </Border>
+                <Viewbox Height="22" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="Username">
+                    <Border Margin="4 0 0 0" VerticalAlignment="Center">
+                        <Border.Background>
+                            <ImageBrush Source="avares://StationHub/Assets/userbg.png" Stretch="Fill" />
+                        </Border.Background>
+                        <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1"
+                                   HorizontalAlignment="Center" TextAlignment="Center" FontSize="10"
+                                   TextWrapping="Wrap" MaxWidth="130" MaxHeight="20" />
+                    </Border>
+                </Viewbox>
+            </StackPanel>
+            <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent" Grid.Column="1"
+                     HorizontalAlignment="Left">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Margin" Value="5 0 5 0" />
+                    </Style>
+                    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <ImageBrush Source="/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center" />
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <ImageBrush Source="/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center" />
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.Styles>
+                <ListBox.DataTemplates>
+                    <DataTemplate DataType="vm:PanelBase">
+                        <DockPanel MinWidth="80" MaxWidth="108">
+                            <TextBlock Text="{Binding Name}" FontSize="19" TextAlignment="Center"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="150"
+                                       FontFamily="InterBold" FontWeight="Bold" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.DataTemplates>
+            </ListBox>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Border>
+                <UserControl Content="{Binding SelectedPanel}" />
+            </Border>
+        </Grid>
     </Grid>
-    <Grid Grid.Row="1">
-      <Border>
-        <UserControl Content="{Binding SelectedPanel}"/>
-      </Border>
-    </Grid>
-  </Grid>
 </UserControl>

@@ -2,69 +2,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:m="clr-namespace:UnitystationLauncher.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UnitystationLauncher.Views.InstallationsPanelView">
-  <DockPanel>
-    <Grid ColumnDefinitions="*,*" Background="#1d3b50" Height="30" DockPanel.Dock="Top"
-          VerticalAlignment="Top" HorizontalAlignment="Stretch" >
-      <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12" Text="{Binding BuildNum}" Margin="20 0 0 0" />
-      <CheckBox IsChecked="{Binding AutoRemove}" Command="{Binding CheckBoxClick}" Grid.Column="1" HorizontalAlignment="Center">
-        <TextBlock Text=" Automatically Remove Old Versions" FontSize="12"/>
-      </CheckBox>
-    </Grid>
-    <ScrollViewer>
-      <StackPanel>
-        <ListBox Items="{Binding Installations^}" SelectedItem="{Binding SelectedInstallation}" Grid.Column="0" BorderThickness="0" Padding="0" Background="Transparent">
-          <ListBox.DataTemplates>
-            <DataTemplate>
-              <Grid ColumnDefinitions="0.15*,0.5*,0.35*" Margin="12 12 12 0" Height="70">
-                <!--Entry background-->
-                <StackPanel Grid.ColumnSpan="3">
-                  <Border Background="#182837" Height="70" VerticalAlignment="Stretch"/>
-                </StackPanel>
-                <StackPanel IsVisible="{Binding (ListBoxItem.IsPointerOver),
-                                RelativeSource={RelativeSource FindAncestor,
-                                    AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
-                  <Border Background="#182837" Height="70" VerticalAlignment="Stretch"/>
-                </StackPanel>
-                <StackPanel IsVisible="{Binding (ListBoxItem.IsSelected),
-                                RelativeSource={RelativeSource FindAncestor,
-                                    AncestorType={x:Type ListBoxItem}}}" Grid.ColumnSpan="7">
-                  <Border Background="#182837" Height="70" VerticalAlignment="Stretch" />
-                </StackPanel>
-                <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                  <Image Source="avares://StationHub/Assets/folders.png" />
-                </StackPanel>
-                <StackPanel VerticalAlignment="Center" Margin="10 0 0 0" Grid.Column="1">
-                  <TextBlock Text="{Binding ForkName, 
-                 StringFormat='Fork: {0}'}" FontSize="14" Grid.Column="0"/>
-                  <TextBlock Text="{Binding BuildVersion, 
-                 StringFormat='Build: {0}'}" FontSize="16" Grid.Column="0"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                  <Button Command="{Binding Play}" Margin="3" FontSize="11" BorderThickness="0.5" Background="#1d3b50" BorderBrush="#fcfcfd" Width="130" Height="24" >
-                    <TextBlock Text="Launch" TextWrapping="Wrap" TextAlignment="Center"/>
-                  </Button>
-                  <Button Margin="3" Command="{Binding Delete}" FontSize="11" BorderThickness="0.5" Background="#1d3b50" BorderBrush="#fcfcfd" Width="130" Height="24">
-                    <TextBlock Text="Uninstall" TextWrapping="Wrap" TextAlignment="Center"/>
-                  </Button>
-                </StackPanel>
-              </Grid>
-            </DataTemplate>
-          </ListBox.DataTemplates>
-          <ListBox.Styles>
-            <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
-              <Setter Property="Background" Value="Transparent" />
-            </Style>
-            <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
-              <Setter Property="Background" Value="Transparent" />
-            </Style>
-          </ListBox.Styles>
-        </ListBox>
-      </StackPanel>
-    </ScrollViewer>
-  </DockPanel>
-  <!--<Grid ColumnDefinitions="2*,*">
+    <DockPanel>
+        <Grid ColumnDefinitions="*,*" Background="#1d3b50" Height="30" DockPanel.Dock="Top"
+              VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12"
+                       Text="{Binding BuildNum}" Margin="20 0 0 0" />
+            <CheckBox IsChecked="{Binding AutoRemove}" Command="{Binding CheckBoxClick}" Grid.Column="1"
+                      HorizontalAlignment="Center">
+                <TextBlock Text=" Automatically Remove Old Versions" FontSize="12" />
+            </CheckBox>
+        </Grid>
+        <ScrollViewer>
+            <StackPanel>
+                <ListBox Items="{Binding Installations^}" SelectedItem="{Binding SelectedInstallation}"
+                         BorderThickness="0" Padding="0" Background="Transparent">
+                    <ListBox.DataTemplates>
+                        <DataTemplate DataType="m:Installation">
+                            <Grid ColumnDefinitions="0.15*,0.5*,0.35*" Background="#182837" Margin="12 12 12 0"
+                                  Height="70">
+                                <!--Entry background-->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                                            Margin="0 0 10 0">
+                                    <Image Source="avares://StationHub/Assets/folders.png" />
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Center" Margin="10 0 0 0" Grid.Column="1">
+                                    <TextBlock Text="{Binding ForkName, 
+                 StringFormat='Fork: {0}'}"
+                                               FontSize="14" />
+                                    <TextBlock
+                                        Text="{Binding BuildVersion, 
+                 StringFormat='Build: {0}'}"
+                                        FontSize="16" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                    <Button Command="{Binding Play}" Margin="3" FontSize="11" BorderThickness="0.5"
+                                            Background="#1d3b50" BorderBrush="#fcfcfd" Width="130" Height="24">
+                                        <TextBlock Text="Launch" TextWrapping="Wrap" TextAlignment="Center" />
+                                    </Button>
+                                    <Button Margin="3" Command="{Binding Delete}" FontSize="11" BorderThickness="0.5"
+                                            Background="#1d3b50" BorderBrush="#fcfcfd" Width="130" Height="24">
+                                        <TextBlock Text="Uninstall" TextWrapping="Wrap" TextAlignment="Center" />
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.DataTemplates>
+                    <ListBox.Styles>
+                        <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                        <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Style>
+                    </ListBox.Styles>
+                </ListBox>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+    <!--<Grid ColumnDefinitions="2*,*">
     <StackPanel>
       <TextBlock TextAlignment="Center" FontSize="22">Installations</TextBlock>
       
