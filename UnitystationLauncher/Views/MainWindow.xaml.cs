@@ -8,9 +8,6 @@ namespace UnitystationLauncher.Views
 {
     public class MainWindow : Window
     {
-        private Button _minimiseButton; //CustomButton Window
-        private Button _closeButton; //CustomButton Window
-        private Button _maximizeeButton; //CustomButton Window
         /// <summary>
         /// This is used for moving the window when the titlebar is grabbed, also for disabling on non-windows OSs.
         /// </summary>
@@ -43,15 +40,15 @@ namespace UnitystationLauncher.Views
             }
             else
             {
-                _minimiseButton = this.FindControl<Button>("MinimiseButton");
-                _maximizeeButton = this.FindControl<Button>("MaximizeeButton");
-                _closeButton = this.FindControl<Button>("CloseButton");
+                var minimizeButton = this.FindControl<Button>("MinimizeButton");
+                var maximizeButton = this.FindControl<Button>("MaximizeButton");
+                var closeButton = this.FindControl<Button>("CloseButton");
 
-                _minimiseButton.Click += (sender, ee) => { WindowState = WindowState.Minimized; };
+                minimizeButton.Click += (sender, ee) => { WindowState = WindowState.Minimized; };
 
-                _maximizeeButton.Click += (sender, ee) => { ToggleWindowState(); };
+                maximizeButton.Click += (sender, ee) => { ToggleWindowState(); };
 
-                _closeButton.Click += (sender, ee) => { Close(); };
+                closeButton.Click += (sender, ee) => { Close(); };
 
             }
         }
