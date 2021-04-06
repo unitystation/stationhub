@@ -8,7 +8,7 @@
     <Grid ColumnDefinitions="*,*" Background="#1d3b50" Height="30" DockPanel.Dock="Top"
           VerticalAlignment="Top" HorizontalAlignment="Stretch" >
       <TextBlock Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12" Text="{Binding BuildNum}" Margin="20 0 0 0" />
-      <CheckBox IsChecked="{Binding AutoRemove.Value}" Command="{Binding CheckBoxClick}" Grid.Column="1" HorizontalAlignment="Center">
+      <CheckBox IsChecked="{Binding AutoRemove}" Command="{Binding CheckBoxClick}" Grid.Column="1" HorizontalAlignment="Center">
         <TextBlock Text=" Automatically Remove Old Versions" FontSize="12"/>
       </CheckBox>
     </Grid>

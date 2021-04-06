@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace UnitystationLauncher.Models
 {
-    public class Config
+    public class Config : IDisposable
     {
         //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/StationHub.metainfo.xml for Linux software stores. Thank you.
         public const int CurrentBuild = 927;
@@ -30,6 +30,7 @@ namespace UnitystationLauncher.Models
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
         public static string TempFolder => Path.Combine(RootFolder, "temp");
+        public static string PreferencesFilePath => Path.Combine(RootFolder, "prefs.json");
         public static string WinExeFullPath => Path.Combine(RootFolder, WinExeName);
         public static string UnixExeFullPath => Path.Combine(RootFolder, UnixExeName);
 
@@ -57,10 +58,49 @@ namespace UnitystationLauncher.Models
             if (_clientConfig == null)
             {
                 var data = await _http.GetStringAsync(ValidateUrl);
-                _clientConfig = JsonConvert.DeserializeObject<HubClientConfig>(data);
+                _clientConfig = JsonSerializer.Deserialize<HubClientConfig>(data);
             }
 
             return _clientConfig;
+        }
+
+        private Preferences? _preferences;
+        private IDisposable? _preferenceSub;
+
+        public async Task<Preferences> GetPreferences()
+        {
+            if (_preferences != null)
+            {
+                return _preferences;
+            }
+
+            if (File.Exists(PreferencesFilePath))
+            {
+                await using var data = File.OpenRead(PreferencesFilePath);
+                _preferences = await JsonSerializer.DeserializeAsync<Preferences>(data);
+            }
+            else
+            {
+                _preferences = new Preferences();
+            }
+
+            _preferenceSub?.Dispose();
+            _preferenceSub = _preferences.Changed
+                .Subscribe(async x => await SerializerPreferences());
+
+            return _preferences;
+        }
+
+        private async Task SerializerPreferences()
+        {
+            await using var file = File.Create(PreferencesFilePath);
+            await JsonSerializer.SerializeAsync(file, _preferences, new JsonSerializerOptions { IgnoreNullValues = true, IgnoreReadOnlyProperties = true });
+        }
+
+        public void Dispose()
+        {
+            _preferenceSub?.Dispose();
+            _http.Dispose();
         }
     }
 }

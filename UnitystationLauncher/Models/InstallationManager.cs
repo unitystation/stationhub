@@ -5,63 +5,85 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using System.IO;
 using System.Reactive;
-using System.Reactive.Subjects;
-using System.Threading;
 using UnitystationLauncher.Infrastructure;
 using Serilog;
 
 namespace UnitystationLauncher.Models
 {
-    public class InstallationManager : ReactiveObject
+    public class InstallationManager : ReactiveObject, IDisposable
     {
-        private readonly BehaviorSubject<IReadOnlyList<Installation>> _installationsSubject;
         private bool _autoRemove;
-        public bool AutoRemove { get => _autoRemove; set { _autoRemove = value; if (_autoRemove) TryAutoRemove(); } }
-        public Action? InstallListChange;
+        private readonly FileSystemWatcher _fileWatcher;
+        private readonly IDisposable _autoRemoveSub;
 
         public InstallationManager()
         {
-            _installationsSubject = new BehaviorSubject<IReadOnlyList<Installation>>(new Installation[0]);
-            var fileWatcher = new FileSystemWatcher(Config.InstallationsPath)
+            _fileWatcher = new FileSystemWatcher(Config.InstallationsPath)
             {
                 EnableRaisingEvents = true,
                 IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
             };
-            Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    h => fileWatcher.Changed += h,
-                    h => fileWatcher.Changed -= h)
+            var changed = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                h => _fileWatcher.Changed += h,
+                h => _fileWatcher.Changed -= h);
+
+            var created = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                h => _fileWatcher.Created += h,
+                h => _fileWatcher.Created -= h);
+
+            var deleted = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+                h => _fileWatcher.Deleted += h,
+                h => _fileWatcher.Deleted -= h);
+
+            var renamed = Observable.FromEventPattern<RenamedEventHandler, FileSystemEventArgs>(
+                h => _fileWatcher.Renamed += h,
+                h => _fileWatcher.Renamed -= h);
+
+            Installations = changed
+                .Merge(created)
+                .Merge(deleted)
+                .Merge(renamed)
+                .Do(x => Log.Verbose("Filewatcher event: {@Event}", x.EventArgs))
                 .Select(e => Unit.Default)
-                .Merge(Observable.Return(Unit.Default))
-                .ObserveOn(SynchronizationContext.Current!)
                 .ThrottleSubsequent(TimeSpan.FromMilliseconds(1000))
+                .Merge(Observable.Return(Unit.Default))
                 .Select(f =>
                     Directory.EnumerateDirectories(Config.InstallationsPath)
                         .Select(dir => new Installation(dir))
                         .OrderByDescending(x => x.ForkName + x.BuildVersion)
                         .ToList())
-                .Subscribe(_installationsSubject);
+                .Do(x => Log.Information("Installations changed"))
+                .Replay(1)
+                .RefCount();
 
-            _installationsSubject.Subscribe(ListHasChanged);
+            _autoRemoveSub = this.WhenAnyValue(x => x.AutoRemove)
+                .Merge(Observable.Return(_autoRemove))
+                .CombineLatest(Installations, (a, installations) => installations)
+                .Subscribe(RemoveOldVersions);
         }
 
-        void ListHasChanged(IReadOnlyList<Installation> list)
+        public IObservable<IReadOnlyList<Installation>> Installations { get; }
+
+        public bool AutoRemove
         {
-            InstallListChange?.Invoke();
+            get => _autoRemove;
+            set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
         }
 
-        public void TryAutoRemove()
+        private void RemoveOldVersions(IReadOnlyList<Installation> installations)
         {
             if (!_autoRemove) return;
 
-            var key = "";
-            foreach (Installation i in _installationsSubject.Value)
+            // For each fork delete all installations except the one with the highest version number
+            var installationsToDelete = installations
+                .GroupBy(installation => installation.ForkName)
+                .SelectMany(installationsForFork => installationsForFork
+                    .OrderByDescending(installation => installation.BuildVersion)
+                    .Skip(1));
+
+            foreach (Installation i in installationsToDelete)
             {
-                if (!key.Equals(i.ForkName))
-                {
-                    key = i.ForkName;
-                    continue;
-                }
                 try
                 {
                     i.DeleteInstallation();
@@ -73,6 +95,11 @@ namespace UnitystationLauncher.Models
             }
         }
 
-        public IObservable<IReadOnlyList<Installation>> Installations => _installationsSubject;
+
+        public void Dispose()
+        {
+            _autoRemoveSub.Dispose();
+            _fileWatcher.Dispose();
+        }
     }
 }

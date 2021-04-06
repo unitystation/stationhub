@@ -1,49 +1,45 @@
 ﻿using ReactiveUI;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using UnitystationLauncher.Models;
-using Reactive.Bindings;
-using Newtonsoft.Json;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
 using MessageBox.Avalonia.DTO;
 using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
-        private InstallationManager installationManager;
-
+        private readonly InstallationManager _installationManager;
+        private readonly Config _config;
         private Installation? _selectedInstallation;
         string? _buildNum;
+        private bool _autoRemove;
 
-        public InstallationsPanelViewModel(InstallationManager installationManager)
+        public InstallationsPanelViewModel(InstallationManager installationManager, Config config)
         {
-            this.installationManager = installationManager;
-            if (File.Exists(Path.Combine(Config.RootFolder, "prefs.json")))
-            {
-                var data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
-                AutoRemove.Value = JsonConvert.DeserializeObject<Prefs>(data).AutoRemove;
-            }
-            else
-            {
-                var data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = "" });
-                File.WriteAllText(Path.Combine(Config.RootFolder, "prefs.json"), data);
-                AutoRemove.Value = true;
-            }
+            _installationManager = installationManager;
+            _config = config;
 
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
-            installationManager.AutoRemove = AutoRemove.Value;
-            CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick);
+            CheckBoxClick = ReactiveCommand.CreateFromTask(OnCheckBoxClick);
+
+            RxApp.MainThreadScheduler.Schedule(async () =>
+            {
+                var prefs = await _config.GetPreferences();
+                AutoRemove = prefs.AutoRemove;
+                installationManager.AutoRemove = prefs.AutoRemove;
+            });
         }
 
-        public IObservable<IReadOnlyList<Installation>> Installations => installationManager.Installations;
-        public ReactiveProperty<bool> AutoRemove { get; } = new ReactiveProperty<bool>();
+        public IObservable<IReadOnlyList<Installation>> Installations => _installationManager.Installations;
         public ReactiveCommand<Unit, Unit> CheckBoxClick { get; }
+
         public Installation? SelectedInstallation
         {
             get => _selectedInstallation;
@@ -56,11 +52,17 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _buildNum, value);
         }
 
+        public bool AutoRemove
+        {
+            get => _autoRemove;
+            set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
+        }
+
         //This is a Reactive Command action as confirmation needs to happen with the
         //message box.
-        async void OnCheckBoxClick()
+        async Task OnCheckBoxClick()
         {
-            if (AutoRemove.Value)
+            if (AutoRemove)
             {
                 var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {
@@ -69,41 +71,31 @@ namespace UnitystationLauncher.ViewModels
                     ShowInCenter = true,
                     ContentHeader = "Are you sure?",
                     ContentMessage = "This will remove older installations from disk. Proceed?",
-                    ButtonDefinitions = new[] { new ButtonDefinition { Name = "Cancel" }, new ButtonDefinition { Name = "Confirm" } }
+                    ButtonDefinitions = new[]
+                        {new ButtonDefinition {Name = "Cancel"}, new ButtonDefinition {Name = "Confirm"}}
                 });
 
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    SaveChoice();
+                    await SaveChoice();
                 }
                 else
                 {
-                    AutoRemove.Value = false;
+                    AutoRemove = false;
                 }
             }
             else
             {
-                SaveChoice();
+                await SaveChoice();
             }
         }
 
-        void SaveChoice()
+        async Task SaveChoice()
         {
-            var data = "";
-            if (File.Exists(Path.Combine(Config.RootFolder, "prefs.json")))
-            {
-                data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
-                var prefs = JsonConvert.DeserializeObject<Prefs>(data);
-                prefs.AutoRemove = AutoRemove.Value;
-                data = JsonConvert.SerializeObject(prefs);
-            }
-            else
-            {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove.Value, LastLogin = "" });
-            }
-            File.WriteAllText((Path.Combine(Config.RootFolder, "prefs.json")), data);
-            installationManager.AutoRemove = AutoRemove.Value;
+            var prefs = await _config.GetPreferences();
+            prefs.AutoRemove = AutoRemove;
+            _installationManager.AutoRemove = AutoRemove;
         }
     }
 }

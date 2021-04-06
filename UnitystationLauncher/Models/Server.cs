@@ -7,7 +7,7 @@ namespace UnitystationLauncher.Models
     public class Server
     {
         public string? ServerName { get; set; }
-        public string? ForkName { get; set; }
+        public string ForkName { get; set; } = "";
         public int BuildVersion { get; set; }
         public string? CurrentMap { get; set; }
         public string? GameMode { get; set; }
@@ -18,7 +18,7 @@ namespace UnitystationLauncher.Models
         public string? WinDownload { get; set; }
         public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }
-        public (string?, int) Key => (ForkName, BuildVersion);
+        public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
         public string? DownloadUrl =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reactive.Linq;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Reactive.Bindings;
@@ -28,7 +29,9 @@ namespace UnitystationLauncher.Models
             _authManager = authManager;
             _installManager = installManager;
             Servers.Value = new List<ServerWrapper>();
-            installManager.InstallListChange = RefreshInstalledStates;
+            installManager.Installations
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(x => RefreshInstalledStates());
             RefreshServerList();
         }
 
@@ -59,7 +62,7 @@ namespace UnitystationLauncher.Models
                     }
                     else
                     {
-                        newList.Add(new ServerWrapper(s, _authManager, _installManager));
+                        newList.Add(new ServerWrapper(s, _authManager));
                     }
                 }
             }
@@ -80,6 +83,7 @@ namespace UnitystationLauncher.Models
 
         public void Dispose()
         {
+            _installManager.Dispose();
             Servers.Dispose();
         }
     }

@@ -85,7 +85,7 @@ namespace UnitystationLauncher.ViewModels
         {
             _loginVm = loginVm;
             _config = config;
-            BeginDownload = ReactiveCommand.Create(UpdateHub);
+            BeginDownload = ReactiveCommand.CreateFromTask(UpdateHub);
             RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
 
@@ -101,7 +101,7 @@ namespace UnitystationLauncher.ViewModels
             RestartButtonVisible = false;
         }
 
-        public void UpdateHub()
+        public async Task UpdateHub()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -110,10 +110,10 @@ namespace UnitystationLauncher.ViewModels
             }
 
             _cancelSource = new CancellationTokenSource();
-            TryUpdate(_cancelSource.Token);
+            await TryUpdate(_cancelSource.Token);
         }
 
-        async void TryUpdate(CancellationToken cancelToken)
+        async Task TryUpdate(CancellationToken cancelToken)
         {
             Directory.CreateDirectory(Config.TempFolder);
 

@@ -1,7 +1,7 @@
 using System;
-using System.IO;
 using System.Reactive;
-using Newtonsoft.Json;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 using ReactiveUI;
 using UnitystationLauncher.Models;
 
@@ -13,6 +13,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly Lazy<ForgotPasswordViewModel> _forgotVm;
         private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
         private readonly AuthManager _authManager;
+        private readonly Config _config;
         string _email = "";
         string _password = "";
 
@@ -20,9 +21,10 @@ namespace UnitystationLauncher.ViewModels
             Lazy<LoginStatusViewModel> loginStatusVm,
             Lazy<SignUpViewModel> signUpVm,
             Lazy<ForgotPasswordViewModel> forgotVm,
-            AuthManager authManager)
+            AuthManager authManager, Config config)
         {
             _authManager = authManager;
+            _config = config;
             _signUpVm = signUpVm;
             _loginStatusVm = loginStatusVm;
             _forgotVm = forgotVm;
@@ -34,7 +36,7 @@ namespace UnitystationLauncher.ViewModels
                     !string.IsNullOrWhiteSpace(u) &&
                     !string.IsNullOrWhiteSpace(p));
 
-            Login = ReactiveCommand.Create(
+            Login = ReactiveCommand.CreateFromTask(
                 UserLogin,
                 possibleCredentials);
 
@@ -44,7 +46,7 @@ namespace UnitystationLauncher.ViewModels
             ForgotPw = ReactiveCommand.Create(
                 ForgotPass);
 
-            CheckForLastLogin();
+            RxApp.MainThreadScheduler.Schedule(async () => await CheckForLastLogin());
         }
 
         public string Email
@@ -63,7 +65,7 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, SignUpViewModel> Create { get; }
         public ReactiveCommand<Unit, ForgotPasswordViewModel> ForgotPw { get; }
 
-        public LoginStatusViewModel UserLogin()
+        public async Task<LoginStatusViewModel> UserLogin()
         {
             _authManager.LoginMsg = new LoginMsg
             {
@@ -71,7 +73,7 @@ namespace UnitystationLauncher.ViewModels
                 Pass = Password
             };
 
-            SaveLoginEmail();
+            await SaveLoginEmail();
 
             return _loginStatusVm.Value;
         }
@@ -86,30 +88,15 @@ namespace UnitystationLauncher.ViewModels
             return _forgotVm.Value;
         }
 
-        void CheckForLastLogin()
+        async Task CheckForLastLogin()
         {
-            if (File.Exists(Config.RootFolder + "prefs.json"))
-            {
-                var prefs = JsonConvert.DeserializeObject<Prefs>(File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json")));
-                Email = prefs.LastLogin ?? "";
-            }
+            Email = (await _config.GetPreferences()).LastLogin ?? "";
         }
 
-        void SaveLoginEmail()
+        async Task SaveLoginEmail()
         {
-            var data = "";
-            if (File.Exists(Config.RootFolder + "prefs.json"))
-            {
-                data = File.ReadAllText(Path.Combine(Config.RootFolder, "prefs.json"));
-                var prefs = JsonConvert.DeserializeObject<Prefs>(data);
-                prefs.LastLogin = _email;
-                data = JsonConvert.SerializeObject(prefs);
-            }
-            else
-            {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = false, LastLogin = _email });
-            }
-            File.WriteAllText(Path.Combine(Config.RootFolder, "prefs.json"), data);
+            var prefs = await _config.GetPreferences();
+            prefs.LastLogin = _email;
         }
     }
 }
