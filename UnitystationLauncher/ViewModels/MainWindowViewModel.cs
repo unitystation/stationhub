@@ -98,8 +98,8 @@ namespace UnitystationLauncher.ViewModels
 
             var refreshToken = new RefreshToken
             {
-                userID = _authManager.AuthLink.User.LocalId,
-                refreshToken = _authManager.AuthLink.RefreshToken
+                UserId = _authManager.AuthLink.User.LocalId,
+                Token = _authManager.AuthLink.RefreshToken
             };
 
             var token = await _authManager.GetCustomToken(refreshToken, _authManager.AuthLink.User.Email);

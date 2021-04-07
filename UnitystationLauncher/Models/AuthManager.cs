@@ -2,10 +2,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Firebase.Auth;
-using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace UnitystationLauncher.Models
 {
@@ -23,7 +24,7 @@ namespace UnitystationLauncher.Models
             if (File.Exists(Path.Combine(Config.RootFolder, "settings.json")))
             {
                 var json = File.ReadAllText(Path.Combine(Config.RootFolder, "settings.json"));
-                var authLink = JsonConvert.DeserializeObject<FirebaseAuthLink>(json);
+                var authLink = JsonSerializer.Deserialize<FirebaseAuthLink>(json);
                 AuthLink = authLink;
             }
         }
@@ -35,7 +36,7 @@ namespace UnitystationLauncher.Models
 
         public void Store()
         {
-            var json = JsonConvert.SerializeObject(AuthLink);
+            var json = JsonSerializer.Serialize(AuthLink);
 
             using (StreamWriter writer = File.CreateText(Path.Combine(Config.RootFolder, "settings.json")))
             {
@@ -69,7 +70,8 @@ namespace UnitystationLauncher.Models
         internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
         {
             // Client-side check for disposable email address.
-            const string url = "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
+            const string url =
+                "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
             var cancellationToken = new CancellationTokenSource(60000).Token;
@@ -105,7 +107,8 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                Console.Write("Error or timeout in check for email domain blacklist. Check has been skipped." + e.Message);
+                Console.Write("Error or timeout in check for email domain blacklist. Check has been skipped." +
+                              e.Message);
             }
 
             if (isDomainBlacklisted)
@@ -122,7 +125,8 @@ namespace UnitystationLauncher.Models
         {
             var url = "https://api.unitystation.org/validatetoken?data=";
 
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(refreshToken)));
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get,
+                url + Uri.EscapeUriString(JsonSerializer.Serialize(refreshToken)));
 
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
 
@@ -138,7 +142,8 @@ namespace UnitystationLauncher.Models
             }
 
             string msg = await res.Content.ReadAsStringAsync();
-            var response = JsonConvert.DeserializeObject<ApiResponse>(msg);
+            var response = JsonSerializer.Deserialize<ApiResponse>(msg,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (response.ErrorCode != 0)
             {
@@ -157,13 +162,14 @@ namespace UnitystationLauncher.Models
 
             var token = new RefreshToken
             {
-                userID = Uid,
-                refreshToken = CurrentRefreshToken
+                UserId = Uid,
+                Token = CurrentRefreshToken
             };
 
             var url = "https://api.unitystation.org/signout?data=";
 
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(token)));
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get,
+                url + Uri.EscapeUriString(JsonSerializer.Serialize(token)));
 
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
 
@@ -194,8 +200,8 @@ namespace UnitystationLauncher.Models
     [Serializable]
     public class RefreshToken
     {
-        public string refreshToken;
-        public string userID;
+        [JsonPropertyName("RefreshToken")] public string? Token { get; set; }
+        public string? UserId { get; set; }
     }
 
     [Serializable]
@@ -204,7 +210,7 @@ namespace UnitystationLauncher.Models
         /// <summary>
         /// 0 = all good, read the message variable now, otherwise read errorMsg
         /// </summary>
-        public int ErrorCode { get; set; } = 0;
+        public int ErrorCode { get; set; }
 
         public string? ErrorMsg { get; set; }
         public string? Message { get; set; }

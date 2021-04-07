@@ -6,15 +6,23 @@ namespace UnitystationLauncher.Models
 {
     public class Server
     {
+        public Server(string forkName, int buildVersion, string serverIp, int serverPort)
+        {
+            ForkName = forkName;
+            BuildVersion = buildVersion;
+            ServerIp = serverIp;
+            ServerPort = serverPort;
+        }
+
         public string? ServerName { get; set; }
-        public string ForkName { get; set; } = "";
-        public int BuildVersion { get; set; }
+        public string ForkName { get; }
+        public int BuildVersion { get; }
         public string? CurrentMap { get; set; }
         public string? GameMode { get; set; }
         public string? InGameTime { get; set; }
         public int? PlayerCount { get; set; }
-        public string? ServerIp { get; set; }
-        public int ServerPort { get; set; }
+        public string ServerIp { get; }
+        public int ServerPort { get; }
         public string? WinDownload { get; set; }
         public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }

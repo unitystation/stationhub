@@ -19,7 +19,7 @@ namespace UnitystationLauncher
 
             if (type != null)
             {
-                return (Control)Activator.CreateInstance(type);
+                return (Control)Activator.CreateInstance(type)!;
             }
 
             return new TextBlock { Text = "Not Found: " + viewName };

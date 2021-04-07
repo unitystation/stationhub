@@ -60,7 +60,7 @@ namespace UnitystationLauncher.Models
                 Download?.ForkAndVersion ??
                 Installation?.ForkAndVersion ??
                 Servers.FirstOrDefault()?.ForkAndVersion ??
-                throw new ArgumentNullException("All parameters are null or empty");
+                throw new ArgumentNullException();
 
             public Download? Download { get; }
             public Installation? Installation { get; }

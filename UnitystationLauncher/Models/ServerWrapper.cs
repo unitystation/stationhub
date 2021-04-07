@@ -40,8 +40,8 @@ namespace UnitystationLauncher.Models
 #endif
 
 
-
-        public ServerWrapper(Server server, AuthManager authManager)
+        public ServerWrapper(Server server, AuthManager authManager) : base(server.ForkName, server.BuildVersion,
+            server.ServerIp, server.ServerPort)
         {
             _authManager = authManager;
 #if FLATPAK
@@ -65,14 +65,10 @@ namespace UnitystationLauncher.Models
         public void UpdateDetails(Server server)
         {
             ServerName = server.ServerName;
-            ForkName = server.ForkName;
-            BuildVersion = server.BuildVersion;
             CurrentMap = server.CurrentMap;
             GameMode = server.GameMode;
             InGameTime = server.InGameTime;
             PlayerCount = server.PlayerCount;
-            ServerIp = server.ServerIp;
-            ServerPort = server.ServerPort;
             WinDownload = server.WinDownload;
             OsxDownload = server.OsxDownload;
             LinuxDownload = server.LinuxDownload;
@@ -91,12 +87,10 @@ namespace UnitystationLauncher.Models
                 RoundTrip.Value = $"{pingOut}ms";
             pingSender.WaitForExit();
 #else
-            if (ServerIp != null)
-            {
-                pingSender.SendAsync(ServerIp, 7);
-            }
+            pingSender.SendAsync(ServerIp, 7);
 #endif
         }
+
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
             // If an error occurred, display the exception to the user.  
@@ -105,6 +99,7 @@ namespace UnitystationLauncher.Models
                 Log.Error(e.Error, "Ping failed");
                 return;
             }
+
             var tripTime = e.Reply.RoundtripTime;
             if (tripTime == 0)
             {
@@ -115,6 +110,7 @@ namespace UnitystationLauncher.Models
                 RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
             }
         }
+
         public void CheckIfCanPlay()
         {
             CanPlay.Value = ClientInstalled;
@@ -161,9 +157,14 @@ namespace UnitystationLauncher.Models
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(DownloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
-            var responseStream = webResponse.GetResponseStream();
+            await using var responseStream = webResponse.GetResponseStream();
+            if (responseStream == null)
+            {
+                Log.Error("Could not download from server");
+                return;
+            }
             Log.Information("Download connection established");
-            using var progStream = new ProgressStream(responseStream);
+            await using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
 
@@ -172,14 +173,13 @@ namespace UnitystationLauncher.Models
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
-
                     if (cancelToken.IsCancellationRequested)
                     {
-                        progStream.Inner.Dispose();
                         Progress.OnNext(0);
                         _isDownloading = false;
                         return;
                     }
+
                     var downloadedAmt = (int)((float)maxFileSize.Megabytes * (p / 100f));
                     DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
@@ -211,7 +211,7 @@ namespace UnitystationLauncher.Models
             get
             {
                 return Directory.Exists(InstallationPath) &&
-                     Installation.FindExecutable(InstallationPath) != null;
+                       Installation.FindExecutable(InstallationPath) != null;
             }
         }
 
