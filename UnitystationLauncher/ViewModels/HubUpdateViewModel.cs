@@ -154,7 +154,6 @@ namespace UnitystationLauncher.ViewModels
 
                     if (cancelToken.IsCancellationRequested)
                     {
-                        progStream.Inner.Dispose();
                         Progress.OnNext(0);
                         return;
                     }

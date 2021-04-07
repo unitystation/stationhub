@@ -19,7 +19,6 @@ namespace UnitystationLauncher.ViewModels
         private bool _isFormVisible;
         private bool _isWaitingVisible;
         private bool _isCreatedVisible;
-        private bool _creationSuccess;
 
         public string Username
         {
@@ -101,7 +100,7 @@ namespace UnitystationLauncher.ViewModels
         public async Task UserCreate()
         {
             IsFormVisible = false;
-            _creationSuccess = true;
+            var creationSuccess = true;
             IsWaitingVisible = true;
 
             try
@@ -111,10 +110,10 @@ namespace UnitystationLauncher.ViewModels
             catch (Exception e)
             {
                 Log.Error(e, "Login failed");
-                _creationSuccess = false;
+                creationSuccess = false;
             }
 
-            if (_creationSuccess)
+            if (creationSuccess)
             {
                 CreationMessage = $"Success! An email has been sent to \r\n{_email}\r\n" +
                                   $"Please click the link in the email to verify\r\n" +

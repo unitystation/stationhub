@@ -42,7 +42,10 @@ namespace UnitystationLauncher.ViewModels
 
                 foreach (var pr in getList)
                 {
-                    if (pr.Merged) PullRequests.Add(new PullRequestWrapper(pr));
+                    if (pr.Merged)
+                    {
+                        PullRequests.Add(new PullRequestWrapper(pr));
+                    }
                 }
             }
             catch
