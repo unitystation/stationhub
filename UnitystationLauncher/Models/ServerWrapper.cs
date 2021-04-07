@@ -128,7 +128,10 @@ namespace UnitystationLauncher.Models
 
         private void OnCanPlayChange(bool canPlay)
         {
-            if (_isDownloading) return;
+            if (_isDownloading)
+            {
+                return;
+            }
 
             if (canPlay)
             {
@@ -176,7 +179,7 @@ namespace UnitystationLauncher.Models
             var maxFileSize = ByteSize.FromBytes(length);
 
             progStream.Progress
-                .Select(p => (int) (p * 100 / length))
+                .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
@@ -187,8 +190,8 @@ namespace UnitystationLauncher.Models
                         return;
                     }
 
-                    var downloadedAmt = (int) ((float) maxFileSize.Megabytes * (p / 100f));
-                    DownloadProgText.Value = $" {downloadedAmt} / {(int) maxFileSize.Megabytes} MB";
+                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * (p / 100f));
+                    DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
                     Log.Information("Progress: {Percentage}", p);
                 });
