@@ -53,16 +53,17 @@ namespace UnitystationLauncher.ViewModels
 
         private void Maximize()
         {
-            switch (MaximizeToolTip)
+            if (MaximizeToolTip == "Maximize")
             {
-                case "Maximize":
-                    MaximizeIcon = Geometry.Parse("M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z");
-                    MaximizeToolTip = "Restore Down";
-                    break;
-                case "Restore Down":
-                    MaximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
-                    MaximizeToolTip = "Maximize";
-                    break;
+                MaximizeIcon =
+                    Geometry.Parse(
+                        "M2048 1638h-410v410h-1638v-1638h410v-410h1638v1638zm-614-1024h-1229v1229h1229v-1229zm409-409h-1229v205h1024v1024h205v-1229z");
+                MaximizeToolTip = "Restore Down";
+            }
+            else if (MaximizeToolTip == "Restore Down")
+            {
+                MaximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
+                MaximizeToolTip = "Maximize";
             }
         }
 

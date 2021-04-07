@@ -20,7 +20,7 @@ using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
-    public class HubUpdateViewModel : ViewModelBase
+    public class HubUpdateViewModel : ViewModelBase, IDisposable
     {
         private CancellationTokenSource? _cancelSource;
         private readonly Lazy<LoginViewModel> _loginVm;
@@ -32,7 +32,7 @@ namespace UnitystationLauncher.ViewModels
         private bool _installButtonVisible;
         private bool _downloadBarVisible;
         private bool _restartButtonVisible;
-        private Process _thisProcess;
+        private readonly Process _thisProcess;
 
         public ReactiveCommand<Unit, Unit> BeginDownload { get; }
         public ReactiveCommand<Unit, Unit> RestartHub { get; }
@@ -133,11 +133,16 @@ namespace UnitystationLauncher.ViewModels
 
             var webRequest = WebRequest.Create(downloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
-            var responseStream = webResponse.GetResponseStream();
+            await using var responseStream = webResponse.GetResponseStream();
+            if (responseStream == null)
+            {
+                Log.Error("Failed to establish download connection");
+                return;
+            }
 
             Log.Information("Download connection established");
 
-            using var progStream = new ProgressStream(responseStream);
+            await using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
 
@@ -243,6 +248,12 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
             new UnixFileInfo(path).FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
+        }
+
+        public void Dispose()
+        {
+            _cancelSource?.Dispose();
+            _thisProcess.Dispose();
         }
     }
 }

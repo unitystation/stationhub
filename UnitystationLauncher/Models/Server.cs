@@ -32,7 +32,7 @@ namespace UnitystationLauncher.Models
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :
             RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OsxDownload :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
-            throw new Exception("Failed to detect OS");
+            throw new InvalidOperationException("Failed to detect OS");
 
         public string InstallationName => ForkName + BuildVersion;
 

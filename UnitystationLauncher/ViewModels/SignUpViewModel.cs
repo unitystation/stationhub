@@ -1,5 +1,6 @@
 using System;
 using System.Reactive;
+using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
@@ -89,7 +90,7 @@ namespace UnitystationLauncher.ViewModels
                     p.Length > 6 &&
                     !string.IsNullOrEmpty(i));
 
-            Submit = ReactiveCommand.Create(
+            Submit = ReactiveCommand.CreateFromTask(
                 UserCreate, possibleCredentials);
 
             Cancel = ReactiveCommand.Create(ReturnToLogin);
@@ -97,7 +98,7 @@ namespace UnitystationLauncher.ViewModels
             DoneButton = ReactiveCommand.Create(CreationEndButton);
         }
 
-        public async void UserCreate()
+        public async Task UserCreate()
         {
             IsFormVisible = false;
             _creationSuccess = true;
