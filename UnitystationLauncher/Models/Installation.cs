@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reactive;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models
 {
@@ -20,7 +21,7 @@ namespace UnitystationLauncher.Models
         {
             Play = ReactiveCommand.Create(StartImp);
             Open = ReactiveCommand.Create(OpenImp);
-            Delete = ReactiveCommand.Create(DeleteImp);
+            Delete = ReactiveCommand.CreateFromTask(DeleteImp);
             ForkName = GetForkName(folderPath);
             BuildVersion = GetBuildVersion(folderPath);
             InstallationPath = folderPath;
@@ -44,7 +45,7 @@ namespace UnitystationLauncher.Models
                 return null;
             }
             var files = Directory.EnumerateFiles(path);
-            string? exe = null;
+            string? exe;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -111,7 +112,7 @@ namespace UnitystationLauncher.Models
             }
         }
 
-        private async void DeleteImp()
+        private async Task DeleteImp()
         {
             try
             {

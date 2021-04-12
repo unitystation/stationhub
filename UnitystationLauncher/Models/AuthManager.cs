@@ -2,10 +2,12 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Firebase.Auth;
-using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Serilog;
 
 namespace UnitystationLauncher.Models
 {
@@ -23,7 +25,7 @@ namespace UnitystationLauncher.Models
             if (File.Exists(Path.Combine(Config.RootFolder, "settings.json")))
             {
                 var json = File.ReadAllText(Path.Combine(Config.RootFolder, "settings.json"));
-                var authLink = JsonConvert.DeserializeObject<FirebaseAuthLink>(json);
+                var authLink = JsonSerializer.Deserialize<FirebaseAuthLink>(json);
                 AuthLink = authLink;
             }
         }
@@ -35,7 +37,7 @@ namespace UnitystationLauncher.Models
 
         public void Store()
         {
-            var json = JsonConvert.SerializeObject(AuthLink);
+            var json = JsonSerializer.Serialize(AuthLink);
 
             using (StreamWriter writer = File.CreateText(Path.Combine(Config.RootFolder, "settings.json")))
             {
@@ -69,7 +71,8 @@ namespace UnitystationLauncher.Models
         internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
         {
             // Client-side check for disposable email address.
-            const string url = "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
+            const string url =
+                "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
 
             var cancellationToken = new CancellationTokenSource(60000).Token;
@@ -105,12 +108,12 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                Console.Write("Error or timeout in check for email domain blacklist. Check has been skipped." + e.Message);
+                Log.Error(e, "Error or timeout in check for email domain blacklist, check has been skipped");
             }
 
             if (isDomainBlacklisted)
             {
-                throw new Exception("The email domain provided by the user is on our blacklist.");
+                throw new InvalidOperationException("The email domain provided by the user is on our blacklist.");
             }
 
             return await _authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
@@ -122,7 +125,8 @@ namespace UnitystationLauncher.Models
         {
             var url = "https://api.unitystation.org/validatetoken?data=";
 
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(refreshToken)));
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get,
+                url + Uri.EscapeUriString(JsonSerializer.Serialize(refreshToken)));
 
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
 
@@ -133,37 +137,40 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                Console.Write("Error: " + e.Message);
+                Log.Error(e, "Failed when sending token validation request");
                 return "";
             }
 
             string msg = await res.Content.ReadAsStringAsync();
-            var response = JsonConvert.DeserializeObject<ApiResponse>(msg);
+            var response = JsonSerializer.Deserialize<ApiResponse>(msg,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (response.ErrorCode != 0)
             {
-                Console.WriteLine("Error: " + response.ErrorMsg);
+                Log.Error("Error: {Error}", response.ErrorMsg);
                 return "";
             }
 
             return response.Message ?? "";
         }
 
-        public async void SignOutUser()
+        public async Task SignOutUser()
         {
-            if (AuthLink == null) return;
-
-            if (Uid == null || CurrentRefreshToken == null) return;
+            if (AuthLink == null || Uid == null || CurrentRefreshToken == null)
+            {
+                return;
+            }
 
             var token = new RefreshToken
             {
-                userID = Uid,
-                refreshToken = CurrentRefreshToken
+                UserId = Uid,
+                Token = CurrentRefreshToken
             };
 
-            var url = "https://api.unitystation.org/signout?data=";
+            const string url = "https://api.unitystation.org/signout?data=";
 
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get, url + Uri.EscapeUriString(JsonConvert.SerializeObject(token)));
+            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get,
+                url + Uri.EscapeUriString(JsonSerializer.Serialize(token)));
 
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
 
@@ -174,13 +181,13 @@ namespace UnitystationLauncher.Models
             }
             catch (Exception e)
             {
-                Console.Write("Error: " + e.Message);
+                Log.Error(e, "Http request to sign out failed");
                 return;
             }
 
             string msg = await res.Content.ReadAsStringAsync();
 
-            Console.WriteLine(msg);
+            Log.Information("Logout message: {Message}", msg);
             AuthLink = null;
         }
     }
@@ -194,8 +201,8 @@ namespace UnitystationLauncher.Models
     [Serializable]
     public class RefreshToken
     {
-        public string refreshToken;
-        public string userID;
+        [JsonPropertyName("RefreshToken")] public string? Token { get; set; }
+        public string? UserId { get; set; }
     }
 
     [Serializable]
@@ -204,7 +211,7 @@ namespace UnitystationLauncher.Models
         /// <summary>
         /// 0 = all good, read the message variable now, otherwise read errorMsg
         /// </summary>
-        public int ErrorCode { get; set; } = 0;
+        public int ErrorCode { get; set; }
 
         public string? ErrorMsg { get; set; }
         public string? Message { get; set; }

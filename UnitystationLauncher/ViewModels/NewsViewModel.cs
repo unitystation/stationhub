@@ -1,13 +1,15 @@
 using ReactiveUI;
 using Octokit;
 using System.Collections.ObjectModel;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class NewsViewModel : ViewModelBase
     {
-        GitHubClient _client;
+        readonly GitHubClient _client;
         ObservableCollection<PullRequestWrapper> _pullRequests = new ObservableCollection<PullRequestWrapper>();
 
         public ObservableCollection<PullRequestWrapper> PullRequests
@@ -19,10 +21,10 @@ namespace UnitystationLauncher.ViewModels
         public NewsViewModel()
         {
             _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            GetPullRequests();
+            RxApp.MainThreadScheduler.Schedule(async () => await GetPullRequests());
         }
 
-        public async void GetPullRequests()
+        public async Task GetPullRequests()
         {
             PullRequestRequest options = new PullRequestRequest();
             ApiOptions apiOptions = new ApiOptions();
@@ -40,7 +42,10 @@ namespace UnitystationLauncher.ViewModels
 
                 foreach (var pr in getList)
                 {
-                    if (pr.Merged) PullRequests.Add(new PullRequestWrapper(pr));
+                    if (pr.Merged)
+                    {
+                        PullRequests.Add(new PullRequestWrapper(pr));
+                    }
                 }
             }
             catch

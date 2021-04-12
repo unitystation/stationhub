@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using UnitystationLauncher.Models;
-using System.Timers;
+using ReactiveUI;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -8,8 +10,6 @@ namespace UnitystationLauncher.ViewModels
     {
         public ServerManager ServerManager { get; }
         public NewsViewModel NewsViewModel { get; }
-
-        Timer _stateTimer;
 
         public override string Name => "Servers";
 
@@ -19,30 +19,15 @@ namespace UnitystationLauncher.ViewModels
         {
             ServerManager = serverManager;
             NewsViewModel = newsViewModel;
-            _stateTimer = new Timer(10000);
-            _stateTimer.Elapsed += OnTimedEvent;
+            Observable.Timer(TimeSpan.FromSeconds(10))
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(async _ => await ServerManager.RefreshServerList());
         }
 
-        public void OnRefresh()
+        public async Task OnRefresh()
         {
-            ServerManager.RefreshServerList();
-            NewsViewModel.GetPullRequests();
-        }
-
-        public void OnFocused()
-        {
-            _stateTimer.AutoReset = true;
-            _stateTimer.Enabled = true;
-        }
-
-        public void OnUnFocused()
-        {
-            _stateTimer.Enabled = false;
-        }
-
-        private void OnTimedEvent(Object source, ElapsedEventArgs e)
-        {
-            ServerManager.RefreshServerList();
+            await ServerManager.RefreshServerList();
+            await NewsViewModel.GetPullRequests();
         }
     }
 }

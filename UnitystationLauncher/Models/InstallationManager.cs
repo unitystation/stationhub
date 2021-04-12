@@ -73,7 +73,10 @@ namespace UnitystationLauncher.Models
 
         private void RemoveOldVersions(IReadOnlyList<Installation> installations)
         {
-            if (!_autoRemove) return;
+            if (!_autoRemove)
+            {
+                return;
+            }
 
             // For each fork delete all installations except the one with the highest version number
             var installationsToDelete = installations

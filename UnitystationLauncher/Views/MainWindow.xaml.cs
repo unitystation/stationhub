@@ -11,18 +11,18 @@ namespace UnitystationLauncher.Views
         /// <summary>
         /// This is used for moving the window when the titlebar is grabbed, also for disabling on non-windows OSs.
         /// </summary>
-        private DockPanel _titleBar;
+        private readonly DockPanel _titleBar;
         /// <summary>
         /// If user don't use Windows OS then Grid.Row update and Grid.RowSpan
         /// </summary>
-        private Border _contentcontrol;
+        private readonly Border _contentControl;
 
         public MainWindow()
         {
             InitializeComponent();
 
             _titleBar = this.FindControl<DockPanel>("TitleBar");
-            _contentcontrol = this.FindControl<Border>("ContentControl");
+            _contentControl = this.FindControl<Border>("ContentControl");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
             {
@@ -34,9 +34,9 @@ namespace UnitystationLauncher.Views
                 Height = 555;
 
                 _titleBar.IsVisible = false;
-                Grid.SetRow(_contentcontrol, 0);
-                Grid.SetRowSpan(_contentcontrol, 2);
-                _contentcontrol.BorderThickness = new Thickness();
+                Grid.SetRow(_contentControl, 0);
+                Grid.SetRowSpan(_contentControl, 2);
+                _contentControl.BorderThickness = new Thickness();
             }
             else
             {
@@ -72,17 +72,15 @@ namespace UnitystationLauncher.Views
 
         private void ToggleWindowState()
         {
-            switch (WindowState)
+            if (WindowState == WindowState.Maximized)
             {
-                case WindowState.Maximized:
-                    WindowState = WindowState.Normal;
-                    _contentcontrol.BorderThickness = new Thickness(0.4, 0, 0.4, 0.4);
-                    break;
-
-                case WindowState.Normal:
-                    WindowState = WindowState.Maximized;
-                    _contentcontrol.BorderThickness = new Thickness();
-                    break;
+                WindowState = WindowState.Normal;
+                _contentControl.BorderThickness = new Thickness(0.4, 0, 0.4, 0.4);
+            }
+            else if (WindowState == WindowState.Normal)
+            {
+                WindowState = WindowState.Maximized;
+                _contentControl.BorderThickness = new Thickness();
             }
         }
 

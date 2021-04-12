@@ -5,7 +5,6 @@ using Serilog;
 
 namespace UnitystationLauncher.Models
 {
-
     public class DownloadManager
     {
         private readonly AvaloniaList<Download> _downloads;
@@ -27,7 +26,11 @@ namespace UnitystationLauncher.Models
 
         public Download Download(Server server)
         {
-            if (server.DownloadUrl == null) throw new ArgumentNullException(nameof(server.DownloadUrl));
+            if (server.DownloadUrl == null)
+            {
+                throw new ArgumentNullException(nameof(server.DownloadUrl));
+            }
+
             var download = new Download(server.DownloadUrl, server.InstallationPath);
             _downloads.Add(download);
             return download;

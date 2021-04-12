@@ -59,7 +59,7 @@ namespace UnitystationLauncher.ViewModels
                 settings
             };
             Logout = ReactiveCommand.CreateFromTask(LogoutImp);
-            Refresh = ReactiveCommand.Create(serversPanel.OnRefresh);
+            Refresh = ReactiveCommand.CreateFromTask(serversPanel.OnRefresh);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
@@ -81,7 +81,7 @@ namespace UnitystationLauncher.ViewModels
 
         async Task<LoginViewModel> LogoutImp()
         {
-            _authManager.SignOutUser();
+            await _authManager.SignOutUser();
             var prefs = await _config.GetPreferences();
             prefs.LastLogin = "";
             return _logoutVm.Value;

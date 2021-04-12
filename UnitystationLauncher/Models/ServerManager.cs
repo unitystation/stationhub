@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Reactive.Bindings;
@@ -32,13 +34,16 @@ namespace UnitystationLauncher.Models
             installManager.Installations
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Subscribe(x => RefreshInstalledStates());
-            RefreshServerList();
+            RxApp.MainThreadScheduler.Schedule(async () => await RefreshServerList());
         }
 
-        public async void RefreshServerList()
+        public async Task RefreshServerList()
         {
             NoServersFound.Value = false;
-            if (Refreshing) return;
+            if (Refreshing)
+            {
+                return;
+            }
 
             var newList = new List<ServerWrapper>();
             Refreshing = true;

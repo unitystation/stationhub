@@ -14,11 +14,14 @@ using System.Threading;
 using Humanizer.Bytes;
 using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+#if FLATPAK
+using System.Text.RegularExpressions;
+#endif
 using Avalonia.Controls.ApplicationLifetimes;
 
 namespace UnitystationLauncher.Models
 {
-    public class ServerWrapper : Server
+    public class ServerWrapper : Server, IDisposable
     {
         private readonly AuthManager _authManager;
         private CancellationTokenSource? _cancelSource;
@@ -34,21 +37,21 @@ namespace UnitystationLauncher.Models
         // Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
         // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
 #if FLATPAK
-	    private Process pingSender;
+	    private readonly Process _pingSender;
 #else
-        private Ping pingSender;
+        private readonly Ping _pingSender;
 #endif
 
 
-
-        public ServerWrapper(Server server, AuthManager authManager)
+        public ServerWrapper(Server server, AuthManager authManager) : base(server.ForkName, server.BuildVersion,
+            server.ServerIp, server.ServerPort)
         {
             _authManager = authManager;
 #if FLATPAK
-	        pingSender = new Process();
+	        _pingSender = new Process();
 #else
-            pingSender = new Ping();
-            pingSender.PingCompleted += PingCompletedCallback;
+            _pingSender = new Ping();
+            _pingSender.PingCompleted += PingCompletedCallback;
 #endif
             UpdateDetails(server);
 
@@ -59,44 +62,38 @@ namespace UnitystationLauncher.Models
 
             CanPlay.Subscribe(x => OnCanPlayChange(x));
             CheckIfCanPlay();
-            Start = ReactiveUI.ReactiveCommand.Create(StartImp);
+            Start = ReactiveUI.ReactiveCommand.CreateFromTask(StartImp);
         }
 
         public void UpdateDetails(Server server)
         {
             ServerName = server.ServerName;
-            ForkName = server.ForkName;
-            BuildVersion = server.BuildVersion;
             CurrentMap = server.CurrentMap;
             GameMode = server.GameMode;
             InGameTime = server.InGameTime;
             PlayerCount = server.PlayerCount;
-            ServerIp = server.ServerIp;
-            ServerPort = server.ServerPort;
             WinDownload = server.WinDownload;
             OsxDownload = server.OsxDownload;
             LinuxDownload = server.LinuxDownload;
 #if FLATPAK
-            pingSender.StartInfo.UseShellExecute = false;
-            pingSender.StartInfo.RedirectStandardOutput = true;
-            pingSender.StartInfo.RedirectStandardError = true;
-            pingSender.StartInfo.FileName = "ping";
-            pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
-            pingSender.Start();
-            StreamReader reader = pingSender.StandardOutput;
-                string e = reader.ReadToEnd(); 
-                Regex pingReg = new Regex(@"time=(.*?)\ ");
-                var pingTrunc = pingReg.Match(e);
+            _pingSender.StartInfo.UseShellExecute = false;
+            _pingSender.StartInfo.RedirectStandardOutput = true;
+            _pingSender.StartInfo.RedirectStandardError = true;
+            _pingSender.StartInfo.FileName = "ping";
+            _pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
+            _pingSender.Start();
+            StreamReader reader = _pingSender.StandardOutput;
+            string e = reader.ReadToEnd();
+            Regex pingReg = new Regex(@"time=(.*?)\ ");
+            var pingTrunc = pingReg.Match(e);
             var pingOut = pingTrunc.Groups[1].ToString();
-                RoundTrip.Value = $"{pingOut}ms";
-            pingSender.WaitForExit();
+            RoundTrip.Value = $"{pingOut}ms";
+            _pingSender.WaitForExit();
 #else
-            if (ServerIp != null)
-            {
-                pingSender.SendAsync(ServerIp, 7);
-            }
+            _pingSender.SendAsync(ServerIp, 7);
 #endif
         }
+
         public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
             // If an error occurred, display the exception to the user.  
@@ -105,6 +102,7 @@ namespace UnitystationLauncher.Models
                 Log.Error(e.Error, "Ping failed");
                 return;
             }
+
             var tripTime = e.Reply.RoundtripTime;
             if (tripTime == 0)
             {
@@ -115,18 +113,25 @@ namespace UnitystationLauncher.Models
                 RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
             }
         }
+
         public void CheckIfCanPlay()
         {
             CanPlay.Value = ClientInstalled;
 
-            if (_isDownloading) return;
+            if (_isDownloading)
+            {
+                return;
+            }
 
             OnCanPlayChange(CanPlay.Value);
         }
 
         private void OnCanPlayChange(bool canPlay)
         {
-            if (_isDownloading) return;
+            if (_isDownloading)
+            {
+                return;
+            }
 
             if (canPlay)
             {
@@ -161,9 +166,15 @@ namespace UnitystationLauncher.Models
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(DownloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
-            var responseStream = webResponse.GetResponseStream();
+            await using var responseStream = webResponse.GetResponseStream();
+            if (responseStream == null)
+            {
+                Log.Error("Could not download from server");
+                return;
+            }
+
             Log.Information("Download connection established");
-            using var progStream = new ProgressStream(responseStream);
+            await using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
 
@@ -172,14 +183,13 @@ namespace UnitystationLauncher.Models
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
-
                     if (cancelToken.IsCancellationRequested)
                     {
-                        progStream.Inner.Dispose();
                         Progress.OnNext(0);
                         _isDownloading = false;
                         return;
                     }
+
                     var downloadedAmt = (int)((float)maxFileSize.Megabytes * (p / 100f));
                     DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
@@ -211,11 +221,11 @@ namespace UnitystationLauncher.Models
             get
             {
                 return Directory.Exists(InstallationPath) &&
-                     Installation.FindExecutable(InstallationPath) != null;
+                       Installation.FindExecutable(InstallationPath) != null;
             }
         }
 
-        private async void StartImp()
+        private async Task StartImp()
         {
             if (IsDownloading.Value)
             {
@@ -294,6 +304,12 @@ namespace UnitystationLauncher.Models
             }
 
             Log.Information("User cancelled download");
+        }
+
+        public void Dispose()
+        {
+            _cancelSource?.Dispose();
+            _pingSender.Dispose();
         }
     }
 }
