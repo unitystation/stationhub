@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
-using Reactive.Bindings;
 using Serilog;
 
 namespace UnitystationLauncher.Models
@@ -35,7 +34,7 @@ namespace UnitystationLauncher.Models
         }
 
         public IObservable<IReadOnlyList<ServerWrapper>> Servers { get; }
-        public ReactiveProperty<bool> NoServersFound { get; } = new ReactiveProperty<bool>();
+
         public bool Refreshing
         {
             get => _refreshing;
@@ -43,9 +42,9 @@ namespace UnitystationLauncher.Models
         }
 
         private List<ServerWrapper> _oldServerList = new List<ServerWrapper>();
-        public async Task<IReadOnlyList<ServerWrapper>> GetServerList()
+
+        private async Task<IReadOnlyList<ServerWrapper>> GetServerList()
         {
-            NoServersFound.Value = false;
             if (Refreshing)
             {
                 return _oldServerList;
@@ -58,24 +57,17 @@ namespace UnitystationLauncher.Models
             Log.Information("Server list fetched");
             var serverList = JsonConvert.DeserializeObject<ServerList>(data);
 
-            if (serverList.Servers.Count == 0)
+            foreach (Server s in serverList.Servers)
             {
-                NoServersFound.Value = true;
-            }
-            else
-            {
-                foreach (Server s in serverList.Servers)
+                var index = _oldServerList.FindIndex(x => x.ServerIp == s.ServerIp);
+                if (index != -1)
                 {
-                    var index = _oldServerList.FindIndex(x => x.ServerIp == s.ServerIp);
-                    if (index != -1)
-                    {
-                        _oldServerList[index].UpdateDetails(s);
-                        newServerList.Add(_oldServerList[index]);
-                    }
-                    else
-                    {
-                        newServerList.Add(new ServerWrapper(s, _authManager));
-                    }
+                    _oldServerList[index].UpdateDetails(s);
+                    newServerList.Add(_oldServerList[index]);
+                }
+                else
+                {
+                    newServerList.Add(new ServerWrapper(s, _authManager));
                 }
             }
 
