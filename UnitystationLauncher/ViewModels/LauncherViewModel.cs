@@ -35,8 +35,6 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
 
-        public ReactiveCommand<Unit, Unit> Refresh { get; }
-
         public LauncherViewModel(
             AuthManager authManager,
             ServersPanelViewModel serversPanel,
@@ -59,7 +57,6 @@ namespace UnitystationLauncher.ViewModels
                 settings
             };
             Logout = ReactiveCommand.CreateFromTask(LogoutImp);
-            Refresh = ReactiveCommand.CreateFromTask(serversPanel.OnRefresh);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
