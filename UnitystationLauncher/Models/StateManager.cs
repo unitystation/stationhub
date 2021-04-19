@@ -14,20 +14,16 @@ namespace UnitystationLauncher.Models
         {
             var groupedServerEvents = serverManager.Servers
                 .Select(servers => servers
-                    .GroupBy(s => s.ForkAndVersion))
-                .Do(x => Log.Logger.Information("Servers changed"));
+                    .GroupBy(s => s.ForkAndVersion));
 
-            var downloadEvents = Observable.Merge(
-                    downloadManager.Downloads.GetWeakCollectionChangedObservable()
-                        .Select(d => downloadManager.Downloads),
-                    Observable.Return(downloadManager.Downloads))
-                .Do(x => Log.Logger.Information("Downloads changed"));
+            var downloadEvents = downloadManager.Downloads.GetWeakCollectionChangedObservable()
+                .Select(d => downloadManager.Downloads)
+                .Merge(Observable.Return(downloadManager.Downloads));
 
-            var installationEvvents = installationManager.Installations
-                .Do(x => Log.Logger.Information("Installations changed"));
+            var installationEvents = installationManager.Installations;
 
             State = groupedServerEvents
-                .CombineLatest(installationEvvents, (servers, installations) => (servers, installations))
+                .CombineLatest(installationEvents, (servers, installations) => (servers, installations))
                 .Select(d => d.servers.FullJoin(d.installations,
                     s => s.Key,
                     i => i.ForkAndVersion,

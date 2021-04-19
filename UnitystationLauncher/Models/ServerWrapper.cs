@@ -80,7 +80,7 @@ namespace UnitystationLauncher.Models
             _pingSender.StartInfo.RedirectStandardOutput = true;
             _pingSender.StartInfo.RedirectStandardError = true;
             _pingSender.StartInfo.FileName = "ping";
-            _pingSender.StartInfo.Arguments = $"{ServerIP} -c 1";
+            _pingSender.StartInfo.Arguments = $"{ServerIp} -c 1";
             _pingSender.Start();
             StreamReader reader = _pingSender.StandardOutput;
             string e = reader.ReadToEnd();

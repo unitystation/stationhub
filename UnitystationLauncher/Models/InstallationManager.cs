@@ -46,7 +46,7 @@ namespace UnitystationLauncher.Models
                 .Merge(renamed)
                 .Do(x => Log.Verbose("Filewatcher event: {@Event}", x.EventArgs))
                 .Select(e => Unit.Default)
-                .ThrottleSubsequent(TimeSpan.FromMilliseconds(1000))
+                .ThrottleSubsequent(TimeSpan.FromMilliseconds(200))
                 .Merge(Observable.Return(Unit.Default))
                 .Select(f =>
                     Directory.EnumerateDirectories(Config.InstallationsPath)
