@@ -9,6 +9,18 @@
     <Styles.Resources>
         <SolidColorBrush x:Key="PrimaryBrush" Color="#0078a3" />
         <SolidColorBrush x:Key="DarkerPrimaryBrush" Color="#00516f" />
+        
+        <SolidColorBrush x:Key="Primary1" Color="#132736" />
+        <SolidColorBrush x:Key="Primary2" Color="#21435C" />
+        <SolidColorBrush x:Key="Primary3" Color="#1D3B50" />
+        <SolidColorBrush x:Key="Primary4" Color="#38729C" />
+        <SolidColorBrush x:Key="Primary5" Color="#4FA1DB" />
+        
+        <SolidColorBrush x:Key="PrimaryTransparent1" Color="#88132736" />
+        <SolidColorBrush x:Key="PrimaryTransparent2" Color="#8821435C" />
+        <SolidColorBrush x:Key="PrimaryTransparent3" Color="#881D3B50" />
+        <SolidColorBrush x:Key="PrimaryTransparent4" Color="#8838729C" />
+        <SolidColorBrush x:Key="PrimaryTransparent5" Color="#884FA1DB" />
     </Styles.Resources>
     <!-- SmallButton -->
     <Style Selector="Button.SmallButton">

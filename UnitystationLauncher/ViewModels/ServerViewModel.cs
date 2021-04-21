@@ -1,27 +1,29 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Threading.Tasks;
-using Serilog;
-using System.Diagnostics;
 using System.Reactive.Subjects;
-using Avalonia;
-using Reactive.Bindings;
-using System.Threading;
-using Humanizer.Bytes;
-using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Humanizer.Bytes;
+using Reactive.Bindings;
+using Serilog;
+using UnitystationLauncher.Models;
+
 #if FLATPAK
 using System.Text.RegularExpressions;
 #endif
-using Avalonia.Controls.ApplicationLifetimes;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.ViewModels
 {
-    public class ServerWrapper : Server, IDisposable
+    public class ServerViewModel : ViewModelBase, IDisposable
     {
         private readonly AuthManager _authManager;
         private CancellationTokenSource? _cancelSource;
@@ -43,9 +45,9 @@ namespace UnitystationLauncher.Models
 #endif
 
 
-        public ServerWrapper(Server server, AuthManager authManager) : base(server.ForkName, server.BuildVersion,
-            server.ServerIp, server.ServerPort)
+        public ServerViewModel(Server server, AuthManager authManager)
         {
+            Server = server;
             _authManager = authManager;
 #if FLATPAK
 	        _pingSender = new Process();
@@ -65,22 +67,24 @@ namespace UnitystationLauncher.Models
             Start = ReactiveUI.ReactiveCommand.CreateFromTask(StartImp);
         }
 
+        public Server Server { get; }
+
         public void UpdateDetails(Server server)
         {
-            ServerName = server.ServerName;
-            CurrentMap = server.CurrentMap;
-            GameMode = server.GameMode;
-            InGameTime = server.InGameTime;
-            PlayerCount = server.PlayerCount;
-            WinDownload = server.WinDownload;
-            OsxDownload = server.OsxDownload;
-            LinuxDownload = server.LinuxDownload;
+            Server.ServerName = server.ServerName;
+            Server.CurrentMap = server.CurrentMap;
+            Server.GameMode = server.GameMode;
+            Server.InGameTime = server.InGameTime;
+            Server.PlayerCount = server.PlayerCount;
+            Server.WinDownload = server.WinDownload;
+            Server.OsxDownload = server.OsxDownload;
+            Server.LinuxDownload = server.LinuxDownload;
 #if FLATPAK
             _pingSender.StartInfo.UseShellExecute = false;
             _pingSender.StartInfo.RedirectStandardOutput = true;
             _pingSender.StartInfo.RedirectStandardError = true;
             _pingSender.StartInfo.FileName = "ping";
-            _pingSender.StartInfo.Arguments = $"{ServerIp} -c 1";
+            _pingSender.StartInfo.Arguments = $"{Server.ServerIp} -c 1";
             _pingSender.Start();
             StreamReader reader = _pingSender.StandardOutput;
             string e = reader.ReadToEnd();
@@ -90,7 +94,7 @@ namespace UnitystationLauncher.Models
             RoundTrip.Value = $"{pingOut}ms";
             _pingSender.WaitForExit();
 #else
-            _pingSender.SendAsync(ServerIp, 7);
+            _pingSender.SendAsync(Server.ServerIp, 7);
 #endif
         }
 
@@ -216,6 +220,10 @@ namespace UnitystationLauncher.Models
             });
         }
 
+        public string? DownloadUrl => Server.DownloadUrl;
+
+        public string InstallationPath => Server.InstallationPath;
+
         bool ClientInstalled
         {
             get
@@ -273,19 +281,19 @@ namespace UnitystationLauncher.Models
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 startInfo = new ProcessStartInfo("/bin/bash",
-                    $"-c \" open -a '{exe}' --args --server {ServerIp} --port {ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
+                    $"-c \" open -a '{exe}' --args --server {Server.ServerIp} --port {Server.ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
                 Log.Information("Start osx | linux");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 startInfo = new ProcessStartInfo("/bin/bash",
-                    $"-c \" '{exe}' --args --server {ServerIp} --port {ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
+                    $"-c \" '{exe}' --args --server {Server.ServerIp} --port {Server.ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
                 Log.Information("Start osx | linux");
             }
             else
             {
                 startInfo = new ProcessStartInfo(exe,
-                    $"--server {ServerIp} --port {ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}");
+                    $"--server {Server.ServerIp} --port {Server.ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}");
             }
 
             startInfo.UseShellExecute = false;

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
@@ -14,7 +15,7 @@ namespace UnitystationLauncher.Models
         {
             var groupedServerEvents = serverManager.Servers
                 .Select(servers => servers
-                    .GroupBy(s => s.ForkAndVersion));
+                    .GroupBy(s => s.Server.ForkAndVersion));
 
             var downloadEvents = downloadManager.Downloads.GetWeakCollectionChangedObservable()
                 .Select(d => downloadManager.Downloads)
@@ -28,7 +29,7 @@ namespace UnitystationLauncher.Models
                     s => s.Key,
                     i => i.ForkAndVersion,
                     servers => new ForkInstall(null, null, servers.ToArray()),
-                    installation => new ForkInstall(null, installation, new List<Server>()),
+                    installation => new ForkInstall(null, installation, new List<ServerViewModel>()),
                     (servers, installation) => new ForkInstall(null, installation, servers.ToArray())))
                 .CombineLatest(downloadEvents, (join, downloads) => (join, downloads))
                 .Select(x => x.join.LeftJoin(x.downloads,
@@ -45,7 +46,7 @@ namespace UnitystationLauncher.Models
 
         public class ForkInstall
         {
-            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<Server> servers)
+            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<ServerViewModel> servers)
             {
                 Download = download;
                 Installation = installation;
@@ -55,12 +56,12 @@ namespace UnitystationLauncher.Models
             public (string, int) ForkAndVersion =>
                 Download?.ForkAndVersion ??
                 Installation?.ForkAndVersion ??
-                Servers.FirstOrDefault()?.ForkAndVersion ??
+                Servers.FirstOrDefault()?.Server.ForkAndVersion ??
                 throw new ArgumentNullException();
 
             public Download? Download { get; }
             public Installation? Installation { get; }
-            public IReadOnlyList<Server> Servers { get; }
+            public IReadOnlyList<ServerViewModel> Servers { get; }
         }
     }
 }
