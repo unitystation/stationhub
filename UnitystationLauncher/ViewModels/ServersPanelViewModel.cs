@@ -17,7 +17,7 @@ namespace UnitystationLauncher.ViewModels
             ServerManager = serverManager;
         }
 
-        public IObservable<IReadOnlyList<ServerWrapper>> ServerList => ServerManager.Servers;
+        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => ServerManager.Servers;
         public IObservable<bool> ServersFound => ServerList.Select(sl => sl.Any());
     }
 }

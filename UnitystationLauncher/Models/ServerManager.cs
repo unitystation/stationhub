@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
@@ -33,7 +34,7 @@ namespace UnitystationLauncher.Models
                 .Subscribe(RefreshInstalledStates);
         }
 
-        public IObservable<IReadOnlyList<ServerWrapper>> Servers { get; }
+        public IObservable<IReadOnlyList<ServerViewModel>> Servers { get; }
 
         public bool Refreshing
         {
@@ -41,16 +42,16 @@ namespace UnitystationLauncher.Models
             set => this.RaiseAndSetIfChanged(ref _refreshing, value);
         }
 
-        private List<ServerWrapper> _oldServerList = new List<ServerWrapper>();
+        private List<ServerViewModel> _oldServerList = new List<ServerViewModel>();
 
-        private async Task<IReadOnlyList<ServerWrapper>> GetServerList()
+        private async Task<IReadOnlyList<ServerViewModel>> GetServerList()
         {
             if (Refreshing)
             {
                 return _oldServerList;
             }
 
-            var newServerList = new List<ServerWrapper>();
+            var newServerList = new List<ServerViewModel>();
             Refreshing = true;
 
             var data = await _http.GetStringAsync(Config.ApiUrl);
@@ -59,7 +60,7 @@ namespace UnitystationLauncher.Models
 
             foreach (Server s in serverList.Servers)
             {
-                var index = _oldServerList.FindIndex(x => x.ServerIp == s.ServerIp);
+                var index = _oldServerList.FindIndex(x => x.Server.ServerIp == s.ServerIp);
                 if (index != -1)
                 {
                     _oldServerList[index].UpdateDetails(s);
@@ -67,7 +68,7 @@ namespace UnitystationLauncher.Models
                 }
                 else
                 {
-                    newServerList.Add(new ServerWrapper(s, _authManager));
+                    newServerList.Add(new ServerViewModel(s, _authManager));
                 }
             }
 
@@ -77,9 +78,9 @@ namespace UnitystationLauncher.Models
             return newServerList;
         }
 
-        void RefreshInstalledStates(IReadOnlyList<ServerWrapper> serverList)
+        void RefreshInstalledStates(IReadOnlyList<ServerViewModel> serverList)
         {
-            foreach (ServerWrapper wrapper in serverList)
+            foreach (ServerViewModel wrapper in serverList)
             {
                 wrapper.CheckIfCanPlay();
             }
