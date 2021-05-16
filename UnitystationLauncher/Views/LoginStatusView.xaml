@@ -33,7 +33,7 @@
         <StackPanel IsVisible="{Binding IsWaitingVisible}">
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="Signing in, please wait..." />
-            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30"
+            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" Width="30" Height="30"
                                     Margin="15">
                 <Image Source="/Assets/loadingring.png" />
             </LayoutTransformControl>

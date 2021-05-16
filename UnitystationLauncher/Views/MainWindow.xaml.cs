@@ -48,9 +48,7 @@ namespace UnitystationLauncher.Views
                 var closeButton = this.FindControl<Button>("CloseButton");
 
                 minimizeButton.Click += (sender, ee) => { WindowState = WindowState.Minimized; };
-
                 maximizeButton.Click += (sender, ee) => { ToggleWindowState(); };
-
                 closeButton.Click += (sender, ee) => { Close(); };
 
             }

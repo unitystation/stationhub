@@ -5,7 +5,7 @@
              xmlns:m="clr-namespace:UnitystationLauncher.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              TextBlock.FontSize="18"
-             x:Class="UnitystationLauncher.Views.NewsView">
+             x:Class="UnitystationLauncher.Views.ChangelogView">
     <ItemsControl Items="{Binding PullRequests}" FontSize="12">
         <ItemsControl.ItemTemplate>
             <DataTemplate DataType="m:PullRequestWrapper">
