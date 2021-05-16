@@ -12,12 +12,8 @@
             <RowDefinition Height="54" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <Grid Background="#1d3b50" Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="160" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
+        <StackPanel Background="#1d3b50" Grid.Row="0" Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal">
                 <Border Margin="5 5 0 6" Background="#13212e">
                     <StackPanel Orientation="Horizontal">
                         <Button Margin="2" Command="{Binding #ContextMenu.Open}">
@@ -57,8 +53,7 @@
                             <ImageBrush Source="/Assets/userbg.png" Stretch="Fill" />
                         </Border.Background>
                         <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1"
-                                   HorizontalAlignment="Center" TextAlignment="Center" FontSize="10"
-                                   TextWrapping="Wrap" MaxWidth="130" MaxHeight="20" />
+                                   HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" />
                     </Border>
                 </Viewbox>
             </StackPanel>
@@ -97,7 +92,7 @@
                     </DataTemplate>
                 </ListBox.DataTemplates>
             </ListBox>
-        </Grid>
+        </StackPanel>
         <Grid Grid.Row="1">
             <Border>
                 <UserControl Content="{Binding SelectedPanel}" />
