@@ -18,7 +18,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Border Margin="5 5 0 6" BorderThickness="0.3" BorderBrush="#f7f7f8" Background="#13212e">
+                <Border Margin="5 5 0 6" Background="#13212e">
                     <StackPanel Orientation="Horizontal">
                         <Button Margin="2" Command="{Binding #ContextMenu.Open}">
                             <Button.Styles>
@@ -26,17 +26,17 @@
                                     <Setter Property="BorderThickness" Value="0" />
 
                                     <Setter Property="Background">
-                                        <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png" />
+                                        <ImageBrush Source="/Assets/buttoncontext.png" />
                                     </Setter>
                                 </Style>
                                 <Style Selector="Button:pointerover">
                                     <Setter Property="Background">
-                                        <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png" />
+                                        <ImageBrush Source="/Assets/buttoncontext.png" />
                                     </Setter>
                                 </Style>
                                 <Style Selector="Button:pressed /template/ ContentPresenter">
                                     <Setter Property="Background">
-                                        <ImageBrush Source="avares://StationHub/Assets/buttoncontext.png" />
+                                        <ImageBrush Source="/Assets/buttoncontext.png" />
                                     </Setter>
                                 </Style>
                             </Button.Styles>
@@ -54,7 +54,7 @@
                 <Viewbox Height="22" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="Username">
                     <Border Margin="4 0 0 0" VerticalAlignment="Center">
                         <Border.Background>
-                            <ImageBrush Source="avares://StationHub/Assets/userbg.png" Stretch="Fill" />
+                            <ImageBrush Source="/Assets/userbg.png" Stretch="Fill" />
                         </Border.Background>
                         <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1"
                                    HorizontalAlignment="Center" TextAlignment="Center" FontSize="10"
@@ -91,11 +91,9 @@
                 </ListBox.Styles>
                 <ListBox.DataTemplates>
                     <DataTemplate DataType="vm:PanelBase">
-                        <DockPanel MinWidth="80" MaxWidth="108">
                             <TextBlock Text="{Binding Name}" FontSize="19" TextAlignment="Center"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="150"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"
                                        FontFamily="InterBold" FontWeight="Bold" />
-                        </DockPanel>
                     </DataTemplate>
                 </ListBox.DataTemplates>
             </ListBox>

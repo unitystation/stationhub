@@ -20,6 +20,9 @@ namespace UnitystationLauncher.Views
         public MainWindow()
         {
             InitializeComponent();
+#if DEBUG
+            this.AttachDevTools();
+#endif
 
             _titleBar = this.FindControl<DockPanel>("TitleBar");
             _contentControl = this.FindControl<Border>("ContentControl");

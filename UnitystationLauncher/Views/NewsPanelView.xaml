@@ -19,7 +19,7 @@
                 Changelog
             </TextBlock>
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled">
-                <Border BorderBrush="#fcfcfd" Background="#1d3b50" BorderThickness="0.5" Margin="0 0 5 0">
+                <Border Margin="0 0 5 0">
                     <ContentControl Content="{Binding News}" />
                 </Border>
             </ScrollViewer>
@@ -35,7 +35,7 @@
                 News
             </TextBlock>
             <Grid Grid.Row="1">
-                <Border BorderBrush="#fcfcfd" BorderThickness="0.5" Background="#1d3b50">
+                <Border Background="#1d3b50">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.1*" />
@@ -55,7 +55,7 @@
                                     <ColumnDefinition Width="0.1*" />
                                 </Grid.ColumnDefinitions>
                                 <Image Margin="0.6" Grid.Row="1" Grid.Column="1"
-                                       Source="avares://StationHub/Assets/leftbutton.png" Stretch="Uniform" />
+                                       Source="/Assets/leftbutton.png" Stretch="Uniform" />
                             </Grid>
                         </Button>
                         <Image Grid.Column="0" Grid.ColumnSpan="3" Margin="0.5" Source="{Binding BackGroundImage}"
@@ -72,8 +72,7 @@
                                     <ColumnDefinition Width="0.8*" />
                                     <ColumnDefinition Width="0.1*" />
                                 </Grid.ColumnDefinitions>
-                                <Image Grid.Row="1" Grid.Column="1" Source="avares://StationHub/Assets/rightbutton.png"
-                                       Stretch="Uniform" />
+                                <Image Grid.Row="1" Grid.Column="1" Source="/Assets/rightbutton.png" Stretch="Uniform" />
                             </Grid>
                         </Button>
                     </Grid>

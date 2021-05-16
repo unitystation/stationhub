@@ -6,29 +6,13 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              TextBlock.FontSize="18"
              x:Class="UnitystationLauncher.Views.NewsView">
-    <ItemsControl Items="{Binding PullRequests}">
+    <ItemsControl Items="{Binding PullRequests}" FontSize="12">
         <ItemsControl.ItemTemplate>
             <DataTemplate DataType="m:PullRequestWrapper">
-                <ItemsControl Background="#182837" BorderBrush="#ffffff" BorderThickness="0.5" MaxHeight="500"
-                              Margin="5 5 5 5" Padding="4 4 4 4">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="4*" />
-                            <RowDefinition Height="2*" />
-                            <RowDefinition Height="2*" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="{Binding MergedAt}" TextWrapping="WrapWithOverflow" VerticalAlignment="Top"
-                                   HorizontalAlignment="Left" FontSize="10" Grid.Row="0" Margin="0,0,3,0" />
-                        <TextBlock Text="{Binding Title}" TextWrapping="WrapWithOverflow" HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Center" FontSize="10" Grid.Row="1" Margin="0,0,3,0" />
-                        <Grid Margin="0 3 0 3" Grid.Row="2">
-                            <Grid.Background>
-                                <ImageBrush Source="/Assets/line.png" Stretch="Uniform" />
-                            </Grid.Background>
-                        </Grid>
-                    </Grid>
-                </ItemsControl>
+                <StackPanel Margin="5" Background="{StaticResource Primary2}">
+                    <TextBlock Text="{Binding MergedAt, Converter={StaticResource Humanizer}}" TextWrapping="Wrap" Margin="2" FontWeight="Light"/>
+                    <TextBlock Text="{Binding Title}" TextWrapping="Wrap"  Margin="2"/>
+                </StackPanel>
             </DataTemplate>
         </ItemsControl.ItemTemplate>
     </ItemsControl>
