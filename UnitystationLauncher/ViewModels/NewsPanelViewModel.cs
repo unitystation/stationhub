@@ -6,8 +6,6 @@ using System;
 using System.Reactive;
 using System.Diagnostics;
 using UnitystationLauncher.Models;
-using System.Collections.Generic;
-using System.IO;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -15,7 +13,7 @@ namespace UnitystationLauncher.ViewModels
     {
         public override string Name => "News";
 
-        ViewModelBase _news;
+        ViewModelBase _changelog;
 
         Bitmap _backGroundImage;
 
@@ -29,32 +27,21 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _backGroundImage, value);
         }
 
-        public ViewModelBase News
+        public ViewModelBase Changelog
         {
-            get => _news;
-            set => this.RaiseAndSetIfChanged(ref _news, value);
+            get => _changelog;
+            set => this.RaiseAndSetIfChanged(ref _changelog, value);
         }
 
-        public NewsPanelViewModel(NewsViewModel news)
+        public NewsPanelViewModel(ChangelogViewModel changelog)
         {
-            _news = news;
+            _changelog = changelog;
             OpenSite = ReactiveCommand.Create(OpenUriSite);
             OpenReport = ReactiveCommand.Create(OpenUriReport);
             OpenSupport = ReactiveCommand.Create(OpenUriSupport);
 
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             _backGroundImage = new Bitmap(assets.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
-        }
-
-        public static String[] GetFilesFrom(String searchFolder, String[] filters, bool isRecursive)
-        {
-            List<String> filesFound = new List<String>();
-            var searchOption = isRecursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            foreach (var filter in filters)
-            {
-                filesFound.AddRange(Directory.GetFiles(searchFolder, String.Format("*.{0}", filter), searchOption));
-            }
-            return filesFound.ToArray();
         }
 
         private void OpenUriSite()

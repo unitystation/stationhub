@@ -20,6 +20,9 @@ namespace UnitystationLauncher.Views
         public MainWindow()
         {
             InitializeComponent();
+#if DEBUG
+            this.AttachDevTools();
+#endif
 
             _titleBar = this.FindControl<DockPanel>("TitleBar");
             _contentControl = this.FindControl<Border>("ContentControl");
@@ -45,9 +48,7 @@ namespace UnitystationLauncher.Views
                 var closeButton = this.FindControl<Button>("CloseButton");
 
                 minimizeButton.Click += (sender, ee) => { WindowState = WindowState.Minimized; };
-
                 maximizeButton.Click += (sender, ee) => { ToggleWindowState(); };
-
                 closeButton.Click += (sender, ee) => { Close(); };
 
             }

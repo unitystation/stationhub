@@ -1,12 +1,13 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnitystationLauncher.Models;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
 using MessageBox.Avalonia.DTO;
-using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace UnitystationLauncher.ViewModels
@@ -16,7 +17,6 @@ namespace UnitystationLauncher.ViewModels
         public override string Name => "Installations";
         private readonly InstallationManager _installationManager;
         private readonly Config _config;
-        private Installation? _selectedInstallation;
         string? _buildNum;
         private bool _autoRemove;
 
@@ -27,7 +27,8 @@ namespace UnitystationLauncher.ViewModels
 
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
-            CheckBoxClick = ReactiveCommand.CreateFromTask(OnCheckBoxClick);
+            this.WhenAnyValue(p => p.AutoRemove)
+                .Subscribe(async v => await OnAutoRemoveChanged());
 
             RxApp.MainThreadScheduler.Schedule(async () =>
             {
@@ -37,14 +38,9 @@ namespace UnitystationLauncher.ViewModels
             });
         }
 
-        public IObservable<IReadOnlyList<Installation>> Installations => _installationManager.Installations;
-        public ReactiveCommand<Unit, Unit> CheckBoxClick { get; }
-
-        public Installation? SelectedInstallation
-        {
-            get => _selectedInstallation;
-            set => this.RaiseAndSetIfChanged(ref _selectedInstallation, value);
-        }
+        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationManager.Installations
+            .Select(installations => installations
+                .Select(installation => new InstallationViewModel(installation)).ToList());
 
         public string? BuildNum
         {
@@ -58,9 +54,7 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
         }
 
-        //This is a Reactive Command action as confirmation needs to happen with the
-        //message box.
-        async Task OnCheckBoxClick()
+        private async Task OnAutoRemoveChanged()
         {
             if (AutoRemove)
             {

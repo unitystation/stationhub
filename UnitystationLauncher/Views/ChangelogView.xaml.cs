@@ -3,9 +3,9 @@ using Avalonia.Markup.Xaml;
 
 namespace UnitystationLauncher.Views
 {
-    public class NewsView : UserControl
+    public class ChangelogView : UserControl
     {
-        public NewsView()
+        public ChangelogView()
         {
             InitializeComponent();
         }

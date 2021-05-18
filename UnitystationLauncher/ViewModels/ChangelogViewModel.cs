@@ -7,7 +7,7 @@ using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
-    public class NewsViewModel : ViewModelBase
+    public class ChangelogViewModel : ViewModelBase
     {
         readonly GitHubClient _client;
         ObservableCollection<PullRequestWrapper> _pullRequests = new ObservableCollection<PullRequestWrapper>();
@@ -18,7 +18,7 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _pullRequests, value);
         }
 
-        public NewsViewModel()
+        public ChangelogViewModel()
         {
             _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
             RxApp.MainThreadScheduler.Schedule(async () => await GetPullRequests());
@@ -31,10 +31,6 @@ namespace UnitystationLauncher.ViewModels
             apiOptions.PageCount = 1;
             apiOptions.PageSize = 10;
             options.State = ItemStateFilter.Closed;
-            for (int i = PullRequests.Count - 1; i > 0; i--)
-            {
-                PullRequests.RemoveAt(i);
-            }
 
             try
             {

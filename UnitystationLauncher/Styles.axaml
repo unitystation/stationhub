@@ -54,23 +54,17 @@
     <Style Selector="ScrollBar">
         <Setter Property="Template">
             <ControlTemplate>
-                <Border Background="#0a131d"
-                        UseLayoutRounding="False"
-                        BorderBrush="#f0f1f2"
-                        BorderThickness="0.5">
-                    <Grid RowDefinitions="Auto,*,Auto">
+                    <Grid RowDefinitions="Auto,*,Auto" Background="{StaticResource Primary1}">
                         <Track Grid.Row="1"
                                Minimum="{TemplateBinding Minimum}"
                                Maximum="{TemplateBinding Maximum}"
                                Value="{TemplateBinding Value, Mode=TwoWay}"
                                ViewportSize="{TemplateBinding ViewportSize}"
                                Orientation="{TemplateBinding Orientation}"
-                               IsDirectionReversed="True"
-                               Margin="0,5,0,5">
+                               IsDirectionReversed="True">
                             <Thumb Name="thumb" />
                         </Track>
                     </Grid>
-                </Border>
             </ControlTemplate>
         </Setter>
     </Style>
