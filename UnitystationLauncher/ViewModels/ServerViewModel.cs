@@ -4,16 +4,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Humanizer.Bytes;
 using Reactive.Bindings;
+using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
 
@@ -26,16 +24,12 @@ namespace UnitystationLauncher.ViewModels
     public class ServerViewModel : ViewModelBase, IDisposable
     {
         private readonly AuthManager _authManager;
-        private CancellationTokenSource? _cancelSource;
-        private bool _isDownloading;
-        public ReactiveProperty<bool> CanPlay { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<bool> IsDownloading { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<bool> IsSelected { get; } = new ReactiveProperty<bool>();
-        public ReactiveProperty<string> ButtonText { get; } = new ReactiveProperty<string>();
-        public ReactiveProperty<string> DownloadProgText { get; } = new ReactiveProperty<string>();
+        private bool _downloading;
+        private bool _installed;
         public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
         public Subject<int> Progress { get; set; } = new Subject<int>();
-        public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
+
+
         // Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
         // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
 #if FLATPAK
@@ -62,12 +56,26 @@ namespace UnitystationLauncher.ViewModels
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
 
-            CanPlay.Subscribe(x => OnCanPlayChange(x));
-            CheckIfCanPlay();
-            Start = ReactiveUI.ReactiveCommand.CreateFromTask(StartImp);
+            UpdateClientInstalledState();
         }
 
         public Server Server { get; }
+
+        private string? DownloadUrl => Server.DownloadUrl;
+
+        private string InstallationPath => Server.InstallationPath;
+
+        public bool Downloading
+        {
+            get => _downloading;
+            set => this.RaiseAndSetIfChanged(ref _downloading, value);
+        }
+
+        public bool Installed
+        {
+            get => _installed;
+            set => this.RaiseAndSetIfChanged(ref _installed, value);
+        }
 
         public void UpdateDetails(Server server)
         {
@@ -98,7 +106,7 @@ namespace UnitystationLauncher.ViewModels
 #endif
         }
 
-        public void PingCompletedCallback(object sender, PingCompletedEventArgs e)
+        private void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
             // If an error occurred, display the exception to the user.  
             if (e.Error != null)
@@ -108,46 +116,16 @@ namespace UnitystationLauncher.ViewModels
             }
 
             var tripTime = e.Reply.RoundtripTime;
-            if (tripTime == 0)
-            {
-                RoundTrip.Value = "null";
-            }
-            else
-            {
-                RoundTrip.Value = $"{e.Reply.RoundtripTime}ms";
-            }
+            RoundTrip.Value = tripTime == 0 ? "null" : $"{e.Reply.RoundtripTime}ms";
         }
 
-        public void CheckIfCanPlay()
+        public void UpdateClientInstalledState()
         {
-            CanPlay.Value = ClientInstalled;
-
-            if (_isDownloading)
-            {
-                return;
-            }
-
-            OnCanPlayChange(CanPlay.Value);
+            Installed = Directory.Exists(InstallationPath) &&
+                        Installation.FindExecutable(InstallationPath) != null;
         }
 
-        private void OnCanPlayChange(bool canPlay)
-        {
-            if (_isDownloading)
-            {
-                return;
-            }
-
-            if (canPlay)
-            {
-                ButtonText.Value = "PLAY";
-            }
-            else
-            {
-                ButtonText.Value = "DOWNLOAD";
-            }
-        }
-
-        public async Task DownloadAsync(CancellationToken cancelToken)
+        public async Task Download()
         {
             Log.Information("Download requested...");
             Log.Information("Installation path: \"{Path}\"", InstallationPath);
@@ -166,7 +144,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            _isDownloading = true;
+            Downloading = true;
             Log.Information("Download started...");
             var webRequest = WebRequest.Create(DownloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
@@ -180,22 +158,12 @@ namespace UnitystationLauncher.ViewModels
             Log.Information("Download connection established");
             await using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
-            var maxFileSize = ByteSize.FromBytes(length);
 
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
                 .Subscribe(p =>
                 {
-                    if (cancelToken.IsCancellationRequested)
-                    {
-                        Progress.OnNext(0);
-                        _isDownloading = false;
-                        return;
-                    }
-
-                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * (p / 100f));
-                    DownloadProgText.Value = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
                     Progress.OnNext(p);
                     Log.Information("Progress: {Percentage}", p);
                 });
@@ -210,60 +178,19 @@ namespace UnitystationLauncher.ViewModels
 
                     Log.Information("Download completed");
                     Installation.MakeExecutableExecutable(InstallationPath);
-                    _isDownloading = false;
-                    CheckIfCanPlay();
+                    Downloading = false;
+                    UpdateClientInstalledState();
                 }
                 catch
                 {
                     Log.Information("Extracting stopped");
                 }
             });
+
+            UpdateClientInstalledState();
         }
 
-        public string? DownloadUrl => Server.DownloadUrl;
-
-        public string InstallationPath => Server.InstallationPath;
-
-        bool ClientInstalled
-        {
-            get
-            {
-                return Directory.Exists(InstallationPath) &&
-                       Installation.FindExecutable(InstallationPath) != null;
-            }
-        }
-
-        private async Task StartImp()
-        {
-            if (IsDownloading.Value)
-            {
-                CancelDownload();
-                return;
-            }
-
-            if (CanPlay.Value)
-            {
-                StartClient();
-            }
-            else
-            {
-                await DownloadClient();
-            }
-        }
-
-        private async Task DownloadClient()
-        {
-            //DO DOWNLOAD
-            _cancelSource = new CancellationTokenSource();
-            ButtonText.Value = "CANCEL";
-            DownloadProgText.Value = "Connecting..";
-            IsDownloading.Value = true;
-            await DownloadAsync(_cancelSource.Token);
-            IsDownloading.Value = false;
-            CheckIfCanPlay();
-        }
-
-        private void StartClient()
+        public void Start()
         {
             var exe = Installation.FindExecutable(InstallationPath);
             if (exe == null)
@@ -297,26 +224,13 @@ namespace UnitystationLauncher.ViewModels
             }
 
             startInfo.UseShellExecute = false;
-            var process = new Process();
-            process.StartInfo = startInfo;
+            var process = new Process { StartInfo = startInfo };
 
             process.Start();
         }
 
-        private void CancelDownload()
-        {
-            _cancelSource?.Cancel();
-            if (Directory.Exists(InstallationPath))
-            {
-                Directory.Delete(InstallationPath);
-            }
-
-            Log.Information("User cancelled download");
-        }
-
         public void Dispose()
         {
-            _cancelSource?.Dispose();
             _pingSender.Dispose();
         }
     }

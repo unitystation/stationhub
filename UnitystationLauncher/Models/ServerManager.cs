@@ -89,7 +89,7 @@ namespace UnitystationLauncher.Models
         {
             foreach (ServerViewModel wrapper in serverList)
             {
-                wrapper.CheckIfCanPlay();
+                wrapper.UpdateClientInstalledState();
             }
         }
 
