@@ -12,6 +12,8 @@ using System.Reactive;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Tmds.DBus;
+using GameMode.DBus;
 
 namespace UnitystationLauncher.Models
 {
@@ -72,25 +74,32 @@ namespace UnitystationLauncher.Models
             {
                 try
                 {
+                    bool hasGameMode;
                     ProcessStartInfo startInfo;
 
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                     {
                         startInfo = new ProcessStartInfo("/bin/bash", $"-c \" open -a '{exe}'; \"");
+                         hasGameMode = false;
                     }
                     else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                     {
                         startInfo = new ProcessStartInfo("/bin/bash", $"-c \" '{exe}'; \"");
+                        hasGameMode = true;
                     }
                     else
                     {
                         startInfo = new ProcessStartInfo(exe);
+                        hasGameMode = false;
                     }
                     startInfo.UseShellExecute = true;
                     var process = new Process();
                     process.StartInfo = startInfo;
-
                     process.Start();
+                    if (hasGameMode == true)
+                    {
+                        EnableGameMode(process.Id, Process.GetCurrentProcess().Id);
+                    }
 
                 }
                 catch (Exception e)
@@ -199,6 +208,12 @@ namespace UnitystationLauncher.Models
 
             var fileInfo = new UnixFileInfo(exe);
             fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
+        }
+        private static async Task EnableGameMode(int gpid, int rpid)
+        {
+            var systemConnection = Connection.System;
+            var gameMode = systemConnection.CreateProxy<IGameMode>("com.feralinteractive.GameMode", "com.feralinteractive.GameMode");
+            await gameMode.RegisterGameByPIDAsync(gpid, rpid);
         }
     }
 }
