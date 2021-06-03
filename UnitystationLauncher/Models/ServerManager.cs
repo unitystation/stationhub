@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
-using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
@@ -14,27 +13,19 @@ namespace UnitystationLauncher.Models
     {
         private readonly HttpClient _http;
         private readonly InstallationManager _installManager;
-        private readonly AuthManager _authManager;
-        private readonly IDisposable _refreshInstalledStatesSub;
         private bool _refreshing;
 
-        public ServerManager(HttpClient http, AuthManager authManager, InstallationManager installManager)
+        public ServerManager(HttpClient http, InstallationManager installManager)
         {
             _http = http;
-            _authManager = authManager;
             _installManager = installManager;
             Servers = Observable.Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10))
                 .SelectMany(_ => GetServerList())
                 .Replay(1)
                 .RefCount();
-
-            _refreshInstalledStatesSub = installManager.Installations
-                .CombineLatest(Servers, (installations, servers) => servers)
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .Subscribe(RefreshInstalledStates);
         }
 
-        public IObservable<IReadOnlyList<ServerViewModel>> Servers { get; }
+        public IObservable<IReadOnlyList<Server>> Servers { get; }
 
         public bool Refreshing
         {
@@ -42,54 +33,20 @@ namespace UnitystationLauncher.Models
             set => this.RaiseAndSetIfChanged(ref _refreshing, value);
         }
 
-        private List<ServerViewModel> _oldServerList = new List<ServerViewModel>();
-
-        private async Task<IReadOnlyList<ServerViewModel>> GetServerList()
+        private async Task<IReadOnlyList<Server>> GetServerList()
         {
-            if (Refreshing)
-            {
-                return _oldServerList;
-            }
-
-            var newServerList = new List<ServerViewModel>();
             Refreshing = true;
 
             var data = await _http.GetStringAsync(Config.ApiUrl);
             Log.Information("Server list fetched");
-            var serverList = JsonConvert.DeserializeObject<ServerList>(data);
-
-            foreach (Server s in serverList.Servers)
-            {
-                var index = _oldServerList.FindIndex(x => x.Server.ServerIp == s.ServerIp);
-                if (index != -1)
-                {
-                    _oldServerList[index].UpdateDetails(s);
-                    newServerList.Add(_oldServerList[index]);
-                }
-                else
-                {
-                    newServerList.Add(new ServerViewModel(s, _authManager));
-                }
-            }
-
-            _oldServerList = newServerList;
 
             Refreshing = false;
-            return newServerList;
-        }
-
-        void RefreshInstalledStates(IReadOnlyList<ServerViewModel> serverList)
-        {
-            foreach (ServerViewModel wrapper in serverList)
-            {
-                wrapper.CheckIfCanPlay();
-            }
+            return JsonConvert.DeserializeObject<ServerList>(data).Servers;
         }
 
         public void Dispose()
         {
             _installManager.Dispose();
-            _refreshInstalledStatesSub.Dispose();
         }
     }
 }

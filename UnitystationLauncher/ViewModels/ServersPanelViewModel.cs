@@ -8,16 +8,23 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        public ServerManager ServerManager { get; }
+        private readonly AuthManager _authManager;
+        private readonly StateManager _stateManager;
 
         public override string Name => "Servers";
 
-        public ServersPanelViewModel(ServerManager serverManager)
+        public ServersPanelViewModel(StateManager stateManager, AuthManager authManager)
         {
-            ServerManager = serverManager;
+            _stateManager = stateManager;
+            _authManager = authManager;
         }
 
-        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => ServerManager.Servers;
+        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateManager.State
+            .Select(state => state
+                .SelectMany(installationState => installationState.Value.Servers
+                    .Select(s => new ServerViewModel(s, installationState.Value.Installation, _authManager)))
+                .ToList());
+
         public IObservable<bool> ServersFound => ServerList.Select(sl => sl.Any());
     }
 }

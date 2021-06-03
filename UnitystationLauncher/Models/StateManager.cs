@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Models
 {
@@ -15,7 +14,7 @@ namespace UnitystationLauncher.Models
         {
             var groupedServerEvents = serverManager.Servers
                 .Select(servers => servers
-                    .GroupBy(s => s.Server.ForkAndVersion));
+                    .GroupBy(s => s.ForkAndVersion));
 
             var downloadEvents = downloadManager.Downloads.GetWeakCollectionChangedObservable()
                 .Select(d => downloadManager.Downloads)
@@ -29,7 +28,7 @@ namespace UnitystationLauncher.Models
                     s => s.Key,
                     i => i.ForkAndVersion,
                     servers => new ForkInstall(null, null, servers.ToArray()),
-                    installation => new ForkInstall(null, installation, new List<ServerViewModel>()),
+                    installation => new ForkInstall(null, installation, new List<Server>()),
                     (servers, installation) => new ForkInstall(null, installation, servers.ToArray())))
                 .CombineLatest(downloadEvents, (join, downloads) => (join, downloads))
                 .Select(x => x.join.LeftJoin(x.downloads,
@@ -39,14 +38,15 @@ namespace UnitystationLauncher.Models
                     (s, download) => new ForkInstall(download, s.Installation, s.Servers)))
                 .Select(x => x.ToDictionary(d => d.ForkAndVersion, d => d))
                 .Do(x => Log.Logger.Information("state changed"))
-                .PublishLast();
+                .Replay(1)
+                .RefCount();
         }
 
         public IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> State { get; }
 
         public class ForkInstall
         {
-            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<ServerViewModel> servers)
+            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<Server> servers)
             {
                 Download = download;
                 Installation = installation;
@@ -56,12 +56,12 @@ namespace UnitystationLauncher.Models
             public (string, int) ForkAndVersion =>
                 Download?.ForkAndVersion ??
                 Installation?.ForkAndVersion ??
-                Servers.FirstOrDefault()?.Server.ForkAndVersion ??
+                Servers.FirstOrDefault()?.ForkAndVersion ??
                 throw new ArgumentNullException();
 
             public Download? Download { get; }
             public Installation? Installation { get; }
-            public IReadOnlyList<ServerViewModel> Servers { get; }
+            public IReadOnlyList<Server> Servers { get; }
         }
     }
 }
