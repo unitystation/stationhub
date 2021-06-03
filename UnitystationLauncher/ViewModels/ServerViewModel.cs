@@ -1,15 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
 using Reactive.Bindings;
 using ReactiveUI;
 using Serilog;
@@ -23,12 +19,8 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServerViewModel : ViewModelBase, IDisposable
     {
-        private readonly AuthManager _authManager;
         private bool _downloading;
-        private bool _installed;
-        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
-        public Subject<int> Progress { get; set; } = new Subject<int>();
-
+        private readonly AuthManager _authManager;
 
         // Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
         // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
@@ -38,10 +30,10 @@ namespace UnitystationLauncher.ViewModels
         private readonly Ping _pingSender;
 #endif
 
-
-        public ServerViewModel(Server server, AuthManager authManager)
+        public ServerViewModel(Server server, Installation? installation, AuthManager authManager)
         {
             Server = server;
+            Installation = installation;
             _authManager = authManager;
 #if FLATPAK
 	        _pingSender = new Process();
@@ -55,11 +47,14 @@ namespace UnitystationLauncher.ViewModels
             {
                 Directory.CreateDirectory(Config.InstallationsPath);
             }
-
-            UpdateClientInstalledState();
         }
 
         public Server Server { get; }
+        public Installation? Installation { get; set; }
+        public ReactiveProperty<string> RoundTrip { get; } = new ReactiveProperty<string>();
+        public Subject<int> Progress { get; set; } = new Subject<int>();
+
+        public bool Installed => Installation != null;
 
         private string? DownloadUrl => Server.DownloadUrl;
 
@@ -69,12 +64,6 @@ namespace UnitystationLauncher.ViewModels
         {
             get => _downloading;
             set => this.RaiseAndSetIfChanged(ref _downloading, value);
-        }
-
-        public bool Installed
-        {
-            get => _installed;
-            set => this.RaiseAndSetIfChanged(ref _installed, value);
         }
 
         public void UpdateDetails(Server server)
@@ -117,12 +106,6 @@ namespace UnitystationLauncher.ViewModels
 
             var tripTime = e.Reply.RoundtripTime;
             RoundTrip.Value = tripTime == 0 ? "null" : $"{e.Reply.RoundtripTime}ms";
-        }
-
-        public void UpdateClientInstalledState()
-        {
-            Installed = Directory.Exists(InstallationPath) &&
-                        Installation.FindExecutable(InstallationPath) != null;
         }
 
         public async Task Download()
@@ -179,54 +162,17 @@ namespace UnitystationLauncher.ViewModels
                     Log.Information("Download completed");
                     Installation.MakeExecutableExecutable(InstallationPath);
                     Downloading = false;
-                    UpdateClientInstalledState();
                 }
                 catch
                 {
                     Log.Information("Extracting stopped");
                 }
             });
-
-            UpdateClientInstalledState();
         }
 
         public void Start()
         {
-            var exe = Installation.FindExecutable(InstallationPath);
-            if (exe == null)
-            {
-                return;
-            }
-
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
-            {
-                desktopLifetime.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
-            }
-
-            ProcessStartInfo startInfo;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                startInfo = new ProcessStartInfo("/bin/bash",
-                    $"-c \" open -a '{exe}' --args --server {Server.ServerIp} --port {Server.ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
-                Log.Information("Start osx | linux");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                startInfo = new ProcessStartInfo("/bin/bash",
-                    $"-c \" '{exe}' --args --server {Server.ServerIp} --port {Server.ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}; \"");
-                Log.Information("Start osx | linux");
-            }
-            else
-            {
-                startInfo = new ProcessStartInfo(exe,
-                    $"--server {Server.ServerIp} --port {Server.ServerPort} --refreshtoken {_authManager.CurrentRefreshToken} --uid {_authManager.Uid}");
-            }
-
-            startInfo.UseShellExecute = false;
-            var process = new Process { StartInfo = startInfo };
-
-            process.Start();
+            Installation?.Start(IPAddress.Parse(Server.ServerIp), (short)Server.ServerPort, _authManager.CurrentRefreshToken, _authManager.Uid);
         }
 
         public void Dispose()
