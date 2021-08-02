@@ -34,6 +34,28 @@ namespace UnitystationLauncher.Models
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
             throw new InvalidOperationException("Failed to detect OS");
 
+        public bool HasTrustedUrlSource
+        {
+            get
+            {
+                const string trustedHost = "unitystationfile.b-cdn.net";
+                var urls = new[] { WinDownload, OsxDownload, LinuxDownload };
+                foreach (var url in urls)
+                {
+                    if (string.IsNullOrEmpty(url))
+                    {
+                        return false;
+                    }
+                    var uri = new Uri(url);
+                    if (uri.Scheme != "https" && uri.Host != trustedHost)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
         public string InstallationName => ForkName + BuildVersion;
 
         public string Description =>
