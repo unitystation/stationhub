@@ -60,6 +60,12 @@ namespace UnitystationLauncher.Models
 
             foreach (Server s in serverList.Servers)
             {
+                if (!s.HasTrustedUrlSource)
+                {
+                    Log.Warning($"Server: {s.ServerName} has untrusted download URL and has been omitted in " +
+                                "the server list!");
+                    continue;
+                }
                 var index = _oldServerList.FindIndex(x => x.Server.ServerIp == s.ServerIp);
                 if (index != -1)
                 {
@@ -68,12 +74,6 @@ namespace UnitystationLauncher.Models
                 }
                 else
                 {
-                    if (!HasTrustedUrlSource(s))
-                    {
-                        Log.Warning($"Server: {s.ServerName} has untrusted download URL and has been omitted in " +
-                                    "the server list!");
-                        continue;
-                    }
                     newServerList.Add(new ServerViewModel(s, _authManager));
                 }
             }
@@ -82,25 +82,6 @@ namespace UnitystationLauncher.Models
 
             Refreshing = false;
             return newServerList;
-        }
-
-        private bool HasTrustedUrlSource(Server server)
-        {
-            const string trustedHost = "unitystationfile.b-cdn.net";
-            var urls = new[] { server.WinDownload, server.OsxDownload, server.LinuxDownload };
-            foreach (var url in urls)
-            {
-                if (string.IsNullOrEmpty(url))
-                {
-                    return false;
-                }
-                var uri = new Uri(url);
-                if (uri.Scheme != "https" && uri.Host != trustedHost)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         void RefreshInstalledStates(IReadOnlyList<ServerViewModel> serverList)
