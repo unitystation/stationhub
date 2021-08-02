@@ -58,8 +58,7 @@ namespace UnitystationLauncher.Models
 
         public string InstallationName => ForkName + BuildVersion;
 
-        public string Description =>
-            $"BuildVersion: {BuildVersion} - Map: {CurrentMap} - Gamemode: {GameMode} - Time: {InGameTime}";
+        public string Description => $"BuildVersion: {BuildVersion} - Map: {CurrentMap} - Gamemode: {GameMode} - Time: {InGameTime}";
 
         public string InstallationPath => Path.Combine(Config.InstallationsPath, InstallationName);
 
