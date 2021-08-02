@@ -60,6 +60,13 @@ namespace UnitystationLauncher.Models
 
             foreach (Server s in serverList.Servers)
             {
+                if (!s.HasTrustedUrlSource)
+                {
+                    Log.Warning(
+                        "Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
+                        s.ServerName);
+                    continue;
+                }
                 var index = _oldServerList.FindIndex(x => x.Server.ServerIp == s.ServerIp);
                 if (index != -1)
                 {
