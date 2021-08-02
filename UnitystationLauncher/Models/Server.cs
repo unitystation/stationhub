@@ -47,7 +47,7 @@ namespace UnitystationLauncher.Models
                         return false;
                     }
                     var uri = new Uri(url);
-                    if (uri.Scheme != "https" && uri.Host != trustedHost)
+                    if (uri.Scheme != "https" || uri.Host != trustedHost)
                     {
                         return false;
                     }
