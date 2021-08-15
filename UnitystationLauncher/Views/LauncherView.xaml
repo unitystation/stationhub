@@ -58,7 +58,7 @@
                 </Viewbox>
             </StackPanel>
             <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
-                     ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent" Grid.Column="1"
+                     ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent"
                      HorizontalAlignment="Left">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
