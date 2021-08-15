@@ -2,16 +2,17 @@
 using MessageBox.Avalonia.DTO;
 using MessageBox.Avalonia.Models;
 using Mono.Unix;
-using ReactiveUI;
 using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reactive;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace UnitystationLauncher.Models
 {
@@ -19,9 +20,6 @@ namespace UnitystationLauncher.Models
     {
         public Installation(string folderPath)
         {
-            Play = ReactiveCommand.Create(StartImp);
-            Open = ReactiveCommand.Create(OpenImp);
-            Delete = ReactiveCommand.CreateFromTask(DeleteImp);
             ForkName = GetForkName(folderPath);
             BuildVersion = GetBuildVersion(folderPath);
             InstallationPath = folderPath;
@@ -32,18 +30,13 @@ namespace UnitystationLauncher.Models
         public string InstallationPath { get; }
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
-
-        public ReactiveCommand<Unit, Unit> Play { get; }
-        public ReactiveCommand<Unit, Unit> Open { get; }
-        public ReactiveCommand<Unit, Unit> Delete { get; }
-
-
         public static string? FindExecutable(string path)
         {
             if (!Directory.Exists(path))
             {
                 return null;
             }
+
             var files = Directory.EnumerateFiles(path);
             string? exe;
 
@@ -65,54 +58,55 @@ namespace UnitystationLauncher.Models
             return exe;
         }
 
-        public void StartImp()
+        public void Start(IPAddress ip, short port, string? refreshToken, string? uid)
+        {
+            Start($"--server {ip} --port {port} --refreshtoken {refreshToken} --uid {uid}");
+        }
+
+        public void Start()
+        {
+            Start("");
+        }
+
+        private void Start(string arguments)
         {
             var exe = FindExecutable(InstallationPath);
-            if (exe != null)
+            if (exe == null)
             {
-                try
-                {
-                    ProcessStartInfo startInfo;
-
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    {
-                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" open -a '{exe}'; \"");
-                    }
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                    {
-                        startInfo = new ProcessStartInfo("/bin/bash", $"-c \" '{exe}'; \"");
-                    }
-                    else
-                    {
-                        startInfo = new ProcessStartInfo(exe);
-                    }
-                    startInfo.UseShellExecute = true;
-                    var process = new Process();
-                    process.StartInfo = startInfo;
-
-                    process.Start();
-
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "An exception occurred during the start of an installation");
-                }
+                Log.Information("Couldn't find executable to start");
+                return;
             }
+
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                desktopLifetime.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
+            }
+
+            ProcessStartInfo startInfo;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                startInfo = new ProcessStartInfo("/bin/bash", $"-c \" open -a '{exe}' --args {arguments}; \"");
+                Log.Information("Start OSX");
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                startInfo = new ProcessStartInfo("/bin/bash", $"-c \" '{exe}' --args {arguments}; \"");
+                Log.Information("Start Linux");
+            }
+            else
+            {
+                startInfo = new ProcessStartInfo(exe, $"{arguments}");
+                Log.Information("Start Windows");
+            }
+
+            startInfo.UseShellExecute = false;
+            var process = new Process { StartInfo = startInfo };
+
+            process.Start();
         }
 
-        private void OpenImp()
-        {
-            try
-            {
-                Process.Start(InstallationPath);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "An exception occurred during the opening of an installation");
-            }
-        }
-
-        private async Task DeleteImp()
+        public async Task Delete()
         {
             try
             {
@@ -123,7 +117,8 @@ namespace UnitystationLauncher.Models
                     ShowInCenter = true,
                     ContentHeader = $"Remove {ForkName}-{BuildVersion}",
                     ContentMessage = "This action cannot be undone. Proceed?",
-                    ButtonDefinitions = new[] { new ButtonDefinition { Name = "Cancel" }, new ButtonDefinition { Name = "Confirm" } }
+                    ButtonDefinitions = new[]
+                        {new ButtonDefinition {Name = "Cancel"}, new ButtonDefinition {Name = "Confirm"}}
                 });
 
                 var response = await msgBox.Show();
@@ -142,7 +137,7 @@ namespace UnitystationLauncher.Models
         {
             Log.Information("Perform delete of {InstallationPath}", InstallationPath);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-            || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 ProcessStartInfo startInfo;
                 startInfo = new ProcessStartInfo("/bin/bash", $"-c \" rm -r '{InstallationPath}'; \"");
