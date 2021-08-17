@@ -44,6 +44,7 @@ namespace UnitystationLauncher.ViewModels
             _authManager = authManager;
             _launcherVm = launcherVm;
             _content = loginVm;
+            ContentChanged(); //Called because we changed _content.
             authManager.AttemptingAutoLogin = false;
             _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             _maximizeToolTip = "Maximize";
