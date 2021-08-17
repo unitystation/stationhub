@@ -37,22 +37,19 @@ namespace UnitystationLauncher.Models
                 return null;
             }
 
-            var files = Directory.EnumerateFiles(path);
             string? exe;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                exe = files.SingleOrDefault(s => Regex.IsMatch(Path.GetFileName(s), @".*station\.exe"));
+                exe = Path.Combine(path, "Unitystation.exe");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                var archives = Directory.EnumerateDirectories(path);
-                exe = archives.SingleOrDefault(s => Regex.IsMatch(Path.GetFileName(s), @".*station\.app"));
+                exe = Path.Combine(path, "Unitystation.app", "Contents", "MacOS", "unitystation");
             }
             else
             {
-                exe = files.SingleOrDefault(s =>
-                    s.EndsWith("station"));
+                exe = Path.Combine(path, "Unitystation");
             }
 
             return exe;
