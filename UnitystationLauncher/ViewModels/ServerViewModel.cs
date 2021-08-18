@@ -16,10 +16,8 @@ using Humanizer.Bytes;
 using Reactive.Bindings;
 using Serilog;
 using UnitystationLauncher.Models;
-
-#if FLATPAK
 using System.Text.RegularExpressions;
-#endif
+
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -38,23 +36,17 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveUI.ReactiveCommand<Unit, Unit> Start { get; }
         // Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
         // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
-#if FLATPAK
-	    private readonly Process _pingSender;
-#else
-        private readonly Ping _pingSender;
-#endif
-
+        
+	private readonly Ping _pingSender;
+	private readonly Process _pingSenderFallback;
 
         public ServerViewModel(Server server, AuthManager authManager)
         {
             Server = server;
             _authManager = authManager;
-#if FLATPAK
-	        _pingSender = new Process();
-#else
+	    _pingSenderFallback = new Process();
             _pingSender = new Ping();
             _pingSender.PingCompleted += PingCompletedCallback;
-#endif
             UpdateDetails(server);
 
             if (!Directory.Exists(Config.InstallationsPath))
@@ -80,19 +72,19 @@ namespace UnitystationLauncher.ViewModels
             Server.OsxDownload = server.OsxDownload;
             Server.LinuxDownload = server.LinuxDownload;
 #if FLATPAK
-            _pingSender.StartInfo.UseShellExecute = false;
-            _pingSender.StartInfo.RedirectStandardOutput = true;
-            _pingSender.StartInfo.RedirectStandardError = true;
-            _pingSender.StartInfo.FileName = "ping";
-            _pingSender.StartInfo.Arguments = $"{Server.ServerIp} -c 1";
-            _pingSender.Start();
-            StreamReader reader = _pingSender.StandardOutput;
+            _pingSenderFallback.StartInfo.UseShellExecute = false;
+            _pingSenderFallback.StartInfo.RedirectStandardOutput = true;
+            _pingSenderFallback.StartInfo.RedirectStandardError = true;
+            _pingSenderFallback.StartInfo.FileName = "ping";
+            _pingSenderFallback.StartInfo.Arguments = $"{Server.ServerIp} -c 1";
+            _pingSenderFallback.Start();
+            StreamReader reader = _pingSenderFallback.StandardOutput;
             string e = reader.ReadToEnd();
             Regex pingReg = new Regex(@"time=(.*?)\ ");
             var pingTrunc = pingReg.Match(e);
             var pingOut = pingTrunc.Groups[1].ToString();
             RoundTrip.Value = $"{pingOut}ms";
-            _pingSender.WaitForExit();
+            _pingSenderFallback.WaitForExit();
 #else
             _pingSender.SendAsync(Server.ServerIp, 7);
 #endif
