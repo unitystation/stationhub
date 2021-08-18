@@ -5,66 +5,63 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 
 namespace UnitystationLauncher.Models
 {
-    using State = IReadOnlyDictionary<(string ForkName, int BuildVersion), (Installation? installation, Download? download, IReadOnlyList<ServerWrapper> servers)>;
-
     public class StateManager
     {
-        private readonly ServerManager serverManager;
-        private readonly InstallationManager installationManager;
-        private readonly DownloadManager downloadManager;
-        private readonly BehaviorSubject<State> state;
-
         public StateManager(ServerManager serverManager, InstallationManager installationManager, DownloadManager downloadManager)
         {
-            this.serverManager = serverManager;
-            this.installationManager = installationManager;
-            this.downloadManager = downloadManager;
-            state = new BehaviorSubject<State>(new Dictionary<(string ForkName, int BuildVersion), (Installation? installation, Download? download, IReadOnlyList<ServerWrapper> servers)>());
-
-            var groupedServers = serverManager.Servers
+            var groupedServerEvents = serverManager.Servers
                 .Select(servers => servers
-                    .GroupBy(s => s.Key))
-                .Do(x => Log.Logger.Information("Servers changed"));
+                    .GroupBy(s => s.ForkAndVersion));
 
-            var downloads = Observable.Merge(
-                downloadManager.Downloads.GetWeakCollectionChangedObservable()
-                    .Select(d => downloadManager.Downloads),
-                Observable.Return(downloadManager.Downloads))
-                .Do(x => Log.Logger.Information("Downloads changed"));
+            var downloadEvents = downloadManager.Downloads.GetWeakCollectionChangedObservable()
+                .Select(d => downloadManager.Downloads)
+                .Merge(Observable.Return(downloadManager.Downloads));
 
-            var installations = installationManager.Installations
-                .Do(x => Log.Logger.Information("Installations changed"));
+            var installationEvents = installationManager.Installations;
 
-            groupedServers
-                .CombineLatest(installations, (servers, installations) => (servers, installations))
+            State = groupedServerEvents
+                .CombineLatest(installationEvents, (servers, installations) => (servers, installations))
                 .Select(d => d.servers.FullJoin(d.installations,
-                        s => s.Key,
-                        i => i.Key,
-                        s => (s.Key, ReadOnly(s), null),
-                        i => (i.Key, null, i),
-                        (servers, installation) => (servers.Key, servers: ReadOnly(servers), installation)))
-                .CombineLatest(downloads, (join, downloads) => (join, downloads))
+                    s => s.Key,
+                    i => i.ForkAndVersion,
+                    servers => new ForkInstall(null, null, servers.ToArray()),
+                    installation => new ForkInstall(null, installation, new List<Server>()),
+                    (servers, installation) => new ForkInstall(null, installation, servers.ToArray())))
+                .CombineLatest(downloadEvents, (join, downloads) => (join, downloads))
                 .Select(x => x.join.LeftJoin(x.downloads,
-                        s => s.Key,
-                        d => d.Key,
-                        s => (s.Key, s.servers, s.installation, null),
-                        (s, download) => (s.Key, s.servers, s.installation, download)))
-                .Select(x => (State)x.ToDictionary(d => d.Key, d => (d.installation, d.download, d.servers)))
+                    s => s.ForkAndVersion,
+                    d => d.ForkAndVersion,
+                    s => s,
+                    (s, download) => new ForkInstall(download, s.Installation, s.Servers)))
+                .Select(x => x.ToDictionary(d => d.ForkAndVersion, d => d))
                 .Do(x => Log.Logger.Information("state changed"))
-                .Subscribe(state);
-
-            State.Subscribe(x => Log.Logger.Information("State changed"));
+                .Replay(1)
+                .RefCount();
         }
 
-        public IObservable<State> State => state;
+        public IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> State { get; }
 
-        private IReadOnlyList<T> ReadOnly<T>(IEnumerable<T> items)
+        public class ForkInstall
         {
-            return items.ToArray();
+            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<Server> servers)
+            {
+                Download = download;
+                Installation = installation;
+                Servers = servers;
+            }
+
+            public (string, int) ForkAndVersion =>
+                Download?.ForkAndVersion ??
+                Installation?.ForkAndVersion ??
+                Servers.FirstOrDefault()?.ForkAndVersion ??
+                throw new ArgumentNullException();
+
+            public Download? Download { get; }
+            public Installation? Installation { get; }
+            public IReadOnlyList<Server> Servers { get; }
         }
     }
 }

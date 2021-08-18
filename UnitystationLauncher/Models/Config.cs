@@ -1,69 +1,106 @@
-﻿using Serilog;
 using System;
 using System.IO;
-using System.Reactive;
-using System.Reactive.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Threading;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models
 {
-    static class Config
+    public class Config : IDisposable
     {
-        public static string email;
-        public static string InstallationFolder = "Installations";
-        public static string apiUrl = "https://api.unitystation.org/serverlist";
-        public static string validateUrl = "https://api.unitystation.org/validatehubclient";
-        public static int currentBuild = 901;
-        public static HubClientConfig serverHubClientConfig;
+        //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/StationHub.metainfo.xml for Linux software stores. Thank you.
+        public const int CurrentBuild = 928;
 
-        static Config()
+        //file names
+        private const string WinExeName = "StationHub.exe";
+        private const string UnixExeName = "StationHub";
+        private const string InstallationFolder = "Installations";
+        public const string ApiUrl = "https://api.unitystation.org/serverlist";
+        public const string ValidateUrl = "https://api.unitystation.org/validatehubclient";
+        public const string SiteUrl = "https://unitystation.org/";
+        public const string SupportUrl = "https://www.patreon.com/unitystation";
+        public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
+
+        private readonly HttpClient _http;
+        public Config(HttpClient http)
         {
-            Directory.CreateDirectory(InstallationsPath);
-
-            FileWatcher = new FileSystemWatcher(InstallationsPath) { EnableRaisingEvents = true, IncludeSubdirectories = true };
-            RootFolder = Environment.CurrentDirectory;
-            InstallationChanges = Observable.Merge(
-                Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
-                    h => FileWatcher.Changed += h,
-                    h => FileWatcher.Changed -= h)
-                .Do(o => Log.Debug("File refresh: {FileName}", o.EventArgs.Name))
-                .Select(e => Unit.Default),
-                Observable.Return(Unit.Default))
-                .ObserveOn(SynchronizationContext.Current);
+            _http = http;
         }
 
-        public static string InstallationsPath => Path.Combine(Environment.CurrentDirectory, InstallationFolder);
-        public static string RootFolder { get; }
-        public static FileSystemWatcher FileWatcher { get; }
+        public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
+        public static string TempFolder => Path.Combine(RootFolder, "temp");
+        public static string PreferencesFilePath => Path.Combine(RootFolder, "prefs.json");
+        public static string WinExeFullPath => Path.Combine(RootFolder, WinExeName);
+        public static string UnixExeFullPath => Path.Combine(RootFolder, UnixExeName);
 
-        public static IObservable<Unit> InstallationChanges { get; }
-    }
-
-    [Serializable]
-    public class HubClientConfig
-    {
-        public int buildNumber;
-        public string winURL;
-        public string osxURL;
-        public string linuxURL;
-        public string dailyMessage;
-
-        public string GetDownloadURL()
+        public static string RootFolder
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            get
             {
-                return winURL;
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return Environment.CurrentDirectory;
+                }
+                //If ran with the FLATPAK compiler symbol, will put mutable files where the Flatpak standard says
+                //else, will put in the modern standard Linux folder (which is still legal on MacOS)
+#if FLATPAK
+            	return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.var/app/org.unitystation.StationHub";
+#else
+                return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/.local/share/StationHub";
+#endif
             }
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+        }
+
+        private HubClientConfig? _clientConfig;
+        public async Task<HubClientConfig> GetServerHubClientConfig()
+        {
+            if (_clientConfig == null)
             {
-                return osxURL;
+                var data = await _http.GetStringAsync(ValidateUrl);
+                _clientConfig = JsonSerializer.Deserialize<HubClientConfig>(data);
             }
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+
+            return _clientConfig;
+        }
+
+        private Preferences? _preferences;
+        private IDisposable? _preferenceSub;
+
+        public async Task<Preferences> GetPreferences()
+        {
+            if (_preferences != null)
             {
-                return linuxURL;
+                return _preferences;
             }
-            return "";
+
+            if (File.Exists(PreferencesFilePath))
+            {
+                await using var data = File.OpenRead(PreferencesFilePath);
+                _preferences = await JsonSerializer.DeserializeAsync<Preferences>(data);
+            }
+            else
+            {
+                _preferences = new Preferences();
+            }
+
+            _preferenceSub?.Dispose();
+            _preferenceSub = _preferences.Changed
+                .Subscribe(async x => await SerializerPreferences());
+
+            return _preferences;
+        }
+
+        private async Task SerializerPreferences()
+        {
+            await using var file = File.Create(PreferencesFilePath);
+            await JsonSerializer.SerializeAsync(file, _preferences, new JsonSerializerOptions { IgnoreNullValues = true, IgnoreReadOnlyProperties = true });
+        }
+
+        public void Dispose()
+        {
+            _preferenceSub?.Dispose();
+            _http.Dispose();
         }
     }
 }

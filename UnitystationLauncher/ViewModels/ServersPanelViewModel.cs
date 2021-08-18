@@ -1,35 +1,30 @@
-﻿using ReactiveUI;
-using System;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Linq;
 using UnitystationLauncher.Models;
-using System.Reactive;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        ServerWrapper? selectedServer;
-        public ServerManager ServerManager { get; }
-        public ServersPanelViewModel(
-            ServerManager serverManager)
-        {
-            this.ServerManager = serverManager;
-            Refresh = ReactiveCommand.Create(ServerManager.RefreshServerList, null);
-        }
+        private readonly AuthManager _authManager;
+        private readonly StateManager _stateManager;
 
         public override string Name => "Servers";
-        public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
-            .Open(new Uri("avares://UnitystationLauncher/Assets/servericon.png")));
-        
 
-        public ServerWrapper? SelectedServer
+        public ServersPanelViewModel(StateManager stateManager, AuthManager authManager)
         {
-            get => selectedServer;
-            set => this.RaiseAndSetIfChanged(ref selectedServer, value);
+            _stateManager = stateManager;
+            _authManager = authManager;
         }
 
-        public ReactiveCommand<Unit, Unit> Refresh { get; }
+        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateManager.State
+            .Select(state => state
+                .SelectMany(installationState => installationState.Value.Servers
+                    .Select(s => new ServerViewModel(s, installationState.Value.Installation, _authManager)))
+                .ToList());
+
+        public IObservable<bool> ServersFound => ServerList.Select(sl => sl.Any());
     }
 }

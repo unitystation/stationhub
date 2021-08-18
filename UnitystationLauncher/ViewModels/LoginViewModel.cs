@@ -1,31 +1,34 @@
 using System;
-using System.IO;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
-using Avalonia.Interactivity;
-using DynamicData.Binding;
-using Firebase.Auth;
-using Newtonsoft.Json;
 using ReactiveUI;
-using Serilog;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        private readonly Lazy<SignUpViewModel> signUpVM;
-        private readonly Lazy<LoginStatusViewModel> loginStatusVM;
-        private readonly AuthManager authManager;
-        string? email;
-        string? password;
+        private readonly Lazy<SignUpViewModel> _signUpVm;
+        private readonly Lazy<ForgotPasswordViewModel> _forgotVm;
+        private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
+        private readonly AuthManager _authManager;
+        private readonly Config _config;
+        string _email = "";
+        string _password = "";
 
-        public LoginViewModel(Lazy<LoginStatusViewModel> loginStatusVM,
-            Lazy<SignUpViewModel> signUpVM, AuthManager authManager)
+        public LoginViewModel(
+            Lazy<LoginStatusViewModel> loginStatusVm,
+            Lazy<SignUpViewModel> signUpVm,
+            Lazy<ForgotPasswordViewModel> forgotVm,
+            AuthManager authManager, Config config)
         {
-            this.authManager = authManager;
-            this.signUpVM = signUpVM;
-            this.loginStatusVM = loginStatusVM;
+            _authManager = authManager;
+            _config = config;
+            _signUpVm = signUpVm;
+            _loginStatusVm = loginStatusVm;
+            _forgotVm = forgotVm;
+
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
                 x => x.Password,
@@ -33,73 +36,67 @@ namespace UnitystationLauncher.ViewModels
                     !string.IsNullOrWhiteSpace(u) &&
                     !string.IsNullOrWhiteSpace(p));
 
-            Login = ReactiveCommand.Create(
+            Login = ReactiveCommand.CreateFromTask(
                 UserLogin,
                 possibleCredentials);
 
             Create = ReactiveCommand.Create(
                 UserCreate);
 
-            CheckForLastLogin();
+            ForgotPw = ReactiveCommand.Create(
+                ForgotPass);
+
+            RxApp.MainThreadScheduler.Schedule(async () => await CheckForLastLogin());
         }
 
-        public string? Email
+        public string Email
         {
-            get => email;
-            set => this.RaiseAndSetIfChanged(ref email, value);
+            get => _email;
+            set => this.RaiseAndSetIfChanged(ref _email, value);
         }
 
-        public string? Password
+        public string Password
         {
-            get => password;
-            set => this.RaiseAndSetIfChanged(ref password, value);
+            get => _password;
+            set => this.RaiseAndSetIfChanged(ref _password, value);
         }
 
-        public ReactiveCommand<Unit, LoginStatusViewModel?> Login { get; }
-        public ReactiveCommand<Unit, SignUpViewModel?> Create { get; }
+        public ReactiveCommand<Unit, LoginStatusViewModel> Login { get; }
+        public ReactiveCommand<Unit, SignUpViewModel> Create { get; }
+        public ReactiveCommand<Unit, ForgotPasswordViewModel> ForgotPw { get; }
 
-        public LoginStatusViewModel? UserLogin()
+        public async Task<LoginStatusViewModel> UserLogin()
         {
-            authManager.LoginMsg = new LoginMsg
+            _authManager.LoginMsg = new LoginMsg
             {
                 Email = Email,
                 Pass = Password
             };
 
-            SaveLoginEmail();
+            await SaveLoginEmail();
 
-            return loginStatusVM.Value;
-        }
-        
-        public SignUpViewModel? UserCreate()
-        {
-            return signUpVM.Value;
+            return _loginStatusVm.Value;
         }
 
-        void CheckForLastLogin()
+        public SignUpViewModel UserCreate()
         {
-            if (File.Exists("prefs.json"))
-            {
-                var prefs = JsonConvert.DeserializeObject<Prefs>(File.ReadAllText("prefs.json"));
-                Email = prefs.LastLogin;
-            }
+            return _signUpVm.Value;
         }
 
-        void SaveLoginEmail()
+        public ForgotPasswordViewModel ForgotPass()
         {
-            var data = "";
-            if (File.Exists("prefs.json"))
-            {
-                data = File.ReadAllText("prefs.json");
-                var prefs = JsonConvert.DeserializeObject<Prefs>(data);
-                prefs.LastLogin = email;
-                data = JsonConvert.SerializeObject(prefs);
-            }
-            else
-            {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = email });
-            }
-            File.WriteAllText("prefs.json", data);
+            return _forgotVm.Value;
+        }
+
+        async Task CheckForLastLogin()
+        {
+            Email = (await _config.GetPreferences()).LastLogin ?? "";
+        }
+
+        async Task SaveLoginEmail()
+        {
+            var prefs = await _config.GetPreferences();
+            prefs.LastLogin = _email;
         }
     }
 }

@@ -1,10 +1,8 @@
 using System;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Avalonia.Interactivity;
-using DynamicData.Binding;
-using Firebase.Auth;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
@@ -13,24 +11,24 @@ namespace UnitystationLauncher.ViewModels
 {
     public class LoginStatusViewModel : ViewModelBase
     {
-        private readonly AuthManager authManager;
-        private readonly Lazy<LauncherViewModel> launcherVM;
-        private readonly LoginViewModel loginVM;
-        private string failedMessage;
-        private bool isFailedVisible;
-        private bool isResendEmailVisible;
-        private bool resendClicked;
-        private bool isWaitingVisible;
+        private readonly AuthManager _authManager;
+        private readonly Lazy<LauncherViewModel> _launcherVm;
+        private readonly LoginViewModel _loginVm;
+        private string? _failedMessage;
+        private bool _isFailedVisible;
+        private bool _isResendEmailVisible;
+        private bool _resendClicked;
+        private bool _isWaitingVisible;
 
-        public LoginStatusViewModel(AuthManager authManager, Lazy<LauncherViewModel> launcherVM,
-            LoginViewModel loginVM)
+        public LoginStatusViewModel(AuthManager authManager, Lazy<LauncherViewModel> launcherVm,
+            LoginViewModel loginVm)
         {
             IsFailedVisible = false;
             IsResendEmailVisible = false;
             ResendClicked = false;
-            this.authManager = authManager;
-            this.loginVM = loginVM;
-            this.launcherVM = launcherVM;
+            _authManager = authManager;
+            _loginVm = loginVm;
+            _launcherVm = launcherVm;
 
             var hasAlreadyResent = this.WhenAnyValue(
                 x => x.ResendClicked,
@@ -39,62 +37,62 @@ namespace UnitystationLauncher.ViewModels
             ResendEmail = ReactiveCommand.Create(OnResend, hasAlreadyResent);
 
             GoBack = ReactiveCommand.Create(GoBackToLogin);
-            
+
             OpenLauncher = ReactiveCommand.Create(SignInComplete);
 
             if (!authManager.AttemptingAutoLogin)
             {
-                UserLogin();
+                RxApp.MainThreadScheduler.Schedule(async () => await UserLogin());
             }
             else
             {
                 IsWaitingVisible = true;
             }
         }
-        
+
         public bool IsFailedVisible
         {
-            get => isFailedVisible;
-            set => this.RaiseAndSetIfChanged(ref isFailedVisible, value);
+            get => _isFailedVisible;
+            set => this.RaiseAndSetIfChanged(ref _isFailedVisible, value);
         }
 
         public bool IsResendEmailVisible
         {
-            get => isResendEmailVisible;
-            set => this.RaiseAndSetIfChanged(ref isResendEmailVisible, value);
+            get => _isResendEmailVisible;
+            set => this.RaiseAndSetIfChanged(ref _isResendEmailVisible, value);
         }
 
-        public string FailedMessage
+        public string? FailedMessage
         {
-            get => failedMessage;
-            set => this.RaiseAndSetIfChanged(ref failedMessage, value);
+            get => _failedMessage;
+            set => this.RaiseAndSetIfChanged(ref _failedMessage, value);
         }
 
         public bool ResendClicked
         {
-            get => resendClicked;
-            set => this.RaiseAndSetIfChanged(ref resendClicked, value);
+            get => _resendClicked;
+            set => this.RaiseAndSetIfChanged(ref _resendClicked, value);
         }
 
         public bool IsWaitingVisible
         {
-            get => isWaitingVisible;
-            set => this.RaiseAndSetIfChanged(ref isWaitingVisible, value);
+            get => _isWaitingVisible;
+            set => this.RaiseAndSetIfChanged(ref _isWaitingVisible, value);
         }
-        
+
         public ReactiveCommand<Unit, LoginViewModel> GoBack { get; }
         public ReactiveCommand<Unit, Unit> ResendEmail { get; }
         public ReactiveCommand<Unit, LauncherViewModel> OpenLauncher { get; }
 
-        public async void UserLogin()
+        public async Task UserLogin()
         {
             bool signInSuccess = true;
             ResendClicked = false;
             IsResendEmailVisible = false;
             IsWaitingVisible = true;
-            
-            if (string.IsNullOrEmpty(authManager.LoginMsg.Email) ||
-                string.IsNullOrEmpty(authManager.LoginMsg.Pass))
+
+            if (string.IsNullOrEmpty(_authManager.LoginMsg?.Email) ||
+                string.IsNullOrEmpty(_authManager.LoginMsg.Pass))
             {
                 Log.Error("Login failed");
                 FailedMessage = "Login failed.\r\n" +
@@ -102,11 +100,11 @@ namespace UnitystationLauncher.ViewModels
                                 "and try again.";
                 return;
             }
-            
+
             try
             {
-                authManager.AuthLink = await authManager.SignInWithEmailAndPasswordAsync(authManager.LoginMsg.Email,
-                    authManager.LoginMsg.Pass);
+                _authManager.AuthLink = await _authManager.SignInWithEmailAndPasswordAsync(_authManager.LoginMsg.Email,
+                    _authManager.LoginMsg.Pass);
             }
             catch (Exception e)
             {
@@ -119,7 +117,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (signInSuccess)
             {
-                var user = await authManager.GetUpdatedUser();
+                var user = await _authManager.GetUpdatedUser();
 
                 if (!user.IsEmailVerified)
                 {
@@ -132,8 +130,8 @@ namespace UnitystationLauncher.ViewModels
                 }
             }
 
-            authManager.LoginMsg = null;
-            
+            _authManager.LoginMsg = null;
+
             IsWaitingVisible = false;
             if (!signInSuccess)
             {
@@ -141,28 +139,28 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            authManager.Store();
+            _authManager.Store();
 
-            Observable.Start(() => {}).InvokeCommand(this, vm => vm.OpenLauncher);
+            Observable.Start(() => { }).InvokeCommand(this, vm => vm.OpenLauncher);
         }
-        
+
         public void OnResend()
         {
-            authManager.ResendVerificationEmail();
+            _authManager.ResendVerificationEmail();
             ResendClicked = true;
             FailedMessage = "A new verification email has been sent to:\r\n" +
-                            $"{authManager.AuthLink.User.Email}\r\n" +
+                            $"{_authManager.AuthLink?.User.Email ?? "{ no email }"}\r\n" +
                             $"Please activate your account by clicking the link\r\n" +
                             $"in the email and try again.";
         }
 
         public LoginViewModel GoBackToLogin()
         {
-            return loginVM;
+            return _loginVm;
         }
-        public LauncherViewModel? SignInComplete()
+        public LauncherViewModel SignInComplete()
         {
-            return launcherVM.Value;
+            return _launcherVm.Value;
         }
     }
 }

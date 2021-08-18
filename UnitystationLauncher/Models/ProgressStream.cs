@@ -11,10 +11,10 @@ namespace UnitystationLauncher.Models
             Inner = inner;
         }
 
-        public Stream Inner {get;set;}
-        public IObservable<long> Progress => progress;
-        private readonly Subject<long> progress = new Subject<long>();
-        private long position;
+        public Stream Inner { get; set; }
+        public IObservable<long> Progress => _progress;
+        private readonly Subject<long> _progress = new Subject<long>();
+        private long _position;
 
         public override bool CanRead => Inner.CanRead;
 
@@ -34,8 +34,8 @@ namespace UnitystationLauncher.Models
         public override int Read(byte[] buffer, int offset, int count)
         {
             var r = Inner.Read(buffer, offset, count);
-            position += r;
-            progress.OnNext(position);
+            _position += r;
+            _progress.OnNext(_position);
             return r;
         }
 

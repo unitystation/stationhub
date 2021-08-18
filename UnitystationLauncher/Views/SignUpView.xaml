@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="450"
              TextBlock.FontSize="18"
              VerticalAlignment="Center"
              x:Class="UnitystationLauncher.Views.SignUpView">
@@ -29,11 +29,11 @@
         </StackPanel.Background>
 
         <Border BorderThickness="1" BorderBrush="#c5c5c5" />
-        
+
         <!-- Sign up form -->
         <StackPanel IsVisible="{Binding IsFormVisible}">
             <StackPanel Orientation="Horizontal" Height="50" Margin="10" HorizontalAlignment="Center">
-                <TextBlock VerticalAlignment="Center" Margin="5">Create Account:</TextBlock>
+                <TextBlock VerticalAlignment="Center" Margin="5" FontSize="44">Create Account:</TextBlock>
             </StackPanel>
 
             <TextBox Text="{Binding Username}" Margin="15" Watermark="User Name" MaxWidth="400">
@@ -56,34 +56,35 @@
             </TextBox>
 
             <Grid ColumnDefinitions="*, 1*" HorizontalAlignment="Center" Margin="5" MaxWidth="400">
-                <Button Command="{Binding Cancel}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
-                        MinWidth="100">
+                <Button Command="{Binding Cancel}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
+                        MinWidth="100" Classes="SmallButton">
                     Cancel
                 </Button>
-                <Button Command="{Binding Submit}" Grid.Column="0" Padding="5" Margin="20" HorizontalAlignment="Center"
-                        MinWidth="100">
+                <Button Command="{Binding Submit}" Grid.Column="1" Padding="5" Margin="20" HorizontalAlignment="Center"
+                        MinWidth="100" Classes="SmallButton">
                     Submit
                 </Button>
             </Grid>
         </StackPanel>
-        
-            <!-- Please wait content -->
+
+        <!-- Please wait content -->
         <StackPanel IsVisible="{Binding IsWaitingVisible}">
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="Creating account, please wait..." />
-            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30" Margin="15">
-                <Image Source="/Assets/LoadingRing.png" />
+            <LayoutTransformControl Classes="Rotating" HorizontalAlignment="Center" MaxWidth="30" MaxHeight="30"
+                                    Margin="15">
+                <Image Source="/Assets/loadingring.png" />
             </LayoutTransformControl>
         </StackPanel>
-        
-            <!-- Success or Failed content -->
+
+        <!-- Success or Failed content -->
         <StackPanel IsVisible="{Binding IsCreatedVisible}">
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="{Binding CreationMessage}" />
             <Button Command="{Binding DoneButton}" Padding="5" Margin="15" HorizontalAlignment="Center" MinWidth="100"
-                    Content="{Binding EndButtonText}" />
+                    Content="{Binding EndButtonText}" Classes="SmallButton" />
         </StackPanel>
-        
+
         <Border BorderThickness="1" BorderBrush="#c5c5c5" />
     </StackPanel>
 </UserControl>

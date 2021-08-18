@@ -1,101 +1,95 @@
 ﻿using ReactiveUI;
 using System;
-using System.IO;
 using System.Collections.Generic;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
+using System.Linq;
 using UnitystationLauncher.Models;
-using Reactive.Bindings;
-using Newtonsoft.Json;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
 using MessageBox.Avalonia.DTO;
-using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
-        public override IBitmap Icon => new Bitmap(AvaloniaLocator.Current.GetService<IAssetLoader>()
-            .Open(new Uri("avares://UnitystationLauncher/Assets/archiveicon.png")));
-        private InstallationManager installationManager;
+        private readonly InstallationManager _installationManager;
+        private readonly Config _config;
+        string? _buildNum;
+        private bool _autoRemove;
 
-        private Installation? selectedInstallation;
-
-        public InstallationsPanelViewModel(InstallationManager installationManager)
+        public InstallationsPanelViewModel(InstallationManager installationManager, Config config)
         {
-            this.installationManager = installationManager;
-            if (File.Exists("prefs.json"))
+            _installationManager = installationManager;
+            _config = config;
+
+            BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
+
+            this.WhenAnyValue(p => p.AutoRemove)
+                .Subscribe(async v => await OnAutoRemoveChanged());
+
+            RxApp.MainThreadScheduler.Schedule(async () =>
             {
-                var data = File.ReadAllText("prefs.json");
-                AutoRemove.Value = JsonConvert.DeserializeObject<Prefs>(data).AutoRemove;
-            }
-            else
-            {
-                var data = JsonConvert.SerializeObject(new Prefs { AutoRemove = true, LastLogin = "" });
-                File.WriteAllText("prefs.json", data);
-                AutoRemove.Value = true;
-            }
-            installationManager.AutoRemove = AutoRemove.Value;
-            CheckBoxClick = ReactiveUI.ReactiveCommand.Create(OnCheckBoxClick, null);
+                var prefs = await _config.GetPreferences();
+                AutoRemove = prefs.AutoRemove;
+                installationManager.AutoRemove = prefs.AutoRemove;
+            });
         }
 
-        public IObservable<IReadOnlyList<Installation>> Installations => installationManager.Installations;
-        public ReactiveProperty<bool> AutoRemove { get; } = new ReactiveProperty<bool>();
-        public ReactiveCommand<Unit, Unit> CheckBoxClick { get; }
-        public Installation? SelectedInstallation
+        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationManager.Installations
+            .Select(installations => installations
+                .Select(installation => new InstallationViewModel(installation)).ToList());
+
+        public string? BuildNum
         {
-            get => selectedInstallation;
-            set => this.RaiseAndSetIfChanged(ref selectedInstallation, value);
+            get => _buildNum;
+            set => this.RaiseAndSetIfChanged(ref _buildNum, value);
         }
 
-        //This is a Reactive Command action as confirmation needs to happen with the
-        //message box.
-        async void OnCheckBoxClick()
+        public bool AutoRemove
         {
-            if(AutoRemove.Value == true)
+            get => _autoRemove;
+            set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
+        }
+
+        private async Task OnAutoRemoveChanged()
+        {
+            if (AutoRemove)
             {
-                var msgBox = MessageBoxWindow.CreateCustomWindow(new MessageBoxCustomParams
+                var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {
                     Style = MessageBox.Avalonia.Enums.Style.None,
                     Icon = MessageBox.Avalonia.Enums.Icon.None,
+                    ShowInCenter = true,
                     ContentHeader = "Are you sure?",
                     ContentMessage = "This will remove older installations from disk. Proceed?",
-                    ButtonDefinitions = new[] { new ButtonDefinition { Name = "Cancel" }, new ButtonDefinition { Name = "Confirm" } }
+                    ButtonDefinitions = new[]
+                        {new ButtonDefinition {Name = "Cancel"}, new ButtonDefinition {Name = "Confirm"}}
                 });
 
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    SaveChoice();
-                } else
-                {
-                    AutoRemove.Value = false;
+                    await SaveChoice();
                 }
-            } else
-            {
-                SaveChoice();
-            }
-        }
-
-        void SaveChoice()
-        {
-            var data = "";
-            if (File.Exists("prefs.json"))
-            {
-                data = File.ReadAllText("prefs.json");
-                var prefs = JsonConvert.DeserializeObject<Prefs>(data);
-                prefs.AutoRemove = AutoRemove.Value;
-                data = JsonConvert.SerializeObject(prefs);
+                else
+                {
+                    AutoRemove = false;
+                }
             }
             else
             {
-                data = JsonConvert.SerializeObject(new Prefs { AutoRemove = AutoRemove.Value, LastLogin = "" });
+                await SaveChoice();
             }
-            File.WriteAllText("prefs.json", data);
-            installationManager.AutoRemove = AutoRemove.Value;
+        }
+
+        async Task SaveChoice()
+        {
+            var prefs = await _config.GetPreferences();
+            prefs.AutoRemove = AutoRemove;
+            _installationManager.AutoRemove = AutoRemove;
         }
     }
 }

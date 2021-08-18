@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
 namespace UnitystationLauncher.Views
@@ -8,7 +7,7 @@ namespace UnitystationLauncher.Views
     {
         public ServersPanelView()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         private void InitializeComponent()

@@ -1,35 +1,92 @@
-﻿using Humanizer.Bytes;
+﻿using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Humanizer.Bytes;
 using ReactiveUI;
 using Serilog;
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Mono.Unix;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
-    public class HubUpdateViewModel : ViewModelBase
+    public class HubUpdateViewModel : ViewModelBase, IDisposable
     {
-        private CancellationTokenSource cancelSource;
-        private readonly Lazy<LoginViewModel> loginVM;
-        private string updateTitle;
-        private string updateMessage;
-        private string buttonMessage;
-        private string downloadMessage;
-        private bool installButtonVisible;
-        private bool downloadBarVisible;
-        private bool restartButtonVisible;
-        public HubUpdateViewModel(Lazy<LoginViewModel> loginVM)
+        private CancellationTokenSource? _cancelSource;
+        private readonly Lazy<LoginViewModel> _loginVm;
+        private readonly Config _config;
+        private string? _updateTitle;
+        private string? _updateMessage;
+        private string? _buttonMessage;
+        private string? _downloadMessage;
+        private bool _installButtonVisible;
+        private bool _downloadBarVisible;
+        private bool _restartButtonVisible;
+        private readonly Process _thisProcess;
+
+        public ReactiveCommand<Unit, Unit> BeginDownload { get; }
+        public ReactiveCommand<Unit, Unit> RestartHub { get; }
+        public ReactiveCommand<Unit, ViewModelBase> Cancel { get; }
+        public Subject<int> Progress { get; set; } = new Subject<int>();
+
+        public bool InstallButtonVisible
         {
-            this.loginVM = loginVM;
-            BeginDownload = ReactiveCommand.Create(UpdateHub);
+            get => _installButtonVisible;
+            set => this.RaiseAndSetIfChanged(ref _installButtonVisible, value);
+        }
+
+        public bool DownloadBarVisible
+        {
+            get => _downloadBarVisible;
+            set => this.RaiseAndSetIfChanged(ref _downloadBarVisible, value);
+        }
+
+        public bool RestartButtonVisible
+        {
+            get => _restartButtonVisible;
+            set => this.RaiseAndSetIfChanged(ref _restartButtonVisible, value);
+        }
+
+        public string? UpdateTitle
+        {
+            get => _updateTitle;
+            set => this.RaiseAndSetIfChanged(ref _updateTitle, value);
+        }
+
+        public string? UpdateMessage
+        {
+            get => _updateMessage;
+            set => this.RaiseAndSetIfChanged(ref _updateMessage, value);
+        }
+
+        public string? ButtonMessage
+        {
+            get => _buttonMessage;
+            set => this.RaiseAndSetIfChanged(ref _buttonMessage, value);
+        }
+
+        public string? DownloadMessage
+        {
+            get => _downloadMessage;
+            set => this.RaiseAndSetIfChanged(ref _downloadMessage, value);
+        }
+
+        public HubUpdateViewModel(Lazy<LoginViewModel> loginVm, Config config)
+        {
+            _loginVm = loginVm;
+            _config = config;
+            BeginDownload = ReactiveCommand.CreateFromTask(UpdateHub);
+            RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
 
             UpdateTitle = "Update Required";
@@ -37,76 +94,55 @@ namespace UnitystationLauncher.ViewModels
                 $" the latest version by clicking the button below:";
 
             ButtonMessage = $"Update Hub";
+            _thisProcess = Process.GetCurrentProcess();
 
             InstallButtonVisible = true;
             DownloadBarVisible = false;
             RestartButtonVisible = false;
         }
 
-        public ReactiveCommand<Unit, Unit> BeginDownload { get; }
-        public ReactiveCommand<Unit, ViewModelBase> Cancel { get; }
-        public Subject<int> Progress { get; set; } = new Subject<int>();
-
-        public bool InstallButtonVisible
+        public async Task UpdateHub()
         {
-            get => installButtonVisible;
-            set => this.RaiseAndSetIfChanged(ref installButtonVisible, value);
-        }
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                GiveAllOwnerPermissions(Config.UnixExeFullPath);
+            }
 
-        public bool DownloadBarVisible
-        {
-            get => downloadBarVisible;
-            set => this.RaiseAndSetIfChanged(ref downloadBarVisible, value);
-        }
-
-        public bool RestartButtonVisible
-        {
-            get => restartButtonVisible;
-            set => this.RaiseAndSetIfChanged(ref restartButtonVisible, value);
-        }
-
-        public string UpdateTitle
-        {
-            get => updateTitle;
-            set => this.RaiseAndSetIfChanged(ref updateTitle, value);
-        }
-
-        public string UpdateMessage
-        {
-            get => updateMessage;
-            set => this.RaiseAndSetIfChanged(ref updateMessage, value);
-        }
-
-        public string ButtonMessage
-        {
-            get => buttonMessage;
-            set => this.RaiseAndSetIfChanged(ref buttonMessage, value);
-        }
-
-        public string DownloadMessage
-        {
-            get => downloadMessage;
-            set => this.RaiseAndSetIfChanged(ref downloadMessage, value);
-        }
-
-        public void UpdateHub()
-        {
-            cancelSource = new CancellationTokenSource();
-            TryUpdate(cancelSource.Token);
+            _cancelSource = new CancellationTokenSource();
+            await TryUpdate(_cancelSource.Token);
         }
 
         async Task TryUpdate(CancellationToken cancelToken)
         {
+            Directory.CreateDirectory(Config.TempFolder);
+
+            GiveAllOwnerPermissions(Config.TempFolder);
+
             InstallButtonVisible = false;
             DownloadBarVisible = true;
             UpdateTitle = "Downloading...";
 
             Log.Information("Download started...");
-            var webRequest = WebRequest.Create(Config.serverHubClientConfig.GetDownloadURL());
+            var downloadUrl = (await _config.GetServerHubClientConfig()).GetDownloadUrl();
+            if (downloadUrl == null)
+            {
+                Log.Error("DownloadUrl is null");
+                return;
+            }
+
+            var webRequest = WebRequest.Create(downloadUrl);
             var webResponse = await webRequest.GetResponseAsync();
-            var responseStream = webResponse.GetResponseStream();
+            await using var responseStream = webResponse.GetResponseStream();
+            if (responseStream == null)
+            {
+                Log.Error("Failed to establish download connection");
+                return;
+            }
+
             Log.Information("Download connection established");
-            using var progStream = new ProgressStream(responseStream);
+
+            await using var progStream = new ProgressStream(responseStream);
             var length = webResponse.ContentLength;
             var maxFileSize = ByteSize.FromBytes(length);
 
@@ -118,14 +154,13 @@ namespace UnitystationLauncher.ViewModels
 
                     if (cancelToken.IsCancellationRequested)
                     {
-                        progStream.Inner.Dispose();
                         Progress.OnNext(0);
                         return;
                     }
-                    var downloadedAmt = (int)((float)maxFileSize.Megabytes * ((float)p / 100f));
-                    DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Megabytes} MB";
+                    var downloadedAmt = (int)((float)maxFileSize.Kilobytes * (p / 100f));
+                    DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Kilobytes} KB";
                     Progress.OnNext(p);
-                    Log.Information("Progress: {prog}", p);
+                    Log.Information("Progress: {Progress}", p);
                 });
 
             await Task.Run(() =>
@@ -134,7 +169,7 @@ namespace UnitystationLauncher.ViewModels
                 try
                 {
                     var archive = new ZipArchive(progStream);
-                    archive.ExtractToDirectory(Config.RootFolder, true);
+                    archive.ExtractToDirectory(Config.TempFolder, true);
 
                     Log.Information("Download completed");
                 }
@@ -143,11 +178,81 @@ namespace UnitystationLauncher.ViewModels
                     Log.Information("Extracting stopped");
                 }
             });
+
+            DownloadComplete();
+        }
+
+        private void DownloadComplete()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                        RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                GiveAllOwnerPermissions(Config.TempFolder);
+            }
+
+            DownloadBarVisible = false;
+            RestartApp();
+        }
+
+        private void OnExit(object? sender, EventArgs e)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                string argument = "-c \" sleep 1; cp -a {0}/. {1}; rm -rf {0}; {2}";
+
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.Arguments = string.Format(argument, Regex.Escape(Config.TempFolder), Regex.Escape(Config.RootFolder), Regex.Escape(Config.UnixExeFullPath));
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                info.CreateNoWindow = true;
+                info.FileName = "/bin/bash";
+                Process.Start(info);
+            }
+            else
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                string argument = "/C echo \"{2}\" & Choice /C Y /N /D Y /T 1 & xcopy /Y \"{0}\" \"{1}\" & rmdir /q /s \"{0}\" & echo \"{3}\" & \"{4}\"";
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.Arguments = string.Format(argument, Config.TempFolder, Config.RootFolder,
+                    "Updating hub please wait..", "Update complete.", Config.WinExeFullPath);
+                info.WindowStyle = ProcessWindowStyle.Normal;
+                info.UseShellExecute = false;
+                info.FileName = "cmd";
+                Process.Start(info);
+            }
+
+            _thisProcess.Kill();
         }
 
         ViewModelBase CancelInstall()
         {
-            return loginVM.Value;
+            _cancelSource?.Cancel();
+            return _loginVm.Value;
+        }
+
+        void RestartApp()
+        {
+
+            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            {
+                desktopLifetime.Exit += OnExit;
+                desktopLifetime.Shutdown();
+            }
+        }
+
+        private void GiveAllOwnerPermissions(string path)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return;
+            }
+            new UnixFileInfo(path).FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
+        }
+
+        public void Dispose()
+        {
+            _cancelSource?.Dispose();
+            _thisProcess.Dispose();
         }
     }
 }

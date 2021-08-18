@@ -2,69 +2,54 @@ name: .NET Core
 
 on:
   push:
-    branches: 
-      - release
+    branches:
+      - "develop"
+  pull_request:
+    branches:
+      - "*"
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.0.100
-    - name: Build win
-      run: |
-        dotnet publish /p:Configuration=ReleaseWIN64 /p:Platform="x64" -r win10-x64 /p:PublishSingleFile=true
-        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/x64/ReleaseWIN64/netcoreapp3.0/win10-x64/publish/ ; zip -r /home/runner/work/win.zip *
-    - name: Build osx
-      run: |
-        dotnet publish /p:Configuration=ReleasePOSIX64 /p:Platform="x64" -r osx-x64 /p:PublishSingleFile=true
-        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/x64/ReleasePOSIX64/netcoreapp3.0/osx-x64/publish/ ; zip -r /home/runner/work/osx.zip *
-    - name: Build linux
-      run: |
-        dotnet publish /p:Configuration=ReleasePOSIX64 /p:Platform="x64" -r linux-x64 /p:PublishSingleFile=true
-        cd /home/runner/work/UnitystationLauncher/UnitystationLauncher/UnitystationLauncher/bin/x64/ReleasePOSIX64/netcoreapp3.0/linux-x64/publish/ ; zip -r /home/runner/work/linux.zip *
-    - name: Create a Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        body: |
-          Unitystation Hub Release
-          draft: false
-          prerelease: false
-    - name: Upload Win Assets
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: /home/runner/work/win.zip
-        asset_name: win.zip
-        asset_content_type: application/zip
-    - name: Upload OSX Asset
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: /home/runner/work/osx.zip
-        asset_name: osx.zip
-        asset_content_type: application/zip
-    - name: Upload Linux Asset
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: /home/runner/work/linux.zip
-        asset_name: linux.zip
-        asset_content_type: application/zip
+    strategy:
+      matrix:
+        target-platform:
+          - "win-x64"
+          - "linux-x64"
+          - "osx-x64"
 
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Test
+        run: |
+          dotnet test
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --output ~/publish
+      - name: Upload Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: StationHub-${{ matrix.target-platform }}
+          path: ~/publish
+
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Add dotnet-format problem matcher
+        uses: xt0rted/dotnet-format-problem-matcher@v1
+
+      - name: Restore dotnet tools
+        uses: xt0rted/dotnet-tool-restore@v1
+
+      - name: Run dotnet format
+        uses: jfversluis/dotnet-format@v1.0.5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

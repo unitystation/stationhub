@@ -1,75 +1,68 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
-using Reactive.Bindings;
 
 namespace UnitystationLauncher.Models
 {
     public class ServerManager : ReactiveObject, IDisposable
     {
-        private readonly HttpClient http;
-        private InstallationManager installManager;
-        private AuthManager authManager;
-        bool refreshing;
+        private readonly HttpClient _http;
+        private readonly InstallationManager _installManager;
+        private bool _refreshing;
 
-        public ServerManager(HttpClient http, AuthManager authManager, InstallationManager installManager)
+        public ServerManager(HttpClient http, InstallationManager installManager)
         {
-            this.http = http;
-            this.authManager = authManager;
-            this.installManager = installManager;
-            installManager.InstallListChange = RefreshInstalledStates;
-            RefreshServerList();
+            _http = http;
+            _installManager = installManager;
+            Servers = Observable.Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10))
+                .SelectMany(_ => GetServerList())
+                .Replay(1)
+                .RefCount();
         }
 
-        public async void RefreshServerList()
-        {
-            NoServersFound.Value = false;
-            if (Refreshing) return;
+        public IObservable<IReadOnlyList<Server>> Servers { get; }
 
-            Servers.Value = new List<ServerWrapper>();
-            Refreshing = true;
-            Log.Verbose("Refreshing server list...");
-            var data = await http.GetStringAsync(Config.apiUrl);
-            var serverList = JsonConvert.DeserializeObject<ServerList>(data);
-            if (serverList.Servers.Count == 0)
-            {
-                NoServersFound.Value = true;
-            }
-            else
-            {
-                List<ServerWrapper> updatedList = new List<ServerWrapper>();
-                foreach (Server s in serverList.Servers)
-                {
-                    updatedList.Add(new ServerWrapper(s, authManager, installManager));
-                }
-
-                Servers.Value = updatedList;
-            }
-            Refreshing = false;
-        }
-
-        public ReactiveProperty<List<ServerWrapper>> Servers { get; private set; } = new ReactiveProperty<List<ServerWrapper>>();
-        public ReactiveProperty<bool> NoServersFound { get; private set; } = new ReactiveProperty<bool>();
         public bool Refreshing
         {
-            get => refreshing;
-            set => this.RaiseAndSetIfChanged(ref refreshing, value);
+            get => _refreshing;
+            set => this.RaiseAndSetIfChanged(ref _refreshing, value);
         }
 
-        public void RefreshInstalledStates()
+        private async Task<IReadOnlyList<Server>> GetServerList()
         {
-            foreach(ServerWrapper wrapper in Servers.Value)
+            Refreshing = true;
+
+            var data = await _http.GetStringAsync(Config.ApiUrl);
+            var serverData = JsonConvert.DeserializeObject<ServerList>(data).Servers;
+            Log.Information("Server list fetched");
+
+            var servers = new List<Server>();
+
+            foreach (var server in serverData)
             {
-                wrapper.CheckIfCanPlay();
+                if (!server.HasTrustedUrlSource)
+                {
+                    Log.Warning(
+                        "Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
+                        server.ServerName);
+                    continue;
+                }
+
+                servers.Add(server);
             }
+
+            Refreshing = false;
+            return servers;
         }
 
         public void Dispose()
         {
-            Servers.Dispose();
+            _installManager.Dispose();
         }
     }
 }

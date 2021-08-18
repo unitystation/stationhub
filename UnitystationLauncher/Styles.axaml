@@ -1,0 +1,104 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Design.PreviewWith>
+        <Border Padding="20">
+            <!-- Add Controls for Previewer Here -->
+        </Border>
+    </Design.PreviewWith>
+
+    <Styles.Resources>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="#0078a3" />
+        <SolidColorBrush x:Key="DarkerPrimaryBrush" Color="#00516f" />
+        
+        <SolidColorBrush x:Key="Primary1" Color="#132736" />
+        <SolidColorBrush x:Key="Primary2" Color="#21435C" />
+        <SolidColorBrush x:Key="Primary3" Color="#1D3B50" />
+        <SolidColorBrush x:Key="Primary4" Color="#38729C" />
+        <SolidColorBrush x:Key="Primary5" Color="#4FA1DB" />
+        
+        <SolidColorBrush x:Key="PrimaryTransparent1" Color="#88132736" />
+        <SolidColorBrush x:Key="PrimaryTransparent2" Color="#8821435C" />
+        <SolidColorBrush x:Key="PrimaryTransparent3" Color="#881D3B50" />
+        <SolidColorBrush x:Key="PrimaryTransparent4" Color="#8838729C" />
+        <SolidColorBrush x:Key="PrimaryTransparent5" Color="#884FA1DB" />
+    </Styles.Resources>
+    <!-- SmallButton -->
+    <Style Selector="Button.SmallButton">
+        <Setter Property="FontFamily" Value="resm:Assets.Fonts.Inter-Bold.ttf#InterBold" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Width" Value="80" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="BorderThickness" Value="0.5" />
+        <Setter Property="BorderBrush" Value="#fcfcfd" />
+
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.SmallButton:pointerover">
+        <Setter Property="Background" Value="{StaticResource DarkerPrimaryBrush}" />
+    </Style>
+    <Style Selector="Button.SmallButton:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource DarkerPrimaryBrush}" />
+    </Style>
+    <!-- Dangerous zone -->
+    <Style Selector="TextBox">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontFamily" Value="InterBold" />
+    </Style>
+    <Style Selector="TextBlock">
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontFamily" Value="InterBold" />
+    </Style>
+    <Style Selector="ScrollBar">
+        <Setter Property="Template">
+            <ControlTemplate>
+                    <Grid RowDefinitions="Auto,*,Auto" Background="{StaticResource Primary1}">
+                        <Track Grid.Row="1"
+                               Minimum="{TemplateBinding Minimum}"
+                               Maximum="{TemplateBinding Maximum}"
+                               Value="{TemplateBinding Value, Mode=TwoWay}"
+                               ViewportSize="{TemplateBinding ViewportSize}"
+                               Orientation="{TemplateBinding Orientation}"
+                               IsDirectionReversed="True">
+                            <Thumb Name="thumb" />
+                        </Track>
+                    </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="ScrollBar:horizontal">
+        <Setter Property="Height" Value="{DynamicResource ScrollBarThickness}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="#0a131d"
+                        UseLayoutRounding="False"
+                        BorderBrush="#f0f1f2"
+                        BorderThickness="0.5">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Track Grid.Column="1"
+                               Minimum="{TemplateBinding Minimum}"
+                               Maximum="{TemplateBinding Maximum}"
+                               Value="{TemplateBinding Value, Mode=TwoWay}"
+                               ViewportSize="{TemplateBinding ViewportSize}"
+                               Orientation="{TemplateBinding Orientation}"
+                               Margin="0,5,0,5">
+                            <Thumb Name="thumb" />
+                        </Track>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumb">
+        <Setter Property="Background" Value="#1d3b50" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Background="#1d3b50" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</Styles>

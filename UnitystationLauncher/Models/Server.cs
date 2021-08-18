@@ -6,47 +6,73 @@ namespace UnitystationLauncher.Models
 {
     public class Server
     {
-        public string? ServerName { get; set;}
-        public string ForkName { get; set;}
-        public int BuildVersion { get; set;}
-        public string? CurrentMap { get; set;}
-        public string? GameMode { get; set;}
-        public string? IngameTime { get; set;}
-        public int? PlayerCount { get; set;}
-        public string ServerIP { get; set;}
-        public int ServerPort { get; set;}
-        public string? WinDownload { get; set;}
-        public string? OSXDownload { get; set;}
-        public string? LinuxDownload { get; set; }
-        public (string, int) Key => (ForkName, BuildVersion);
+        public Server(string forkName, int buildVersion, string serverIp, int serverPort)
+        {
+            ForkName = forkName;
+            BuildVersion = buildVersion;
+            ServerIp = serverIp;
+            ServerPort = serverPort;
+        }
 
-        public string DownloadUrl
+        public string? ServerName { get; set; }
+        public string ForkName { get; }
+        public int BuildVersion { get; }
+        public string? CurrentMap { get; set; }
+        public string? GameMode { get; set; }
+        public string? InGameTime { get; set; }
+        public int? PlayerCount { get; set; }
+        public string ServerIp { get; }
+        public int ServerPort { get; }
+        public string? WinDownload { get; set; }
+        public string? OsxDownload { get; set; }
+        public string? LinuxDownload { get; set; }
+        public (string, int) ForkAndVersion => (ForkName, BuildVersion);
+
+        public string? DownloadUrl =>
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OsxDownload :
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
+            throw new InvalidOperationException("Failed to detect OS");
+
+        public bool HasTrustedUrlSource
         {
             get
             {
-                return 
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OSXDownload :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
-                    throw new Exception("Failed to detect OS");
+                const string trustedHost = "unitystationfile.b-cdn.net";
+                var urls = new[] { WinDownload, OsxDownload, LinuxDownload };
+                foreach (var url in urls)
+                {
+                    if (string.IsNullOrEmpty(url))
+                    {
+                        return false;
+                    }
+                    var uri = new Uri(url);
+                    if (uri.Scheme != "https" || uri.Host != trustedHost)
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
         }
 
         public string InstallationName => ForkName + BuildVersion;
+
+        public string Description => $"BuildVersion: {BuildVersion} - Map: {CurrentMap} - Gamemode: {GameMode} - Time: {InGameTime}";
 
         public string InstallationPath => Path.Combine(Config.InstallationsPath, InstallationName);
 
         public override bool Equals(object? obj)
         {
             return obj is Server server &&
-                   ServerIP == server.ServerIP &&
+                   ServerIp == server.ServerIp &&
                    ServerPort == server.ServerPort;
         }
 
         public override int GetHashCode()
         {
             var hash = new HashCode();
-            hash.Add(ServerIP);
+            hash.Add(ServerIp);
             hash.Add(ServerPort);
             return hash.ToHashCode();
         }
