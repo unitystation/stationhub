@@ -16,19 +16,22 @@
                 <Panel.IsVisible>
                     <MultiBinding Converter="{x:Static BoolConverters.And}">
                         <MultiBinding.Bindings>
-                            <Binding Path="!Downloading"></Binding>
+                            <Binding Path="!Downloading^"></Binding>
                             <Binding Path="!Installed"></Binding>
                         </MultiBinding.Bindings>
                     </MultiBinding>
                 </Panel.IsVisible>
-                <Button Command="{Binding Download}" Content="Download"
-                        Background="{StaticResource PrimaryTransparent4}" BorderThickness="0" />
+                <Button Command="{Binding Path=$parent[UserControl;1].DataContext.DownloadCommand}" 
+                        CommandParameter="{Binding }" 
+                        Content="Download"
+                        Background="{StaticResource PrimaryTransparent4}"
+                        BorderThickness="0" />
             </Panel>
             <Panel Height="40">
                 <Panel.IsVisible>
                     <MultiBinding Converter="{x:Static BoolConverters.And}">
                         <MultiBinding.Bindings>
-                            <Binding Path="!Downloading"></Binding>
+                            <Binding Path="!Downloading^"></Binding>
                             <Binding Path="Installed"></Binding>
                         </MultiBinding.Bindings>
                     </MultiBinding>
@@ -36,8 +39,8 @@
                 <Button Command="{Binding Start}" Content="Start" Background="{StaticResource PrimaryTransparent4}"
                         BorderThickness="0" />
             </Panel>
-            <Panel IsVisible="{Binding Downloading}" Height="10">
-                <ProgressBar Value="{Binding Progress^}" MinWidth="0" MinHeight="0" />
+            <Panel IsVisible="{Binding Downloading^}" Height="10">
+                <ProgressBar Value="{Binding Download.Progress}" MinWidth="0" MinHeight="0" />
             </Panel>
         </Panel>
         <Grid ColumnDefinitions="*, auto, auto" RowDefinitions="*, *" VerticalAlignment="Center">

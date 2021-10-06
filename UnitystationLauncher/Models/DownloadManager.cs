@@ -1,5 +1,6 @@
 using System;
-using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Collections;
 using Serilog;
 
@@ -17,14 +18,7 @@ namespace UnitystationLauncher.Models
 
         public IAvaloniaReadOnlyList<Download> Downloads => _downloads;
 
-        public Download AddDownload(string url, string installationPath)
-        {
-            var download = new Download(url, installationPath);
-            _downloads.Add(download);
-            return download;
-        }
-
-        public Download Download(Server server)
+        public async Task<Download?> Download(Server server)
         {
             if (server.DownloadUrl == null)
             {
@@ -32,13 +26,27 @@ namespace UnitystationLauncher.Models
             }
 
             var download = new Download(server.DownloadUrl, server.InstallationPath);
+            if (!download.CanStart())
+            {
+                return null;
+            }
+
+            _downloads.Remove(_downloads.FirstOrDefault(d => d.ForkAndVersion == download.ForkAndVersion));
+
             _downloads.Add(download);
+            await download.StartAsync();
             return download;
         }
 
         public bool CanDownload(Server server)
         {
-            return !Directory.Exists(server.InstallationPath);
+            if (server.DownloadUrl == null)
+            {
+                Log.Warning("Unable to download because DownloadUrl is null");
+                return false;
+            }
+            var download = new Download(server.DownloadUrl, server.InstallationPath);
+            return download.CanStart();
         }
     }
 }
