@@ -14,7 +14,6 @@ namespace UnitystationLauncher.Models
         private readonly string _url;
         private readonly string _installationPath;
         private long _size;
-        private long _downloaded;
         private bool _active;
         private int _progress;
 
@@ -22,9 +21,6 @@ namespace UnitystationLauncher.Models
         {
             _url = url;
             _installationPath = installationPath;
-
-            this.WhenAnyValue(d => d.Progress).DistinctUntilChanged()
-                .Subscribe(p => Log.Information("Progress: {Progress}", p));
         }
 
         public string Url => _url;
@@ -35,12 +31,6 @@ namespace UnitystationLauncher.Models
         {
             get => _size;
             set => this.RaiseAndSetIfChanged(ref _size, value);
-        }
-
-        public long Downloaded
-        {
-            get => _downloaded;
-            set => this.RaiseAndSetIfChanged(ref _downloaded, value);
         }
 
         public bool Active
@@ -58,13 +48,10 @@ namespace UnitystationLauncher.Models
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
         public string ForkName => Installation.GetForkName(InstallationPath);
         public int BuildVersion => Installation.GetBuildVersion(InstallationPath);
-        public string RelativeInstallationPath => Path.GetRelativePath(Environment.CurrentDirectory, InstallationPath);
 
         public async Task StartAsync()
         {
-            Log.Information("Download requested...");
-            Log.Information("Installation path: \"{Path}\"", InstallationPath);
-            Log.Information("Download URL: \"{Url}\"", this?.Url);
+            Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", InstallationPath, Url);
 
             if (!CanStart())
             {

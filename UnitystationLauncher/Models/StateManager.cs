@@ -37,7 +37,7 @@ namespace UnitystationLauncher.Models
                     s => s,
                     (s, download) => new ForkInstall(download, s.Installation, s.Servers)))
                 .Select(x => x.ToDictionary(d => d.ForkAndVersion, d => d))
-                .Do(x => Log.Logger.Information("state changed"))
+                .Do(x => Log.Information("State changed"))
                 .Replay(1)
                 .RefCount();
         }
