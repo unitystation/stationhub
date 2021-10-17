@@ -59,7 +59,7 @@ namespace UnitystationLauncher.Services
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
             _authProvider.SignInWithEmailAndPasswordAsync(email, password);
 
-        internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
+        internal Task<FirebaseAuthLink> SignInWithCustomTokenAsync(string token) =>
             _authProvider.SignInWithCustomTokenAsync(token);
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace UnitystationLauncher.Services
         /// Otherwise an exception is thrown.
         /// </summary>
         /// <returns></returns>
-        internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
+        internal async Task<FirebaseAuthLink> CreateAccountAsync(string username, string email, string password)
         {
             // Client-side check for disposable email address.
             const string url =
@@ -120,9 +120,9 @@ namespace UnitystationLauncher.Services
             return await _authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
         }
 
-        internal Task<User> GetUpdatedUser() => _authProvider.GetUserAsync(AuthLink);
+        internal Task<User> GetUpdatedUserAsync() => _authProvider.GetUserAsync(AuthLink);
 
-        public async Task<string> GetCustomToken(RefreshToken refreshToken, string email)
+        public async Task<string> GetCustomTokenAsync(RefreshToken refreshToken, string email)
         {
             var url = "https://api.unitystation.org/validatetoken?data=";
 
@@ -155,7 +155,7 @@ namespace UnitystationLauncher.Services
             return response.Message ?? "";
         }
 
-        public async Task SignOutUser()
+        public async Task SignOutUserAsync()
         {
             if (AuthLink == null || Uid == null || CurrentRefreshToken == null)
             {

@@ -29,7 +29,7 @@ namespace UnitystationLauncher.ViewModels
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
             this.WhenAnyValue(p => p.AutoRemove)
-                .Select(_ => Observable.FromAsync(OnAutoRemoveChanged))
+                .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
                 .Concat()
                 .Subscribe();
 
@@ -54,12 +54,12 @@ namespace UnitystationLauncher.ViewModels
 
         async Task UpdateFromPreferencesAsync()
         {
-            var prefs = await _config.GetPreferences();
+            var prefs = await _config.GetPreferencesAsync();
             AutoRemove = prefs.AutoRemove;
             _installationService.AutoRemove = prefs.AutoRemove;
         }
 
-        private async Task OnAutoRemoveChanged()
+        private async Task OnAutoRemoveChangedAsync()
         {
             if (AutoRemove)
             {
@@ -77,7 +77,7 @@ namespace UnitystationLauncher.ViewModels
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    await SaveChoice();
+                    await SaveChoiceAsync();
                 }
                 else
                 {
@@ -86,13 +86,13 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                await SaveChoice();
+                await SaveChoiceAsync();
             }
         }
 
-        async Task SaveChoice()
+        async Task SaveChoiceAsync()
         {
-            var prefs = await _config.GetPreferences();
+            var prefs = await _config.GetPreferencesAsync();
             prefs.AutoRemove = AutoRemove;
             _installationService.AutoRemove = AutoRemove;
         }

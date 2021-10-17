@@ -103,7 +103,7 @@ namespace UnitystationLauncher.Models
             process.Start();
         }
 
-        public async Task Delete()
+        public async Task DeleteAsync()
         {
             try
             {

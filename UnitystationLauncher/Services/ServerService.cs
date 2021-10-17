@@ -22,7 +22,7 @@ namespace UnitystationLauncher.Services
             _http = http;
             _installService = installService;
             Servers = Observable.Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10))
-                .SelectMany(_ => GetServerList())
+                .SelectMany(_ => GetServerListAsync())
                 .Replay(1)
                 .RefCount();
         }
@@ -35,7 +35,7 @@ namespace UnitystationLauncher.Services
             set => this.RaiseAndSetIfChanged(ref _refreshing, value);
         }
 
-        private async Task<IReadOnlyList<Server>> GetServerList()
+        private async Task<IReadOnlyList<Server>> GetServerListAsync()
         {
             Refreshing = true;
 

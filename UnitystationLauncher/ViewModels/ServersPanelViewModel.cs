@@ -27,7 +27,7 @@ namespace UnitystationLauncher.ViewModels
 
             DownloadCommand = ReactiveCommand.CreateFromTask<ServerViewModel, Unit>(async server =>
             {
-                await Download(server.Server);
+                await DownloadAsync(server.Server);
                 return Unit.Default;
             });
         }
@@ -43,9 +43,9 @@ namespace UnitystationLauncher.ViewModels
 
         public IObservable<bool> ServersFound => ServerList.Select(sl => sl.Any());
 
-        private async Task Download(Server server)
+        private async Task DownloadAsync(Server server)
         {
-            await _downloadService.Download(server);
+            await _downloadService.DownloadAsync(server);
         }
     }
 }

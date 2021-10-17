@@ -117,7 +117,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (signInSuccess)
             {
-                var user = await _authService.GetUpdatedUser();
+                var user = await _authService.GetUpdatedUserAsync();
 
                 if (!user.IsEmailVerified)
                 {

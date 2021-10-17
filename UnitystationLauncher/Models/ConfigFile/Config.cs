@@ -54,7 +54,7 @@ namespace UnitystationLauncher.Models.ConfigFile
         }
 
         private HubClientConfig? _clientConfig;
-        public async Task<HubClientConfig> GetServerHubClientConfig()
+        public async Task<HubClientConfig> GetServerHubClientConfigAsync()
         {
             if (_clientConfig == null)
             {
@@ -68,7 +68,7 @@ namespace UnitystationLauncher.Models.ConfigFile
         private Preferences? _preferences;
         private IDisposable? _preferenceSub;
 
-        public async Task<Preferences> GetPreferences()
+        public async Task<Preferences> GetPreferencesAsync()
         {
             if (_preferences != null)
             {

@@ -39,7 +39,7 @@ namespace UnitystationLauncher.ViewModels
                     !string.IsNullOrWhiteSpace(p));
 
             Login = ReactiveCommand.CreateFromTask(
-                UserLogin,
+                UserLoginAsync,
                 possibleCredentials);
 
             Create = ReactiveCommand.Create(
@@ -67,7 +67,7 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, SignUpViewModel> Create { get; }
         public ReactiveCommand<Unit, ForgotPasswordViewModel> ForgotPw { get; }
 
-        public async Task<LoginStatusViewModel> UserLogin()
+        public async Task<LoginStatusViewModel> UserLoginAsync()
         {
             _authService.LoginMsg = new LoginMsg
             {
@@ -75,7 +75,7 @@ namespace UnitystationLauncher.ViewModels
                 Pass = Password
             };
 
-            await SaveLoginEmail();
+            await SaveLoginEmailAsync();
 
             return _loginStatusVm.Value;
         }
@@ -92,12 +92,12 @@ namespace UnitystationLauncher.ViewModels
 
         async Task CheckForLastLoginAsync()
         {
-            Email = (await _config.GetPreferences()).LastLogin ?? "";
+            Email = (await _config.GetPreferencesAsync()).LastLogin ?? "";
         }
 
-        async Task SaveLoginEmail()
+        async Task SaveLoginEmailAsync()
         {
-            var prefs = await _config.GetPreferences();
+            var prefs = await _config.GetPreferencesAsync();
             prefs.LastLogin = _email;
         }
     }

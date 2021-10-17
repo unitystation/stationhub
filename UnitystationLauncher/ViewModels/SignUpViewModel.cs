@@ -90,14 +90,14 @@ namespace UnitystationLauncher.ViewModels
                     !string.IsNullOrEmpty(i));
 
             Submit = ReactiveCommand.CreateFromTask(
-                UserCreate, possibleCredentials);
+                UserCreateAsync, possibleCredentials);
 
             Cancel = ReactiveCommand.Create(ReturnToLogin);
 
             DoneButton = ReactiveCommand.Create(CreationEndButton);
         }
 
-        public async Task UserCreate()
+        public async Task UserCreateAsync()
         {
             IsFormVisible = false;
             var creationSuccess = true;
@@ -105,7 +105,7 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                await _authService.CreateAccount(_username, _email, _password);
+                await _authService.CreateAccountAsync(_username, _email, _password);
             }
             catch (Exception e)
             {

@@ -57,7 +57,7 @@ namespace UnitystationLauncher.ViewModels
                 installationsPanel,
                 settings
             };
-            Logout = ReactiveCommand.CreateFromTask(LogoutImp);
+            Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
@@ -67,7 +67,7 @@ namespace UnitystationLauncher.ViewModels
 
         async Task ValidateClientVersionAsync()
         {
-            var clientConfig = await _config.GetServerHubClientConfig();
+            var clientConfig = await _config.GetServerHubClientConfigAsync();
             if (clientConfig.BuildNumber > Config.CurrentBuild)
             {
                 Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
@@ -77,10 +77,10 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
-        async Task<LoginViewModel> LogoutImp()
+        async Task<LoginViewModel> LogoutAsync()
         {
-            await _authService.SignOutUser();
-            var prefs = await _config.GetPreferences();
+            await _authService.SignOutUserAsync();
+            var prefs = await _config.GetPreferencesAsync();
             prefs.LastLogin = "";
             return _logoutVm.Value;
         }

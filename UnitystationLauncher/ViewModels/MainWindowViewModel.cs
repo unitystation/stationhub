@@ -83,11 +83,11 @@ namespace UnitystationLauncher.ViewModels
             {
                 _authService.AttemptingAutoLogin = true;
                 Content = _loginStatusVm.Value;
-                await AttemptAuthRefresh();
+                await AttemptAuthRefreshAsync();
             }
         }
 
-        async Task AttemptAuthRefresh()
+        async Task AttemptAuthRefreshAsync()
         {
             if (_authService.AuthLink == null)
             {
@@ -103,7 +103,7 @@ namespace UnitystationLauncher.ViewModels
                 Token = _authService.AuthLink.RefreshToken
             };
 
-            var token = await _authService.GetCustomToken(refreshToken, _authService.AuthLink.User.Email);
+            var token = await _authService.GetCustomTokenAsync(refreshToken, _authService.AuthLink.User.Email);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -115,7 +115,7 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                _authService.AuthLink = await _authService.SignInWithCustomToken(token);
+                _authService.AuthLink = await _authService.SignInWithCustomTokenAsync(token);
             }
             catch (Exception e)
             {
@@ -125,7 +125,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            var user = await _authService.GetUpdatedUser();
+            var user = await _authService.GetUpdatedUserAsync();
             if (!user.IsEmailVerified)
             {
                 Content = _loginVm;

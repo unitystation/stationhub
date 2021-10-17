@@ -20,7 +20,7 @@ namespace UnitystationLauncher.Services
 
         public IAvaloniaReadOnlyList<Download> Downloads => _downloads;
 
-        public async Task<Download?> Download(Server server)
+        public async Task<Download?> DownloadAsync(Server server)
         {
             if (server.DownloadUrl == null)
             {

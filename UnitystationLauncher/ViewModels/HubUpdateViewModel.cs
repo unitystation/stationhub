@@ -86,7 +86,7 @@ namespace UnitystationLauncher.ViewModels
         {
             _loginVm = loginVm;
             _config = config;
-            BeginDownload = ReactiveCommand.CreateFromTask(UpdateHub);
+            BeginDownload = ReactiveCommand.CreateFromTask(UpdateHubAsync);
             RestartHub = ReactiveCommand.Create(RestartApp);
             Cancel = ReactiveCommand.Create(CancelInstall);
 
@@ -102,7 +102,7 @@ namespace UnitystationLauncher.ViewModels
             RestartButtonVisible = false;
         }
 
-        public async Task UpdateHub()
+        public async Task UpdateHubAsync()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -111,10 +111,10 @@ namespace UnitystationLauncher.ViewModels
             }
 
             _cancelSource = new CancellationTokenSource();
-            await TryUpdate(_cancelSource.Token);
+            await TryUpdateAsync(_cancelSource.Token);
         }
 
-        async Task TryUpdate(CancellationToken cancelToken)
+        async Task TryUpdateAsync(CancellationToken cancelToken)
         {
             Directory.CreateDirectory(Config.TempFolder);
 
@@ -125,7 +125,7 @@ namespace UnitystationLauncher.ViewModels
             UpdateTitle = "Downloading...";
 
             Log.Information("Download started...");
-            var downloadUrl = (await _config.GetServerHubClientConfig()).GetDownloadUrl();
+            var downloadUrl = (await _config.GetServerHubClientConfigAsync()).GetDownloadUrl();
             if (downloadUrl == null)
             {
                 Log.Error("DownloadUrl is null");
