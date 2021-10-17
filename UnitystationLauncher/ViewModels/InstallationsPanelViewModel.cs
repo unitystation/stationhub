@@ -2,27 +2,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnitystationLauncher.Models;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
 using MessageBox.Avalonia.DTO;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
-        private readonly InstallationManager _installationManager;
+        private readonly InstallationService _installationService;
         private readonly Config _config;
         string? _buildNum;
         private bool _autoRemove;
 
-        public InstallationsPanelViewModel(InstallationManager installationManager, Config config)
+        public InstallationsPanelViewModel(InstallationService installationService, Config config)
         {
-            _installationManager = installationManager;
+            _installationService = installationService;
             _config = config;
 
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
@@ -34,11 +35,11 @@ namespace UnitystationLauncher.ViewModels
             {
                 var prefs = await _config.GetPreferences();
                 AutoRemove = prefs.AutoRemove;
-                installationManager.AutoRemove = prefs.AutoRemove;
+                installationService.AutoRemove = prefs.AutoRemove;
             });
         }
 
-        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationManager.Installations
+        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationService.Installations
             .Select(installations => installations
                 .Select(installation => new InstallationViewModel(installation)).ToList());
 
@@ -89,7 +90,7 @@ namespace UnitystationLauncher.ViewModels
         {
             var prefs = await _config.GetPreferences();
             prefs.AutoRemove = AutoRemove;
-            _installationManager.AutoRemove = AutoRemove;
+            _installationService.AutoRemove = AutoRemove;
         }
     }
 }

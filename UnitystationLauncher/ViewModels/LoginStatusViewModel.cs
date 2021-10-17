@@ -5,13 +5,13 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LoginStatusViewModel : ViewModelBase
     {
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private readonly Lazy<LauncherViewModel> _launcherVm;
         private readonly LoginViewModel _loginVm;
         private string? _failedMessage;
@@ -20,13 +20,13 @@ namespace UnitystationLauncher.ViewModels
         private bool _resendClicked;
         private bool _isWaitingVisible;
 
-        public LoginStatusViewModel(AuthManager authManager, Lazy<LauncherViewModel> launcherVm,
+        public LoginStatusViewModel(AuthService authService, Lazy<LauncherViewModel> launcherVm,
             LoginViewModel loginVm)
         {
             IsFailedVisible = false;
             IsResendEmailVisible = false;
             ResendClicked = false;
-            _authManager = authManager;
+            _authService = authService;
             _loginVm = loginVm;
             _launcherVm = launcherVm;
 
@@ -40,7 +40,7 @@ namespace UnitystationLauncher.ViewModels
 
             OpenLauncher = ReactiveCommand.Create(SignInComplete);
 
-            if (!authManager.AttemptingAutoLogin)
+            if (!authService.AttemptingAutoLogin)
             {
                 RxApp.MainThreadScheduler.Schedule(async () => await UserLogin());
             }
@@ -91,8 +91,8 @@ namespace UnitystationLauncher.ViewModels
             IsResendEmailVisible = false;
             IsWaitingVisible = true;
 
-            if (string.IsNullOrEmpty(_authManager.LoginMsg?.Email) ||
-                string.IsNullOrEmpty(_authManager.LoginMsg.Pass))
+            if (string.IsNullOrEmpty(_authService.LoginMsg?.Email) ||
+                string.IsNullOrEmpty(_authService.LoginMsg.Pass))
             {
                 Log.Error("Login failed");
                 FailedMessage = "Login failed.\r\n" +
@@ -103,8 +103,8 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                _authManager.AuthLink = await _authManager.SignInWithEmailAndPasswordAsync(_authManager.LoginMsg.Email,
-                    _authManager.LoginMsg.Pass);
+                _authService.AuthLink = await _authService.SignInWithEmailAndPasswordAsync(_authService.LoginMsg.Email,
+                    _authService.LoginMsg.Pass);
             }
             catch (Exception e)
             {
@@ -117,7 +117,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (signInSuccess)
             {
-                var user = await _authManager.GetUpdatedUser();
+                var user = await _authService.GetUpdatedUser();
 
                 if (!user.IsEmailVerified)
                 {
@@ -130,7 +130,7 @@ namespace UnitystationLauncher.ViewModels
                 }
             }
 
-            _authManager.LoginMsg = null;
+            _authService.LoginMsg = null;
 
             IsWaitingVisible = false;
             if (!signInSuccess)
@@ -139,17 +139,17 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            _authManager.Store();
+            _authService.Store();
 
             Observable.Start(() => { }).InvokeCommand(this, vm => vm.OpenLauncher);
         }
 
         public void OnResend()
         {
-            _authManager.ResendVerificationEmail();
+            _authService.ResendVerificationEmail();
             ResendClicked = true;
             FailedMessage = "A new verification email has been sent to:\r\n" +
-                            $"{_authManager.AuthLink?.User.Email ?? "{ no email }"}\r\n" +
+                            $"{_authService.AuthLink?.User.Email ?? "{ no email }"}\r\n" +
                             $"Please activate your account by clicking the link\r\n" +
                             $"in the email and try again.";
         }

@@ -5,24 +5,25 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        private readonly AuthManager _authManager;
-        private readonly StateManager _stateManager;
-        private readonly DownloadManager _downloadManager;
+        private readonly AuthService _authService;
+        private readonly StateService _stateService;
+        private readonly DownloadService _downloadService;
 
         public override string Name => "Servers";
 
-        public ServersPanelViewModel(StateManager stateManager, DownloadManager downloadManager,
-            AuthManager authManager)
+        public ServersPanelViewModel(StateService stateService, DownloadService downloadService,
+            AuthService authService)
         {
-            _stateManager = stateManager;
-            _downloadManager = downloadManager;
-            _authManager = authManager;
+            _stateService = stateService;
+            _downloadService = downloadService;
+            _authService = authService;
 
             DownloadCommand = ReactiveCommand.CreateFromTask<ServerViewModel, Unit>(async server =>
             {
@@ -33,18 +34,18 @@ namespace UnitystationLauncher.ViewModels
 
         public ReactiveCommand<ServerViewModel, Unit> DownloadCommand { get; }
 
-        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateManager.State
+        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateService.State
             .Select(state => state
                 .SelectMany(installationState => installationState.Value.Servers
                     .Select(s => new ServerViewModel(s, installationState.Value.Installation,
-                        installationState.Value.Download, _authManager)))
+                        installationState.Value.Download, _authService)))
                 .ToList());
 
         public IObservable<bool> ServersFound => ServerList.Select(sl => sl.Any());
 
         private async Task Download(Server server)
         {
-            await _downloadManager.Download(server);
+            await _downloadService.Download(server);
         }
     }
 }

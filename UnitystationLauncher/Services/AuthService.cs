@@ -1,24 +1,25 @@
 using System;
-using System.IO;
-using System.Threading.Tasks;
-using Firebase.Auth;
-using System.Net.Http;
-using System.Threading;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Firebase.Auth;
 using Serilog;
+using UnitystationLauncher.Models.ConfigFile;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Services
 {
-    public class AuthManager
+    public class AuthService
     {
         readonly FirebaseAuthProvider _authProvider;
         private readonly HttpClient _http;
         public LoginMsg? LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
 
-        public AuthManager(HttpClient http, FirebaseAuthProvider authProvider)
+        public AuthService(HttpClient http, FirebaseAuthProvider authProvider)
         {
             _authProvider = authProvider;
             _http = http;

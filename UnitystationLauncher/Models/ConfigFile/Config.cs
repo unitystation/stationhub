@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Models.ConfigFile
 {
     public class Config : IDisposable
     {

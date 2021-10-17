@@ -1,22 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using ReactiveUI;
-using System.Reactive.Linq;
 using System.IO;
+using System.Linq;
 using System.Reactive;
-using UnitystationLauncher.Infrastructure;
+using System.Reactive.Linq;
+using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Infrastructure;
+using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.ConfigFile;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Services
 {
-    public class InstallationManager : ReactiveObject, IDisposable
+    public class InstallationService : ReactiveObject, IDisposable
     {
         private bool _autoRemove;
         private readonly FileSystemWatcher _fileWatcher;
         private readonly IDisposable _autoRemoveSub;
 
-        public InstallationManager()
+        public InstallationService()
         {
             _fileWatcher = new FileSystemWatcher(Config.InstallationsPath)
             {

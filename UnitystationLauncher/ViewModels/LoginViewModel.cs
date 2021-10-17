@@ -3,7 +3,8 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using ReactiveUI;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -12,7 +13,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly Lazy<SignUpViewModel> _signUpVm;
         private readonly Lazy<ForgotPasswordViewModel> _forgotVm;
         private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private readonly Config _config;
         string _email = "";
         string _password = "";
@@ -21,9 +22,10 @@ namespace UnitystationLauncher.ViewModels
             Lazy<LoginStatusViewModel> loginStatusVm,
             Lazy<SignUpViewModel> signUpVm,
             Lazy<ForgotPasswordViewModel> forgotVm,
-            AuthManager authManager, Config config)
+            AuthService authService,
+            Config config)
         {
-            _authManager = authManager;
+            _authService = authService;
             _config = config;
             _signUpVm = signUpVm;
             _loginStatusVm = loginStatusVm;
@@ -67,7 +69,7 @@ namespace UnitystationLauncher.ViewModels
 
         public async Task<LoginStatusViewModel> UserLogin()
         {
-            _authManager.LoginMsg = new LoginMsg
+            _authService.LoginMsg = new LoginMsg
             {
                 Email = Email,
                 Pass = Password

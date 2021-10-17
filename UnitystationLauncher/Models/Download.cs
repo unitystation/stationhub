@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Infrastructure;
 
 namespace UnitystationLauncher.Models
 {

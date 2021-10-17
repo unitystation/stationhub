@@ -3,11 +3,11 @@ using ReactiveUI;
 using System.Reactive.Linq;
 using Serilog;
 using System.Threading;
-using UnitystationLauncher.Models;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Avalonia.Media;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -15,7 +15,7 @@ namespace UnitystationLauncher.ViewModels
     {
         private readonly Lazy<LauncherViewModel> _launcherVm;
         private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private readonly LoginViewModel _loginVm;
 
         ViewModelBase _content;
@@ -37,14 +37,14 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> CommandMaximizee { get; }
 
         public MainWindowViewModel(LoginViewModel loginVm, Lazy<LoginStatusViewModel> loginStatusVm, Lazy<LauncherViewModel> launcherVm,
-            AuthManager authManager)
+            AuthService authService)
         {
             _loginStatusVm = loginStatusVm;
             _loginVm = loginVm;
-            _authManager = authManager;
+            _authService = authService;
             _launcherVm = launcherVm;
             Content = _content = loginVm;
-            authManager.AttemptingAutoLogin = false;
+            authService.AttemptingAutoLogin = false;
             _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             _maximizeToolTip = "Maximize";
             CommandMaximizee = ReactiveCommand.Create(Maximize);
@@ -79,9 +79,9 @@ namespace UnitystationLauncher.ViewModels
 
         async Task CheckForExistingUser()
         {
-            if (_authManager.AuthLink != null)
+            if (_authService.AuthLink != null)
             {
-                _authManager.AttemptingAutoLogin = true;
+                _authService.AttemptingAutoLogin = true;
                 Content = _loginStatusVm.Value;
                 await AttemptAuthRefresh();
             }
@@ -89,51 +89,51 @@ namespace UnitystationLauncher.ViewModels
 
         async Task AttemptAuthRefresh()
         {
-            if (_authManager.AuthLink == null)
+            if (_authService.AuthLink == null)
             {
                 Log.Error("Login failed");
                 Content = _loginVm;
-                _authManager.AttemptingAutoLogin = false;
+                _authService.AttemptingAutoLogin = false;
                 return;
             }
 
             var refreshToken = new RefreshToken
             {
-                UserId = _authManager.AuthLink.User.LocalId,
-                Token = _authManager.AuthLink.RefreshToken
+                UserId = _authService.AuthLink.User.LocalId,
+                Token = _authService.AuthLink.RefreshToken
             };
 
-            var token = await _authManager.GetCustomToken(refreshToken, _authManager.AuthLink.User.Email);
+            var token = await _authService.GetCustomToken(refreshToken, _authService.AuthLink.User.Email);
 
             if (string.IsNullOrEmpty(token))
             {
                 Log.Error("Login failed");
                 Content = _loginVm;
-                _authManager.AttemptingAutoLogin = false;
+                _authService.AttemptingAutoLogin = false;
                 return;
             }
 
             try
             {
-                _authManager.AuthLink = await _authManager.SignInWithCustomToken(token);
+                _authService.AuthLink = await _authService.SignInWithCustomToken(token);
             }
             catch (Exception e)
             {
                 Log.Error(e, "Login failed");
                 Content = _loginVm;
-                _authManager.AttemptingAutoLogin = false;
+                _authService.AttemptingAutoLogin = false;
                 return;
             }
 
-            var user = await _authManager.GetUpdatedUser();
+            var user = await _authService.GetUpdatedUser();
             if (!user.IsEmailVerified)
             {
                 Content = _loginVm;
-                _authManager.AttemptingAutoLogin = false;
+                _authService.AttemptingAutoLogin = false;
                 return;
             }
-            _authManager.AttemptingAutoLogin = false;
-            _authManager.Store();
+            _authService.AttemptingAutoLogin = false;
+            _authService.Store();
             Content = _launcherVm.Value;
         }
 

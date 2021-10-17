@@ -12,6 +12,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.Models
 {

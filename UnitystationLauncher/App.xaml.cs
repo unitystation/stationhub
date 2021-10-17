@@ -2,7 +2,6 @@ using System;
 using Avalonia;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
-using UnitystationLauncher.Models;
 using Serilog;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -12,6 +11,7 @@ using AutofacSerilogIntegration;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Mono.Unix;
+using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher
 {

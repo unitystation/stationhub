@@ -1,7 +1,7 @@
 using System.Net.Http;
 using Autofac;
 using Firebase.Auth;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher
 {
@@ -11,13 +11,16 @@ namespace UnitystationLauncher
         {
             builder.RegisterType<HttpClient>().SingleInstance();
             builder.RegisterType<Config>().SingleInstance();
+
             builder.RegisterAssemblyTypes(ThisAssembly)
-                .Where(t => t.Name.EndsWith("Manager"))
+                .Where(t => t.Name.EndsWith("Service"))
                 .SingleInstance();
-            builder.Register(c => new FirebaseConfig("AIzaSyB7GorzPgwHYjSV4XaJoszj98tLM4_WZpE")).SingleInstance();
-            builder.RegisterType<FirebaseAuthProvider>().SingleInstance();
+
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("ViewModel"));
+
+            builder.Register(c => new FirebaseConfig("AIzaSyB7GorzPgwHYjSV4XaJoszj98tLM4_WZpE")).SingleInstance();
+            builder.RegisterType<FirebaseAuthProvider>().SingleInstance();
         }
     }
 }

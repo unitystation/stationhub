@@ -3,13 +3,13 @@ using System.Reactive;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class SignUpViewModel : ViewModelBase
     {
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private readonly Lazy<LoginViewModel> _loginVm;
         string _email = "";
         string _password = "";
@@ -72,12 +72,12 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, LoginViewModel> DoneButton { get; }
         public ReactiveCommand<Unit, Unit> Submit { get; }
 
-        public SignUpViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVm)
+        public SignUpViewModel(AuthService authService, Lazy<LoginViewModel> loginVm)
         {
             IsFormVisible = true;
             IsWaitingVisible = false;
             IsCreatedVisible = false;
-            _authManager = authManager;
+            _authService = authService;
             _loginVm = loginVm;
             var possibleCredentials = this.WhenAnyValue(
                 x => x.Email,
@@ -105,7 +105,7 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                await _authManager.CreateAccount(_username, _email, _password);
+                await _authService.CreateAccount(_username, _email, _password);
             }
             catch (Exception e)
             {
@@ -125,7 +125,7 @@ namespace UnitystationLauncher.ViewModels
                 CreationMessage = $"Something went wrong with the verification email server.\r\n" +
                     $"A reset password email has been sent to {_email} as a work around.\r\n" +
                     $"Please reset your password and try to log in.";
-                _authManager.SendForgotPasswordEmail(_email);
+                _authService.SendForgotPasswordEmail(_email);
                 EndButtonText = "Back";
             }
 

@@ -16,7 +16,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Mono.Unix;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Infrastructure;
+using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ViewModels
 {

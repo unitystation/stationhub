@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Models.Api
 {
     public class ServerList
     {

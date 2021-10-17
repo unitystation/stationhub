@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Models.ConfigFile
 {
     public class Preferences : ReactiveObject
     {
