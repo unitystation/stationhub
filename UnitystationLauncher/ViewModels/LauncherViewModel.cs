@@ -61,11 +61,11 @@ namespace UnitystationLauncher.ViewModels
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
-            RxApp.MainThreadScheduler.Schedule(async () => await ValidateClientVersion());
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => ValidateClientVersionAsync());
         }
 
 
-        async Task ValidateClientVersion()
+        async Task ValidateClientVersionAsync()
         {
             var clientConfig = await _config.GetServerHubClientConfig();
             if (clientConfig.BuildNumber > Config.CurrentBuild)

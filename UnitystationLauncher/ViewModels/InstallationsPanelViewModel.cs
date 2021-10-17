@@ -29,14 +29,11 @@ namespace UnitystationLauncher.ViewModels
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
             this.WhenAnyValue(p => p.AutoRemove)
-                .Subscribe(async v => await OnAutoRemoveChanged());
+                .Select(_ => Observable.FromAsync(OnAutoRemoveChanged))
+                .Concat()
+                .Subscribe();
 
-            RxApp.MainThreadScheduler.Schedule(async () =>
-            {
-                var prefs = await _config.GetPreferences();
-                AutoRemove = prefs.AutoRemove;
-                installationService.AutoRemove = prefs.AutoRemove;
-            });
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => UpdateFromPreferencesAsync());
         }
 
         public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationService.Installations
@@ -53,6 +50,13 @@ namespace UnitystationLauncher.ViewModels
         {
             get => _autoRemove;
             set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
+        }
+
+        async Task UpdateFromPreferencesAsync()
+        {
+            var prefs = await _config.GetPreferences();
+            AutoRemove = prefs.AutoRemove;
+            _installationService.AutoRemove = prefs.AutoRemove;
         }
 
         private async Task OnAutoRemoveChanged()

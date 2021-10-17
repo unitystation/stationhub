@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -86,12 +87,14 @@ namespace UnitystationLauncher.Models.ConfigFile
 
             _preferenceSub?.Dispose();
             _preferenceSub = _preferences.Changed
-                .Subscribe(async x => await SerializerPreferences());
+                .Select(_ => Observable.FromAsync(SerializerPreferencesAsync))
+                .Concat()
+                .Subscribe();
 
             return _preferences;
         }
 
-        private async Task SerializerPreferences()
+        private async Task SerializerPreferencesAsync()
         {
             await using var file = File.Create(PreferencesFilePath);
             await JsonSerializer.SerializeAsync(file, _preferences, new JsonSerializerOptions { IgnoreNullValues = true, IgnoreReadOnlyProperties = true });

@@ -42,7 +42,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (!authService.AttemptingAutoLogin)
             {
-                RxApp.MainThreadScheduler.Schedule(async () => await UserLogin());
+                RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => UserLoginAsync());
             }
             else
             {
@@ -84,7 +84,7 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> ResendEmail { get; }
         public ReactiveCommand<Unit, LauncherViewModel> OpenLauncher { get; }
 
-        public async Task UserLogin()
+        public async Task UserLoginAsync()
         {
             bool signInSuccess = true;
             ResendClicked = false;

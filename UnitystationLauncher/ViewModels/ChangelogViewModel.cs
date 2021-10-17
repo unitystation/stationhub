@@ -20,10 +20,10 @@ namespace UnitystationLauncher.ViewModels
         public ChangelogViewModel()
         {
             _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            RxApp.MainThreadScheduler.Schedule(async () => await GetPullRequests());
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => GetPullRequestsAsync());
         }
 
-        public async Task GetPullRequests()
+        public async Task GetPullRequestsAsync()
         {
             PullRequestRequest options = new PullRequestRequest();
             ApiOptions apiOptions = new ApiOptions();

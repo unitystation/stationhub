@@ -48,7 +48,7 @@ namespace UnitystationLauncher.ViewModels
             _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             _maximizeToolTip = "Maximize";
             CommandMaximizee = ReactiveCommand.Create(Maximize);
-            RxApp.MainThreadScheduler.Schedule(async () => await CheckForExistingUser());
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => CheckForExistingUserAsync());
         }
 
         private void Maximize()
@@ -77,7 +77,7 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
-        async Task CheckForExistingUser()
+        async Task CheckForExistingUserAsync()
         {
             if (_authService.AuthLink != null)
             {
