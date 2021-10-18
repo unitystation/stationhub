@@ -1,24 +1,25 @@
 using System;
-using System.IO;
-using System.Threading.Tasks;
-using Firebase.Auth;
-using System.Net.Http;
-using System.Threading;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Firebase.Auth;
 using Serilog;
+using UnitystationLauncher.Models.ConfigFile;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Services
 {
-    public class AuthManager
+    public class AuthService
     {
         readonly FirebaseAuthProvider _authProvider;
         private readonly HttpClient _http;
         public LoginMsg? LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
 
-        public AuthManager(HttpClient http, FirebaseAuthProvider authProvider)
+        public AuthService(HttpClient http, FirebaseAuthProvider authProvider)
         {
             _authProvider = authProvider;
             _http = http;
@@ -58,7 +59,7 @@ namespace UnitystationLauncher.Models
         internal Task<FirebaseAuthLink> SignInWithEmailAndPasswordAsync(string email, string password) =>
             _authProvider.SignInWithEmailAndPasswordAsync(email, password);
 
-        internal Task<FirebaseAuthLink> SignInWithCustomToken(string token) =>
+        internal Task<FirebaseAuthLink> SignInWithCustomTokenAsync(string token) =>
             _authProvider.SignInWithCustomTokenAsync(token);
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace UnitystationLauncher.Models
         /// Otherwise an exception is thrown.
         /// </summary>
         /// <returns></returns>
-        internal async Task<FirebaseAuthLink> CreateAccount(string username, string email, string password)
+        internal async Task<FirebaseAuthLink> CreateAccountAsync(string username, string email, string password)
         {
             // Client-side check for disposable email address.
             const string url =
@@ -119,9 +120,9 @@ namespace UnitystationLauncher.Models
             return await _authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
         }
 
-        internal Task<User> GetUpdatedUser() => _authProvider.GetUserAsync(AuthLink);
+        internal Task<User> GetUpdatedUserAsync() => _authProvider.GetUserAsync(AuthLink);
 
-        public async Task<string> GetCustomToken(RefreshToken refreshToken, string email)
+        public async Task<string> GetCustomTokenAsync(RefreshToken refreshToken, string email)
         {
             var url = "https://api.unitystation.org/validatetoken?data=";
 
@@ -154,7 +155,7 @@ namespace UnitystationLauncher.Models
             return response.Message ?? "";
         }
 
-        public async Task SignOutUser()
+        public async Task SignOutUserAsync()
         {
             if (AuthLink == null || Uid == null || CurrentRefreshToken == null)
             {

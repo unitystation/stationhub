@@ -2,43 +2,41 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnitystationLauncher.Models;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
 using MessageBox.Avalonia.DTO;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
-        private readonly InstallationManager _installationManager;
+        private readonly InstallationService _installationService;
         private readonly Config _config;
         string? _buildNum;
         private bool _autoRemove;
 
-        public InstallationsPanelViewModel(InstallationManager installationManager, Config config)
+        public InstallationsPanelViewModel(InstallationService installationService, Config config)
         {
-            _installationManager = installationManager;
+            _installationService = installationService;
             _config = config;
 
             BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
 
             this.WhenAnyValue(p => p.AutoRemove)
-                .Subscribe(async v => await OnAutoRemoveChanged());
+                .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
+                .Concat()
+                .Subscribe();
 
-            RxApp.MainThreadScheduler.Schedule(async () =>
-            {
-                var prefs = await _config.GetPreferences();
-                AutoRemove = prefs.AutoRemove;
-                installationManager.AutoRemove = prefs.AutoRemove;
-            });
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => UpdateFromPreferencesAsync());
         }
 
-        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationManager.Installations
+        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationService.Installations
             .Select(installations => installations
                 .Select(installation => new InstallationViewModel(installation)).ToList());
 
@@ -54,7 +52,14 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
         }
 
-        private async Task OnAutoRemoveChanged()
+        async Task UpdateFromPreferencesAsync()
+        {
+            var prefs = await _config.GetPreferencesAsync();
+            AutoRemove = prefs.AutoRemove;
+            _installationService.AutoRemove = prefs.AutoRemove;
+        }
+
+        private async Task OnAutoRemoveChangedAsync()
         {
             if (AutoRemove)
             {
@@ -72,7 +77,7 @@ namespace UnitystationLauncher.ViewModels
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    await SaveChoice();
+                    await SaveChoiceAsync();
                 }
                 else
                 {
@@ -81,15 +86,15 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                await SaveChoice();
+                await SaveChoiceAsync();
             }
         }
 
-        async Task SaveChoice()
+        async Task SaveChoiceAsync()
         {
-            var prefs = await _config.GetPreferences();
+            var prefs = await _config.GetPreferencesAsync();
             prefs.AutoRemove = AutoRemove;
-            _installationManager.AutoRemove = AutoRemove;
+            _installationService.AutoRemove = AutoRemove;
         }
     }
 }

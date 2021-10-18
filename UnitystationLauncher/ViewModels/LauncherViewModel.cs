@@ -1,24 +1,25 @@
 ﻿using ReactiveUI;
-using UnitystationLauncher.Models;
 using System.Reactive;
 using System;
 using System.Reactive.Concurrency;
 using Serilog;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LauncherViewModel : ViewModelBase
     {
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private readonly Lazy<LoginViewModel> _logoutVm;
         private readonly Lazy<HubUpdateViewModel> _hubUpdateVm;
         private readonly Config _config;
         PanelBase[] _panels;
         ViewModelBase? _selectedPanel;
 
-        public string Username => _authManager.AuthLink?.User.DisplayName ?? "";
+        public string Username => _authService.AuthLink?.User.DisplayName ?? "";
 
         public PanelBase[] Panels
         {
@@ -36,7 +37,7 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
 
         public LauncherViewModel(
-            AuthManager authManager,
+            AuthService authService,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
             Lazy<LoginViewModel> logoutVm,
@@ -45,7 +46,7 @@ namespace UnitystationLauncher.ViewModels
             SettingsPanelViewModel settings,
             Config config)
         {
-            _authManager = authManager;
+            _authService = authService;
             _logoutVm = logoutVm;
             _hubUpdateVm = hubUpdateVm;
             _config = config;
@@ -56,17 +57,17 @@ namespace UnitystationLauncher.ViewModels
                 installationsPanel,
                 settings
             };
-            Logout = ReactiveCommand.CreateFromTask(LogoutImp);
+            Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
-            RxApp.MainThreadScheduler.Schedule(async () => await ValidateClientVersion());
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => ValidateClientVersionAsync());
         }
 
 
-        async Task ValidateClientVersion()
+        async Task ValidateClientVersionAsync()
         {
-            var clientConfig = await _config.GetServerHubClientConfig();
+            var clientConfig = await _config.GetServerHubClientConfigAsync();
             if (clientConfig.BuildNumber > Config.CurrentBuild)
             {
                 Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
@@ -76,10 +77,10 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
-        async Task<LoginViewModel> LogoutImp()
+        async Task<LoginViewModel> LogoutAsync()
         {
-            await _authManager.SignOutUser();
-            var prefs = await _config.GetPreferences();
+            await _authService.SignOutUserAsync();
+            var prefs = await _config.GetPreferencesAsync();
             prefs.LastLogin = "";
             return _logoutVm.Value;
         }

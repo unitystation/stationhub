@@ -5,7 +5,7 @@ using Avalonia.Media.Imaging;
 using System;
 using System.Reactive;
 using System.Diagnostics;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ViewModels
 {

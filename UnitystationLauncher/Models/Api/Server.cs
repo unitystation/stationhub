@@ -1,8 +1,9 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using UnitystationLauncher.Models.ConfigFile;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Models.Api
 {
     public class Server
     {

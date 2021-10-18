@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Reactive;
-using UnitystationLauncher.Models;
 using ReactiveUI;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ForgotPasswordViewModel : ViewModelBase
     {
         private readonly Lazy<LoginViewModel> _loginVm;
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private bool _isFormVisible;
         private bool _isSuccessVisible;
         string _email = "";
@@ -34,11 +34,11 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _isSuccessVisible, value);
         }
 
-        public ForgotPasswordViewModel(AuthManager authManager, Lazy<LoginViewModel> loginVm)
+        public ForgotPasswordViewModel(AuthService authService, Lazy<LoginViewModel> loginVm)
         {
             IsFormVisible = true;
             IsSuccessVisible = false;
-            _authManager = authManager;
+            _authService = authService;
             _loginVm = loginVm;
 
             var inputValidation = this.WhenAnyValue(
@@ -54,7 +54,7 @@ namespace UnitystationLauncher.ViewModels
 
         void TrySendResetPassword()
         {
-            _authManager.SendForgotPasswordEmail(Email);
+            _authService.SendForgotPasswordEmail(Email);
             IsFormVisible = false;
             IsSuccessVisible = true;
         }

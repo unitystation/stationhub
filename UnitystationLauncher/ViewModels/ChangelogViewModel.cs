@@ -3,16 +3,15 @@ using Octokit;
 using System.Collections.ObjectModel;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
-using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ChangelogViewModel : ViewModelBase
     {
         readonly GitHubClient _client;
-        ObservableCollection<PullRequestWrapper> _pullRequests = new ObservableCollection<PullRequestWrapper>();
+        ObservableCollection<PullRequestViewModel> _pullRequests = new ObservableCollection<PullRequestViewModel>();
 
-        public ObservableCollection<PullRequestWrapper> PullRequests
+        public ObservableCollection<PullRequestViewModel> PullRequests
         {
             get => _pullRequests;
             set => this.RaiseAndSetIfChanged(ref _pullRequests, value);
@@ -21,10 +20,10 @@ namespace UnitystationLauncher.ViewModels
         public ChangelogViewModel()
         {
             _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            RxApp.MainThreadScheduler.Schedule(async () => await GetPullRequests());
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => GetPullRequestsAsync());
         }
 
-        public async Task GetPullRequests()
+        public async Task GetPullRequestsAsync()
         {
             PullRequestRequest options = new PullRequestRequest();
             ApiOptions apiOptions = new ApiOptions();
@@ -34,13 +33,13 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                var getList = await _client.Repository.PullRequest.GetAllForRepository("unitystation", "unitystation", options, apiOptions);
+                var closedPrs = await _client.Repository.PullRequest.GetAllForRepository("unitystation", "unitystation", options, apiOptions);
 
-                foreach (var pr in getList)
+                foreach (var pr in closedPrs)
                 {
                     if (pr.Merged)
                     {
-                        PullRequests.Add(new PullRequestWrapper(pr));
+                        PullRequests.Add(new PullRequestViewModel(pr));
                     }
                 }
             }

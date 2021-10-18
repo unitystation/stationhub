@@ -6,21 +6,23 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Models.ConfigFile;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Services
 {
-    public class ServerManager : ReactiveObject, IDisposable
+    public class ServerService : ReactiveObject, IDisposable
     {
         private readonly HttpClient _http;
-        private readonly InstallationManager _installManager;
+        private readonly InstallationService _installService;
         private bool _refreshing;
 
-        public ServerManager(HttpClient http, InstallationManager installManager)
+        public ServerService(HttpClient http, InstallationService installService)
         {
             _http = http;
-            _installManager = installManager;
+            _installService = installService;
             Servers = Observable.Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10))
-                .SelectMany(_ => GetServerList())
+                .SelectMany(_ => GetServerListAsync())
                 .Replay(1)
                 .RefCount();
         }
@@ -33,7 +35,7 @@ namespace UnitystationLauncher.Models
             set => this.RaiseAndSetIfChanged(ref _refreshing, value);
         }
 
-        private async Task<IReadOnlyList<Server>> GetServerList()
+        private async Task<IReadOnlyList<Server>> GetServerListAsync()
         {
             Refreshing = true;
 
@@ -62,7 +64,7 @@ namespace UnitystationLauncher.Models
 
         public void Dispose()
         {
-            _installManager.Dispose();
+            _installService.Dispose();
         }
     }
 }

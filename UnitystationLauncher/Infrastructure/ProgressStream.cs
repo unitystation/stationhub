@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Reactive.Subjects;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Infrastructure
 {
     public class ProgressStream : Stream
     {

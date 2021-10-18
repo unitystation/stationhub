@@ -6,6 +6,8 @@ using Reactive.Bindings;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Services;
 
 #if FLATPAK
 using System.Text.RegularExpressions;
@@ -15,7 +17,7 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServerViewModel : ViewModelBase, IDisposable
     {
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
 
         // Ping does not work in sandboxes so we have to reconstruct its functionality in that case.
         // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
@@ -25,12 +27,12 @@ namespace UnitystationLauncher.ViewModels
         private readonly Ping _pingSender;
 #endif
 
-        public ServerViewModel(Server server, Installation? installation, Download? download, AuthManager authManager)
+        public ServerViewModel(Server server, Installation? installation, Download? download, AuthService authService)
         {
             Server = server;
             Installation = installation;
             Download = download;
-            _authManager = authManager;
+            _authService = authService;
 #if FLATPAK
 	        _pingSender = new Process();
             _pingSender.StartInfo.UseShellExecute = false;
@@ -77,7 +79,7 @@ namespace UnitystationLauncher.ViewModels
 
         public void Start()
         {
-            Installation?.Start(IPAddress.Parse(Server.ServerIp), (short)Server.ServerPort, _authManager.CurrentRefreshToken, _authManager.Uid);
+            Installation?.Start(IPAddress.Parse(Server.ServerIp), (short)Server.ServerPort, _authService.CurrentRefreshToken, _authService.Uid);
         }
 
         public void Dispose()

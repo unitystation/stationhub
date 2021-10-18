@@ -12,11 +12,11 @@
             <TextBlock Text="{Binding Installation.BuildVersion, StringFormat='Build: {0}'}" />
         </StackPanel>
         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-            <Button Command="{Binding Installation.Start}" Margin="5" Background="{StaticResource PrimaryTransparent4}"
+            <Button Command="{Binding LaunchCommand}" Margin="5" Background="{StaticResource PrimaryTransparent4}"
                     BorderThickness="0">
                 Launch
             </Button>
-            <Button Command="{Binding Installation.Delete}" Margin="5"
+            <Button Command="{Binding UninstallCommand}" Margin="5"
                     Background="{StaticResource PrimaryTransparent4}" BorderThickness="0">
                 Uninstall
             </Button>

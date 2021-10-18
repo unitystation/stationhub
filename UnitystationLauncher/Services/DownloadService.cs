@@ -3,14 +3,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Serilog;
+using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.Api;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Services
 {
-    public class DownloadManager
+    public class DownloadService
     {
         private readonly AvaloniaList<Download> _downloads;
 
-        public DownloadManager()
+        public DownloadService()
         {
             _downloads = new AvaloniaList<Download>();
             Downloads.GetWeakCollectionChangedObservable().Subscribe(x => Log.Information("Downloads changed"));
@@ -18,7 +20,7 @@ namespace UnitystationLauncher.Models
 
         public IAvaloniaReadOnlyList<Download> Downloads => _downloads;
 
-        public async Task<Download?> Download(Server server)
+        public async Task<Download?> DownloadAsync(Server server)
         {
             if (server.DownloadUrl == null)
             {

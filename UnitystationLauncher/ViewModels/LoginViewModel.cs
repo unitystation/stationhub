@@ -3,7 +3,8 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using ReactiveUI;
-using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -12,7 +13,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly Lazy<SignUpViewModel> _signUpVm;
         private readonly Lazy<ForgotPasswordViewModel> _forgotVm;
         private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
-        private readonly AuthManager _authManager;
+        private readonly AuthService _authService;
         private readonly Config _config;
         string _email = "";
         string _password = "";
@@ -21,9 +22,10 @@ namespace UnitystationLauncher.ViewModels
             Lazy<LoginStatusViewModel> loginStatusVm,
             Lazy<SignUpViewModel> signUpVm,
             Lazy<ForgotPasswordViewModel> forgotVm,
-            AuthManager authManager, Config config)
+            AuthService authService,
+            Config config)
         {
-            _authManager = authManager;
+            _authService = authService;
             _config = config;
             _signUpVm = signUpVm;
             _loginStatusVm = loginStatusVm;
@@ -37,7 +39,7 @@ namespace UnitystationLauncher.ViewModels
                     !string.IsNullOrWhiteSpace(p));
 
             Login = ReactiveCommand.CreateFromTask(
-                UserLogin,
+                UserLoginAsync,
                 possibleCredentials);
 
             Create = ReactiveCommand.Create(
@@ -46,7 +48,7 @@ namespace UnitystationLauncher.ViewModels
             ForgotPw = ReactiveCommand.Create(
                 ForgotPass);
 
-            RxApp.MainThreadScheduler.Schedule(async () => await CheckForLastLogin());
+            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => CheckForLastLoginAsync());
         }
 
         public string Email
@@ -65,15 +67,15 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, SignUpViewModel> Create { get; }
         public ReactiveCommand<Unit, ForgotPasswordViewModel> ForgotPw { get; }
 
-        public async Task<LoginStatusViewModel> UserLogin()
+        public async Task<LoginStatusViewModel> UserLoginAsync()
         {
-            _authManager.LoginMsg = new LoginMsg
+            _authService.LoginMsg = new LoginMsg
             {
                 Email = Email,
                 Pass = Password
             };
 
-            await SaveLoginEmail();
+            await SaveLoginEmailAsync();
 
             return _loginStatusVm.Value;
         }
@@ -88,14 +90,14 @@ namespace UnitystationLauncher.ViewModels
             return _forgotVm.Value;
         }
 
-        async Task CheckForLastLogin()
+        async Task CheckForLastLoginAsync()
         {
-            Email = (await _config.GetPreferences()).LastLogin ?? "";
+            Email = (await _config.GetPreferencesAsync()).LastLogin ?? "";
         }
 
-        async Task SaveLoginEmail()
+        async Task SaveLoginEmailAsync()
         {
-            var prefs = await _config.GetPreferences();
+            var prefs = await _config.GetPreferencesAsync();
             prefs.LastLogin = _email;
         }
     }

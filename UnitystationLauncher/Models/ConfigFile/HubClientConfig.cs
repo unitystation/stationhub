@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Models.ConfigFile
 {
     [Serializable]
     public class HubClientConfig

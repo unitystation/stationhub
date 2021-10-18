@@ -1,11 +1,12 @@
 using System;
 using System.IO;
 using System.Net.Http;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace UnitystationLauncher.Models
+namespace UnitystationLauncher.Models.ConfigFile
 {
     public class Config : IDisposable
     {
@@ -53,7 +54,7 @@ namespace UnitystationLauncher.Models
         }
 
         private HubClientConfig? _clientConfig;
-        public async Task<HubClientConfig> GetServerHubClientConfig()
+        public async Task<HubClientConfig> GetServerHubClientConfigAsync()
         {
             if (_clientConfig == null)
             {
@@ -67,7 +68,7 @@ namespace UnitystationLauncher.Models
         private Preferences? _preferences;
         private IDisposable? _preferenceSub;
 
-        public async Task<Preferences> GetPreferences()
+        public async Task<Preferences> GetPreferencesAsync()
         {
             if (_preferences != null)
             {
@@ -86,12 +87,14 @@ namespace UnitystationLauncher.Models
 
             _preferenceSub?.Dispose();
             _preferenceSub = _preferences.Changed
-                .Subscribe(async x => await SerializerPreferences());
+                .Select(_ => Observable.FromAsync(SerializerPreferencesAsync))
+                .Concat()
+                .Subscribe();
 
             return _preferences;
         }
 
-        private async Task SerializerPreferences()
+        private async Task SerializerPreferencesAsync()
         {
             await using var file = File.Create(PreferencesFilePath);
             await JsonSerializer.SerializeAsync(file, _preferences, new JsonSerializerOptions { IgnoreNullValues = true, IgnoreReadOnlyProperties = true });
