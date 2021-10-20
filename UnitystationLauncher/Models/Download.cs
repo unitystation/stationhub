@@ -79,7 +79,7 @@ namespace UnitystationLauncher.Models
 
                 using var logProgDisposable = LogProgress(progStream);
 
-                progStream.Progress
+                using var progDisposable = progStream.Progress
                     .Select(p => (int)(p * 100 / Size))
                     .DistinctUntilChanged()
                     .Subscribe(p => { Progress = p; });
@@ -90,6 +90,7 @@ namespace UnitystationLauncher.Models
                     try
                     {
                         var archive = new ZipArchive(progStream);
+                        // TODO: Enable extraction cancelling
                         archive.ExtractToDirectory(InstallationPath, true);
 
                         Log.Information("Download completed");
@@ -130,7 +131,7 @@ namespace UnitystationLauncher.Models
                     }
 
                     var speed = deltaPos.Bytes().Per(deltaTime);
-                    Log.Information("Progress: {ProgressPercent}%, Download speed = {DownloadSpeed}",
+                    Log.Information("Progress: {ProgressPercent}%, Speed = {DownloadSpeed}",
                         percentage,
                         speed.Humanize("#.##"));
 

@@ -1,13 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Humanizer.Bytes;
 using ReactiveUI;
 using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
+using System.Net.Http;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -15,6 +14,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Humanizer;
 using Mono.Unix;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
@@ -34,6 +34,28 @@ namespace UnitystationLauncher.ViewModels
         private bool _downloadBarVisible;
         private bool _restartButtonVisible;
         private readonly Process _thisProcess;
+        private readonly HttpClient _http;
+
+        public HubUpdateViewModel(Lazy<LoginViewModel> loginVm, Config config, HttpClient http)
+        {
+            _loginVm = loginVm;
+            _config = config;
+            _http = http;
+            BeginDownload = ReactiveCommand.CreateFromTask(UpdateHubAsync);
+            RestartHub = ReactiveCommand.Create(RestartApp);
+            Cancel = ReactiveCommand.Create(CancelInstall);
+
+            UpdateTitle = "Update Required";
+            UpdateMessage = $"An update is required before you can continue.\n\rPlease install" +
+                            $" the latest version by clicking the button below:";
+
+            ButtonMessage = $"Update Hub";
+            _thisProcess = Process.GetCurrentProcess();
+
+            InstallButtonVisible = true;
+            DownloadBarVisible = false;
+            RestartButtonVisible = false;
+        }
 
         public ReactiveCommand<Unit, Unit> BeginDownload { get; }
         public ReactiveCommand<Unit, Unit> RestartHub { get; }
@@ -82,39 +104,26 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _downloadMessage, value);
         }
 
-        public HubUpdateViewModel(Lazy<LoginViewModel> loginVm, Config config)
-        {
-            _loginVm = loginVm;
-            _config = config;
-            BeginDownload = ReactiveCommand.CreateFromTask(UpdateHubAsync);
-            RestartHub = ReactiveCommand.Create(RestartApp);
-            Cancel = ReactiveCommand.Create(CancelInstall);
-
-            UpdateTitle = "Update Required";
-            UpdateMessage = $"An update is required before you can continue.\n\rPlease install" +
-                $" the latest version by clicking the button below:";
-
-            ButtonMessage = $"Update Hub";
-            _thisProcess = Process.GetCurrentProcess();
-
-            InstallButtonVisible = true;
-            DownloadBarVisible = false;
-            RestartButtonVisible = false;
-        }
-
         public async Task UpdateHubAsync()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            try
             {
-                GiveAllOwnerPermissions(Config.UnixExeFullPath);
-            }
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    GiveAllOwnerPermissions(Config.UnixExeFullPath);
+                }
 
-            _cancelSource = new CancellationTokenSource();
-            await TryUpdateAsync(_cancelSource.Token);
+                _cancelSource = new CancellationTokenSource();
+                await TryUpdateAsync(_cancelSource.Token);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Failed to update hub");
+            }
         }
 
-        async Task TryUpdateAsync(CancellationToken cancelToken)
+        private async Task TryUpdateAsync(CancellationToken cancelToken)
         {
             Directory.CreateDirectory(Config.TempFolder);
 
@@ -132,36 +141,54 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            var webRequest = WebRequest.Create(downloadUrl);
-            var webResponse = await webRequest.GetResponseAsync();
-            await using var responseStream = webResponse.GetResponseStream();
+            Log.Information("Download started...");
+            var request = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancelToken);
+            await using var responseStream = await request.Content.ReadAsStreamAsync();
             if (responseStream == null)
             {
-                Log.Error("Failed to establish download connection");
+                Log.Error("Could not download from server");
                 return;
             }
 
             Log.Information("Download connection established");
-
             await using var progStream = new ProgressStream(responseStream);
-            var length = webResponse.ContentLength;
-            var maxFileSize = ByteSize.FromBytes(length);
+            var length = request.Content.Headers.ContentLength ??
+                         throw new NullReferenceException(nameof(request.Content.Headers.ContentLength));
 
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))
                 .DistinctUntilChanged()
-                .Subscribe(p =>
-                {
+                .Subscribe(p => { Progress.OnNext(p); });
 
-                    if (cancelToken.IsCancellationRequested)
+            var lastPosition = 0L;
+            var lastTime = DateTime.Now;
+            using var progStreamDisposable = progStream.Progress
+                .Subscribe(pos =>
+                {
+                    var time = DateTime.Now;
+                    var deltaPos = pos - lastPosition;
+                    var deltaTime = time - lastTime;
+                    var deltaPercentage = deltaPos * 100 / length;
+                    var percentage = pos * 100 / length;
+
+                    if (pos != length)
                     {
-                        Progress.OnNext(0);
-                        return;
+                        if (deltaPercentage < 5 && deltaTime.TotalSeconds < .1)
+                        {
+                            return;
+                        }
                     }
-                    var downloadedAmt = (int)((float)maxFileSize.Kilobytes * (p / 100f));
-                    DownloadMessage = $" {downloadedAmt} / {(int)maxFileSize.Kilobytes} KB";
-                    Progress.OnNext(p);
-                    Log.Information("Progress: {Progress}", p);
+
+                    var speed = deltaPos.Bytes().Per(deltaTime);
+                    var downloaded = pos.Bytes();
+                    var totalDownload = length.Bytes();
+                    DownloadMessage = $"{downloaded.ToString("#.#")} / {totalDownload.ToString("#.#")}";
+                    Log.Information("Progress: {ProgressPercent}%, Speed = {DownloadSpeed}",
+                        percentage,
+                        speed.Humanize("#.##"));
+
+                    lastPosition = pos;
+                    lastTime = time;
                 });
 
             await Task.Run(() =>
@@ -170,6 +197,7 @@ namespace UnitystationLauncher.ViewModels
                 try
                 {
                     var archive = new ZipArchive(progStream);
+                    // TODO: Enable extraction cancelling
                     archive.ExtractToDirectory(Config.TempFolder, true);
 
                     Log.Information("Download completed");
@@ -178,7 +206,7 @@ namespace UnitystationLauncher.ViewModels
                 {
                     Log.Information("Extracting stopped");
                 }
-            });
+            }, cancelToken);
 
             DownloadComplete();
         }
@@ -186,7 +214,7 @@ namespace UnitystationLauncher.ViewModels
         private void DownloadComplete()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-                        RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 GiveAllOwnerPermissions(Config.TempFolder);
             }
@@ -203,16 +231,20 @@ namespace UnitystationLauncher.ViewModels
                 string argument = "-c \" sleep 1; cp -a {0}/. {1}; rm -rf {0}; {2}";
 
                 ProcessStartInfo info = new ProcessStartInfo();
-                info.Arguments = string.Format(argument, Regex.Escape(Config.TempFolder), Regex.Escape(Config.RootFolder), Regex.Escape(Config.UnixExeFullPath));
+                info.Arguments = string.Format(
+                    argument,
+                    Regex.Escape(Config.TempFolder),
+                    Regex.Escape(Config.RootFolder),
+                    Regex.Escape(Config.UnixExeFullPath));
                 info.WindowStyle = ProcessWindowStyle.Hidden;
                 info.CreateNoWindow = true;
                 info.FileName = "/bin/bash";
                 Process.Start(info);
             }
-            else
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                string argument = "/C echo \"{2}\" & Choice /C Y /N /D Y /T 1 & xcopy /Y \"{0}\" \"{1}\" & rmdir /q /s \"{0}\" & echo \"{3}\" & \"{4}\"";
+                string argument =
+                    "/C echo \"{2}\" & Choice /C Y /N /D Y /T 1 & xcopy /Y \"{0}\" \"{1}\" & rmdir /q /s \"{0}\" & echo \"{3}\" & \"{4}\"";
                 ProcessStartInfo info = new ProcessStartInfo();
                 info.Arguments = string.Format(argument, Config.TempFolder, Config.RootFolder,
                     "Updating hub please wait..", "Update complete.", Config.WinExeFullPath);
@@ -233,7 +265,6 @@ namespace UnitystationLauncher.ViewModels
 
         void RestartApp()
         {
-
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
                 desktopLifetime.Exit += OnExit;
@@ -247,6 +278,7 @@ namespace UnitystationLauncher.ViewModels
             {
                 return;
             }
+
             new UnixFileInfo(path).FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
         }
 
