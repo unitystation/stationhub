@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Humanizer;
 using Mono.Unix;
+using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
 
@@ -153,7 +154,7 @@ namespace UnitystationLauncher.ViewModels
             Log.Information("Download connection established");
             await using var progStream = new ProgressStream(responseStream);
             var length = request.Content.Headers.ContentLength ??
-                         throw new NullReferenceException(nameof(request.Content.Headers.ContentLength));
+                         throw new ContentLengthNullException(downloadUrl);
 
             progStream.Progress
                 .Select(p => (int)(p * 100 / length))

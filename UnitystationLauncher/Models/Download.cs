@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Humanizer;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Infrastructure;
 
 namespace UnitystationLauncher.Models
@@ -75,7 +76,7 @@ namespace UnitystationLauncher.Models
                 Log.Information("Download connection established");
                 await using var progStream = new ProgressStream(responseStream);
                 Size = request.Content.Headers.ContentLength ??
-                       throw new NullReferenceException(nameof(request.Content.Headers.ContentLength));
+                       throw new ContentLengthNullException(Url);
 
                 using var logProgDisposable = LogProgress(progStream);
 
@@ -101,6 +102,10 @@ namespace UnitystationLauncher.Models
                         Log.Information("Extracting stopped");
                     }
                 });
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Failed to download Url '{Url}'", Url);
             }
             finally
             {
