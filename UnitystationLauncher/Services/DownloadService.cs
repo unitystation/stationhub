@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Avalonia.Collections;
 using Serilog;
@@ -10,10 +11,12 @@ namespace UnitystationLauncher.Services
 {
     public class DownloadService
     {
+        private readonly HttpClient _http;
         private readonly AvaloniaList<Download> _downloads;
 
-        public DownloadService()
+        public DownloadService(HttpClient http)
         {
+            _http = http;
             _downloads = new AvaloniaList<Download>();
             Downloads.GetWeakCollectionChangedObservable().Subscribe(x => Log.Information("Downloads changed"));
         }
@@ -36,7 +39,7 @@ namespace UnitystationLauncher.Services
             _downloads.Remove(_downloads.FirstOrDefault(d => d.ForkAndVersion == download.ForkAndVersion));
 
             _downloads.Add(download);
-            await download.StartAsync();
+            await download.StartAsync(_http);
             return download;
         }
 
