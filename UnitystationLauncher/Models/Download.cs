@@ -2,7 +2,6 @@
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Humanizer;
 using ReactiveUI;
@@ -18,7 +17,7 @@ namespace UnitystationLauncher.Models
         private readonly string _installationPath;
         private long _size;
         private bool _active;
-        private int _progress;
+        private long _downloaded;
 
         public Download(string url, string installationPath)
         {
@@ -33,7 +32,11 @@ namespace UnitystationLauncher.Models
         public long Size
         {
             get => _size;
-            set => this.RaiseAndSetIfChanged(ref _size, value);
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _size, value);
+                this.RaisePropertyChanged(nameof(Progress));
+            }
         }
 
         public bool Active
@@ -42,11 +45,17 @@ namespace UnitystationLauncher.Models
             set => this.RaiseAndSetIfChanged(ref _active, value);
         }
 
-        public int Progress
+        public long Downloaded
         {
-            get => _progress;
-            set => this.RaiseAndSetIfChanged(ref _progress, value);
+            get => _downloaded;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref _downloaded, value);
+                this.RaisePropertyChanged(nameof(Progress));
+            }
         }
+
+        public int Progress => (int)(Downloaded * 100 / Math.Max(1, Size));
 
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
         public string ForkName => Installation.GetForkName(InstallationPath);
@@ -81,9 +90,7 @@ namespace UnitystationLauncher.Models
                 using var logProgDisposable = LogProgress(progStream);
 
                 using var progDisposable = progStream.Progress
-                    .Select(p => (int)(p * 100 / Size))
-                    .DistinctUntilChanged()
-                    .Subscribe(p => { Progress = p; });
+                    .Subscribe(p => { Downloaded = p; });
 
                 await Task.Run(() =>
                 {
