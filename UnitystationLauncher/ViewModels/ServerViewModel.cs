@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reactive.Linq;
+using Humanizer;
 using Reactive.Bindings;
 using ReactiveUI;
 using Serilog;
@@ -53,6 +54,17 @@ namespace UnitystationLauncher.ViewModels
             _pingSender.PingCompleted += PingCompletedCallback;
             _pingSender.SendAsync(Server.ServerIp, 7);
 #endif
+            DownloadedAmount = (
+                    Download?.WhenAnyValue(d => d.Downloaded)
+                    ?? Observable.Return(0L)
+                )
+                .Select(p => p.Bytes().ToString("# MB"));
+
+            DownloadSize = (
+                    Download?.WhenAnyValue(d => d.Size)
+                    ?? Observable.Return(0L)
+                )
+                .Select(p => p.Bytes().ToString("# MB"));
         }
 
         public Server Server { get; }
@@ -63,6 +75,9 @@ namespace UnitystationLauncher.ViewModels
         public bool Installed => Installation != null;
 
         public IObservable<bool> Downloading => Download?.WhenAnyValue(d => d.Active) ?? Observable.Return(false);
+
+        public IObservable<string> DownloadedAmount { get; }
+        public IObservable<string> DownloadSize { get; }
 
         private void PingCompletedCallback(object sender, PingCompletedEventArgs e)
         {
@@ -79,7 +94,8 @@ namespace UnitystationLauncher.ViewModels
 
         public void Start()
         {
-            Installation?.Start(IPAddress.Parse(Server.ServerIp), (short)Server.ServerPort, _authService.CurrentRefreshToken, _authService.Uid);
+            Installation?.Start(IPAddress.Parse(Server.ServerIp), (short)Server.ServerPort,
+                _authService.CurrentRefreshToken, _authService.Uid);
         }
 
         public void Dispose()
