@@ -51,6 +51,16 @@
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="FontFamily" Value="InterBold" />
     </Style>
+    <Style Selector="Button.Text">
+        <Setter Property="Background"/>
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.Text:pointerover">
+        <Setter Property="Background"/>
+    </Style>
+    <Style Selector="Button.Text:pressed /template/ ContentPresenter">
+        <Setter Property="Background"/>
+    </Style>
     <Style Selector="ScrollBar">
         <Setter Property="Template">
             <ControlTemplate>

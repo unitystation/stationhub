@@ -79,14 +79,14 @@
                 </Border>
             </Grid>
             <StackPanel Grid.Row="2">
-                <Button Height="33" VerticalAlignment="Center" HorizontalAlignment="Left" Command="{Binding OpenSite}">
+                <Button Classes="Text" Height="33" VerticalAlignment="Center" HorizontalAlignment="Left" Command="{Binding OpenSite}">
                     <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">-Official Site</TextBlock>
                 </Button>
-                <Button Height="33" VerticalAlignment="Center" HorizontalAlignment="Left"
+                <Button Classes="Text" Height="33" VerticalAlignment="Center" HorizontalAlignment="Left"
                         Command="{Binding OpenSupport}">
                     <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">-Support</TextBlock>
                 </Button>
-                <Button Height="35" VerticalAlignment="Center" HorizontalAlignment="Left"
+                <Button Classes="Text" Height="35" VerticalAlignment="Center" HorizontalAlignment="Left"
                         Command="{Binding OpenReport}">
                     <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">-Report Bug</TextBlock>
                 </Button>
