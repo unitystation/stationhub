@@ -17,6 +17,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly DownloadService _downloadService;
 
         public override string Name => "Servers";
+        public override int Width => 70;
 
         public ServersPanelViewModel(StateService stateService, DownloadService downloadService,
             AuthService authService)

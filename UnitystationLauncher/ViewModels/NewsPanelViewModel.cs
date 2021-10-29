@@ -12,6 +12,7 @@ namespace UnitystationLauncher.ViewModels
     public class NewsPanelViewModel : PanelBase
     {
         public override string Name => "News";
+        public override int Width => 60;
 
         ViewModelBase _changelog;
 

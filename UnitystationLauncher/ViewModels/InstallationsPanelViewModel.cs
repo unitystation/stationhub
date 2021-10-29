@@ -16,6 +16,7 @@ namespace UnitystationLauncher.ViewModels
     public class InstallationsPanelViewModel : PanelBase
     {
         public override string Name => "Installations";
+        public override int Width => 120;
         private readonly InstallationService _installationService;
         private readonly Config _config;
         string? _buildNum;
@@ -75,7 +76,7 @@ namespace UnitystationLauncher.ViewModels
                 });
 
                 var response = await msgBox.Show();
-                if (response.Equals("Confirm"))
+                if (response != null && response.Equals("Confirm"))
                 {
                     await SaveChoiceAsync();
                 }

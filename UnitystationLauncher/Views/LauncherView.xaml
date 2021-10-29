@@ -16,23 +16,23 @@
             <StackPanel Orientation="Horizontal">
                 <Border Margin="5 5 0 6" Background="#13212e">
                     <StackPanel Orientation="Horizontal">
-                        <Button Margin="2" Command="{Binding #ContextMenu.Open}">
+                        <Button Margin="2"  Command="{Binding #ContextMenu.Open}">
                             <Button.Styles>
                                 <Style Selector="Button">
                                     <Setter Property="BorderThickness" Value="0" />
 
                                     <Setter Property="Background">
-                                        <ImageBrush Source="/Assets/buttoncontext.png" />
+                                        <ImageBrush Source="/Assets/buttoncontext.png" Stretch="Fill"/>
                                     </Setter>
                                 </Style>
                                 <Style Selector="Button:pointerover">
                                     <Setter Property="Background">
-                                        <ImageBrush Source="/Assets/buttoncontext.png" />
+                                        <ImageBrush Source="/Assets/buttoncontext.png" Stretch="Fill"/>
                                     </Setter>
                                 </Style>
                                 <Style Selector="Button:pressed /template/ ContentPresenter">
                                     <Setter Property="Background">
-                                        <ImageBrush Source="/Assets/buttoncontext.png" />
+                                        <ImageBrush Source="/Assets/buttoncontext.png" Stretch="Fill"/>
                                     </Setter>
                                 </Style>
                             </Button.Styles>
@@ -47,7 +47,7 @@
                                Margin="0 2 1 2" />
                     </StackPanel>
                 </Border>
-                <Viewbox Height="22" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="Username">
+                <Viewbox Height="22" MinWidth="20" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="Username">
                     <Border Margin="4 0 0 0" VerticalAlignment="Center">
                         <Border.Background>
                             <ImageBrush Source="/Assets/userbg.png" Stretch="Fill" />
@@ -86,9 +86,10 @@
                 </ListBox.Styles>
                 <ListBox.DataTemplates>
                     <DataTemplate DataType="vm:PanelBase">
-                            <TextBlock Text="{Binding Name}" FontSize="19" TextAlignment="Center"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center"
-                                       FontFamily="InterBold" FontWeight="Bold" />
+                        <TextBlock Width="{Binding Width}" Text="{Binding Name}" FontSize="19" TextAlignment="Center"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   FontFamily="InterBold" FontWeight="Bold"
+                                   Grid.Row="0"/>
                     </DataTemplate>
                 </ListBox.DataTemplates>
             </ListBox>
