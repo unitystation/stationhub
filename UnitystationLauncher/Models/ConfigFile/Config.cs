@@ -10,15 +10,15 @@ namespace UnitystationLauncher.Models.ConfigFile
 {
     public class Config : IDisposable
     {
-        //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/StationHub.metainfo.xml for Linux software stores. Thank you.
-        public const int CurrentBuild = 929;
+        //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/org.unitystation.StationHub.metainfo.xml for Linux software stores. Thank you.
+        public const int CurrentBuild = 930;
 
         //file names
         private const string WinExeName = "StationHub.exe";
         private const string UnixExeName = "StationHub";
         private const string InstallationFolder = "Installations";
         public const string ApiUrl = "https://api.unitystation.org/serverlist";
-        public const string ValidateUrl = "https://api.unitystation.org/validatehubclient";
+        public const string ValidateUrl = "http://localhost:8000/";
         public const string SiteUrl = "https://unitystation.org/";
         public const string SupportUrl = "https://www.patreon.com/unitystation";
         public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
