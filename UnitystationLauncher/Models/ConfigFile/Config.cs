@@ -18,7 +18,7 @@ namespace UnitystationLauncher.Models.ConfigFile
         private const string UnixExeName = "StationHub";
         private const string InstallationFolder = "Installations";
         public const string ApiUrl = "https://api.unitystation.org/serverlist";
-        public const string ValidateUrl = "http://localhost:8000/";
+        public const string ValidateUrl = "https://api.unitystation.org/validatehubclient";
         public const string SiteUrl = "https://unitystation.org/";
         public const string SupportUrl = "https://www.patreon.com/unitystation";
         public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
