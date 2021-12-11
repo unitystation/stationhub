@@ -10,8 +10,8 @@ namespace UnitystationLauncher.Models.ConfigFile
 {
     public class Config : IDisposable
     {
-        //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/StationHub.metainfo.xml for Linux software stores. Thank you.
-        public const int CurrentBuild = 929;
+        //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/org.unitystation.StationHub.metainfo.xml for Linux software stores. Thank you.
+        public const int CurrentBuild = 930;
 
         //file names
         private const string WinExeName = "StationHub.exe";

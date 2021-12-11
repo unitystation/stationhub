@@ -52,5 +52,11 @@
 			<p>Stationhub is now under the MIT license. Pinging in sandbox has been fixed.</p>
 		</description>
 	</release>
+	<release version="930" date="2021-11-30">
+		<description>
+			<p>Added server validation logic that will hide servers who don't host their downloads in our CDN for security purposes.</p>
+			<p>StationHub got a face lifting with some first iterations of future features!.</p>
+		</description>
+	</release>
 </releases>
 </component>
