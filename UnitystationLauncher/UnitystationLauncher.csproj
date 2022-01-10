@@ -20,7 +20,7 @@
     <ForceBeauty>False</ForceBeauty>
     <!-- <BeautyAfterTasks></BeautyAfterTasks> -->
     <!-- set to True if you want to disable -->
-    <DisablePatch>True</DisablePatch>
+    <DisablePatch>False</DisablePatch>
     <!-- valid values: Error|Detail|Info -->
     <BeautyLogLevel>Error</BeautyLogLevel>
   </PropertyGroup>
@@ -42,7 +42,7 @@
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="FirebaseAuthentication.net" Version="3.4.0" />
-    <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.3" />
+    <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9.3" />
     <PackageReference Include="Octokit" Version="0.50.0" />
     <PackageReference Include="ReactiveProperty" Version="7.8.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />
@@ -77,6 +77,5 @@
     <PackageReference Include="runtime.any.System.Threading.Tasks" Version="4.3.0" />
     <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
-    <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9.2" />
   </ItemGroup>
 </Project>
