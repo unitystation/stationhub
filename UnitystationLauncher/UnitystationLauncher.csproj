@@ -23,6 +23,17 @@
     <DisablePatch>False</DisablePatch>
     <!-- valid values: Error|Detail|Info -->
     <BeautyLogLevel>Error</BeautyLogLevel>
+    <UseAppHost>true</UseAppHost>
+    <CFBundleName>StationHub</CFBundleName> <!-- Also defines .app file name -->
+    <CFBundleDisplayName>StationHub</CFBundleDisplayName>
+    <CFBundleIdentifier>com.stationhub</CFBundleIdentifier>
+    <CFBundleVersion>1.0.0</CFBundleVersion>
+    <CFBundlePackageType>APPL</CFBundlePackageType>
+    <CFBundleSignature>????</CFBundleSignature>
+    <CFBundleExecutable>StationHub</CFBundleExecutable>
+    <CFBundleIconFile>AppName.icns</CFBundleIconFile> <!-- Will be copied from output directory -->
+    <NSPrincipalClass>NSApplication</NSPrincipalClass>
+    <NSHighResolutionCapable>true</NSHighResolutionCapable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
@@ -77,5 +88,6 @@
     <PackageReference Include="runtime.any.System.Threading.Tasks" Version="4.3.0" />
     <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
+    <PackageReference Include="Dotnet.Bundle" Version="*" />
   </ItemGroup>
 </Project>
