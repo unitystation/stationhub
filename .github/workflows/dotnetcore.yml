@@ -53,6 +53,6 @@ jobs:
         uses: jfversluis/dotnet-format@v1.0.9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          action: fix
+          action: check
           only-changed-files: true
           workspace: "UnitystationLauncher.sln"
