@@ -41,7 +41,7 @@ namespace UnitystationLauncher.ViewModels
             OpenSupport = ReactiveCommand.Create(OpenUriSupport);
 
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            _backGroundImage = new Bitmap(assets.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
+            _backGroundImage = new Bitmap(assets?.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
         }
 
         private void OpenUriSite()

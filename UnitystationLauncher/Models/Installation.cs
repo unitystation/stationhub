@@ -74,7 +74,7 @@ namespace UnitystationLauncher.Models
                 return;
             }
 
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
                 desktopLifetime.MainWindow.WindowState = Avalonia.Controls.WindowState.Minimized;
             }
@@ -109,9 +109,8 @@ namespace UnitystationLauncher.Models
             {
                 var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {
-                    Style = MessageBox.Avalonia.Enums.Style.None,
-                    Icon = MessageBox.Avalonia.Enums.Icon.None,
-                    ShowInCenter = true,
+                    SystemDecorations = Avalonia.Controls.SystemDecorations.BorderOnly,
+                    WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen,
                     ContentHeader = $"Remove {ForkName}-{BuildVersion}",
                     ContentMessage = "This action cannot be undone. Proceed?",
                     ButtonDefinitions = new[]

@@ -40,22 +40,24 @@ namespace UnitystationLauncher.Services
             Refreshing = true;
 
             var data = await _http.GetStringAsync(Config.ApiUrl);
-            var serverData = JsonConvert.DeserializeObject<ServerList>(data).Servers;
+            var serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
             Log.Information("Server list fetched");
 
             var servers = new List<Server>();
-
-            foreach (var server in serverData)
+            if(serverData != null)
             {
-                if (!server.HasTrustedUrlSource)
+                foreach (var server in serverData)
                 {
-                    Log.Warning(
-                        "Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
-                        server.ServerName);
-                    continue;
-                }
+                    if (!server.HasTrustedUrlSource)
+                    {
+                        Log.Warning(
+                            "Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
+                            server.ServerName);
+                        continue;
+                    }
 
-                servers.Add(server);
+                    servers.Add(server);
+                }
             }
 
             Refreshing = false;

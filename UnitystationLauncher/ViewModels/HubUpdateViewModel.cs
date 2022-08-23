@@ -266,7 +266,7 @@ namespace UnitystationLauncher.ViewModels
 
         void RestartApp()
         {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktopLifetime)
             {
                 desktopLifetime.Exit += OnExit;
                 desktopLifetime.Shutdown();
