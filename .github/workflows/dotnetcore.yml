@@ -50,7 +50,7 @@ jobs:
         uses: xt0rted/dotnet-tool-restore@v1
 
       - name: Run dotnet format
-        uses: jfversluis/dotnet-format@v1.0.5
+        uses: jfversluis/dotnet-format@v1.0.9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           action: fix
