@@ -23,13 +23,13 @@ cp "$INFO_PLIST" "$APP_NAME/Contents/Info.plist"
 cp "$ICON_FILE" "$APP_NAME/Contents/Resources/Ian.icns"
 cp -a "$PUBLISH_OUTPUT_DIRECTORY" "$APP_NAME/Contents/MacOS"
 
-find "$APP_NAME/Contents/MacOS/"|while read fname; do
-    if [[ -f $fname ]]; then
-        echo "[INFO] Signing $fname"
-        codesign --force --timestamp --options=runtime --entitlements "$ENTITLEMENTS" --sign "$SIGNING_IDENTITY" "$fname"
-    fi
-done
+#find "$APP_NAME/Contents/MacOS/"|while read fname; do
+#    if [[ -f $fname ]]; then
+#        echo "[INFO] Signing $fname"
+#        codesign --force --timestamp --options=runtime --entitlements "$ENTITLEMENTS" --sign "$SIGNING_IDENTITY" "$fname"
+#    fi
+#done
 
-echo "[INFO] Signing app file"
+#echo "[INFO] Signing app file"
 
-codesign --force --timestamp --options=runtime --entitlements "$ENTITLEMENTS" --sign "$SIGNING_IDENTITY" "$APP_NAME"
+#codesign --force --timestamp --options=runtime --entitlements "$ENTITLEMENTS" --sign "$SIGNING_IDENTITY" "$APP_NAME"
