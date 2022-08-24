@@ -1,8 +1,8 @@
 #!/bin/bash
-APP_NAME="/publish/StationHub.app"
-PUBLISH_OUTPUT_DIRECTORY="/publish/netcoreapp3.1/osx-64/publish/."
-INFO_PLIST="/UnitystationLauncher/Assets/Info.plist"
-ICON_FILE="/UnitystationLauncher/Assets/ian.ico"
+APP_NAME="publish/StationHub.app"
+PUBLISH_OUTPUT_DIRECTORY="publish/."
+INFO_PLIST="UnitystationLauncher/Assets/Info.plist"
+ICON_FILE="UnitystationLauncher/Assets/ian.ico"
 
 if [ -d "$APP_NAME" ]
 then
