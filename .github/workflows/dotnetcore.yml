@@ -16,7 +16,6 @@ jobs:
         target-platform:
           - "win-x64"
           - "linux-x64"
-          - "osx-x64"
 
     steps:
       - uses: actions/checkout@v1
@@ -34,6 +33,25 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: StationHub-${{ matrix.target-platform }}
+          path: ~/publish
+  build-osx-x64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Test
+        run: |
+          dotnet test
+      - name: Publish
+        run: |
+          bash tools/build-macos.sh
+      - name: Upload Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: StationHub-osx-64
           path: ~/publish
 
   format:
