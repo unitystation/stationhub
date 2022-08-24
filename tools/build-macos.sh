@@ -16,4 +16,4 @@ mkdir "$APP_NAME/Contents/MacOS"
 mkdir "$APP_NAME/Contents/Resources"
 
 cp "$INFO_PLIST" "$APP_NAME/Contents/Info.plist"
-cp "$ICON_FILE" "$APP_NAME/Contents/Resources/$ICON_FILE"
+cp "$ICON_FILE" "$APP_NAME/Contents/Resources/ian.ico"
