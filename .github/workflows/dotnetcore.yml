@@ -62,7 +62,8 @@ jobs:
           dotnet test
       - name: Publish
         run: |
-          dotnet publish -c Release -r osx-x64 -p:UseAppHost=true -o ~/publish/StationHub.app/Contents/MacOS ./UnitystationLauncher/UnitystationLauncher.csproj
+          dotnet publish -c Release -r osx-x64 -p:UseAppHost=true -o ~/publish-macos
+          bash tools/build_macos.sh
       - name: Upload Build
         uses: actions/upload-artifact@v2
         with:
