@@ -1,8 +1,8 @@
 #!/bin/bash
 
 APP_NAME="/Users/runner/publish/StationHub.app"
-INFO_PLIST="UnitystationLauncher/Assets/Info.plist"
-ICON_FILE="UnitystationLauncher/Assets/ian.ico"
+INFO_PLIST="/Users/runner/work/stationhub/stationhub/UnitystationLauncher/Assets/Info.plist"
+ICON_FILE="/Users/runner/work/stationhub/stationhub/UnitystationLauncher/Assets/ian.ico"
 
 if [ -d "$APP_NAME" ]
 then
