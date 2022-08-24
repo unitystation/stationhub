@@ -10,6 +10,7 @@ then
     rm -rf "$APP_NAME"
 fi
 
+mkdir "/Users/runner/publish"
 mkdir "$APP_NAME"
 
 mkdir "$APP_NAME/Contents"
