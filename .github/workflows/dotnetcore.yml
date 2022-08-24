@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-win-x64:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - name: Setup .NET Core
