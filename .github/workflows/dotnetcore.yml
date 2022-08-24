@@ -62,7 +62,7 @@ jobs:
           dotnet test
       - name: Publish
         run: |
-          dotnet publish -c Release -r osx-x64 -p:UseAppHost=true -o ~/publish-macos
+          dotnet publish -c Release -r osx-x64 -p:UseAppHost=true --output ~/publish-macos
           bash tools/build_macos.sh
       - name: Upload Build
         uses: actions/upload-artifact@v2
