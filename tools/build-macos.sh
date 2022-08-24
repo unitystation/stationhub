@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APP_NAME="/Users/runner/publish/StationHub.app"
-PUBLISH_OUTPUT_DIRECTORY="/Users/runner/publish-macos/StationHub.app/"
+PUBLISH_OUTPUT_DIRECTORY="/Users/runner/publish-macos/."
 INFO_PLIST="/Users/runner/work/stationhub/stationhub/UnitystationLauncher/Assets/Info.plist"
 ICON_FILE="/Users/runner/work/stationhub/stationhub/UnitystationLauncher/Assets/ian.ico"
 
