@@ -1,10 +1,5 @@
 #!/bin/bash
 
-#second arg is working directory if necessary
-if [[ $# -eq 2 ]] ; then
-  cd $2
-fi
-
 APP_NAME="StationHub.app"
 PUBLISH_OUTPUT_DIRECTORY="."
 INFO_PLIST="UnitystationLauncher/Assets/Info.plist"
