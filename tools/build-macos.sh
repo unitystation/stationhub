@@ -1,7 +1,7 @@
 #!/bin/bash
 
-APP_NAME="StationHub.app"
-PUBLISH_OUTPUT_DIRECTORY="."
+APP_NAME="~publish/StationHub.app"
+PUBLISH_OUTPUT_DIRECTORY="~publish/."
 INFO_PLIST="UnitystationLauncher/Assets/Info.plist"
 ICON_FILE="UnitystationLauncher/Assets/ian.ico"
 
