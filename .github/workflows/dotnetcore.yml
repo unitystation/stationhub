@@ -62,8 +62,7 @@ jobs:
           dotnet test
       - name: Publish
         run: |
-          dotnet publish --configuration Release --self-contained --runtime osx-x64 -p:PublishSingleFile=true --output ~/publish
-          bash tools/build-macos.sh
+          dotnet publish -c Release -r osx-x64 -o ~/publish-macos/StationHub.app/Contents/MacOS ./UnitystationLauncher/UnitystationLauncher.csproj
           sudo chmod -R 755 ~publish/StationHub.app
       - name: Upload Build
         uses: actions/upload-artifact@v2
