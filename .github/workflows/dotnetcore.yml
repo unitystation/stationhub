@@ -9,14 +9,8 @@ on:
       - "*"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target-platform:
-          - "win-x64"
-          - "linux-x64"
-
+  build-win-x64:
+    runs-on: windows-latet
     steps:
       - uses: actions/checkout@v1
       - name: Setup .NET Core
@@ -28,12 +22,33 @@ jobs:
           dotnet test
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --output ~/publish
+          dotnet publish --configuration Release --runtime win-x64 --output ~/publish
       - name: Upload Build
         uses: actions/upload-artifact@v2
         with:
-          name: StationHub-${{ matrix.target-platform }}
+          name: StationHub-win-x64
           path: ~/publish
+
+  build-linux-x64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.1.x'
+      - name: Test
+        run: |
+          dotnet test
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime linux-x64 --output ~/publish
+      - name: Upload Build
+        uses: actions/upload-artifact@v2
+        with:
+          name: StationHub-linux-x64
+          path: ~/publish
+  
   build-osx-x64:
     runs-on: macos-latest
     steps:
@@ -47,7 +62,7 @@ jobs:
           dotnet test
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime osx-x64 -o ~/publish/StationHub.app/Contents/MacOS ./UnitystationLauncher/UnitystationLauncher.csproj
+          dotnet publish --configuration Release --self-contained --runtime osx-x64 -p:PublishSingleFile=true --output ~/publish
           bash tools/build-macos.sh
       - name: Upload Build
         uses: actions/upload-artifact@v2
