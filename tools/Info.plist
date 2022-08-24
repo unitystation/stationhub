@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleIconFile</key>
-    <string>ian.ico</string>
+    <string>Ian.icns</string>
     <key>CFBundleIdentifier</key>
     <string>com.unitystation</string>
     <key>CFBundleName</key>
     <string>StationHUB</string>
     <key>CFBundleVersion</key>
-    <string>930</string>
+    <string>9.3.0</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.12</string>
     <key>CFBundleExecutable</key>
