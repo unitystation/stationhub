@@ -48,7 +48,7 @@ jobs:
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime osx-x64 -o ~/publish/StationHub.app/Contents/MacOS ./UnitystationLauncher/UnitystationLauncher.csproj
-          bash tools/build-macos.sh ~/publish
+          bash tools/build-macos.sh
       - name: Upload Build
         uses: actions/upload-artifact@v2
         with:
