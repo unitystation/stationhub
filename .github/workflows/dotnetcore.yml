@@ -64,6 +64,7 @@ jobs:
         run: |
           dotnet publish --configuration Release --self-contained --runtime osx-x64 -p:PublishSingleFile=true --output ~/publish
           bash tools/build-macos.sh
+          sudo chmod -R 755 ~publish/StationHub.app
       - name: Upload Build
         uses: actions/upload-artifact@v2
         with:
