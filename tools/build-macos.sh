@@ -1,6 +1,12 @@
 #!/bin/bash
-APP_NAME="publish/StationHub.app"
-PUBLISH_OUTPUT_DIRECTORY="publish/."
+
+#second arg is working directory if necessary
+if [[ $# -eq 2 ]] ; then
+  cd $2
+fi
+
+APP_NAME="StationHub.app"
+PUBLISH_OUTPUT_DIRECTORY="."
 INFO_PLIST="UnitystationLauncher/Assets/Info.plist"
 ICON_FILE="UnitystationLauncher/Assets/ian.ico"
 
