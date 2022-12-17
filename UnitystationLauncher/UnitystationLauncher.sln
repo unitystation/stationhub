@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1704.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitystationLauncher", "UnitystationLauncher.csproj", "{816C7658-052B-4583-A8C5-A61192CA937B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{816C7658-052B-4583-A8C5-A61192CA937B}.Debug|x64.ActiveCfg = Debug|x64
+		{816C7658-052B-4583-A8C5-A61192CA937B}.Debug|x64.Build.0 = Debug|x64
+		{816C7658-052B-4583-A8C5-A61192CA937B}.Release|x64.ActiveCfg = Release|x64
+		{816C7658-052B-4583-A8C5-A61192CA937B}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BB436A76-362B-4813-B5FB-C447AA8078A3}
+	EndGlobalSection
+EndGlobal

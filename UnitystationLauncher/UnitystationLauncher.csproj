@@ -23,6 +23,16 @@
     <DisablePatch>False</DisablePatch>
     <!-- valid values: Error|Detail|Info -->
     <BeautyLogLevel>Error</BeautyLogLevel>
+    <CFBundleName>StationHub</CFBundleName> <!-- Also defines .app file name -->
+    <CFBundleIdentifier>org.unitystation.hub</CFBundleIdentifier>
+    <CFBundleVersion>1.0.0</CFBundleVersion>
+    <CFBundleShortVersionString>1.0.0</CFBundleShortVersionString>
+    <CFBundlePackageType>APPL</CFBundlePackageType>
+    <CFBundleSignature>????</CFBundleSignature>
+    <CFBundleExecutable>StationHub</CFBundleExecutable>
+    <CFBundleIconFile>ian.icns</CFBundleIconFile> <!-- Will be copied from output directory -->
+    <NSPrincipalClass>NSApplication</NSPrincipalClass>
+    <NSHighResolutionCapable>true</NSHighResolutionCapable>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="**\*.xaml.cs">
@@ -32,6 +42,7 @@
       <SubType>Designer</SubType>
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
+    <None Update="ian.icns" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="0.10.6" />
@@ -77,5 +88,6 @@
     <PackageReference Include="runtime.any.System.Threading.Tasks" Version="4.3.0" />
     <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
+    <PackageReference Include="Dotnet.Bundle" Version="*" />
   </ItemGroup>
 </Project>
