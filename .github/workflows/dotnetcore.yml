@@ -27,10 +27,25 @@ jobs:
       - name: Test
         run: |
           dotnet test
+      - name: Publish MacOS
+        if: ${{ contains(matrix.target-platform, 'osx-x64' )}}
+        run: |
+          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} -t:BundleApp -p:RuntimeIdentifier=${{ matrix.target-platform }} -p:UseAppHost=true --output ~/publish \
+          && sudo chmod +x ~/publish/StationHub.app/Contents/MacOS/StationHub \
+          && cd ~/publish \
+          && tar -cvf ~/publish/StationHub.tar StationHub.app
       - name: Publish
+        if: ${{ !contains(matrix.target-platform, 'osx-x64' )}}
         run: |
           dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --output ~/publish
+      - name: Upload MacOS Build
+        if: ${{ contains(matrix.target-platform, 'osx-x64' )}}
+        uses: actions/upload-artifact@v2
+        with:
+          name: StationHub-${{ matrix.target-platform }}
+          path: ~/publish/StationHub.tar
       - name: Upload Build
+        if: ${{ !contains(matrix.target-platform, 'osx-x64' )}}
         uses: actions/upload-artifact@v2
         with:
           name: StationHub-${{ matrix.target-platform }}
