@@ -65,9 +65,8 @@ namespace UnitystationLauncher.ViewModels
             {
                 var msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
                 {
-                    Style = MessageBox.Avalonia.Enums.Style.None,
-                    Icon = MessageBox.Avalonia.Enums.Icon.None,
-                    ShowInCenter = true,
+                    SystemDecorations = Avalonia.Controls.SystemDecorations.BorderOnly,
+                    WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen,
                     ContentHeader = "Are you sure?",
                     ContentMessage = "This will remove older installations from disk. Proceed?",
                     ButtonDefinitions = new[]

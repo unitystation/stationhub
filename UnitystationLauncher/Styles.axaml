@@ -24,7 +24,7 @@
     </Styles.Resources>
     <!-- SmallButton -->
     <Style Selector="Button.SmallButton">
-        <Setter Property="FontFamily" Value="resm:Assets.Fonts.Inter-Bold.ttf#InterBold" />
+        <Setter Property="FontFamily" Value="InterBold" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Foreground" Value="White" />
         <Setter Property="FontSize" Value="20" />
