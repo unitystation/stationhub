@@ -8,4 +8,4 @@
 This is the official launcher for Unitystation, it handles account creation, downloading, updating, and server joining.
 
 ## Tech-stack
-It is cross-platform using .Net Core 3.1 as the runtime and Avalonia for the UI.
+It is cross-platform using .Net 6.0 as the runtime and Avalonia for the UI.
