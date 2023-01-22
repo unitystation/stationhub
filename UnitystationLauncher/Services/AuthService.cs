@@ -14,12 +14,12 @@ namespace UnitystationLauncher.Services
 {
     public class AuthService
     {
-        readonly FirebaseAuthProvider _authProvider;
+        readonly IFirebaseAuthProvider _authProvider;
         private readonly HttpClient _http;
         public LoginMsg? LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
 
-        public AuthService(HttpClient http, FirebaseAuthProvider authProvider)
+        public AuthService(HttpClient http, IFirebaseAuthProvider authProvider)
         {
             _authProvider = authProvider;
             _http = http;
@@ -69,7 +69,7 @@ namespace UnitystationLauncher.Services
         /// Otherwise an exception is thrown.
         /// </summary>
         /// <returns></returns>
-        internal async Task<FirebaseAuthLink> CreateAccountAsync(string username, string email, string password)
+        public async Task<FirebaseAuthLink> CreateAccountAsync(string username, string email, string password)
         {
             // Client-side check for disposable email address.
             const string url =

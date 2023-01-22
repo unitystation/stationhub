@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitystationLauncher", "UnitystationLauncher\UnitystationLauncher.csproj", "{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitystationLauncher.UnitTests", "UnitystationLauncher.UnitTests\UnitystationLauncher.UnitTests.csproj", "{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,24 @@ Global
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseWIN64|x64.Build.0 = ReleaseWIN64|x64
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseOSX|x64.ActiveCfg = ReleaseOSX|x64
 		{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}.ReleaseOSX|x64.Build.0 = ReleaseOSX|x64
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Debug|x64.Build.0 = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Release|x64.ActiveCfg = Release|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.Release|x64.Build.0 = Release|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleasePOSIX64|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleasePOSIX64|Any CPU.Build.0 = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleasePOSIX64|x64.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleasePOSIX64|x64.Build.0 = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleaseWIN64|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleaseWIN64|Any CPU.Build.0 = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleaseWIN64|x64.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleaseWIN64|x64.Build.0 = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleaseOSX|x64.ActiveCfg = Debug|Any CPU
+		{F3C6268E-3FEC-43AD-A7F2-C89D2EAF27C4}.ReleaseOSX|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
