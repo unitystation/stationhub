@@ -44,7 +44,7 @@ namespace UnitystationLauncher.Services
             Log.Information("Server list fetched");
 
             var servers = new List<Server>();
-            if(serverData != null)
+            if (serverData != null)
             {
                 foreach (var server in serverData)
                 {
