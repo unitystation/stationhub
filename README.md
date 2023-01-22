@@ -1,5 +1,5 @@
 # Stationhub
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/unitystation/stationhub/.NET%20Core?style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/unitystation/stationhub/dotnetcore.yml?style=flat-square)
 ![Codacy grade](https://img.shields.io/codacy/grade/b6c9615ab3ba47f091efb0ff28e24798?style=flat-square)
 ![AUR version](https://img.shields.io/aur/version/stationhub?style=flat-square)
 ![Flathub](https://img.shields.io/flathub/v/org.unitystation.StationHub)
