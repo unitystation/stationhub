@@ -33,4 +33,8 @@
       <ProjectReference Include="..\UnitystationLauncher\UnitystationLauncher.csproj" />
     </ItemGroup>
 
+    <Target Name="BundleApp" DependsOnTargets="Publish">
+        <!-- intentionally empty -->
+    </Target>
+
 </Project>
