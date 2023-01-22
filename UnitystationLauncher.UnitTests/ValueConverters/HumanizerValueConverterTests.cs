@@ -8,7 +8,7 @@ namespace UnitystationLauncher.UnitTests.ValueConverters;
 
 public class HumanizerValueConverterTests
 {
-    private HumanizerValueConverter _humanizerValueConverter;
+    private readonly HumanizerValueConverter _humanizerValueConverter;
 
     public HumanizerValueConverterTests()
     {

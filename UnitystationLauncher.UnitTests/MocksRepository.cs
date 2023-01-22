@@ -55,13 +55,14 @@ public static class MocksRepository
 
     public static FirebaseAuth MockFirebaseAuth(bool valid, string email)
     {
-        return new FirebaseAuth()
+        int expirySeconds = 20000;
+        return new FirebaseAuth
         {
             FirebaseToken = valid ? TestConsts.VALID_FIREBASE_TOKEN : TestConsts.INVALID_FIREBASE_TOKEN,
             RefreshToken = valid ? TestConsts.VALID_REFRESH_TOKEN : TestConsts.INVALID_REFRESH_TOKEN,
-            ExpiresIn = valid ? 20000 : 0,
+            ExpiresIn = valid ? expirySeconds : 0,
             Created = DateTime.Now,
-            User = new User()
+            User = new User
             {
                 LocalId = TestConsts.LOCAL_ID,
                 FederatedId = TestConsts.FEDERATED_ID,

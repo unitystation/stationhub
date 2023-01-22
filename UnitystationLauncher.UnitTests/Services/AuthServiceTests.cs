@@ -11,7 +11,7 @@ namespace UnitystationLauncher.UnitTests.Services;
 
 public class AuthServiceTests : IDisposable
 {
-    private AuthService _authService;
+    private readonly AuthService _authService;
 
     public AuthServiceTests()
     {
@@ -52,7 +52,7 @@ public class AuthServiceTests : IDisposable
     }
 
     [Fact]
-    public async void CreateAccountAsync_ShouldCreateValidAccounts()
+    public async Task CreateAccountAsync_ShouldCreateValidAccounts()
     {
         FirebaseAuthLink actual = await _authService.CreateAccountAsync(TestConsts.DISPLAY_NAME, TestConsts.VALID_EMAIL, TestConsts.PASSWORD);
         actual.FirebaseToken.Should().Be(TestConsts.VALID_FIREBASE_TOKEN);
