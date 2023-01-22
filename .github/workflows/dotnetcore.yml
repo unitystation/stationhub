@@ -7,9 +7,34 @@ on:
   pull_request:
     branches:
       - "*"
+  workflow_dispatch:
+    branches:
+      - "develop"
+
+env:
+  DOTNET_VERSION: '6.0.x'
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Format check
+        run: |
+          dotnet format --verify-no-changes
+
+      - name: Test
+        run: |
+          dotnet test
+
   build:
+    needs: [ test ] # Fail fast if format or tests fail
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -23,7 +48,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Test
         run: |
           dotnet test
@@ -50,24 +75,3 @@ jobs:
         with:
           name: StationHub-${{ matrix.target-platform }}
           path: ~/publish
-
-  format:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Add dotnet-format problem matcher
-        uses: xt0rted/dotnet-format-problem-matcher@v1
-
-      - name: Restore dotnet tools
-        uses: xt0rted/dotnet-tool-restore@v1
-
-      - name: Run dotnet format
-        uses: jfversluis/dotnet-format@v1.0.9
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          action: check
-          only-changed-files: true
-          workspace: "UnitystationLauncher.sln"
