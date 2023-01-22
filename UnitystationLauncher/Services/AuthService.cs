@@ -69,7 +69,7 @@ namespace UnitystationLauncher.Services
         /// Otherwise an exception is thrown.
         /// </summary>
         /// <returns></returns>
-        public async Task<FirebaseAuthLink> CreateAccountAsync(string username, string email, string password)
+        internal async Task<FirebaseAuthLink> CreateAccountAsync(string username, string email, string password)
         {
             // Client-side check for disposable email address.
             const string url =
