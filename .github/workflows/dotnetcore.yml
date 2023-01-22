@@ -7,9 +7,6 @@ on:
   pull_request:
     branches:
       - "*"
-  workflow_dispatch:
-    branches:
-      - "develop"
 
 env:
   DOTNET_VERSION: '6.0.x'
