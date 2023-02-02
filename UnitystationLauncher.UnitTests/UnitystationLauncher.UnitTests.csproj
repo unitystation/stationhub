@@ -24,12 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Infrastructure" />
-      <Folder Include="Models\Api" />
-      <Folder Include="Models\ConfigFile" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\UnitystationLauncher\UnitystationLauncher.csproj" />
     </ItemGroup>
 
