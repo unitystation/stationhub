@@ -20,6 +20,11 @@ namespace UnitystationLauncher.Models
     {
         public Installation(string folderPath)
         {
+            if (folderPath == null)
+            {
+                throw new ArgumentNullException(nameof(folderPath), "Installation path is null!");
+            }
+
             ForkName = GetForkName(folderPath);
             BuildVersion = GetBuildVersion(folderPath);
             InstallationPath = folderPath;
@@ -172,6 +177,11 @@ namespace UnitystationLauncher.Models
 
         public static string GetForkName(string s)
         {
+            if (s == null)
+            {
+                throw new ArgumentNullException(nameof(s), "Installation path is null!");
+            }
+
             var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
             var match = Regex.Match(folderName, @"(.+?)(\d+)");
             return match.Groups[1].Value;
@@ -179,6 +189,11 @@ namespace UnitystationLauncher.Models
 
         public static int GetBuildVersion(string s)
         {
+            if (s == null)
+            {
+                throw new ArgumentNullException(nameof(s), "Installation path is null!");
+            }
+
             var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
             var match = Regex.Match(folderName, @"(.+?)(\d+)");
             return int.Parse(match.Groups[2].Value);
@@ -186,6 +201,11 @@ namespace UnitystationLauncher.Models
 
         public static void MakeExecutableExecutable(string installationPath)
         {
+            if (installationPath == null)
+            {
+                throw new ArgumentNullException(nameof(installationPath), "Installation path is null!");
+            }
+
             var exe = FindExecutable(installationPath);
 
             var fileInfo = new UnixFileInfo(exe);

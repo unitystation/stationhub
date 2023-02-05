@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
+using System.Threading;
 using FluentAssertions;
 using UnitystationLauncher.Models;
 using Xunit;
@@ -9,12 +9,11 @@ namespace UnitystationLauncher.UnitTests.Models;
 
 public class InstallationTests
 {
-    private readonly Installation _installation;
-
-    public InstallationTests()
+    [Fact]
+    public void Constructor_ShouldHandleNullInputs()
     {
-        // Should take place in the test execution directory
-        _installation = new(Directory.GetCurrentDirectory());
+        Action act = () => _ = new Installation(null);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     #region Installation.FindExecutable
@@ -25,85 +24,107 @@ public class InstallationTests
         act.Should().NotThrow();
     }
 
-    // Check invalid directory paths
+    [Fact]
+    public void FindExecutable_ShouldHandleInvalidInputs()
+    {
+        Action act = () => Installation.FindExecutable("<>|\"");
+        act.Should().NotThrow();
+    }
 
-    // Check valid directory paths
+    [Fact]
+    public void FindExecutable_ShouldHandleValidInputs()
+    {
+        string testDir = "./Test";
+        if (!Directory.Exists(testDir))
+        {
+            Directory.CreateDirectory(testDir);
+        }
 
-    // Not sure how to check if it actually finds it, but check that too
+        Action act = () => Installation.FindExecutable(testDir);
+        act.Should().NotThrow();
+    }
     #endregion
 
     #region Installation.Start
     [Fact]
     public void Start_ShouldHandleNullInputs()
     {
-        Action act = () => _installation.Start(null, 0, null, null);
-        act.Should().NotThrow();
-
-        // Move to its own test
-        act = () => _installation.Start();
+        Installation installation = new(Directory.GetCurrentDirectory());
+        Action act = () => installation.Start(null, 0, null, null);
         act.Should().NotThrow();
     }
 
-    // Not sure how to check if it actually starts, but check that too
-    #endregion
-
-    #region Installation.DeleteAsync
     [Fact]
-    public async Task DeleteAsync_ShouldHandleNullInputs()
+    public void Start_ShouldHandleNoInputs()
     {
-        // placeholder to fail test
-        true.Should().BeFalse();
+        Installation installation = new(Directory.GetCurrentDirectory());
+        Action act = () => installation.Start();
+        act.Should().NotThrow();
     }
-
     #endregion
 
     #region Installation.DeleteInstallation
     [Fact]
-    public void DeleteInstallation_ShouldHandleNullInputs()
+    public void DeleteInstallation_ShouldHandleValidInputs()
     {
-        // placeholder to fail test
-        true.Should().BeFalse();
+        string deleteTestDirectory = Directory.GetCurrentDirectory() + "/DeleteInstallationTest23020422";
+        if (!Directory.Exists(deleteTestDirectory))
+        {
+            Directory.CreateDirectory(deleteTestDirectory);
+        }
+
+        Installation deleteInstallation = new(deleteTestDirectory);
+        Action act = () => deleteInstallation.DeleteInstallation();
+
+        act.Should().NotThrow();
+
+        // Wait a second for the delete request to go through
+        Thread.Sleep(1000);
+
+        Directory.Exists(deleteTestDirectory).Should().BeFalse();
     }
-
-    #endregion
-
-    #region Installation.DeleteFolder
-    [Fact]
-    public void DeleteFolder_ShouldHandleNullInputs()
-    {
-        // placeholder to fail test
-        true.Should().BeFalse();
-    }
-
-
     #endregion
 
     #region Installation.GetForkName
     [Fact]
     public void GetForkName_ShouldHandleNullInputs()
     {
-        // placeholder to fail test
-        true.Should().BeFalse();
+        Action act = () => Installation.GetForkName(null);
+        act.Should().Throw<ArgumentNullException>();
     }
 
+    [Fact]
+    public void GetForkName_ShouldHandleValidInputs()
+    {
+        string forkNameTestDirectory = "ForkNameTest23020422";
+        string actual = Installation.GetForkName(forkNameTestDirectory);
+        actual.Should().Be("ForkNameTest");
+    }
     #endregion
 
     #region Installation.GetBuildVersion
     [Fact]
     public void GetBuildVersion_ShouldHandleNullInputs()
     {
-        // placeholder to fail test
-        true.Should().BeFalse();
+        Action act = () => Installation.GetBuildVersion(null);
+        act.Should().Throw<ArgumentNullException>();
     }
 
+    [Fact]
+    public void GetBuildVersion_ShouldHandleValidInputs()
+    {
+        string buildVersionTestDirectory = "BuildVersionTest23020422";
+        int actual = Installation.GetBuildVersion(buildVersionTestDirectory);
+        actual.Should().Be(23020422);
+    }
     #endregion
 
     #region Installation.MakeExecutableExecutable
     [Fact]
     public void MakeExecutableExecutable_ShouldHandleNullInputs()
     {
-        // placeholder to fail test
-        true.Should().BeFalse();
+        Action act = () => Installation.MakeExecutableExecutable(null);
+        act.Should().Throw<ArgumentNullException>();
     }
 
     #endregion
