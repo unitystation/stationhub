@@ -139,7 +139,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            _authService.Store();
+            _authService.SaveAuthSettings();
 
             Observable.Start(() => { }).InvokeCommand(this, vm => vm.OpenLauncher);
         }
