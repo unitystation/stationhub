@@ -11,6 +11,8 @@ using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Services;
 
 #if FLATPAK
+using System.Diagnostics;
+using System.IO;
 using System.Text.RegularExpressions;
 #endif
 
