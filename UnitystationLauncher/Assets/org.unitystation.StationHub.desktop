@@ -3,13 +3,7 @@
 [Desktop Entry]
 Name=StationHub
 Comment=Connect to Unitystation servers & manage your installs
-#Note to packagers: Write a simple .sh running
-# 1. A dotnet binary you know is available with the argument
-# 2. The path to stationhub.dll
-# And then place somewhere appropriate in the path
-Exec=stationhub.sh
+Exec=StationHub
 Type=Application
-#Rename the Icon according to freedesktop standards. 
-#The provided icons are named "Ian" to not break from non-linux targets
 Icon=org.unitystation.StationHub
 Categories=Game
