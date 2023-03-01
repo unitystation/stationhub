@@ -32,9 +32,10 @@ namespace UnitystationLauncher.Services
 
         public string? Uid => AuthLink?.User.LocalId;
 
-        private string AuthSettingsPath = Path.Combine(Config.RootFolder, "authSettings.json");
+        private readonly string AuthSettingsPath = Path.Combine(Config.RootFolder, "authSettings.json");
 
-        private void ConvertToNewAuthFileName() {
+        private void ConvertToNewAuthFileName()
+        {
             string oldAuthSettingsPath = Path.Combine(Config.RootFolder, "settings.json");
             if (File.Exists(oldAuthSettingsPath))
             {
@@ -42,8 +43,10 @@ namespace UnitystationLauncher.Services
             }
         }
 
-        private void LoadAuthSettings() {
-            try {
+        private void LoadAuthSettings()
+        {
+            try
+            {
                 ConvertToNewAuthFileName();
 
                 if (File.Exists(AuthSettingsPath))
@@ -58,7 +61,7 @@ namespace UnitystationLauncher.Services
                 // Something went wrong reading the auth settings. Just ask the user to log in again.
                 // The auth settings file will get overwritten after they do so we don't need to clean it up.
             }
-            
+
         }
 
         public void SaveAuthSettings()
@@ -218,7 +221,7 @@ namespace UnitystationLauncher.Services
         }
     }
 
-    
+
 
     public class LoginMsg
     {
