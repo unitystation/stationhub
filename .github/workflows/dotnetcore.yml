@@ -51,14 +51,14 @@ jobs:
       - name: Publish MacOS
         if: ${{ contains(matrix.target-platform, 'osx-x64' )}}
         run: |
-          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} -t:BundleApp -p:RuntimeIdentifier=${{ matrix.target-platform }} -p:UseAppHost=true --output ~/publish \
+          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} -t:BundleApp -p:RuntimeIdentifier=${{ matrix.target-platform }} -p:UseAppHost=true --property PublishDir=~/publish \
           && sudo chmod +x ~/publish/StationHub.app/Contents/MacOS/StationHub \
           && cd ~/publish \
           && tar -cvf ~/publish/StationHub.tar StationHub.app
       - name: Publish
         if: ${{ !contains(matrix.target-platform, 'osx-x64' )}}
         run: |
-          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --output ~/publish
+          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --property PublishDir=~/publish
 
       # Upload
       - name: Upload MacOS Build
