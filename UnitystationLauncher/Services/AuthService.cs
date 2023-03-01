@@ -23,12 +23,8 @@ namespace UnitystationLauncher.Services
         {
             _authProvider = authProvider;
             _http = http;
-            if (File.Exists(Path.Combine(Config.RootFolder, "settings.json")))
-            {
-                var json = File.ReadAllText(Path.Combine(Config.RootFolder, "settings.json"));
-                var authLink = JsonSerializer.Deserialize<FirebaseAuthLink>(json);
-                AuthLink = authLink;
-            }
+
+            LoadAuthSettings();
         }
 
         public FirebaseAuthLink? AuthLink { get; set; }
@@ -36,11 +32,43 @@ namespace UnitystationLauncher.Services
 
         public string? Uid => AuthLink?.User.LocalId;
 
-        public void Store()
+        private readonly string AuthSettingsPath = Path.Combine(Config.RootFolder, "authSettings.json");
+
+        private void ConvertToNewAuthFileName()
+        {
+            string oldAuthSettingsPath = Path.Combine(Config.RootFolder, "settings.json");
+            if (File.Exists(oldAuthSettingsPath))
+            {
+                File.Move(oldAuthSettingsPath, AuthSettingsPath);
+            }
+        }
+
+        private void LoadAuthSettings()
+        {
+            try
+            {
+                ConvertToNewAuthFileName();
+
+                if (File.Exists(AuthSettingsPath))
+                {
+                    var json = File.ReadAllText(AuthSettingsPath);
+                    var authLink = JsonSerializer.Deserialize<FirebaseAuthLink>(json);
+                    AuthLink = authLink;
+                }
+            }
+            catch (Exception)
+            {
+                // Something went wrong reading the auth settings. Just ask the user to log in again.
+                // The auth settings file will get overwritten after they do so we don't need to clean it up.
+            }
+
+        }
+
+        public void SaveAuthSettings()
         {
             var json = JsonSerializer.Serialize(AuthLink);
 
-            using (StreamWriter writer = File.CreateText(Path.Combine(Config.RootFolder, "settings.json")))
+            using (StreamWriter writer = File.CreateText(AuthSettingsPath))
             {
                 writer.WriteLine(json);
             }
@@ -192,6 +220,8 @@ namespace UnitystationLauncher.Services
             AuthLink = null;
         }
     }
+
+
 
     public class LoginMsg
     {

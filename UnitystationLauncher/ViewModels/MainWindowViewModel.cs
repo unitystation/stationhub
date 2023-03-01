@@ -133,7 +133,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
             _authService.AttemptingAutoLogin = false;
-            _authService.Store();
+            _authService.SaveAuthSettings();
             Content = _launcherVm.Value;
         }
 
