@@ -5,7 +5,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UnitystationLauncher.Views.PullRequestView">
     <StackPanel Margin="5" Background="{StaticResource Primary2}">
-        <TextBlock Text="{Binding MergedAt, Converter={StaticResource Humanizer}}" TextWrapping="Wrap" Margin="2" FontWeight="Light"/>
-        <TextBlock Text="{Binding Title}" TextWrapping="Wrap"  Margin="2"/>
+        <TextBlock Text="{Binding MergedAt, Converter={StaticResource Humanizer}}" TextWrapping="Wrap" Margin="2" FontWeight="Light" />
+        <TextBlock Text="{Binding Title}" TextWrapping="Wrap"  Margin="2" />
+        <TextBlock Text="{Binding ContributedBy}" TextWrapping="Wrap"  Margin="2" FontWeight="Light" />
     </StackPanel>
 </UserControl>

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Markup.Xaml;
 using System.Runtime.InteropServices;
+using Avalonia.Interactivity;
 
 namespace UnitystationLauncher.Views
 {
@@ -27,6 +28,16 @@ namespace UnitystationLauncher.Views
             _titleBar = this.FindControl<DockPanel>("TitleBar");
             _contentControl = this.FindControl<Border>("ContentControl");
 
+            SetupTitleBar();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        private void SetupTitleBar()
+        {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
             {
 
@@ -43,20 +54,14 @@ namespace UnitystationLauncher.Views
             }
             else
             {
-                var minimizeButton = this.FindControl<Button>("MinimizeButton");
-                var maximizeButton = this.FindControl<Button>("MaximizeButton");
-                var closeButton = this.FindControl<Button>("CloseButton");
+                Button minimizeButton = this.FindControl<Button>("MinimizeButton");
+                Button maximizeButton = this.FindControl<Button>("MaximizeButton");
+                Button closeButton = this.FindControl<Button>("CloseButton");
 
-                minimizeButton.Click += (sender, ee) => { WindowState = WindowState.Minimized; };
-                maximizeButton.Click += (sender, ee) => { ToggleWindowState(); };
-                closeButton.Click += (sender, ee) => { Close(); };
-
+                minimizeButton.Click += MinimizeWindow;
+                maximizeButton.Click += ToggleMaximizeWindowState;
+                closeButton.Click += CloseWindow;
             }
-        }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -71,7 +76,12 @@ namespace UnitystationLauncher.Views
             base.OnPointerPressed(e);
         }
 
-        private void ToggleWindowState()
+        private void MinimizeWindow(object? sender, RoutedEventArgs eventArgs)
+        {
+            WindowState = WindowState.Minimized;
+        }
+        
+        private void ToggleMaximizeWindowState(object? sender, RoutedEventArgs eventArgs)
         {
             if (WindowState == WindowState.Maximized)
             {
@@ -85,6 +95,11 @@ namespace UnitystationLauncher.Views
             }
         }
 
+        private void CloseWindow(object? sender, RoutedEventArgs eventArgs)
+        {
+            Close();
+        }
+        
         protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
             base.OnPropertyChanged(change);
