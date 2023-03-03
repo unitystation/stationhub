@@ -87,5 +87,5 @@ jobs:
       
       # Build
       - name: Test Flatpak Build
-          run: |
-            dotnet publish --framework net6.0 --runtime linux-x64 --configuration Release --self-contained true /p:DefineConstants="FLATPAK" /p:DisableBeauty=true
+        run: |
+          dotnet publish --framework net6.0 --runtime linux-x64 --configuration Release --self-contained true /p:DefineConstants="FLATPAK" /p:DisableBeauty=true
