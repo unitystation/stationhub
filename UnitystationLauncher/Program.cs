@@ -10,10 +10,14 @@ public static class Program
     private static AppBuilder BuildAvaloniaApp()
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .With(new AvaloniaNativePlatformOptions { UseGpu = true, UseDeferredRendering = false }) // Common options
-                                                                                                     //.With(new Win32PlatformOptions {  }) // Windows Specific
-            .With(new MacOSPlatformOptions { ShowInDock = true }) // MacOS Specific
-                                                                  //.With(new X11PlatformOptions {  }) // Linux Specific
+            // Windows Specific
+            .With(new Win32PlatformOptions { UseDeferredRendering = false })
+            // MacOS Specific, AvaloniaNativePlatformOptions is "OSX backend options,
+            // and MacOSPlatformOptions is "OSX front-end options", no idea why they decided to do it that way.
+            .With(new AvaloniaNativePlatformOptions { UseGpu = true, UseDeferredRendering = false })
+            .With(new MacOSPlatformOptions { ShowInDock = true })
+            // Linux Specific
+            .With(new X11PlatformOptions { UseGpu = true, UseDeferredRendering = false })
             .LogToTrace()
             .UseReactiveUI();
 }

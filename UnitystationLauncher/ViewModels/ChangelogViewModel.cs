@@ -13,7 +13,7 @@ namespace UnitystationLauncher.ViewModels
     {
         private readonly GitHubClient _client;
 
-        ObservableCollection<PullRequestViewModel> PullRequests { get; }
+        private ObservableCollection<PullRequestViewModel> PullRequests { get; }
 
         public ChangelogViewModel()
         {
@@ -23,7 +23,7 @@ namespace UnitystationLauncher.ViewModels
             RxApp.TaskpoolScheduler.ScheduleAsync(GetPullRequestsAsync);
         }
 
-        private async Task GetPullRequestsAsync(IScheduler scheduler, CancellationToken cancellationToken)
+        private async Task GetPullRequestsAsync(IScheduler _, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
