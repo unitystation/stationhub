@@ -19,7 +19,7 @@ namespace UnitystationLauncher.Models.ConfigFile
         private const string InstallationFolder = "Installations";
         public const string ApiUrl = "https://api.unitystation.org/serverlist";
         public const string ValidateUrl = "https://api.unitystation.org/validatehubclient";
-        
+
         public const string MainSiteUrl = "https://unitystation.org";
         public const string PatreonUrl = "https://www.patreon.com/unitystation";
         public const string GameIssuesUrl = "https://github.com/unitystation/unitystation/issues";

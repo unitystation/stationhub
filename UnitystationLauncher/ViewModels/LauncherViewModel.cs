@@ -51,7 +51,7 @@ namespace UnitystationLauncher.ViewModels
             _logoutVm = logoutVm;
             _hubUpdateVm = hubUpdateVm;
             _config = config;
-            
+
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
             Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
@@ -67,22 +67,22 @@ namespace UnitystationLauncher.ViewModels
             SettingsPanelViewModel settingsPanel)
         {
             List<PanelBase> panelBases = new();
-            
+
             if (newsPanel.IsEnabled)
             {
                 panelBases.Add(newsPanel);
             }
-            
+
             if (serversPanel.IsEnabled)
             {
                 panelBases.Add(serversPanel);
             }
-            
+
             if (installationsPanel.IsEnabled)
             {
                 panelBases.Add(installationsPanel);
             }
-            
+
             if (settingsPanel.IsEnabled)
             {
                 panelBases.Add(settingsPanel);

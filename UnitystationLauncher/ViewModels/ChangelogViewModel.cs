@@ -19,7 +19,7 @@ namespace UnitystationLauncher.ViewModels
         {
             _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
             PullRequests = new();
-            
+
             RxApp.TaskpoolScheduler.ScheduleAsync(GetPullRequestsAsync);
         }
 
@@ -29,12 +29,12 @@ namespace UnitystationLauncher.ViewModels
             {
                 return;
             }
-            
+
             PullRequestRequest options = new()
             {
                 State = ItemStateFilter.Closed
             };
-            
+
             ApiOptions apiOptions = new()
             {
                 PageCount = 1,

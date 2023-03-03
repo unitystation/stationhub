@@ -9,7 +9,7 @@ namespace UnitystationLauncher.ViewModels
         public DateTimeOffset? MergedAt { get; }
         public string Url { get; }
         public string ContributedBy { get; }
-        
+
         public PullRequestViewModel(PullRequest pr)
         {
             Title = pr.Title;

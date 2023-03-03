@@ -12,7 +12,7 @@ namespace UnitystationLauncher.ViewModels
     public class NewsPanelViewModel : PanelBase
     {
         public override string Name => "News";
-        
+
         public override bool IsEnabled => true;
 
         ViewModelBase _changelog;
@@ -40,7 +40,7 @@ namespace UnitystationLauncher.ViewModels
         public NewsPanelViewModel(ChangelogViewModel changelog)
         {
             _changelog = changelog;
-            
+
             OpenMainSite = ReactiveCommand.Create(() => OpenLink(Config.MainSiteUrl));
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(Config.PatreonUrl));
             OpenGameIssues = ReactiveCommand.Create(() => OpenLink(Config.GameIssuesUrl));
@@ -58,7 +58,7 @@ namespace UnitystationLauncher.ViewModels
                 FileName = url,
                 UseShellExecute = true
             };
-            
+
             Process.Start(psi);
         }
     }

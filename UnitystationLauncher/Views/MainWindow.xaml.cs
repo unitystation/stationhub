@@ -80,7 +80,7 @@ namespace UnitystationLauncher.Views
         {
             WindowState = WindowState.Minimized;
         }
-        
+
         private void ToggleMaximizeWindowState(object? sender, RoutedEventArgs eventArgs)
         {
             if (WindowState == WindowState.Maximized)
@@ -99,7 +99,7 @@ namespace UnitystationLauncher.Views
         {
             Close();
         }
-        
+
         protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
         {
             base.OnPropertyChanged(change);

@@ -17,7 +17,7 @@ namespace UnitystationLauncher.ViewModels
     {
         public override string Name => "Installations";
         public override bool IsEnabled => true;
-        
+
         private readonly InstallationService _installationService;
         private readonly Config _config;
         string? _buildNum;

@@ -11,9 +11,9 @@ public static class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .With(new AvaloniaNativePlatformOptions { UseGpu = true, UseDeferredRendering = false }) // Common options
-            //.With(new Win32PlatformOptions {  }) // Windows Specific
+                                                                                                     //.With(new Win32PlatformOptions {  }) // Windows Specific
             .With(new MacOSPlatformOptions { ShowInDock = true }) // MacOS Specific
-            //.With(new X11PlatformOptions {  }) // Linux Specific
+                                                                  //.With(new X11PlatformOptions {  }) // Linux Specific
             .LogToTrace()
             .UseReactiveUI();
 }
