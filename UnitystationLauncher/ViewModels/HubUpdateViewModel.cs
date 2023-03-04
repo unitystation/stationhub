@@ -135,7 +135,15 @@ namespace UnitystationLauncher.ViewModels
             UpdateTitle = "Downloading...";
 
             Log.Information("Download started...");
-            var downloadUrl = (await _config.GetServerHubClientConfigAsync()).GetDownloadUrl();
+            HubClientConfig? hubClientConfig = await _config.GetServerHubClientConfigAsync();
+
+            if (hubClientConfig == null)
+            {
+                Log.Error("Error: {Error}", "Unable to retrieve client config from hub.");
+                return;
+            }
+
+            string? downloadUrl = hubClientConfig.GetDownloadUrl();
             if (downloadUrl == null)
             {
                 Log.Error("DownloadUrl is null");
@@ -144,12 +152,7 @@ namespace UnitystationLauncher.ViewModels
 
             Log.Information("Download started...");
             var request = await _http.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancelToken);
-            await using var responseStream = await request.Content.ReadAsStreamAsync();
-            if (responseStream == null)
-            {
-                Log.Error("Could not download from server");
-                return;
-            }
+            await using Stream responseStream = await request.Content.ReadAsStreamAsync(cancelToken);
 
             Log.Information("Download connection established");
             await using var progStream = new ProgressStream(responseStream);

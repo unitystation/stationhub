@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace UnitystationLauncher.Models.ConfigFile
@@ -17,16 +18,26 @@ namespace UnitystationLauncher.Models.ConfigFile
         private const string WinExeName = "StationHub.exe";
         private const string UnixExeName = "StationHub";
         private const string InstallationFolder = "Installations";
-        public const string ApiUrl = "https://api.unitystation.org/serverlist";
-        public const string ValidateUrl = "https://api.unitystation.org/validatehubclient";
 
+        // API URLs
+        public const string ApiBaseUrl = "https://api.unitystation.org";
+        public const string ServerListUrl = $"{ApiBaseUrl}/serverlist";
+        public const string ValidateUrl = $"{ApiBaseUrl}/validatehubclient";
+        public const string ValidateTokenUrl = $"{ApiBaseUrl}/validatetoken?data=";
+        public const string SignOutUrl = $"{ApiBaseUrl}/signout?data=";
+
+        // Other URLs
         public const string MainSiteUrl = "https://unitystation.org";
         public const string PatreonUrl = "https://www.patreon.com/unitystation";
         public const string GameIssuesUrl = "https://github.com/unitystation/unitystation/issues";
         public const string LauncherIssuesUrl = "https://github.com/unitystation/stationhub/issues";
         public const string DiscordInviteUrl = "https://discord.com/invite/tFcTpBp";
 
+        private HubClientConfig? _hubClientConfig;
         private readonly HttpClient _http;
+        private Preferences? _preferences;
+        private IDisposable? _preferenceSub;
+
         public Config(HttpClient http)
         {
             _http = http;
@@ -56,20 +67,16 @@ namespace UnitystationLauncher.Models.ConfigFile
             }
         }
 
-        private HubClientConfig? _clientConfig;
-        public async Task<HubClientConfig> GetServerHubClientConfigAsync()
+        public async Task<HubClientConfig?> GetServerHubClientConfigAsync()
         {
-            if (_clientConfig == null)
+            if (_hubClientConfig == null)
             {
-                var data = await _http.GetStringAsync(ValidateUrl);
-                _clientConfig = JsonSerializer.Deserialize<HubClientConfig>(data);
+                string data = await _http.GetStringAsync(ValidateUrl);
+                _hubClientConfig = JsonSerializer.Deserialize<HubClientConfig>(data);
             }
 
-            return _clientConfig;
+            return _hubClientConfig;
         }
-
-        private Preferences? _preferences;
-        private IDisposable? _preferenceSub;
 
         public async Task<Preferences> GetPreferencesAsync()
         {
@@ -80,27 +87,25 @@ namespace UnitystationLauncher.Models.ConfigFile
 
             if (File.Exists(PreferencesFilePath))
             {
-                await using var data = File.OpenRead(PreferencesFilePath);
+                await using FileStream data = File.OpenRead(PreferencesFilePath);
                 _preferences = await JsonSerializer.DeserializeAsync<Preferences>(data);
             }
-            else
-            {
-                _preferences = new Preferences();
-            }
 
+            _preferences ??= new Preferences();
             _preferenceSub?.Dispose();
             _preferenceSub = _preferences.Changed
-                .Select(_ => Observable.FromAsync(SerializerPreferencesAsync))
+                .Select(_ => Observable.FromAsync(SerializePreferencesAsync))
                 .Concat()
                 .Subscribe();
 
             return _preferences;
         }
 
-        private async Task SerializerPreferencesAsync()
+        private async Task SerializePreferencesAsync()
         {
-            await using var file = File.Create(PreferencesFilePath);
-            await JsonSerializer.SerializeAsync(file, _preferences, new JsonSerializerOptions { IgnoreNullValues = true, IgnoreReadOnlyProperties = true });
+            await using FileStream file = File.Create(PreferencesFilePath);
+            await JsonSerializer.SerializeAsync(file, _preferences, new JsonSerializerOptions
+            { IgnoreReadOnlyProperties = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
         }
 
         public void Dispose()

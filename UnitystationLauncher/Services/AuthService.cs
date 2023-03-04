@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -102,32 +103,30 @@ namespace UnitystationLauncher.Services
             // Client-side check for disposable email address.
             const string url =
                 "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
+            HttpRequestMessage requestMessage = new(HttpMethod.Get, url);
 
-            var cancellationToken = new CancellationTokenSource(60000).Token;
-            var isDomainBlacklisted = false;
+            CancellationToken cancellationToken = new CancellationTokenSource(60000).Token;
+            bool isDomainBlacklisted = false;
             try
             {
-                var response = await _http.SendAsync(requestMessage, cancellationToken);
-                var msg = await response.Content.ReadAsStringAsync();
+                HttpResponseMessage response = await _http.SendAsync(requestMessage, cancellationToken);
+                string msg = await response.Content.ReadAsStringAsync(cancellationToken);
 
                 // Turn msg into a hashset of all domains
-                using var stringReader = new StringReader(msg);
-                var lines = new List<string>();
-                {
-                    string line;
+                using StringReader stringReader = new(msg);
+                List<string> lines = new();
 
-                    while ((line = stringReader.ReadLine()!) != null)
+                while (await stringReader.ReadLineAsync() is { } line)
+                {
+                    if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//"))
                     {
-                        if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//"))
-                        {
-                            lines.Add(line);
-                        }
+                        lines.Add(line);
                     }
                 }
-                var blacklist = new HashSet<string>(lines, StringComparer.OrdinalIgnoreCase);
 
-                var address = new System.Net.Mail.MailAddress(email);
+                HashSet<string> blacklist = new(lines, StringComparer.OrdinalIgnoreCase);
+
+                MailAddress address = new(email);
                 if (blacklist.Contains(address.Host))
                 {
                     // Randomly wait before failing. Might frustrate users who try different disposable emails.
@@ -150,16 +149,12 @@ namespace UnitystationLauncher.Services
 
         internal Task<User> GetUpdatedUserAsync() => _authProvider.GetUserAsync(AuthLink);
 
-        public async Task<string> GetCustomTokenAsync(RefreshToken refreshToken, string email)
+        public async Task<string> GetCustomTokenAsync(RefreshToken refreshToken)
         {
-            var url = "https://api.unitystation.org/validatetoken?data=";
-
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get,
-                url + Uri.EscapeUriString(JsonSerializer.Serialize(refreshToken)));
-
+            HttpRequestMessage r = new(HttpMethod.Get, Config.ValidateTokenUrl + Uri.EscapeDataString(JsonSerializer.Serialize(refreshToken)));
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
-
             HttpResponseMessage res;
+
             try
             {
                 res = await _http.SendAsync(r, cancellationToken);
@@ -170,9 +165,14 @@ namespace UnitystationLauncher.Services
                 return "";
             }
 
-            string msg = await res.Content.ReadAsStringAsync();
-            var response = JsonSerializer.Deserialize<ApiResponse>(msg,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            string msg = await res.Content.ReadAsStringAsync(cancellationToken);
+            ApiResponse? response = JsonSerializer.Deserialize<ApiResponse>(msg, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (response == null)
+            {
+                Log.Error("Error: {Error}", "Response from /validatetoken cannot be deserialized");
+                return "";
+            }
 
             if (response.ErrorCode != 0)
             {
@@ -190,20 +190,16 @@ namespace UnitystationLauncher.Services
                 return;
             }
 
-            var token = new RefreshToken
+            RefreshToken token = new()
             {
                 UserId = Uid,
                 Token = CurrentRefreshToken
             };
 
-            const string url = "https://api.unitystation.org/signout?data=";
-
-            HttpRequestMessage r = new HttpRequestMessage(HttpMethod.Get,
-                url + Uri.EscapeUriString(JsonSerializer.Serialize(token)));
-
+            HttpRequestMessage r = new(HttpMethod.Get, Config.SignOutUrl + Uri.EscapeDataString(JsonSerializer.Serialize(token)));
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
-
             HttpResponseMessage res;
+
             try
             {
                 res = await _http.SendAsync(r, cancellationToken);
@@ -214,7 +210,7 @@ namespace UnitystationLauncher.Services
                 return;
             }
 
-            string msg = await res.Content.ReadAsStringAsync();
+            string msg = await res.Content.ReadAsStringAsync(cancellationToken);
 
             Log.Information("Logout message: {Message}", msg);
             AuthLink = null;
