@@ -40,9 +40,9 @@ namespace UnitystationLauncher.ViewModels
 #if FLATPAK
             Task.Run(FlatpakGetPingTime);
 #else
-            Ping ping = new();
+            using Ping ping = new();
             ping.PingCompleted += PingCompletedCallback;
-            ping.SendAsync(Server.ServerIp, 7);
+            ping.SendAsync(Server.ServerIp, null);
 #endif
             DownloadedAmount = (
                     Download?.WhenAnyValue(d => d.Downloaded)
