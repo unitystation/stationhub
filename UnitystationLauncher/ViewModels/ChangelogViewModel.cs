@@ -1,41 +1,52 @@
+using System.Collections.Generic;
 using ReactiveUI;
 using Octokit;
 using System.Collections.ObjectModel;
 using System.Reactive.Concurrency;
+using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ChangelogViewModel : ViewModelBase
     {
-        readonly GitHubClient _client;
-        ObservableCollection<PullRequestViewModel> _pullRequests = new ObservableCollection<PullRequestViewModel>();
+        private readonly GitHubClient _client;
 
-        public ObservableCollection<PullRequestViewModel> PullRequests
-        {
-            get => _pullRequests;
-            set => this.RaiseAndSetIfChanged(ref _pullRequests, value);
-        }
+        private ObservableCollection<PullRequestViewModel> PullRequests { get; }
 
         public ChangelogViewModel()
         {
             _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => GetPullRequestsAsync());
+            PullRequests = new();
+
+            RxApp.TaskpoolScheduler.ScheduleAsync(GetPullRequestsAsync);
         }
 
-        public async Task GetPullRequestsAsync()
+        private async Task GetPullRequestsAsync(IScheduler _, CancellationToken cancellationToken)
         {
-            PullRequestRequest options = new PullRequestRequest();
-            ApiOptions apiOptions = new ApiOptions();
-            apiOptions.PageCount = 1;
-            apiOptions.PageSize = 10;
-            options.State = ItemStateFilter.Closed;
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            PullRequestRequest options = new()
+            {
+                State = ItemStateFilter.Closed
+            };
+
+            ApiOptions apiOptions = new()
+            {
+                PageCount = 1,
+                PageSize = 10,
+            };
 
             try
             {
-                var closedPrs = await _client.Repository.PullRequest.GetAllForRepository("unitystation", "unitystation", options, apiOptions);
+                IReadOnlyList<PullRequest> closedPrs = await _client.Repository.PullRequest.GetAllForRepository("unitystation", "unitystation", options, apiOptions);
+                Log.Information("PR list fetched");
 
-                foreach (var pr in closedPrs)
+                foreach (PullRequest pr in closedPrs)
                 {
                     if (pr.Merged)
                     {

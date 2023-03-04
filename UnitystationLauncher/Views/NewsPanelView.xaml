@@ -78,19 +78,23 @@
                     </Grid>
                 </Border>
             </Grid>
-            <StackPanel Grid.Row="2">
-                <Button Height="33" VerticalAlignment="Center" HorizontalAlignment="Left" Command="{Binding OpenSite}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">-Official Site</TextBlock>
+            <WrapPanel Grid.Row="2">
+                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenMainSite}">
+                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Official Site</TextBlock>
                 </Button>
-                <Button Height="33" VerticalAlignment="Center" HorizontalAlignment="Left"
-                        Command="{Binding OpenSupport}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">-Support</TextBlock>
+                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenPatreon}">
+                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Support us on Patreon</TextBlock>
                 </Button>
-                <Button Height="35" VerticalAlignment="Center" HorizontalAlignment="Left"
-                        Command="{Binding OpenReport}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">-Report Bug</TextBlock>
+                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenGameIssues}">
+                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Report Game Bug</TextBlock>
                 </Button>
-            </StackPanel>
+                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenLauncherIssues}">
+                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Report Launcher Bug</TextBlock>
+                </Button>
+                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenDiscordInvite}">
+                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Join Discord</TextBlock>
+                </Button>
+            </WrapPanel>
         </Grid>
     </Grid>
 </UserControl>

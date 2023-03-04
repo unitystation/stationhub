@@ -53,7 +53,7 @@
                                       Fill="White"
                                       Data="M2048 1229v-205h-2048v205h2048z" />
                             </Button>
-                            <Button Width="40" Name="MaximizeButton" Command="{Binding CommandMaximizee}">
+                            <Button Width="40" Name="MaximizeButton">
                                 <ToolTip.Tip>
                                     <ToolTip Content="{Binding MaximizeToolTip}" />
                                 </ToolTip.Tip>

@@ -13,13 +13,17 @@ namespace UnitystationLauncher.ViewModels
     {
         public override string Name => "News";
 
+        public override bool IsEnabled => true;
+
         ViewModelBase _changelog;
 
         Bitmap _backGroundImage;
 
-        public ReactiveCommand<Unit, Unit> OpenSite { get; }
-        public ReactiveCommand<Unit, Unit> OpenSupport { get; }
-        public ReactiveCommand<Unit, Unit> OpenReport { get; }
+        public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
+        public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
+        public ReactiveCommand<Unit, Unit> OpenGameIssues { get; }
+        public ReactiveCommand<Unit, Unit> OpenLauncherIssues { get; }
+        public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
 
         public Bitmap BackGroundImage
         {
@@ -36,43 +40,26 @@ namespace UnitystationLauncher.ViewModels
         public NewsPanelViewModel(ChangelogViewModel changelog)
         {
             _changelog = changelog;
-            OpenSite = ReactiveCommand.Create(OpenUriSite);
-            OpenReport = ReactiveCommand.Create(OpenUriReport);
-            OpenSupport = ReactiveCommand.Create(OpenUriSupport);
+
+            OpenMainSite = ReactiveCommand.Create(() => OpenLink(Config.MainSiteUrl));
+            OpenPatreon = ReactiveCommand.Create(() => OpenLink(Config.PatreonUrl));
+            OpenGameIssues = ReactiveCommand.Create(() => OpenLink(Config.GameIssuesUrl));
+            OpenLauncherIssues = ReactiveCommand.Create(() => OpenLink(Config.LauncherIssuesUrl));
+            OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(Config.DiscordInviteUrl));
 
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             _backGroundImage = new Bitmap(assets?.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
         }
 
-        private void OpenUriSite()
+        private static void OpenLink(string url)
         {
-            var psi = new ProcessStartInfo
+            ProcessStartInfo psi = new()
             {
-                FileName = Config.SiteUrl,
+                FileName = url,
                 UseShellExecute = true
             };
+
             Process.Start(psi);
         }
-
-        private void OpenUriReport()
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = Config.ReportUrl,
-                UseShellExecute = true
-            };
-            Process.Start(psi);
-        }
-
-        private void OpenUriSupport()
-        {
-            var psi = new ProcessStartInfo
-            {
-                FileName = Config.SupportUrl,
-                UseShellExecute = true
-            };
-            Process.Start(psi);
-        }
-
     }
 }

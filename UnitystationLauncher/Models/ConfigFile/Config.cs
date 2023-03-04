@@ -19,9 +19,12 @@ namespace UnitystationLauncher.Models.ConfigFile
         private const string InstallationFolder = "Installations";
         public const string ApiUrl = "https://api.unitystation.org/serverlist";
         public const string ValidateUrl = "https://api.unitystation.org/validatehubclient";
-        public const string SiteUrl = "https://unitystation.org/";
-        public const string SupportUrl = "https://www.patreon.com/unitystation";
-        public const string ReportUrl = "https://github.com/unitystation/unitystation/issues";
+
+        public const string MainSiteUrl = "https://unitystation.org";
+        public const string PatreonUrl = "https://www.patreon.com/unitystation";
+        public const string GameIssuesUrl = "https://github.com/unitystation/unitystation/issues";
+        public const string LauncherIssuesUrl = "https://github.com/unitystation/stationhub/issues";
+        public const string DiscordInviteUrl = "https://discord.com/invite/tFcTpBp";
 
         private readonly HttpClient _http;
         public Config(HttpClient http)

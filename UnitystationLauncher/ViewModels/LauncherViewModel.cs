@@ -1,6 +1,7 @@
 ﻿using ReactiveUI;
 using System.Reactive;
 using System;
+using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using Serilog;
 using System.Reactive.Linq;
@@ -38,25 +39,20 @@ namespace UnitystationLauncher.ViewModels
 
         public LauncherViewModel(
             AuthService authService,
-            ServersPanelViewModel serversPanel,
-            InstallationsPanelViewModel installationsPanel,
             Lazy<LoginViewModel> logoutVm,
             Lazy<HubUpdateViewModel> hubUpdateVm,
-            NewsPanelViewModel news,
-            SettingsPanelViewModel settings,
+            NewsPanelViewModel newsPanel,
+            ServersPanelViewModel serversPanel,
+            InstallationsPanelViewModel installationsPanel,
+            SettingsPanelViewModel settingsPanel,
             Config config)
         {
             _authService = authService;
             _logoutVm = logoutVm;
             _hubUpdateVm = hubUpdateVm;
             _config = config;
-            _panels = new PanelBase[]
-            {
-                news,
-                serversPanel,
-                installationsPanel,
-                settings
-            };
+
+            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
             Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
             ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
@@ -64,6 +60,36 @@ namespace UnitystationLauncher.ViewModels
             RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => ValidateClientVersionAsync());
         }
 
+        private PanelBase[] GetEnabledPanels(
+            NewsPanelViewModel newsPanel,
+            ServersPanelViewModel serversPanel,
+            InstallationsPanelViewModel installationsPanel,
+            SettingsPanelViewModel settingsPanel)
+        {
+            List<PanelBase> panelBases = new();
+
+            if (newsPanel.IsEnabled)
+            {
+                panelBases.Add(newsPanel);
+            }
+
+            if (serversPanel.IsEnabled)
+            {
+                panelBases.Add(serversPanel);
+            }
+
+            if (installationsPanel.IsEnabled)
+            {
+                panelBases.Add(installationsPanel);
+            }
+
+            if (settingsPanel.IsEnabled)
+            {
+                panelBases.Add(settingsPanel);
+            }
+
+            return panelBases.ToArray();
+        }
 
         async Task ValidateClientVersionAsync()
         {

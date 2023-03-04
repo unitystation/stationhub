@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
@@ -17,6 +17,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly DownloadService _downloadService;
 
         public override string Name => "Servers";
+        public override bool IsEnabled => true;
 
         public ServersPanelViewModel(StateService stateService, DownloadService downloadService,
             AuthService authService)
