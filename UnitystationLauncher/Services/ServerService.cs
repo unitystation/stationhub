@@ -39,7 +39,7 @@ namespace UnitystationLauncher.Services
         {
             Refreshing = true;
 
-            var data = await _http.GetStringAsync(Config.ApiUrl);
+            var data = await _http.GetStringAsync(Config.ServerListUrl);
             var serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
             Log.Information("Server list fetched");
 

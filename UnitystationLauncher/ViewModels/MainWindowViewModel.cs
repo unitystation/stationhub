@@ -97,13 +97,13 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            var refreshToken = new RefreshToken
+            RefreshToken refreshToken = new()
             {
                 UserId = _authService.AuthLink.User.LocalId,
                 Token = _authService.AuthLink.RefreshToken
             };
 
-            var token = await _authService.GetCustomTokenAsync(refreshToken, _authService.AuthLink.User.Email);
+            string token = await _authService.GetCustomTokenAsync(refreshToken);
 
             if (string.IsNullOrEmpty(token))
             {

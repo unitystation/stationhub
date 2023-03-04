@@ -91,27 +91,34 @@ namespace UnitystationLauncher.ViewModels
             return panelBases.ToArray();
         }
 
-        async Task ValidateClientVersionAsync()
+        private async Task ValidateClientVersionAsync()
         {
-            var clientConfig = await _config.GetServerHubClientConfigAsync();
-            if (clientConfig.BuildNumber > Config.CurrentBuild)
+            HubClientConfig? hubClientConfig = await _config.GetServerHubClientConfigAsync();
+
+            if (hubClientConfig == null)
+            {
+                Log.Error("Error: {Error}", "Unable to retrieve client config from hub.");
+                return;
+            }
+
+            if (hubClientConfig.BuildNumber > Config.CurrentBuild)
             {
                 Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
                     Config.CurrentBuild,
-                    clientConfig.BuildNumber);
+                    hubClientConfig.BuildNumber);
                 Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
             }
         }
 
-        async Task<LoginViewModel> LogoutAsync()
+        private async Task<LoginViewModel> LogoutAsync()
         {
             await _authService.SignOutUserAsync();
-            var prefs = await _config.GetPreferencesAsync();
+            Preferences prefs = await _config.GetPreferencesAsync();
             prefs.LastLogin = "";
             return _logoutVm.Value;
         }
 
-        HubUpdateViewModel ShowUpdateImp()
+        private HubUpdateViewModel ShowUpdateImp()
         {
             return _hubUpdateVm.Value;
         }
