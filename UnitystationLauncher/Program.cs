@@ -16,7 +16,7 @@ public static class Program
             // and MacOSPlatformOptions is "OSX front-end options", no idea why they decided to do it that way.
             .With(new AvaloniaNativePlatformOptions { UseGpu = true, UseDeferredRendering = false })
             .With(new MacOSPlatformOptions { ShowInDock = true })
-            // Linux Specific 
+            // Linux Specific
             .With(new X11PlatformOptions { UseGpu = true, UseDeferredRendering = false })
             .LogToTrace()
             .UseReactiveUI();
