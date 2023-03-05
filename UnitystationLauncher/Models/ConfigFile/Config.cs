@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using UnitystationLauncher.Constants;
 
 namespace UnitystationLauncher.Models.ConfigFile
 {
@@ -18,13 +19,6 @@ namespace UnitystationLauncher.Models.ConfigFile
         private const string WinExeName = "StationHub.exe";
         private const string UnixExeName = "StationHub";
         private const string InstallationFolder = "Installations";
-
-        // API URLs
-        public const string ApiBaseUrl = "https://api.unitystation.org";
-        public const string ServerListUrl = $"{ApiBaseUrl}/serverlist";
-        public const string ValidateUrl = $"{ApiBaseUrl}/validatehubclient";
-        public const string ValidateTokenUrl = $"{ApiBaseUrl}/validatetoken?data=";
-        public const string SignOutUrl = $"{ApiBaseUrl}/signout?data=";
 
         // Other URLs
         public const string MainSiteUrl = "https://unitystation.org";
@@ -71,7 +65,7 @@ namespace UnitystationLauncher.Models.ConfigFile
         {
             if (_hubClientConfig == null)
             {
-                string data = await _http.GetStringAsync(ValidateUrl);
+                string data = await _http.GetStringAsync(ApiUrls.ValidateUrl);
                 _hubClientConfig = JsonSerializer.Deserialize<HubClientConfig>(data);
             }
 

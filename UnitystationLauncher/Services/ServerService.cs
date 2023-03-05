@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Models.ConfigFile;
 
@@ -39,7 +40,7 @@ namespace UnitystationLauncher.Services
         {
             Refreshing = true;
 
-            var data = await _http.GetStringAsync(Config.ServerListUrl);
+            var data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
             var serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
             Log.Information("Server list fetched");
 
