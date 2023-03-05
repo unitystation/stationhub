@@ -8,6 +8,7 @@ public class VersionViewModel : ViewModelBase
 {
     private string Version { get; }
     private string Date { get; }
+    private bool NoRegisteredChanges { get; }
     private ObservableCollection<ChangeViewModel> Changes { get; }
 
     public VersionViewModel(GameVersion version)
@@ -16,9 +17,14 @@ public class VersionViewModel : ViewModelBase
         Date = version.DateCreated.ToShortDateString();
         Changes = new();
 
-        if (version.Changes != null)
+        if (version.Changes != null && version.Changes.Count != 0)
         {
             ParseChanges(version.Changes);
+            NoRegisteredChanges = false;
+        }
+        else
+        {
+            NoRegisteredChanges = true;
         }
     }
 
