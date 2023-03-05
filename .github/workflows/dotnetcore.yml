@@ -55,7 +55,7 @@ jobs:
 
   build-macos:
     name: Build MacOS
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       # Setup
       - uses: actions/checkout@v3
