@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Firebase.Auth;
 using Serilog;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.Services
@@ -151,7 +152,7 @@ namespace UnitystationLauncher.Services
 
         public async Task<string> GetCustomTokenAsync(RefreshToken refreshToken)
         {
-            HttpRequestMessage r = new(HttpMethod.Get, Config.ValidateTokenUrl + Uri.EscapeDataString(JsonSerializer.Serialize(refreshToken)));
+            HttpRequestMessage r = new(HttpMethod.Get, ApiUrls.ValidateTokenUrl + Uri.EscapeDataString(JsonSerializer.Serialize(refreshToken)));
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
             HttpResponseMessage res;
 
@@ -196,7 +197,7 @@ namespace UnitystationLauncher.Services
                 Token = CurrentRefreshToken
             };
 
-            HttpRequestMessage r = new(HttpMethod.Get, Config.SignOutUrl + Uri.EscapeDataString(JsonSerializer.Serialize(token)));
+            HttpRequestMessage r = new(HttpMethod.Get, ApiUrls.SignOutUrl + Uri.EscapeDataString(JsonSerializer.Serialize(token)));
             CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
             HttpResponseMessage res;
 

@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="UnitystationLauncher.Views.ChangeView">
+    <Button Margin="5" Background="{StaticResource Primary3}" Command="{Binding OnClick}">
+        <StackPanel>
+            <TextBlock Text="{Binding Type}" TextWrapping="Wrap" Margin="2" FontWeight="Light" />
+            <TextBlock Text="{Binding Description}" TextWrapping="Wrap"  Margin="2" />
+            <TextBlock Text="{Binding AuthorAndPr}" TextWrapping="Wrap"  Margin="2" FontWeight="Light" />
+        </StackPanel> 
+    </Button>
+</UserControl>

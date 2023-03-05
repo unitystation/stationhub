@@ -1,62 +1,62 @@
-using System.Collections.Generic;
+using System;
 using ReactiveUI;
-using Octokit;
 using System.Collections.ObjectModel;
+using System.Net.Http;
 using System.Reactive.Concurrency;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
+using UnitystationLauncher.Constants;
+using UnitystationLauncher.Models.Api.Changelog;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ChangelogViewModel : ViewModelBase
     {
-        private readonly GitHubClient _client;
+        private ObservableCollection<VersionViewModel> Versions { get; }
+        private HttpClient HttpClient { get; }
 
-        private ObservableCollection<PullRequestViewModel> PullRequests { get; }
-
-        public ChangelogViewModel()
+        public ChangelogViewModel(HttpClient httpClient)
         {
-            _client = new GitHubClient(new ProductHeaderValue("UnitystationCommitNews"));
-            PullRequests = new();
+            HttpClient = httpClient;
+            Versions = new();
 
-            RxApp.TaskpoolScheduler.ScheduleAsync(GetPullRequestsAsync);
+            RxApp.TaskpoolScheduler.ScheduleAsync(GetChangesAsync);
         }
 
-        private async Task GetPullRequestsAsync(IScheduler _, CancellationToken cancellationToken)
+        private async Task GetChangesAsync(IScheduler _, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
             {
                 return;
             }
 
-            PullRequestRequest options = new()
-            {
-                State = ItemStateFilter.Closed
-            };
-
-            ApiOptions apiOptions = new()
-            {
-                PageCount = 1,
-                PageSize = 10,
-            };
-
             try
             {
-                IReadOnlyList<PullRequest> closedPrs = await _client.Repository.PullRequest.GetAllForRepository("unitystation", "unitystation", options, apiOptions);
-                Log.Information("PR list fetched");
+                HttpResponseMessage response = await HttpClient.GetAsync(ApiUrls.Latest10VersionsUrl, cancellationToken);
+                Log.Information("Changelog fetched");
 
-                foreach (PullRequest pr in closedPrs)
+                string apiJson = await response.Content.ReadAsStringAsync(cancellationToken);
+                Changelog? changelog = JsonSerializer.Deserialize<Changelog>(apiJson);
+
+                if (changelog == null)
                 {
-                    if (pr.Merged)
+                    Log.Error("Error: {Error}", "Unable to read changelog!");
+                    return;
+                }
+
+                if (changelog.Results != null)
+                {
+                    foreach (GameVersion version in changelog.Results)
                     {
-                        PullRequests.Add(new PullRequestViewModel(pr));
+                        Versions.Add(new(version));
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
-                //Rate limit has probably exceeded
+                Log.Error("Error: {Error}", $"Something went wrong reading from the changelog API: {e.Message}");
             }
         }
     }
