@@ -44,14 +44,14 @@ jobs:
       # Build
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime win-x64 --self-contained true --property PublishDir=publish
+          dotnet publish --configuration Release --runtime win-x64 --self-contained true --property PublishDir=%userprofile%/publish
 
       # Upload
       - name: Upload Build
         uses: actions/upload-artifact@v3
         with:
           name: StationHub-win-x64
-          path: publish
+          path: "%userprofile%/publish"
 
   build-macos:
     name: Build MacOS
@@ -67,17 +67,17 @@ jobs:
       # Build
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime osx-x64 -t:BundleApp -p:RuntimeIdentifier=osx-x64 -p:UseAppHost=true --self-contained true --property PublishDir=publish \
-          && sudo chmod +x publish/StationHub.app/Contents/MacOS/StationHub \
-          && cd publish \
-          && tar -cvf publish/StationHub.tar StationHub.app
+          dotnet publish --configuration Release --runtime osx-x64 -t:BundleApp -p:RuntimeIdentifier=osx-x64 -p:UseAppHost=true --self-contained true --property PublishDir=~/publish \
+          && sudo chmod +x ~/publish/StationHub.app/Contents/MacOS/StationHub \
+          && cd ~/publish \
+          && tar -cvf ~/publish/StationHub.tar StationHub.app
 
       # Upload
       - name: Upload Build
         uses: actions/upload-artifact@v3
         with:
           name: StationHub-osx-x64
-          path: publish/StationHub.tar
+          path: ~/publish/StationHub.tar
 
   build-linux:
     name: Build Linux
@@ -93,14 +93,14 @@ jobs:
       # Build
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime linux-x64 --self-contained true --property PublishDir=publish
+          dotnet publish --configuration Release --runtime linux-x64 --self-contained true --property PublishDir=~/publish
 
       # Upload
       - name: Upload Build
         uses: actions/upload-artifact@v3
         with:
           name: StationHub-linux-x64
-          path: publish
+          path: ~/publish
 
   build-flatpak:
     name: Build Linux Flatpak
