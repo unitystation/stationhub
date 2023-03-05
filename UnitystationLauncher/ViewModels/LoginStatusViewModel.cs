@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
@@ -103,8 +104,16 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                _authService.AuthLink = await _authService.SignInWithEmailAndPasswordAsync(_authService.LoginMsg.Email,
-                    _authService.LoginMsg.Pass);
+                await _authService.SignInWithEmailAndPasswordAsync(
+                    _authService.LoginMsg.Email, _authService.LoginMsg.Pass).AwaitWithTimeout(TimeSpan.FromSeconds(20),
+                    firebaseAuthLink => _authService.AuthLink = firebaseAuthLink);
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Error("Error: {Error}", "Login timed out");
+                FailedMessage = "Timed out while trying to log in.\n"
+                    + "Please check your network connection.";
+                signInSuccess = false;
             }
             catch (Exception e)
             {
