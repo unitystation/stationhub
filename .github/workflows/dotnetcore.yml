@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: StationHub-win-x64
-          path: "%userprofile%/publish"
+          path: ~/publish
 
   build-macos:
     name: Build MacOS
