@@ -44,14 +44,14 @@ jobs:
       # Build
       - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime win-x64 --self-contained true --property PublishDir=%userprofile%/publish
+          dotnet publish --configuration Release --runtime win-x64 --self-contained true --property PublishDir=publish
 
       # Upload
       - name: Upload Build
         uses: actions/upload-artifact@v3
         with:
           name: StationHub-win-x64
-          path: ~/publish
+          path: D:\a\stationhub\stationhub\UnitystationLauncher\publish\
 
   build-macos:
     name: Build MacOS
