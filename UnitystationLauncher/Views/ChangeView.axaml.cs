@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace UnitystationLauncher.Views;
 
-public partial class ChangeView : UserControl
+public class ChangeView : UserControl
 {
     public ChangeView()
     {

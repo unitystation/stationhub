@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 
 namespace UnitystationLauncher.Views;
 
-public partial class VersionView : UserControl
+public class VersionView : UserControl
 {
     public VersionView()
     {

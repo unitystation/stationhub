@@ -15,11 +15,11 @@ namespace UnitystationLauncher.ViewModels
     public class ChangelogViewModel : ViewModelBase
     {
         private ObservableCollection<VersionViewModel> Versions { get; }
-        private HttpClient _httpClient { get; }
+        private HttpClient HttpClient { get; }
 
         public ChangelogViewModel(HttpClient httpClient)
         {
-            _httpClient = httpClient;
+            HttpClient = httpClient;
             Versions = new();
 
             RxApp.TaskpoolScheduler.ScheduleAsync(GetChangesAsync);
@@ -34,7 +34,7 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                HttpResponseMessage response = await _httpClient.GetAsync(ApiUrls.Latest10VersionsUrl, cancellationToken);
+                HttpResponseMessage response = await HttpClient.GetAsync(ApiUrls.Latest10VersionsUrl, cancellationToken);
                 Log.Information("Changelog fetched");
 
                 string apiJson = await response.Content.ReadAsStringAsync(cancellationToken);

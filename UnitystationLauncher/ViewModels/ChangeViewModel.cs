@@ -1,4 +1,3 @@
-using System;
 using UnitystationLauncher.Models.Api.Changelog;
 
 namespace UnitystationLauncher.ViewModels;
