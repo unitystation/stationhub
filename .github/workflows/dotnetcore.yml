@@ -30,15 +30,9 @@ jobs:
         run: |
           dotnet test
 
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        target-platform:
-          - "win-x64"
-          - "linux-x64"
-          - "osx-x64"
-
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
     steps:
       # Setup
       - uses: actions/checkout@v3
@@ -48,35 +42,69 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       # Build
-      - name: Publish MacOS
-        if: ${{ contains(matrix.target-platform, 'osx-x64' )}}
+      - name: Publish
         run: |
-          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} -t:BundleApp -p:RuntimeIdentifier=${{ matrix.target-platform }} -p:UseAppHost=true --property PublishDir=~/publish \
+          dotnet publish --configuration Release --runtime win-x64 --self-contained true --property PublishDir=%HOME%/publish
+
+      # Upload
+      - name: Upload Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: StationHub-win-x64
+          path: %HOME%/publish
+
+  build-macos:
+    name: Build MacOS
+    runs-on: macos-latest
+    steps:
+      # Setup
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Build
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime osx-x64 -t:BundleApp -p:RuntimeIdentifier=osx-x64 -p:UseAppHost=true --self-contained true --property PublishDir=~/publish \
           && sudo chmod +x ~/publish/StationHub.app/Contents/MacOS/StationHub \
           && cd ~/publish \
           && tar -cvf ~/publish/StationHub.tar StationHub.app
-      - name: Publish
-        if: ${{ !contains(matrix.target-platform, 'osx-x64' )}}
-        run: |
-          dotnet publish --configuration Release --runtime ${{ matrix.target-platform }} --property PublishDir=~/publish
 
       # Upload
-      - name: Upload MacOS Build
-        if: ${{ contains(matrix.target-platform, 'osx-x64' )}}
-        uses: actions/upload-artifact@v3
-        with:
-          name: StationHub-${{ matrix.target-platform }}
-          path: ~/publish/StationHub.tar
       - name: Upload Build
-        if: ${{ !contains(matrix.target-platform, 'osx-x64' )}}
         uses: actions/upload-artifact@v3
         with:
-          name: StationHub-${{ matrix.target-platform }}
+          name: StationHub-osx-x64
+          path: ~/publish/StationHub.tar
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    steps:
+      # Setup
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # Build
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime linux-x64 --self-contained true --property PublishDir=~/publish
+
+      # Upload
+      - name: Upload Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: StationHub-linux-x64
           path: ~/publish
 
   build-flatpak:
+    name: Build Linux Flatpak
     runs-on: ubuntu-latest
-
     steps:
       # Setup
       - uses: actions/checkout@v3
