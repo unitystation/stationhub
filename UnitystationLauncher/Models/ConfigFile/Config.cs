@@ -20,13 +20,6 @@ namespace UnitystationLauncher.Models.ConfigFile
         private const string UnixExeName = "StationHub";
         private const string InstallationFolder = "Installations";
 
-        // Other URLs
-        public const string MainSiteUrl = "https://unitystation.org";
-        public const string PatreonUrl = "https://www.patreon.com/unitystation";
-        public const string GameIssuesUrl = "https://github.com/unitystation/unitystation/issues";
-        public const string LauncherIssuesUrl = "https://github.com/unitystation/stationhub/issues";
-        public const string DiscordInviteUrl = "https://discord.com/invite/tFcTpBp";
-
         private HubClientConfig? _hubClientConfig;
         private readonly HttpClient _http;
         private Preferences? _preferences;

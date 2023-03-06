@@ -34,8 +34,6 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _maximizeToolTip, value);
         }
 
-        public ReactiveCommand<Unit, Unit> CommandMaximizee { get; }
-
         public MainWindowViewModel(LoginViewModel loginVm, Lazy<LoginStatusViewModel> loginStatusVm, Lazy<LauncherViewModel> launcherVm,
             AuthService authService)
         {
@@ -47,8 +45,7 @@ namespace UnitystationLauncher.ViewModels
             authService.AttemptingAutoLogin = false;
             _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             _maximizeToolTip = "Maximize";
-            CommandMaximizee = ReactiveCommand.Create(Maximize);
-            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => CheckForExistingUserAsync());
+            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => CheckForExistingUserAsync());
         }
 
         private void Maximize()
@@ -152,14 +149,15 @@ namespace UnitystationLauncher.ViewModels
 
                 LauncherViewModel launcherVm => Observable.Merge(
                     launcherVm.Logout.Select(vm => (ViewModelBase)vm),
-                    launcherVm.ShowUpdateReqd.Select(vm => (ViewModelBase)vm)),
+                    launcherVm.ShowUpdateView.Select(vm => (ViewModelBase)vm)),
 
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,
                     signUpViewModel.DoneButton),
 
                 HubUpdateViewModel hubUpdateViewModel => Observable.Merge(
-                    hubUpdateViewModel.Cancel),
+                    hubUpdateViewModel.Skip,
+                    hubUpdateViewModel.Ignore),
 
                 ForgotPasswordViewModel forgotPasswordViewModel => Observable.Merge(
                     forgotPasswordViewModel.DoneButton),

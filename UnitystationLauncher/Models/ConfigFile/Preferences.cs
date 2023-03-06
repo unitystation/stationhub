@@ -6,6 +6,7 @@ namespace UnitystationLauncher.Models.ConfigFile
     {
         private bool _autoRemove = true;
         private string? _lastLogin = "";
+        private int _ignoreVersionUpdate = 0;
 
         public bool AutoRemove
         {
@@ -17,6 +18,12 @@ namespace UnitystationLauncher.Models.ConfigFile
         {
             get => _lastLogin;
             set => this.RaiseAndSetIfChanged(ref _lastLogin, value);
+        }
+
+        public int IgnoreVersionUpdate
+        {
+            get => _ignoreVersionUpdate;
+            set => this.RaiseAndSetIfChanged(ref _ignoreVersionUpdate, value);
         }
     }
 }
