@@ -35,7 +35,7 @@ namespace UnitystationLauncher.ViewModels
         }
 
         public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
-        public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateReqd { get; }
+        public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateView { get; }
 
         public LauncherViewModel(
             AuthService authService,
@@ -54,10 +54,10 @@ namespace UnitystationLauncher.ViewModels
 
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
             Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
-            ShowUpdateReqd = ReactiveCommand.Create(ShowUpdateImp);
+            ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
-            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => ValidateClientVersionAsync());
+            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync());
         }
 
         private PanelBase[] GetEnabledPanels(
@@ -106,7 +106,13 @@ namespace UnitystationLauncher.ViewModels
                 Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
                     Config.CurrentBuild,
                     hubClientConfig.BuildNumber);
-                Observable.Return(Unit.Default).InvokeCommand(ShowUpdateReqd);
+
+                Preferences preferences = await _config.GetPreferencesAsync();
+
+                if (preferences.IgnoreVersionUpdate < hubClientConfig.BuildNumber)
+                {
+                    Observable.Return(Unit.Default).InvokeCommand(ShowUpdateView);
+                }
             }
         }
 

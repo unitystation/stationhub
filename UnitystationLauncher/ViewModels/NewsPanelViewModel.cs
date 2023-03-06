@@ -5,6 +5,7 @@ using Avalonia.Media.Imaging;
 using System;
 using System.Reactive;
 using System.Diagnostics;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ViewModels
@@ -41,11 +42,11 @@ namespace UnitystationLauncher.ViewModels
         {
             _changelog = changelog;
 
-            OpenMainSite = ReactiveCommand.Create(() => OpenLink(Config.MainSiteUrl));
-            OpenPatreon = ReactiveCommand.Create(() => OpenLink(Config.PatreonUrl));
-            OpenGameIssues = ReactiveCommand.Create(() => OpenLink(Config.GameIssuesUrl));
-            OpenLauncherIssues = ReactiveCommand.Create(() => OpenLink(Config.LauncherIssuesUrl));
-            OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(Config.DiscordInviteUrl));
+            OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
+            OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
+            OpenGameIssues = ReactiveCommand.Create(() => OpenLink(LinkUrls.GameIssuesUrl));
+            OpenLauncherIssues = ReactiveCommand.Create(() => OpenLink(LinkUrls.LauncherIssuesUrl));
+            OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
             var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
             _backGroundImage = new Bitmap(assets?.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
