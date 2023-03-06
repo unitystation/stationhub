@@ -1,24 +1,10 @@
-﻿using Avalonia;
-using Avalonia.Controls.ApplicationLifetimes;
-using ReactiveUI;
-using Serilog;
+﻿using ReactiveUI;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using System.Net.Http;
 using System.Reactive;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Humanizer;
-using Mono.Unix;
 using UnitystationLauncher.Constants;
-using UnitystationLauncher.Exceptions;
-using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ViewModels
