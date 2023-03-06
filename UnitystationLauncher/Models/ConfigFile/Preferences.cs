@@ -6,7 +6,7 @@ namespace UnitystationLauncher.Models.ConfigFile
     {
         private bool _autoRemove = true;
         private string? _lastLogin = "";
-        private int _ignoreVersionUpdate = 0;
+        private int _ignoreVersionUpdate;
 
         public bool AutoRemove
         {

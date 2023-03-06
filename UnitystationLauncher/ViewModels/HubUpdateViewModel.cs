@@ -66,7 +66,8 @@ namespace UnitystationLauncher.ViewModels
             Process.Start(psi);
 
             // Need to just wait a small amount of time, otherwise we will exit before that is finished opening
-            Thread.Sleep(100);
+            const int millisecondsToWait = 100;
+            Thread.Sleep(millisecondsToWait);
 
             Exit();
         }
