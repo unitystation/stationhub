@@ -57,7 +57,7 @@ namespace UnitystationLauncher.ViewModels
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
-            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync(config));
+            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync());
         }
 
         private PanelBase[] GetEnabledPanels(
@@ -91,7 +91,7 @@ namespace UnitystationLauncher.ViewModels
             return panelBases.ToArray();
         }
 
-        private async Task ValidateClientVersionAsync(Config config)
+        private async Task ValidateClientVersionAsync()
         {
             HubClientConfig? hubClientConfig = await _config.GetServerHubClientConfigAsync();
 
@@ -107,7 +107,7 @@ namespace UnitystationLauncher.ViewModels
                     Config.CurrentBuild,
                     hubClientConfig.BuildNumber);
 
-                Preferences preferences = await config.GetPreferencesAsync();
+                Preferences preferences = await _config.GetPreferencesAsync();
 
                 if (preferences.IgnoreVersionUpdate < hubClientConfig.BuildNumber)
                 {
