@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.NetworkInformation;
 using System.Reactive.Linq;
 using System.Diagnostics;
@@ -37,13 +36,23 @@ namespace UnitystationLauncher.ViewModels
             Download = download;
             _authService = authService;
             RoundTrip = new();
+
+            try
+            {
 #if FLATPAK
-            Task.Run(FlatpakGetPingTime);
+                Task.Run(FlatpakGetPingTime);
 #else
-            using Ping ping = new();
-            ping.PingCompleted += PingCompletedCallback;
-            ping.SendAsync(Server.ServerIp, null);
+                using Ping ping = new();
+                ping.PingCompleted += PingCompletedCallback;
+                ping.SendAsync(Server.ServerIp, null);
 #endif
+            }
+            catch (ArgumentException e)
+            {
+                Log.Error("Error: {Error}", $"Invalid IP address when trying to ping server: {e.Message}");
+                RoundTrip.Value = "Error";
+            }
+
             DownloadedAmount = (
                     Download?.WhenAnyValue(d => d.Downloaded)
                     ?? Observable.Return(0L)
@@ -70,9 +79,9 @@ namespace UnitystationLauncher.ViewModels
             RoundTrip.Value = tripTime.HasValue ? $"{tripTime.Value}ms" : "null";
         }
 
-        public void Start()
+        public void LaunchGame()
         {
-            Installation?.Start(IPAddress.Parse(Server.ServerIp), (short)Server.ServerPort,
+            Installation?.LaunchWithArgs(Server.ServerIp, (short)Server.ServerPort,
                 _authService.CurrentRefreshToken, _authService.Uid);
         }
 

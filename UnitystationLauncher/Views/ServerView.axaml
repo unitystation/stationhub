@@ -36,7 +36,7 @@
                         </MultiBinding.Bindings>
                     </MultiBinding>
                 </Panel.IsVisible>
-                <Button Command="{Binding Start}" Content="Start" Background="{StaticResource PrimaryTransparent4}"
+                <Button Command="{Binding LaunchGame}" Content="Start" Background="{StaticResource PrimaryTransparent4}"
                         BorderThickness="0" />
             </Panel>
             <StackPanel IsVisible="{Binding Downloading^}" VerticalAlignment="Center">

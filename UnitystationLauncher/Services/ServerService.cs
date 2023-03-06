@@ -8,7 +8,6 @@ using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.Api;
-using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.Services
 {
@@ -40,14 +39,14 @@ namespace UnitystationLauncher.Services
         {
             Refreshing = true;
 
-            var data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
-            var serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
+            string data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
+            List<Server>? serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
             Log.Information("Server list fetched");
 
-            var servers = new List<Server>();
+            List<Server> servers = new();
             if (serverData != null)
             {
-                foreach (var server in serverData)
+                foreach (Server server in serverData)
                 {
                     if (!server.HasTrustedUrlSource)
                     {
