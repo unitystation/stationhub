@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Runtime.InteropServices;
 using UnitystationLauncher.Models.ConfigFile;
 
@@ -56,6 +57,10 @@ namespace UnitystationLauncher.Models.Api
                 return true;
             }
         }
+
+        public bool HasValidDomainName => Uri.CheckHostName(ServerIp) == UriHostNameType.Dns;
+
+        public bool HasValidIpAddress => IPAddress.TryParse(ServerIp, out _);
 
         public string InstallationName => ForkName + BuildVersion;
 

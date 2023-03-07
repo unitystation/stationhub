@@ -71,7 +71,7 @@ namespace UnitystationLauncher.ViewModels
             // If an error occurred, display the exception to the user.  
             if (eventArgs.Error != null)
             {
-                Log.Error(eventArgs.Error, "Ping failed");
+                Log.Error("Ping failed: {Error}", eventArgs.Error);
                 return;
             }
 

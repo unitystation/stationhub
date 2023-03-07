@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace UnitystationLauncher.Services
         {
             _http = http;
             _installService = installService;
-            Servers = Observable.Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10))
+            Servers = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(10))
                 .SelectMany(_ => GetServerListAsync())
                 .Replay(1)
                 .RefCount();
@@ -44,24 +45,42 @@ namespace UnitystationLauncher.Services
             Log.Information("Server list fetched");
 
             List<Server> servers = new();
-            if (serverData != null)
+            if (serverData == null)
             {
-                foreach (Server server in serverData)
-                {
-                    if (!server.HasTrustedUrlSource)
-                    {
-                        Log.Warning(
-                            "Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
-                            server.ServerName);
-                        continue;
-                    }
-
-                    servers.Add(server);
-                }
+                Log.Warning("Warning: {Warning}", "Invalid response from hub, server list is null.");
+            }
+            else if (serverData.Count == 0)
+            {
+                Log.Warning("Warning: {Warning}", "No servers returned by the hub.");
+            }
+            else
+            {
+                servers.AddRange(serverData.Where(IsValidServer));
             }
 
             Refreshing = false;
             return servers;
+        }
+
+        private static bool IsValidServer(Server server)
+        {
+            if (!server.HasTrustedUrlSource)
+            {
+                Log.Warning("Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
+                    server.ServerName);
+                return false;
+            }
+
+            if (server is { HasValidDomainName: false, HasValidIpAddress: false })
+            {
+                Log.Warning("Server: {ServerName} has an invalid IP or domain name: {Domain}",
+                    server.ServerName,
+                    server.ServerIp);
+
+                return false;
+            }
+
+            return true;
         }
 
         public void Dispose()
