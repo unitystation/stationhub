@@ -3,7 +3,6 @@ using System.Diagnostics;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Serilog;
 
 namespace UnitystationLauncher.ViewModels;
 
@@ -28,7 +27,10 @@ public class BlogPostViewModel : ViewModelBase
 
     private void OpenLink()
     {
-        if (string.IsNullOrWhiteSpace(PostLink)) return;
+        if (string.IsNullOrWhiteSpace(PostLink))
+        {
+            return;
+        }
 
         ProcessStartInfo psi = new()
         {

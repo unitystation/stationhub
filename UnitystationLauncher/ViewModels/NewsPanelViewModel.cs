@@ -1,13 +1,8 @@
-﻿using Avalonia;
-using Avalonia.Platform;
-using ReactiveUI;
-using Avalonia.Media.Imaging;
-using System;
+﻿using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Diagnostics;
 using UnitystationLauncher.Constants;
-using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ViewModels
 {
