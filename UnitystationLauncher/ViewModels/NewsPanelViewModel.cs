@@ -12,10 +12,10 @@ namespace UnitystationLauncher.ViewModels
 
         public override bool IsEnabled => true;
 
-        private ViewModelBase _currentBlogPost;
+        private ViewModelBase? _currentBlogPost;
         private ViewModelBase CurrentBlogPost
         {
-            get => _currentBlogPost;
+            get => _currentBlogPost ?? new BlogPostViewModel("Loading...", string.Empty, null);
             set => this.RaiseAndSetIfChanged(ref _currentBlogPost, value);
         }
 
@@ -37,8 +37,6 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> PreviousBlog { get; }
         private int CurrentBlogPostIndex { get; set; }
 
-
-
         public NewsPanelViewModel(ChangelogViewModel changelog)
         {
             _changelog = changelog;
@@ -53,7 +51,6 @@ namespace UnitystationLauncher.ViewModels
             FetchBlogPosts();
             NextBlog = ReactiveCommand.Create(NextPost);
             PreviousBlog = ReactiveCommand.Create(PreviousPost);
-            CurrentBlogPost = new BlogPostViewModel("Loading...", string.Empty, null);
             CurrentBlogPostIndex = 0;
 
             SetCurrentBlogPost();
