@@ -11,11 +11,23 @@ This is the official launcher for Unitystation, it handles account creation, dow
 It is cross-platform using .NET 6 as the runtime and [Avalonia MVVM](https://docs.avaloniaui.net/guides/basics/mvvm) for the UI.
 
 ## Building
-You'll need the [.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed.
+You'll need [git](https://git-scm.com) and the [.NET 6 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) installed.
 
-Once that is installed you should be able to check out the repo and run the following in the directory with the `UnitystationLauncher.sln` file:
+To check out the repo you can run the following in the directory you'd like to save the repo locally:
+```
+git clone https://github.com/unitystation/stationhub.git
+```
+
+Once checked out you should be able to run the following in the directory with the `UnitystationLauncher.sln` file:
 ```
 dotnet build
+```
+
+Dependencies should be automatically restored by NuGet during the build process.
+
+To test the build you just ran, you can do the following:
+```
+dotnet run --project ./UnitystationLauncher/UnitystationLauncher.csproj
 ```
 
 ## Contributing
