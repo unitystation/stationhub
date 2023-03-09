@@ -1,12 +1,8 @@
-﻿using Avalonia;
-using Avalonia.Platform;
-using ReactiveUI;
-using Avalonia.Media.Imaging;
-using System;
+﻿using ReactiveUI;
+using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Diagnostics;
 using UnitystationLauncher.Constants;
-using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -16,9 +12,19 @@ namespace UnitystationLauncher.ViewModels
 
         public override bool IsEnabled => true;
 
-        ViewModelBase _changelog;
+        private ViewModelBase? _currentBlogPost;
+        private ViewModelBase CurrentBlogPost
+        {
+            get => _currentBlogPost ?? new BlogPostViewModel("Loading...", string.Empty, null);
+            set => this.RaiseAndSetIfChanged(ref _currentBlogPost, value);
+        }
 
-        Bitmap _backGroundImage;
+        private ViewModelBase _changelog;
+        public ViewModelBase Changelog
+        {
+            get => _changelog;
+            set => this.RaiseAndSetIfChanged(ref _changelog, value);
+        }
 
         public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
         public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
@@ -26,17 +32,10 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> OpenLauncherIssues { get; }
         public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
 
-        public Bitmap BackGroundImage
-        {
-            get => _backGroundImage;
-            set => this.RaiseAndSetIfChanged(ref _backGroundImage, value);
-        }
-
-        public ViewModelBase Changelog
-        {
-            get => _changelog;
-            set => this.RaiseAndSetIfChanged(ref _changelog, value);
-        }
+        private ObservableCollection<BlogPostViewModel> BlogPosts { get; }
+        public ReactiveCommand<Unit, Unit> NextBlog { get; }
+        public ReactiveCommand<Unit, Unit> PreviousBlog { get; }
+        private int CurrentBlogPostIndex { get; set; }
 
         public NewsPanelViewModel(ChangelogViewModel changelog)
         {
@@ -48,8 +47,46 @@ namespace UnitystationLauncher.ViewModels
             OpenLauncherIssues = ReactiveCommand.Create(() => OpenLink(LinkUrls.LauncherIssuesUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
-            var assets = AvaloniaLocator.Current.GetService<IAssetLoader>();
-            _backGroundImage = new Bitmap(assets?.Open(new Uri("avares://StationHub/Assets/bgnews.png")));
+            BlogPosts = new();
+            FetchBlogPosts();
+            NextBlog = ReactiveCommand.Create(NextPost);
+            PreviousBlog = ReactiveCommand.Create(PreviousPost);
+            CurrentBlogPostIndex = 0;
+
+            SetCurrentBlogPost();
+        }
+
+        private void FetchBlogPosts()
+        {
+            // TODO, fetch from blog post API, for now we can just hard code one.
+            BlogPosts.Add(new("Coming soon!", "https://www.unitystation.org/blog", null));
+        }
+
+        private void SetCurrentBlogPost()
+        {
+            CurrentBlogPost = BlogPosts[CurrentBlogPostIndex];
+        }
+
+        private void NextPost()
+        {
+            CurrentBlogPostIndex++;
+            if (CurrentBlogPostIndex >= BlogPosts.Count)
+            {
+                CurrentBlogPostIndex = 0;
+            }
+
+            SetCurrentBlogPost();
+        }
+
+        private void PreviousPost()
+        {
+            CurrentBlogPostIndex--;
+            if (CurrentBlogPostIndex <= 0)
+            {
+                CurrentBlogPostIndex = BlogPosts.Count - 1;
+            }
+
+            SetCurrentBlogPost();
         }
 
         private static void OpenLink(string url)

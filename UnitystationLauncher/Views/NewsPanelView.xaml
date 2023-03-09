@@ -42,7 +42,7 @@
                             <ColumnDefinition Width="0.8*" />
                             <ColumnDefinition Width="0.1*" />
                         </Grid.ColumnDefinitions>
-                        <Button Margin="0.6 0.6 0 0" Grid.Column="0" Command="{Binding PastVideo}">
+                        <Button Margin="0.6 0.6 0 0" Grid.Column="0" Command="{Binding PreviousBlog}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="0.25*" />
@@ -58,9 +58,8 @@
                                        Source="/Assets/leftbutton.png" Stretch="Uniform" />
                             </Grid>
                         </Button>
-                        <Image Grid.Column="0" Grid.ColumnSpan="3" Margin="0.5" Source="{Binding BackGroundImage}"
-                               Stretch="UniformToFill" Opacity="0.459" />
-                        <Button Margin="0 0.6 0.6 0" Grid.Column="2" Command="{Binding NextVideo}">
+                        <ContentControl Grid.Column="1" Content="{Binding CurrentBlogPost}" />
+                        <Button Margin="0 0.6 0.6 0" Grid.Column="2" Command="{Binding NextBlog}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="0.25*" />
