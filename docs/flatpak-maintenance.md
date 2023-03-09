@@ -18,7 +18,7 @@ The main thing to note is that the build servers disable internet access during 
 ### No NuGet Updates
 If there are no NuGet updates then the update process should be quite simple.
 
-In the Flathub package repo there is a line at the top of `org.unitystation.StationHub.yaml` that defines the commit hash that the build server will check out before it builds.
+In the Flathub package repo there is a line in `org.unitystation.StationHub.yaml` that defines the commit hash that the build server will check out before it builds.
 It should look something like this:
 ```yaml
   - name: StationHub
