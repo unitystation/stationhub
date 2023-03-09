@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.Api;
-using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.Services
 {
@@ -22,7 +22,7 @@ namespace UnitystationLauncher.Services
         {
             _http = http;
             _installService = installService;
-            Servers = Observable.Timer(TimeSpan.FromSeconds(0), TimeSpan.FromSeconds(10))
+            Servers = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(10))
                 .SelectMany(_ => GetServerListAsync())
                 .Replay(1)
                 .RefCount();
@@ -40,29 +40,47 @@ namespace UnitystationLauncher.Services
         {
             Refreshing = true;
 
-            var data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
-            var serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
+            string data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
+            List<Server>? serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
             Log.Information("Server list fetched");
 
-            var servers = new List<Server>();
-            if (serverData != null)
+            List<Server> servers = new();
+            if (serverData == null)
             {
-                foreach (var server in serverData)
-                {
-                    if (!server.HasTrustedUrlSource)
-                    {
-                        Log.Warning(
-                            "Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
-                            server.ServerName);
-                        continue;
-                    }
-
-                    servers.Add(server);
-                }
+                Log.Warning("Warning: {Warning}", "Invalid response from hub, server list is null.");
+            }
+            else if (serverData.Count == 0)
+            {
+                Log.Warning("Warning: {Warning}", "No servers returned by the hub.");
+            }
+            else
+            {
+                servers.AddRange(serverData.Where(IsValidServer));
             }
 
             Refreshing = false;
             return servers;
+        }
+
+        private static bool IsValidServer(Server server)
+        {
+            if (!server.HasTrustedUrlSource)
+            {
+                Log.Warning("Server: {ServerName} has untrusted download URL and has been omitted in the server list!",
+                    server.ServerName);
+                return false;
+            }
+
+            if (server is { HasValidDomainName: false, HasValidIpAddress: false })
+            {
+                Log.Warning("Server: {ServerName} has an invalid IP or domain name: {Domain}",
+                    server.ServerName,
+                    server.ServerIp);
+
+                return false;
+            }
+
+            return true;
         }
 
         public void Dispose()

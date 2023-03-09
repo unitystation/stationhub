@@ -9,7 +9,7 @@ namespace UnitystationLauncher.ViewModels
         public InstallationViewModel(Installation installation)
         {
             Installation = installation;
-            LaunchCommand = ReactiveCommand.Create(Installation.Start);
+            LaunchCommand = ReactiveCommand.Create(Installation.LaunchWithoutArgs);
             UninstallCommand = ReactiveCommand.CreateFromTask(Installation.DeleteAsync);
         }
 

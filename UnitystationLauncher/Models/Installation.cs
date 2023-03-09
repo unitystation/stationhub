@@ -6,7 +6,6 @@ using Serilog;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -55,12 +54,12 @@ namespace UnitystationLauncher.Models
             return exe;
         }
 
-        public void Start(IPAddress ip, short port, string? refreshToken, string? uid)
+        public void LaunchWithArgs(string ip, short port, string? refreshToken, string? uid)
         {
             Start($"--server {ip} --port {port} --refreshtoken {refreshToken} --uid {uid}");
         }
 
-        public void Start()
+        public void LaunchWithoutArgs()
         {
             Start("");
         }
