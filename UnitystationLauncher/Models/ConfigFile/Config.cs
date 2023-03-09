@@ -16,8 +16,6 @@ namespace UnitystationLauncher.Models.ConfigFile
         public const int CurrentBuild = 930;
 
         //file names
-        private const string WinExeName = "StationHub.exe";
-        private const string UnixExeName = "StationHub";
         private const string InstallationFolder = "Installations";
 
         private HubClientConfig? _hubClientConfig;
@@ -31,10 +29,7 @@ namespace UnitystationLauncher.Models.ConfigFile
         }
 
         public static string InstallationsPath => Path.Combine(RootFolder, InstallationFolder);
-        public static string TempFolder => Path.Combine(RootFolder, "temp");
         public static string PreferencesFilePath => Path.Combine(RootFolder, "prefs.json");
-        public static string WinExeFullPath => Path.Combine(RootFolder, WinExeName);
-        public static string UnixExeFullPath => Path.Combine(RootFolder, UnixExeName);
 
         public static string RootFolder
         {
@@ -42,7 +37,7 @@ namespace UnitystationLauncher.Models.ConfigFile
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    return Environment.CurrentDirectory;
+                    return Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "/StationHub";
                 }
                 //If ran with the FLATPAK compiler symbol, will put mutable files where the Flatpak standard says
                 //else, will put in the modern standard Linux folder (which is still legal on MacOS)
