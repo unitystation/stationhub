@@ -13,7 +13,7 @@ namespace UnitystationLauncher.Models.ConfigFile
     public class Config : IDisposable
     {
         //Whenever you change the currentBuild here, please also update the one in UnitystationLauncher/Assets/org.unitystation.StationHub.metainfo.xml for Linux software stores. Thank you.
-        public const int CurrentBuild = 930;
+        public const int CurrentBuild = 931;
 
         //file names
         private const string InstallationFolder = "Installations";
