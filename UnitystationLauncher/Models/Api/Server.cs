@@ -6,6 +6,7 @@ using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.Models.Api
 {
+    [Serializable]
     public class Server
     {
         public Server(string forkName, int buildVersion, string serverIp, int serverPort)

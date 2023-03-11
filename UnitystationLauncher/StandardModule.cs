@@ -1,6 +1,5 @@
 using System.Net.Http;
 using Autofac;
-using Firebase.Auth;
 using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher
@@ -18,9 +17,6 @@ namespace UnitystationLauncher
 
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("ViewModel"));
-
-            builder.Register(c => new FirebaseConfig("AIzaSyB7GorzPgwHYjSV4XaJoszj98tLM4_WZpE")).SingleInstance();
-            builder.RegisterType<FirebaseAuthProvider>().SingleInstance();
         }
     }
 }

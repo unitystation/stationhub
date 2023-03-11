@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Constants;
@@ -41,7 +41,12 @@ namespace UnitystationLauncher.Services
             Refreshing = true;
 
             string data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
-            List<Server>? serverData = JsonConvert.DeserializeObject<ServerList>(data)?.Servers;
+            List<Server>? serverData = JsonSerializer.Deserialize<ServerList>(data, options: new()
+            {
+                IgnoreReadOnlyProperties = true,
+                PropertyNameCaseInsensitive = true
+            })?.Servers;
+
             Log.Information("Server list fetched");
 
             List<Server> servers = new();
