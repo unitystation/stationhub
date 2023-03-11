@@ -11,7 +11,6 @@ using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
-using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -27,14 +26,11 @@ namespace UnitystationLauncher.ViewModels
         public IObservable<bool> Downloading =>
             Download?.WhenAnyValue(d => d.Active) ?? Observable.Return(false);
 
-        private readonly AuthService _authService;
-
-        public ServerViewModel(Server server, Installation? installation, Download? download, AuthService authService)
+        public ServerViewModel(Server server, Installation? installation, Download? download)
         {
             Server = server;
             Installation = installation;
             Download = download;
-            _authService = authService;
             RoundTrip = new();
 
             try
@@ -81,8 +77,7 @@ namespace UnitystationLauncher.ViewModels
 
         public void LaunchGame()
         {
-            Installation?.LaunchWithArgs(Server.ServerIp, (short)Server.ServerPort,
-                _authService.CurrentRefreshToken, _authService.Uid);
+            Installation?.LaunchWithArgs(Server.ServerIp, (short)Server.ServerPort);
         }
 
         // Ping does not work in the Flatpak sandbox so we have to reconstruct its functionality in that case.

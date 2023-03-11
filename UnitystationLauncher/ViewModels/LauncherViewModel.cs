@@ -13,14 +13,10 @@ namespace UnitystationLauncher.ViewModels
 {
     public class LauncherViewModel : ViewModelBase
     {
-        private readonly AuthService _authService;
-        private readonly Lazy<LoginViewModel> _logoutVm;
         private readonly Lazy<HubUpdateViewModel> _hubUpdateVm;
         private readonly Config _config;
         PanelBase[] _panels;
         ViewModelBase? _selectedPanel;
-
-        public string Username => _authService.AuthLink?.User.DisplayName ?? "";
 
         public PanelBase[] Panels
         {
@@ -34,12 +30,9 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _selectedPanel, value);
         }
 
-        public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateView { get; }
 
         public LauncherViewModel(
-            AuthService authService,
-            Lazy<LoginViewModel> logoutVm,
             Lazy<HubUpdateViewModel> hubUpdateVm,
             NewsPanelViewModel newsPanel,
             ServersPanelViewModel serversPanel,
@@ -47,13 +40,10 @@ namespace UnitystationLauncher.ViewModels
             SettingsPanelViewModel settingsPanel,
             Config config)
         {
-            _authService = authService;
-            _logoutVm = logoutVm;
             _hubUpdateVm = hubUpdateVm;
             _config = config;
 
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
-            Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
@@ -114,14 +104,6 @@ namespace UnitystationLauncher.ViewModels
                     Observable.Return(Unit.Default).InvokeCommand(ShowUpdateView);
                 }
             }
-        }
-
-        private async Task<LoginViewModel> LogoutAsync()
-        {
-            await _authService.SignOutUserAsync();
-            Preferences prefs = await _config.GetPreferencesAsync();
-            prefs.LastLogin = "";
-            return _logoutVm.Value;
         }
 
         private HubUpdateViewModel ShowUpdateImp()
