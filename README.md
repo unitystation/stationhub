@@ -5,7 +5,7 @@
 [![Flathub](https://img.shields.io/flathub/v/org.unitystation.StationHub?style=flat-square)](https://flathub.org/apps/details/org.unitystation.StationHub)
 [![Discord](https://img.shields.io/discord/273774715741667329?style=flat-square)](https://discord.com/invite/tFcTpBp)
 
-This is the official launcher for Unitystation, it handles account creation, downloading, updating, and server joining.
+StationHub is the official launcher for Unitystation, it handles downloading, updating, and joining servers.
 
 ## Tech-stack
 It is cross-platform using .NET 6 as the runtime and [Avalonia MVVM](https://docs.avaloniaui.net/guides/basics/mvvm) for the UI.
