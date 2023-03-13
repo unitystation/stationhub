@@ -12,19 +12,16 @@ namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        private readonly AuthService _authService;
         private readonly StateService _stateService;
         private readonly DownloadService _downloadService;
 
         public override string Name => "Servers";
         public override bool IsEnabled => true;
 
-        public ServersPanelViewModel(StateService stateService, DownloadService downloadService,
-            AuthService authService)
+        public ServersPanelViewModel(StateService stateService, DownloadService downloadService)
         {
             _stateService = stateService;
             _downloadService = downloadService;
-            _authService = authService;
 
             DownloadCommand = ReactiveCommand.CreateFromTask<ServerViewModel, Unit>(async server =>
             {
@@ -38,8 +35,7 @@ namespace UnitystationLauncher.ViewModels
         public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateService.State
             .Select(state => state
                 .SelectMany(installationState => installationState.Value.Servers
-                    .Select(s => new ServerViewModel(s, installationState.Value.Installation,
-                        installationState.Value.Download, _authService)))
+                    .Select(s => new ServerViewModel(s, installationState.Value.Installation, installationState.Value.Download)))
                 .ToList());
 
         public IObservable<bool> ServersFound => ServerList.Select(sl => sl.Any());

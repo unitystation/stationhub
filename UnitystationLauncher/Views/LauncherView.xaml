@@ -7,56 +7,12 @@
              TextBlock.FontSize="18"
              Background="Transparent"
              x:Class="UnitystationLauncher.Views.LauncherView">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="54" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
+    <Grid RowDefinitions="54,*">
         <StackPanel Background="#1d3b50" Grid.Row="0" Orientation="Horizontal">
-            <StackPanel Orientation="Horizontal">
-                <Border Margin="5 5 0 6" Background="#13212e">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Margin="2" Command="{Binding #ContextMenu.Open}">
-                            <Button.Styles>
-                                <Style Selector="Button">
-                                    <Setter Property="BorderThickness" Value="0" />
+            <Border Margin="5 5 0 6">
+                <Image Source="avares://StationHub/Assets/unityico.png" Margin="0 2 1 2" />
+            </Border>
 
-                                    <Setter Property="Background">
-                                        <ImageBrush Source="/Assets/buttoncontext.png" />
-                                    </Setter>
-                                </Style>
-                                <Style Selector="Button:pointerover">
-                                    <Setter Property="Background">
-                                        <ImageBrush Source="/Assets/buttoncontext.png" />
-                                    </Setter>
-                                </Style>
-                                <Style Selector="Button:pressed /template/ ContentPresenter">
-                                    <Setter Property="Background">
-                                        <ImageBrush Source="/Assets/buttoncontext.png" />
-                                    </Setter>
-                                </Style>
-                            </Button.Styles>
-                            <Button.ContextMenu>
-                                <ContextMenu Name="ContextMenu" PlacementMode="Bottom">
-                                    <MenuItem Header="Refresh" Command="{Binding Refresh}" />
-                                    <MenuItem Header="Logout" Command="{Binding Logout}" />
-                                </ContextMenu>
-                            </Button.ContextMenu>
-                        </Button>
-                        <Image Source="/Assets/userico.jpg" HorizontalAlignment="Left" ToolTip.Tip="Profile Icon"
-                               Margin="0 2 1 2" />
-                    </StackPanel>
-                </Border>
-                <Viewbox Height="22" HorizontalAlignment="Left" VerticalAlignment="Center" ToolTip.Tip="Username">
-                    <Border Margin="4 0 0 0" VerticalAlignment="Center">
-                        <Border.Background>
-                            <ImageBrush Source="/Assets/userbg.png" Stretch="Fill" />
-                        </Border.Background>
-                        <TextBlock Text="{Binding Username}" VerticalAlignment="Center" Margin="4 1 6 1"
-                                   HorizontalAlignment="Center" TextAlignment="Center" FontSize="10" />
-                    </Border>
-                </Viewbox>
-            </StackPanel>
             <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent"
                      HorizontalAlignment="Left">
@@ -86,9 +42,9 @@
                 </ListBox.Styles>
                 <ListBox.DataTemplates>
                     <DataTemplate DataType="vm:PanelBase">
-                            <TextBlock Text="{Binding Name}" FontSize="19" TextAlignment="Center"
-                                       VerticalAlignment="Center" HorizontalAlignment="Center"
-                                       FontFamily="InterBold" FontWeight="Bold" />
+                        <TextBlock Text="{Binding Name}" FontSize="19" TextAlignment="Center"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                   FontFamily="InterBold" FontWeight="Bold" />
                     </DataTemplate>
                 </ListBox.DataTemplates>
             </ListBox>

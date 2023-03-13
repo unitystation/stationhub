@@ -74,6 +74,7 @@
 				<li>Adds links to the Unitystation Discord and GitHub issues pages.</li>
 				<li>The auto update feature has been replaced with a notification.</li>
 				<li>Adds a placeholder to the News panel, this will be replaced with posts from the Unitystation Blog in the future.</li>
+				<li>Account creation, management, and login is now handled by the game instead of StationHub.</li>
 			</ul>
 			<p>Bug Fixes:</p>
 			<ul>

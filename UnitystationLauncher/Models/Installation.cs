@@ -54,9 +54,9 @@ namespace UnitystationLauncher.Models
             return exe;
         }
 
-        public void LaunchWithArgs(string ip, short port, string? refreshToken, string? uid)
+        public void LaunchWithArgs(string ip, short port)
         {
-            Start($"--server {ip} --port {port} --refreshtoken {refreshToken} --uid {uid}");
+            Start($"--server {ip} --port {port}");
         }
 
         public void LaunchWithoutArgs()
