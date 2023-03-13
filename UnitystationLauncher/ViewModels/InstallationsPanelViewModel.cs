@@ -8,8 +8,10 @@ using MessageBox.Avalonia.DTO;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Services;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -19,23 +21,23 @@ namespace UnitystationLauncher.ViewModels
         public override bool IsEnabled => true;
 
         private readonly InstallationService _installationService;
-        private readonly Config _config;
         string? _buildNum;
         private bool _autoRemove;
+        private readonly IPreferencesService _preferencesService;
 
-        public InstallationsPanelViewModel(InstallationService installationService, Config config)
+        public InstallationsPanelViewModel(InstallationService installationService, IPreferencesService preferencesService)
         {
             _installationService = installationService;
-            _config = config;
+            _preferencesService = preferencesService;
 
-            BuildNum = $"Hub Build Num: {Config.CurrentBuild}";
+            BuildNum = $"Hub Build Num: {AppInfo.CurrentBuild}";
 
             this.WhenAnyValue(p => p.AutoRemove)
                 .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
                 .Concat()
                 .Subscribe();
 
-            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => UpdateFromPreferencesAsync());
+            UpdateFromPreferences();
         }
 
         public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationService.Installations
@@ -54,9 +56,9 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
         }
 
-        async Task UpdateFromPreferencesAsync()
+        private void UpdateFromPreferences()
         {
-            var prefs = await _config.GetPreferencesAsync();
+            Preferences prefs = _preferencesService.GetPreferences();
             AutoRemove = prefs.AutoRemove;
             _installationService.AutoRemove = prefs.AutoRemove;
         }
@@ -78,7 +80,7 @@ namespace UnitystationLauncher.ViewModels
                 var response = await msgBox.Show();
                 if (response.Equals("Confirm"))
                 {
-                    await SaveChoiceAsync();
+                    SaveChoice();
                 }
                 else
                 {
@@ -87,13 +89,13 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                await SaveChoiceAsync();
+                SaveChoice();
             }
         }
 
-        async Task SaveChoiceAsync()
+        private void SaveChoice()
         {
-            var prefs = await _config.GetPreferencesAsync();
+            Preferences prefs = _preferencesService.GetPreferences();
             prefs.AutoRemove = AutoRemove;
             _installationService.AutoRemove = AutoRemove;
         }

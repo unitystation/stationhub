@@ -6,6 +6,7 @@ using Avalonia.Collections;
 using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
@@ -13,11 +14,13 @@ namespace UnitystationLauncher.Services
     {
         private readonly HttpClient _http;
         private readonly AvaloniaList<Download> _downloads;
+        private readonly IPreferencesService _preferencesService;
 
-        public DownloadService(HttpClient http)
+        public DownloadService(HttpClient http, IPreferencesService preferencesService)
         {
             _http = http;
             _downloads = new();
+            _preferencesService = preferencesService;
             Downloads.GetWeakCollectionChangedObservable().Subscribe(_ => Log.Information("Downloads changed"));
         }
 
@@ -30,7 +33,7 @@ namespace UnitystationLauncher.Services
                 throw new ArgumentNullException(nameof(server.DownloadUrl));
             }
 
-            Download download = new(server.DownloadUrl, server.InstallationPath);
+            Download download = new(server.DownloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService);
             if (!download.CanStart())
             {
                 return;
@@ -53,7 +56,8 @@ namespace UnitystationLauncher.Services
                 Log.Warning("Unable to download because DownloadUrl is null");
                 return false;
             }
-            Download download = new Download(server.DownloadUrl, server.InstallationPath);
+
+            Download download = new Download(server.DownloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService);
             return download.CanStart();
         }
     }

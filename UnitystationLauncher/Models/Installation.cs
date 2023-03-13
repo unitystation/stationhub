@@ -12,22 +12,23 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Models
 {
     public class Installation
     {
-        public Installation(string folderPath)
-        {
-            ForkName = GetForkName(folderPath);
-            BuildVersion = GetBuildVersion(folderPath);
-            InstallationPath = folderPath;
-        }
-
         public string ForkName { get; }
         public int BuildVersion { get; }
         public string InstallationPath { get; }
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
+
+        public Installation(string folderPath, IPreferencesService preferencesService)
+        {
+            ForkName = GetForkName(folderPath, preferencesService);
+            BuildVersion = GetBuildVersion(folderPath, preferencesService);
+            InstallationPath = folderPath;
+        }
 
         public static string? FindExecutable(string path)
         {
@@ -169,17 +170,19 @@ namespace UnitystationLauncher.Models
             Directory.Delete(targetDir, false);
         }
 
-        public static string GetForkName(string s)
+        public static string GetForkName(string path, IPreferencesService preferencesService)
         {
-            var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
-            var match = Regex.Match(folderName, @"(.+?)(\d+)");
+            Preferences preferences = preferencesService.GetPreferences();
+            string folderName = path.Replace(preferences.InstallationPath, "").Trim(Path.DirectorySeparatorChar);
+            Match match = Regex.Match(folderName, @"(.+?)(\d+)");
             return match.Groups[1].Value;
         }
 
-        public static int GetBuildVersion(string s)
+        public static int GetBuildVersion(string path, IPreferencesService preferencesService)
         {
-            var folderName = s.Replace(Config.InstallationsPath, "").Trim(Path.DirectorySeparatorChar);
-            var match = Regex.Match(folderName, @"(.+?)(\d+)");
+            Preferences preferences = preferencesService.GetPreferences();
+            string folderName = path.Replace(preferences.InstallationPath, "").Trim(Path.DirectorySeparatorChar);
+            Match match = Regex.Match(folderName, @"(.+?)(\d+)");
             return int.Parse(match.Groups[2].Value);
         }
 

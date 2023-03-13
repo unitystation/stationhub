@@ -65,7 +65,10 @@ namespace UnitystationLauncher.Models.Api
 
         public string InstallationName => ForkName + BuildVersion;
 
-        public string InstallationPath => Path.Combine(Config.InstallationsPath, InstallationName);
+        public string GetInstallationPath(Preferences preferences)
+        {
+            return Path.Combine(preferences.InstallationPath, InstallationName);
+        }
 
         public override bool Equals(object? obj)
         {

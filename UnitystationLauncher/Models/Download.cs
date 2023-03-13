@@ -8,6 +8,7 @@ using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Infrastructure;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Models
 {
@@ -18,11 +19,13 @@ namespace UnitystationLauncher.Models
         private long _size;
         private bool _active;
         private long _downloaded;
+        private readonly IPreferencesService _preferencesService;
 
-        public Download(string url, string installationPath)
+        public Download(string url, string installationPath, IPreferencesService preferencesService)
         {
             _url = url;
             _installationPath = installationPath;
+            _preferencesService = preferencesService;
         }
 
         public string Url => _url;
@@ -58,8 +61,8 @@ namespace UnitystationLauncher.Models
         public int Progress => (int)(Downloaded * 100 / Math.Max(1, Size));
 
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
-        public string ForkName => Installation.GetForkName(InstallationPath);
-        public int BuildVersion => Installation.GetBuildVersion(InstallationPath);
+        public string ForkName => Installation.GetForkName(InstallationPath, _preferencesService);
+        public int BuildVersion => Installation.GetBuildVersion(InstallationPath, _preferencesService);
 
         public async Task StartAsync(HttpClient http)
         {

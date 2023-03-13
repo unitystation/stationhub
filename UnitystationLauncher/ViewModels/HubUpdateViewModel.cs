@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -27,17 +28,19 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, LauncherViewModel> Ignore { get; }
 
         private readonly Lazy<LauncherViewModel> _launcherVm;
-        private readonly Config _config;
         private string? _updateTitle;
         private string? _updateMessage;
         private readonly Process _thisProcess;
         private readonly int _newVersion;
+        private readonly IHubService _hubService;
+        private readonly IPreferencesService _preferencesService;
 
-        public HubUpdateViewModel(Lazy<LauncherViewModel> launcherVm, Config config)
+        public HubUpdateViewModel(Lazy<LauncherViewModel> launcherVm, IHubService hubService, IPreferencesService preferencesService)
         {
             _launcherVm = launcherVm;
-            _config = config;
-            Ignore = ReactiveCommand.CreateFromTask(IgnoreUpdate);
+            _hubService = hubService;
+            _preferencesService = preferencesService;
+            Ignore = ReactiveCommand.Create(IgnoreUpdate);
             Skip = ReactiveCommand.Create(SkipUpdate);
 
             UpdateTitle = "Launcher Update Available";
@@ -45,13 +48,13 @@ namespace UnitystationLauncher.ViewModels
             _newVersion = GetUpdateVersion().Result;
 
             UpdateMessage = $"Launcher version {_newVersion} is available.\n"
-                            + $"Current version: {Config.CurrentBuild}";
+                            + $"Current version: {AppInfo.CurrentBuild}";
             _thisProcess = Process.GetCurrentProcess();
         }
 
         private async Task<int> GetUpdateVersion()
         {
-            HubClientConfig? hubClientConfig = await _config.GetServerHubClientConfigAsync();
+            HubClientConfig? hubClientConfig = await _hubService.GetServerHubClientConfigAsync();
             return hubClientConfig?.BuildNumber ?? 0;
         }
 
@@ -82,9 +85,9 @@ namespace UnitystationLauncher.ViewModels
             return _launcherVm.Value;
         }
 
-        private async Task<LauncherViewModel> IgnoreUpdate()
+        private LauncherViewModel IgnoreUpdate()
         {
-            Preferences preferences = await _config.GetPreferencesAsync();
+            Preferences preferences = _preferencesService.GetPreferences();
             preferences.IgnoreVersionUpdate = _newVersion;
             return _launcherVm.Value;
         }

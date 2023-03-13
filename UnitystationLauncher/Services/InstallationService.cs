@@ -4,11 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
+using Mono.Unix;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
@@ -17,28 +20,33 @@ namespace UnitystationLauncher.Services
         private bool _autoRemove;
         private readonly FileSystemWatcher _fileWatcher;
         private readonly IDisposable _autoRemoveSub;
+        private readonly IEnvironmentService _environmentService;
 
-        public InstallationService()
+        public InstallationService(IPreferencesService preferencesService, IEnvironmentService environmentService)
         {
-            _fileWatcher = new FileSystemWatcher(Config.InstallationsPath)
+            Preferences preferences = preferencesService.GetPreferences();
+            _environmentService = environmentService;
+            SetupInstallationPath(preferences.InstallationPath);
+            _fileWatcher = new(preferences.InstallationPath)
             {
                 EnableRaisingEvents = true,
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName
             };
-            var changed = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+
+            IObservable<EventPattern<FileSystemEventArgs>> changed = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                 h => _fileWatcher.Changed += h,
                 h => _fileWatcher.Changed -= h);
 
-            var created = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+            IObservable<EventPattern<FileSystemEventArgs>> created = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                 h => _fileWatcher.Created += h,
                 h => _fileWatcher.Created -= h);
 
-            var deleted = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
+            IObservable<EventPattern<FileSystemEventArgs>> deleted = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(
                 h => _fileWatcher.Deleted += h,
                 h => _fileWatcher.Deleted -= h);
 
-            var renamed = Observable.FromEventPattern<RenamedEventHandler, FileSystemEventArgs>(
+            IObservable<EventPattern<FileSystemEventArgs>> renamed = Observable.FromEventPattern<RenamedEventHandler, FileSystemEventArgs>(
                 h => _fileWatcher.Renamed += h,
                 h => _fileWatcher.Renamed -= h);
 
@@ -51,8 +59,8 @@ namespace UnitystationLauncher.Services
                 .ThrottleSubsequent(TimeSpan.FromMilliseconds(200))
                 .Merge(Observable.Return(Unit.Default))
                 .Select(f =>
-                    Directory.EnumerateDirectories(Config.InstallationsPath)
-                        .Select(dir => new Installation(dir))
+                    Directory.EnumerateDirectories(preferences.InstallationPath)
+                        .Select(dir => new Installation(dir, preferencesService))
                         .OrderByDescending(x => x.ForkName + x.BuildVersion)
                         .ToList())
                 .Do(x => Log.Information("Installations changed"))
@@ -81,7 +89,7 @@ namespace UnitystationLauncher.Services
             }
 
             // For each fork delete all installations except the one with the highest version number
-            var installationsToDelete = installations
+            IEnumerable<Installation> installationsToDelete = installations
                 .GroupBy(installation => installation.ForkName)
                 .SelectMany(installationsForFork => installationsForFork
                     .OrderByDescending(installation => installation.BuildVersion)
@@ -100,6 +108,28 @@ namespace UnitystationLauncher.Services
             }
         }
 
+        private void SetupInstallationPath(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            try
+            {
+                if (_environmentService.IsRunningOnWindows())
+                {
+                    return;
+                }
+
+                UnixFileInfo fileInfo = new(path);
+                fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
+            }
+            catch (Exception e)
+            {
+                Log.Error("Error: {Error}", $"There was an issue setting up permissions for the installation directory: {e.Message}");
+            }
+        }
 
         public void Dispose()
         {
