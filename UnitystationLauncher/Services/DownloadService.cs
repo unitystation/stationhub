@@ -10,7 +10,7 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class DownloadService
+    public class DownloadService : IDownloadService
     {
         private readonly HttpClient _http;
         private readonly AvaloniaList<Download> _downloads;
@@ -21,10 +21,13 @@ namespace UnitystationLauncher.Services
             _http = http;
             _downloads = new();
             _preferencesService = preferencesService;
-            Downloads.GetWeakCollectionChangedObservable().Subscribe(_ => Log.Information("Downloads changed"));
+            _downloads.GetWeakCollectionChangedObservable().Subscribe(_ => Log.Information("Downloads changed"));
         }
 
-        public IAvaloniaReadOnlyList<Download> Downloads => _downloads;
+        public IAvaloniaReadOnlyList<Download> GetDownloads()
+        {
+            return _downloads;
+        }
 
         public async Task DownloadAsync(Server server)
         {

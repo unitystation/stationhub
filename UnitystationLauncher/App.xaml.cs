@@ -1,18 +1,14 @@
-using System;
 using Avalonia;
 using UnitystationLauncher.ViewModels;
 using UnitystationLauncher.Views;
 using Serilog;
 using System.IO;
-using System.Runtime.InteropServices;
 using Serilog.Events;
 using Autofac;
 using AutofacSerilogIntegration;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Mono.Unix;
 using UnitystationLauncher.Constants;
-using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher
@@ -40,6 +36,7 @@ namespace UnitystationLauncher
                 .CreateLogger();
 
             Log.Information("Build Number: {CurrentBuild}", AppInfo.CurrentBuild);
+            Log.Information("Current environment: {CurrentEnvironment}", environmentService.GetCurrentEnvironment());
 
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
@@ -51,7 +48,5 @@ namespace UnitystationLauncher
 
             base.OnFrameworkInitializationCompleted();
         }
-
-
     }
 }

@@ -11,6 +11,7 @@ using Serilog;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
@@ -114,14 +115,14 @@ namespace UnitystationLauncher.Services
             {
                 Directory.CreateDirectory(path);
             }
+            
+            if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.WindowsStandalone)
+            {
+                return;
+            }
 
             try
             {
-                if (_environmentService.IsRunningOnWindows())
-                {
-                    return;
-                }
-
                 UnixFileInfo fileInfo = new(path);
                 fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
             }

@@ -18,6 +18,8 @@ namespace UnitystationLauncher.ViewModels
         private readonly Lazy<HubUpdateViewModel> _hubUpdateVm;
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
+        private readonly IEnvironmentService _environmentService;
+        
         PanelBase[] _panels;
         ViewModelBase? _selectedPanel;
 
@@ -42,11 +44,13 @@ namespace UnitystationLauncher.ViewModels
             InstallationsPanelViewModel installationsPanel,
             SettingsPanelViewModel settingsPanel,
             IHubService hubService,
-            IPreferencesService preferencesService)
+            IPreferencesService preferencesService,
+            IEnvironmentService environmentService)
         {
             _hubUpdateVm = hubUpdateVm;
             _hubService = hubService;
             _preferencesService = preferencesService;
+            _environmentService = environmentService;
 
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
@@ -101,6 +105,12 @@ namespace UnitystationLauncher.ViewModels
                 Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
                     AppInfo.CurrentBuild,
                     hubClientConfig.BuildNumber);
+
+                // I think it would still be good to log it, but this should disable the update view in the launcher.
+                if (_environmentService.ShouldDisableUpdateCheck())
+                {
+                    return;
+                }
 
                 Preferences preferences = _preferencesService.GetPreferences();
                 if (preferences.IgnoreVersionUpdate < hubClientConfig.BuildNumber)

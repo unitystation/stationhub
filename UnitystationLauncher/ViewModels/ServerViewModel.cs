@@ -11,6 +11,8 @@ using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Models.Enums;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -26,29 +28,42 @@ namespace UnitystationLauncher.ViewModels
         public IObservable<bool> Downloading =>
             Download?.WhenAnyValue(d => d.Active) ?? Observable.Return(false);
 
-        public ServerViewModel(Server server, Installation? installation, Download? download)
+        public ServerViewModel(Server server, Installation? installation, Download? download, IEnvironmentService environmentService)
         {
             Server = server;
             Installation = installation;
             Download = download;
             RoundTrip = new();
 
-            try
+            if (server.HasValidDomainName || server.HasValidIpAddress)
             {
-#if FLATPAK
-                Task.Run(FlatpakGetPingTime);
-#else
-                using Ping ping = new();
-                ping.PingCompleted += PingCompletedCallback;
-                ping.SendAsync(Server.ServerIp, null);
-#endif
+                if (environmentService.GetCurrentEnvironment() == CurrentEnvironment.LinuxFlatpak)
+                {
+                    Task.Run(FlatpakGetPingTime);
+                }
+                else
+                {
+                    try
+                    {
+                        using Ping ping = new();
+                        ping.PingCompleted += PingCompletedCallback;
+                        ping.SendAsync(Server.ServerIp, null);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Log.Error("Error: {Error}", $"Invalid IP address when trying to ping server: {e.Message}");
+                        RoundTrip.Value = "Error";
+                    }
+                }
             }
-            catch (ArgumentException e)
+            else
             {
-                Log.Error("Error: {Error}", $"Invalid IP address when trying to ping server: {e.Message}");
-                RoundTrip.Value = "Error";
+                Log.Error("Error: {Error}", $"Server '{Server.ServerName}' has an invalid ip address, skipping ping...");
+                RoundTrip.Value = "Bad IP";
             }
+            
 
+            
             DownloadedAmount = (
                     Download?.WhenAnyValue(d => d.Downloaded)
                     ?? Observable.Return(0L)
