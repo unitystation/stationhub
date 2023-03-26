@@ -26,7 +26,7 @@ namespace UnitystationLauncher.Services
                 .Merge(Observable.Return(downloads));
 
             IObservable<IReadOnlyList<Installation>> installationEvents = installationService.Installations;
-            
+
             State = groupedServerEvents
                 .CombineLatest(installationEvents, (servers, installations) => (servers, installations))
                 .Select(d => d.servers.FullJoin(d.installations,

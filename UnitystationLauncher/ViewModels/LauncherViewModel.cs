@@ -19,7 +19,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
         private readonly IEnvironmentService _environmentService;
-        
+
         PanelBase[] _panels;
         ViewModelBase? _selectedPanel;
 

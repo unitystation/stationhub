@@ -24,8 +24,8 @@ public class EnvironmentService : IEnvironmentService
         }
         else
         {
-            _currentEnvironment = File.Exists("/.flatpak-info") 
-                ? CurrentEnvironment.LinuxFlatpak 
+            _currentEnvironment = File.Exists("/.flatpak-info")
+                ? CurrentEnvironment.LinuxFlatpak
                 : CurrentEnvironment.LinuxStandalone;
         }
 
@@ -33,13 +33,13 @@ public class EnvironmentService : IEnvironmentService
         {
             CurrentEnvironment.WindowsStandalone =>
                 $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/StationHub",
-            CurrentEnvironment.LinuxFlatpak => 
+            CurrentEnvironment.LinuxFlatpak =>
                 $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.var/app/org.unitystation.StationHub",
             // Linux and Mac Standalone
             _ => $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.local/share/StationHub"
         };
     }
-    
+
     public CurrentEnvironment GetCurrentEnvironment()
     {
         return _currentEnvironment;
@@ -49,7 +49,7 @@ public class EnvironmentService : IEnvironmentService
     {
         return _userdataDirectory;
     }
-    
+
     public bool ShouldDisableUpdateCheck()
     {
         return _currentEnvironment == CurrentEnvironment.LinuxFlatpak;

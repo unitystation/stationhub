@@ -61,9 +61,9 @@ namespace UnitystationLauncher.ViewModels
                 Log.Error("Error: {Error}", $"Server '{Server.ServerName}' has an invalid ip address, skipping ping...");
                 RoundTrip.Value = "Bad IP";
             }
-            
 
-            
+
+
             DownloadedAmount = (
                     Download?.WhenAnyValue(d => d.Downloaded)
                     ?? Observable.Return(0L)

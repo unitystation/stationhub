@@ -12,13 +12,13 @@ public interface IEnvironmentService
     /// </summary>
     /// <returns>The current environment that the launcher is running on.</returns>
     public CurrentEnvironment GetCurrentEnvironment();
-    
+
     /// <summary>
     ///   Gets the userdata directory for the current environment.
     /// </summary>
     /// <returns>The userdata directory for the current environment.</returns>
     public string GetUserdataDirectory();
-    
+
     /// <summary>
     ///   Checks if the update check for the launcher should be disabled for the current environment.
     /// </summary>

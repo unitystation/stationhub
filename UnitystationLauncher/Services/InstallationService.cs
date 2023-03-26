@@ -115,7 +115,7 @@ namespace UnitystationLauncher.Services
             {
                 Directory.CreateDirectory(path);
             }
-            
+
             if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.WindowsStandalone)
             {
                 return;
