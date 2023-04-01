@@ -6,15 +6,20 @@ using System.Reactive.Concurrency;
 using Serilog;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Services;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class LauncherViewModel : ViewModelBase
     {
         private readonly Lazy<HubUpdateViewModel> _hubUpdateVm;
-        private readonly Config _config;
+        private readonly IHubService _hubService;
+        private readonly IPreferencesService _preferencesService;
+        private readonly IEnvironmentService _environmentService;
+
         PanelBase[] _panels;
         ViewModelBase? _selectedPanel;
 
@@ -38,10 +43,14 @@ namespace UnitystationLauncher.ViewModels
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
             SettingsPanelViewModel settingsPanel,
-            Config config)
+            IHubService hubService,
+            IPreferencesService preferencesService,
+            IEnvironmentService environmentService)
         {
             _hubUpdateVm = hubUpdateVm;
-            _config = config;
+            _hubService = hubService;
+            _preferencesService = preferencesService;
+            _environmentService = environmentService;
 
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
@@ -83,7 +92,7 @@ namespace UnitystationLauncher.ViewModels
 
         private async Task ValidateClientVersionAsync()
         {
-            HubClientConfig? hubClientConfig = await _config.GetServerHubClientConfigAsync();
+            HubClientConfig? hubClientConfig = await _hubService.GetServerHubClientConfigAsync();
 
             if (hubClientConfig == null)
             {
@@ -91,14 +100,19 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            if (hubClientConfig.BuildNumber > Config.CurrentBuild)
+            if (hubClientConfig.BuildNumber > AppInfo.CurrentBuild)
             {
                 Log.Information("Client is old {CurrentBuild} new version is {BuildNumber}",
-                    Config.CurrentBuild,
+                    AppInfo.CurrentBuild,
                     hubClientConfig.BuildNumber);
 
-                Preferences preferences = await _config.GetPreferencesAsync();
+                // I think it would still be good to log it, but this should disable the update view in the launcher.
+                if (_environmentService.ShouldDisableUpdateCheck())
+                {
+                    return;
+                }
 
+                Preferences preferences = _preferencesService.GetPreferences();
                 if (preferences.IgnoreVersionUpdate < hubClientConfig.BuildNumber)
                 {
                     Observable.Return(Unit.Default).InvokeCommand(ShowUpdateView);

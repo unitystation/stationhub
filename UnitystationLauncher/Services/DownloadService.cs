@@ -6,22 +6,28 @@ using Avalonia.Collections;
 using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class DownloadService
+    public class DownloadService : IDownloadService
     {
         private readonly HttpClient _http;
         private readonly AvaloniaList<Download> _downloads;
+        private readonly IPreferencesService _preferencesService;
 
-        public DownloadService(HttpClient http)
+        public DownloadService(HttpClient http, IPreferencesService preferencesService)
         {
             _http = http;
             _downloads = new();
-            Downloads.GetWeakCollectionChangedObservable().Subscribe(_ => Log.Information("Downloads changed"));
+            _preferencesService = preferencesService;
+            _downloads.GetWeakCollectionChangedObservable().Subscribe(_ => Log.Information("Downloads changed"));
         }
 
-        public IAvaloniaReadOnlyList<Download> Downloads => _downloads;
+        public IAvaloniaReadOnlyList<Download> GetDownloads()
+        {
+            return _downloads;
+        }
 
         public async Task DownloadAsync(Server server)
         {
@@ -30,7 +36,7 @@ namespace UnitystationLauncher.Services
                 throw new ArgumentNullException(nameof(server.DownloadUrl));
             }
 
-            Download download = new(server.DownloadUrl, server.InstallationPath);
+            Download download = new(server.DownloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService);
             if (!download.CanStart())
             {
                 return;
@@ -53,7 +59,8 @@ namespace UnitystationLauncher.Services
                 Log.Warning("Unable to download because DownloadUrl is null");
                 return false;
             }
-            Download download = new Download(server.DownloadUrl, server.InstallationPath);
+
+            Download download = new Download(server.DownloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService);
             return download.CanStart();
         }
     }

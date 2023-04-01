@@ -5,8 +5,8 @@ namespace UnitystationLauncher.Models.ConfigFile
     public class Preferences : ReactiveObject
     {
         private bool _autoRemove = true;
-        private string? _lastLogin = "";
         private int _ignoreVersionUpdate;
+        private string _installationPath = string.Empty;
 
         public bool AutoRemove
         {
@@ -14,16 +14,16 @@ namespace UnitystationLauncher.Models.ConfigFile
             set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
         }
 
-        public string? LastLogin
-        {
-            get => _lastLogin;
-            set => this.RaiseAndSetIfChanged(ref _lastLogin, value);
-        }
-
         public int IgnoreVersionUpdate
         {
             get => _ignoreVersionUpdate;
             set => this.RaiseAndSetIfChanged(ref _ignoreVersionUpdate, value);
+        }
+
+        public string InstallationPath
+        {
+            get => _installationPath;
+            set => this.RaiseAndSetIfChanged(ref _installationPath, value);
         }
     }
 }

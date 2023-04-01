@@ -7,22 +7,25 @@ using MoreLinq.Extensions;
 using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
     public class StateService
     {
-        public StateService(ServerService serverService, InstallationService installationService, DownloadService downloadService)
+        public StateService(ServerService serverService, InstallationService installationService, IDownloadService downloadService)
         {
-            var groupedServerEvents = serverService.Servers
+            IObservable<IEnumerable<IGrouping<(string, int), Server>>> groupedServerEvents = serverService.Servers
                 .Select(servers => servers
                     .GroupBy(s => s.ForkAndVersion));
 
-            var downloadEvents = downloadService.Downloads.GetWeakCollectionChangedObservable()
-                .Select(d => downloadService.Downloads)
-                .Merge(Observable.Return(downloadService.Downloads));
+            IAvaloniaReadOnlyList<Download> downloads = downloadService.GetDownloads();
 
-            var installationEvents = installationService.Installations;
+            IObservable<IAvaloniaReadOnlyList<Download>> downloadEvents = downloads.GetWeakCollectionChangedObservable()
+                .Select(d => downloads)
+                .Merge(Observable.Return(downloads));
+
+            IObservable<IReadOnlyList<Installation>> installationEvents = installationService.Installations;
 
             State = groupedServerEvents
                 .CombineLatest(installationEvents, (servers, installations) => (servers, installations))
@@ -32,7 +35,7 @@ namespace UnitystationLauncher.Services
                     servers => new ForkInstall(null, null, servers.ToArray()),
                     installation => new ForkInstall(null, installation, new List<Server>()),
                     (servers, installation) => new ForkInstall(null, installation, servers.ToArray())))
-                .CombineLatest(downloadEvents, (join, downloads) => (join, downloads))
+                .CombineLatest(downloadEvents, (join, downloadsList) => (join, downloads: downloadsList))
                 .Select(x => x.join.LeftJoin(x.downloads,
                     s => s.ForkAndVersion,
                     d => d.ForkAndVersion,
