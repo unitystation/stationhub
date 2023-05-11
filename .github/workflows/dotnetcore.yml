@@ -28,7 +28,12 @@ jobs:
 
       - name: Test
         run: |
-          dotnet test
+          export CODACY_API_TOKEN=${{ secrets.CODACY_API_TOKEN }}
+          export CODACY_ORGANIZATION_PROVIDER=gh
+          export CODACY_USERNAME=unitystation
+          export CODACY_PROJECT_NAME=stationhub
+          dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput='./opencover.xml'
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r opencover.xml
 
   build-windows:
     name: Build Windows
