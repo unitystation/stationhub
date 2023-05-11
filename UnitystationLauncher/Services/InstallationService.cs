@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices;
 using Mono.Unix;
 using ReactiveUI;
 using Serilog;
@@ -16,17 +15,20 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class InstallationService : ReactiveObject, IDisposable
+    public class InstallationService : ReactiveObject, IDisposable, IInstallationService
     {
-        private bool _autoRemove;
         private readonly FileSystemWatcher _fileWatcher;
         private readonly IDisposable _autoRemoveSub;
         private readonly IEnvironmentService _environmentService;
+        private readonly IPreferencesService _preferencesService;
+        private readonly IObservable<IReadOnlyList<Installation>> _installations;
 
         public InstallationService(IPreferencesService preferencesService, IEnvironmentService environmentService)
         {
-            Preferences preferences = preferencesService.GetPreferences();
+            _preferencesService = preferencesService;
             _environmentService = environmentService;
+
+            Preferences preferences = _preferencesService.GetPreferences();
             SetupInstallationPath(preferences.InstallationPath);
             _fileWatcher = new(preferences.InstallationPath)
             {
@@ -51,7 +53,7 @@ namespace UnitystationLauncher.Services
                 h => _fileWatcher.Renamed += h,
                 h => _fileWatcher.Renamed -= h);
 
-            Installations = changed
+            _installations = changed
                 .Merge(created)
                 .Merge(deleted)
                 .Merge(renamed)
@@ -61,30 +63,26 @@ namespace UnitystationLauncher.Services
                 .Merge(Observable.Return(Unit.Default))
                 .Select(f =>
                     Directory.EnumerateDirectories(preferences.InstallationPath)
-                        .Select(dir => new Installation(dir, preferencesService))
+                        .Select(dir => new Installation(dir, preferencesService, _environmentService))
                         .OrderByDescending(x => x.ForkName + x.BuildVersion)
                         .ToList())
                 .Do(x => Log.Information("Installations changed"))
                 .Replay(1)
                 .RefCount();
 
-            _autoRemoveSub = this.WhenAnyValue(x => x.AutoRemove)
-                .Merge(Observable.Return(_autoRemove))
-                .CombineLatest(Installations, (a, installations) => installations)
+            _autoRemoveSub = preferences.WhenAnyValue(x => x.AutoRemove)
+                .CombineLatest(_installations, (_, installations) => installations)
                 .Subscribe(RemoveOldVersions);
         }
 
-        public IObservable<IReadOnlyList<Installation>> Installations { get; }
-
-        public bool AutoRemove
+        public IObservable<IReadOnlyList<Installation>> GetInstallations()
         {
-            get => _autoRemove;
-            set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
+            return _installations;
         }
 
         private void RemoveOldVersions(IReadOnlyList<Installation> installations)
         {
-            if (!_autoRemove)
+            if (!_preferencesService.GetPreferences().AutoRemove)
             {
                 return;
             }
@@ -136,6 +134,7 @@ namespace UnitystationLauncher.Services
         {
             _autoRemoveSub.Dispose();
             _fileWatcher.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

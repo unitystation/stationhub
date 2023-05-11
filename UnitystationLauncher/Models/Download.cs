@@ -20,12 +20,14 @@ namespace UnitystationLauncher.Models
         private bool _active;
         private long _downloaded;
         private readonly IPreferencesService _preferencesService;
+        private readonly IEnvironmentService _environmentService;
 
-        public Download(string url, string installationPath, IPreferencesService preferencesService)
+        public Download(string url, string installationPath, IPreferencesService preferencesService, IEnvironmentService environmentService)
         {
             _url = url;
             _installationPath = installationPath;
             _preferencesService = preferencesService;
+            _environmentService = environmentService;
         }
 
         public string Url => _url;
@@ -64,6 +66,7 @@ namespace UnitystationLauncher.Models
         public string ForkName => Installation.GetForkName(InstallationPath, _preferencesService);
         public int BuildVersion => Installation.GetBuildVersion(InstallationPath, _preferencesService);
 
+        // TODO: Move HTTP calls here to the download service, needed for unit testing
         public async Task StartAsync(HttpClient http)
         {
             Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", InstallationPath, Url);
@@ -77,8 +80,8 @@ namespace UnitystationLauncher.Models
             try
             {
                 Log.Information("Download started...");
-                var request = await http.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead);
-                await using var responseStream = await request.Content.ReadAsStreamAsync();
+                HttpResponseMessage request = await http.GetAsync(Url, HttpCompletionOption.ResponseHeadersRead);
+                await using Stream responseStream = await request.Content.ReadAsStreamAsync();
                 if (responseStream == null)
                 {
                     Log.Error("Could not download from server");
@@ -105,7 +108,7 @@ namespace UnitystationLauncher.Models
                         archive.ExtractToDirectory(InstallationPath, true);
 
                         Log.Information("Download completed");
-                        Installation.MakeExecutableExecutable(InstallationPath);
+                        Installation.MakeExecutableExecutable(InstallationPath, _environmentService);
                     }
                     catch
                     {

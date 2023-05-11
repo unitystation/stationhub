@@ -11,11 +11,13 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class StateService
+    public class StateService : IStateService
     {
-        public StateService(ServerService serverService, InstallationService installationService, IDownloadService downloadService)
+        private readonly IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> _state;
+
+        public StateService(IServerService serverService, IInstallationService installationService, IDownloadService downloadService)
         {
-            IObservable<IEnumerable<IGrouping<(string, int), Server>>> groupedServerEvents = serverService.Servers
+            IObservable<IEnumerable<IGrouping<(string, int), Server>>> groupedServerEvents = serverService.GetServers()
                 .Select(servers => servers
                     .GroupBy(s => s.ForkAndVersion));
 
@@ -25,9 +27,9 @@ namespace UnitystationLauncher.Services
                 .Select(d => downloads)
                 .Merge(Observable.Return(downloads));
 
-            IObservable<IReadOnlyList<Installation>> installationEvents = installationService.Installations;
+            IObservable<IReadOnlyList<Installation>> installationEvents = installationService.GetInstallations();
 
-            State = groupedServerEvents
+            _state = groupedServerEvents
                 .CombineLatest(installationEvents, (servers, installations) => (servers, installations))
                 .Select(d => d.servers.FullJoin(d.installations,
                     s => s.Key,
@@ -47,26 +49,9 @@ namespace UnitystationLauncher.Services
                 .RefCount();
         }
 
-        public IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> State { get; }
-
-        public class ForkInstall
+        public IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> GetState()
         {
-            public ForkInstall(Download? download, Installation? installation, IReadOnlyList<Server> servers)
-            {
-                Download = download;
-                Installation = installation;
-                Servers = servers;
-            }
-
-            public (string, int) ForkAndVersion =>
-                Download?.ForkAndVersion ??
-                Installation?.ForkAndVersion ??
-                Servers.FirstOrDefault()?.ForkAndVersion ??
-                throw new ArgumentNullException();
-
-            public Download? Download { get; }
-            public Installation? Installation { get; }
-            public IReadOnlyList<Server> Servers { get; }
+            return _state;
         }
     }
 }

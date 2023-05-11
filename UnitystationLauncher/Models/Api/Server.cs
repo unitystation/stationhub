@@ -1,8 +1,9 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.Enums;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Models.Api
 {
@@ -31,25 +32,32 @@ namespace UnitystationLauncher.Models.Api
         public string? LinuxDownload { get; set; }
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
-        public string? DownloadUrl =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinDownload :
-            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OsxDownload :
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxDownload :
-            throw new InvalidOperationException("Failed to detect OS");
+        public string? GetDownloadUrl(IEnvironmentService environmentService)
+        {
+            return environmentService.GetCurrentEnvironment() switch
+            {
+                CurrentEnvironment.WindowsStandalone => WinDownload,
+                CurrentEnvironment.MacOsStandalone => OsxDownload,
+                CurrentEnvironment.LinuxStandalone
+                    or CurrentEnvironment.LinuxFlatpak => LinuxDownload,
+                _ => null
+            };
+        }
 
         public bool HasTrustedUrlSource
         {
             get
             {
                 const string trustedHost = "unitystationfile.b-cdn.net";
-                var urls = new[] { WinDownload, OsxDownload, LinuxDownload };
-                foreach (var url in urls)
+                string?[] urls = { WinDownload, OsxDownload, LinuxDownload };
+                foreach (string? url in urls)
                 {
                     if (string.IsNullOrEmpty(url))
                     {
                         return false;
                     }
-                    var uri = new Uri(url);
+
+                    Uri uri = new(url);
                     if (uri.Scheme != "https" || uri.Host != trustedHost)
                     {
                         return false;
