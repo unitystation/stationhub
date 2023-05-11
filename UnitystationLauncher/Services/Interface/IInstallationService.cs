@@ -4,9 +4,7 @@ using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.Services.Interface;
 
-public interface IInstallationService : IDisposable
+public interface IInstallationService
 {
     public IObservable<IReadOnlyList<Installation>> GetInstallations();
-
-    public new void Dispose();
 }

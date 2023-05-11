@@ -4,9 +4,7 @@ using UnitystationLauncher.Models.Api;
 
 namespace UnitystationLauncher.Services.Interface;
 
-public interface IServerService : IDisposable
+public interface IServerService
 {
     public IObservable<IReadOnlyList<Server>> GetServers();
-
-    public new void Dispose();
 }

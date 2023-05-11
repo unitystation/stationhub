@@ -13,7 +13,7 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class ServerService : ReactiveObject, IDisposable, IServerService
+    public class ServerService : ReactiveObject, IServerService
     {
         private readonly HttpClient _http;
         private readonly IInstallationService _installationService;
@@ -81,11 +81,6 @@ namespace UnitystationLauncher.Services
             }
 
             return true;
-        }
-
-        public void Dispose()
-        {
-            _installationService.Dispose();
         }
     }
 }

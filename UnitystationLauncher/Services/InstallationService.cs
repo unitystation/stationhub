@@ -134,6 +134,7 @@ namespace UnitystationLauncher.Services
         {
             _autoRemoveSub.Dispose();
             _fileWatcher.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }
