@@ -13,7 +13,7 @@ namespace UnitystationLauncher.Services
 {
     public class StateService : IStateService
     {
-        private IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> _state;
+        private readonly IObservable<IReadOnlyDictionary<(string ForkName, int BuildVersion), ForkInstall>> _state;
 
         public StateService(IServerService serverService, IInstallationService installationService, IDownloadService downloadService)
         {

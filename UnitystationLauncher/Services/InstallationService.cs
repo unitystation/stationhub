@@ -15,7 +15,7 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class InstallationService : ReactiveObject, IInstallationService
+    public class InstallationService : ReactiveObject, IDisposable, IInstallationService
     {
         private readonly FileSystemWatcher _fileWatcher;
         private readonly IDisposable _autoRemoveSub;
@@ -71,7 +71,7 @@ namespace UnitystationLauncher.Services
                 .RefCount();
 
             _autoRemoveSub = preferences.WhenAnyValue(x => x.AutoRemove)
-                .CombineLatest(_installations, (a, installations) => installations)
+                .CombineLatest(_installations, (_, installations) => installations)
                 .Subscribe(RemoveOldVersions);
         }
 

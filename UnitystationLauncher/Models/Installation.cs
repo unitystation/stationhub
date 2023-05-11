@@ -24,7 +24,7 @@ namespace UnitystationLauncher.Models
         public string InstallationPath { get; }
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
-        private IEnvironmentService _environmentService;
+        private readonly IEnvironmentService _environmentService;
 
         public Installation(string folderPath, IPreferencesService preferencesService, IEnvironmentService environmentService)
         {

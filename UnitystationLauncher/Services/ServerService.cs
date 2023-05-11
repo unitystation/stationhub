@@ -13,7 +13,7 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class ServerService : ReactiveObject, IServerService
+    public class ServerService : ReactiveObject, IDisposable, IServerService
     {
         private readonly HttpClient _http;
         private readonly IInstallationService _installationService;
