@@ -9,37 +9,33 @@ using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
-    public class ServerService : ReactiveObject, IDisposable
+    public class ServerService : ReactiveObject, IServerService
     {
         private readonly HttpClient _http;
-        private readonly InstallationService _installService;
-        private bool _refreshing;
+        private readonly IInstallationService _installationService;
+        private readonly IObservable<IReadOnlyList<Server>> _servers;
 
-        public ServerService(HttpClient http, InstallationService installService)
+        public ServerService(HttpClient http, IInstallationService installationService)
         {
             _http = http;
-            _installService = installService;
-            Servers = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(10))
+            _installationService = installationService;
+            _servers = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(10))
                 .SelectMany(_ => GetServerListAsync())
                 .Replay(1)
                 .RefCount();
         }
 
-        public IObservable<IReadOnlyList<Server>> Servers { get; }
-
-        public bool Refreshing
+        public IObservable<IReadOnlyList<Server>> GetServers()
         {
-            get => _refreshing;
-            set => this.RaiseAndSetIfChanged(ref _refreshing, value);
+            return _servers;
         }
 
         private async Task<IReadOnlyList<Server>> GetServerListAsync()
         {
-            Refreshing = true;
-
             string data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
             List<Server>? serverData = JsonSerializer.Deserialize<ServerList>(data, options: new()
             {
@@ -63,7 +59,6 @@ namespace UnitystationLauncher.Services
                 servers.AddRange(serverData.Where(IsValidServer));
             }
 
-            Refreshing = false;
             return servers;
         }
 
@@ -90,7 +85,7 @@ namespace UnitystationLauncher.Services
 
         public void Dispose()
         {
-            _installService.Dispose();
+            _installationService.Dispose();
         }
     }
 }

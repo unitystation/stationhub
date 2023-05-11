@@ -6,21 +6,20 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using ReactiveUI;
 using UnitystationLauncher.Models.Api;
-using UnitystationLauncher.Services;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class ServersPanelViewModel : PanelBase
     {
-        private readonly StateService _stateService;
+        private readonly IStateService _stateService;
         private readonly IDownloadService _downloadService;
         private readonly IEnvironmentService _environmentService;
 
         public override string Name => "Servers";
         public override bool IsEnabled => true;
 
-        public ServersPanelViewModel(StateService stateService, IDownloadService downloadService, IEnvironmentService environmentService)
+        public ServersPanelViewModel(IStateService stateService, IDownloadService downloadService, IEnvironmentService environmentService)
         {
             _stateService = stateService;
             _downloadService = downloadService;
@@ -35,7 +34,7 @@ namespace UnitystationLauncher.ViewModels
 
         public ReactiveCommand<ServerViewModel, Unit> DownloadCommand { get; }
 
-        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateService.State
+        public IObservable<IReadOnlyList<ServerViewModel>> ServerList => _stateService.GetState()
             .Select(state => state
                 .SelectMany(installationState => installationState.Value.Servers
                     .Select(s => new ServerViewModel(s, installationState.Value.Installation, installationState.Value.Download, _environmentService)))

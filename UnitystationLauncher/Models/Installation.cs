@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Models
@@ -23,36 +24,33 @@ namespace UnitystationLauncher.Models
         public string InstallationPath { get; }
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
-        public Installation(string folderPath, IPreferencesService preferencesService)
+        private IEnvironmentService _environmentService;
+
+        public Installation(string folderPath, IPreferencesService preferencesService, IEnvironmentService environmentService)
         {
             ForkName = GetForkName(folderPath, preferencesService);
             BuildVersion = GetBuildVersion(folderPath, preferencesService);
             InstallationPath = folderPath;
+            _environmentService = environmentService;
         }
 
-        public static string? FindExecutable(string path)
+        public static string? FindExecutable(string path, IEnvironmentService environmentService)
         {
             if (!Directory.Exists(path))
             {
                 return null;
             }
 
-            string? exe;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return environmentService.GetCurrentEnvironment() switch
             {
-                exe = Path.Combine(path, "Unitystation.exe");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                exe = Path.Combine(path, "Unitystation.app", "Contents", "MacOS", "unitystation");
-            }
-            else
-            {
-                exe = Path.Combine(path, "Unitystation");
-            }
-
-            return exe;
+                CurrentEnvironment.WindowsStandalone
+                    => Path.Combine(path, "Unitystation.exe"),
+                CurrentEnvironment.MacOsStandalone
+                    => Path.Combine(path, "Unitystation.app", "Contents", "MacOS", "unitystation"),
+                CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak
+                    => Path.Combine(path, "Unitystation"),
+                _ => null
+            };
         }
 
         public void LaunchWithArgs(string ip, short port)
@@ -65,9 +63,10 @@ namespace UnitystationLauncher.Models
             Start("");
         }
 
+        // TODO: Move to installation service
         private void Start(string arguments)
         {
-            var exe = FindExecutable(InstallationPath);
+            var exe = FindExecutable(InstallationPath, _environmentService);
             if (exe == null)
             {
                 Log.Information("Couldn't find executable to start");
@@ -103,6 +102,7 @@ namespace UnitystationLauncher.Models
             process.Start();
         }
 
+        // TODO: Move to installation service
         public async Task DeleteAsync()
         {
             try
@@ -129,6 +129,7 @@ namespace UnitystationLauncher.Models
             }
         }
 
+        // TODO: Move to installation service
         public void DeleteInstallation()
         {
             Log.Information("Perform delete of {InstallationPath}", InstallationPath);
@@ -149,6 +150,7 @@ namespace UnitystationLauncher.Models
             }
         }
 
+        // TODO: Move to installation service
         private void DeleteFolder(string targetDir)
         {
             File.SetAttributes(targetDir, FileAttributes.Normal);
@@ -186,11 +188,12 @@ namespace UnitystationLauncher.Models
             return int.Parse(match.Groups[2].Value);
         }
 
-        public static void MakeExecutableExecutable(string installationPath)
+        // TODO: Move to installation service
+        public static void MakeExecutableExecutable(string installationPath, IEnvironmentService environmentService)
         {
-            var exe = FindExecutable(installationPath);
+            string? exe = FindExecutable(installationPath, environmentService);
 
-            var fileInfo = new UnixFileInfo(exe);
+            UnixFileInfo fileInfo = new(exe);
             fileInfo.FileAccessPermissions |= FileAccessPermissions.UserReadWriteExecute;
         }
     }

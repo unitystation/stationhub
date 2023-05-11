@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+using UnitystationLauncher.Models.Api;
+
+namespace UnitystationLauncher.Services.Interface;
+
+public interface IServerService : IDisposable
+{
+    public IObservable<IReadOnlyList<Server>> GetServers();
+
+    public new void Dispose();
+}

@@ -1,5 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
+using UnitystationLauncher.Models.Enums;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Models.ConfigFile
 {
@@ -12,12 +14,16 @@ namespace UnitystationLauncher.Models.ConfigFile
         public string? LinuxUrl { get; set; }
         public string? DailyMessage { get; set; }
 
-        public string? GetDownloadUrl()
+        public string? GetDownloadUrl(IEnvironmentService environmentService)
         {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? WinUrl :
-                RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? OsxUrl :
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? LinuxUrl :
-                null;
+            return environmentService.GetCurrentEnvironment() switch
+            {
+                CurrentEnvironment.WindowsStandalone => WinUrl,
+                CurrentEnvironment.MacOsStandalone => OsxUrl,
+                CurrentEnvironment.LinuxStandalone
+                    or CurrentEnvironment.LinuxFlatpak => LinuxUrl,
+                _ => null
+            };
         }
     }
 }

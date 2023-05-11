@@ -16,11 +16,9 @@ namespace UnitystationLauncher
             builder.RegisterType<PreferencesService>().As<IPreferencesService>().SingleInstance();
             builder.RegisterType<HubService>().As<IHubService>().SingleInstance();
             builder.RegisterType<DownloadService>().As<IDownloadService>().SingleInstance();
-
-            // Not yet interfaced
-            builder.RegisterType<InstallationService>().SingleInstance();
-            builder.RegisterType<ServerService>().SingleInstance();
-            builder.RegisterType<StateService>().SingleInstance();
+            builder.RegisterType<InstallationService>().As<IInstallationService>().SingleInstance();
+            builder.RegisterType<ServerService>().As<IServerService>().SingleInstance();
+            builder.RegisterType<StateService>().As<IStateService>().SingleInstance();
 
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)

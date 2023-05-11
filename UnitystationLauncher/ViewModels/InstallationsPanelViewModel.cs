@@ -5,7 +5,6 @@ using System.Linq;
 using MessageBox.Avalonia;
 using MessageBox.Avalonia.Models;
 using MessageBox.Avalonia.DTO;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using UnitystationLauncher.Constants;
@@ -20,12 +19,13 @@ namespace UnitystationLauncher.ViewModels
         public override string Name => "Installations";
         public override bool IsEnabled => true;
 
-        private readonly InstallationService _installationService;
         string? _buildNum;
         private bool _autoRemove;
-        private readonly IPreferencesService _preferencesService;
 
-        public InstallationsPanelViewModel(InstallationService installationService, IPreferencesService preferencesService)
+        private readonly IPreferencesService _preferencesService;
+        private readonly IInstallationService _installationService;
+
+        public InstallationsPanelViewModel(IInstallationService installationService, IPreferencesService preferencesService)
         {
             _installationService = installationService;
             _preferencesService = preferencesService;
@@ -40,7 +40,7 @@ namespace UnitystationLauncher.ViewModels
             UpdateFromPreferences();
         }
 
-        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationService.Installations
+        public IObservable<IReadOnlyList<InstallationViewModel>> Installations => _installationService.GetInstallations()
             .Select(installations => installations
                 .Select(installation => new InstallationViewModel(installation)).ToList());
 
@@ -60,7 +60,6 @@ namespace UnitystationLauncher.ViewModels
         {
             Preferences prefs = _preferencesService.GetPreferences();
             AutoRemove = prefs.AutoRemove;
-            _installationService.AutoRemove = prefs.AutoRemove;
         }
 
         private async Task OnAutoRemoveChangedAsync()
@@ -97,7 +96,6 @@ namespace UnitystationLauncher.ViewModels
         {
             Preferences prefs = _preferencesService.GetPreferences();
             prefs.AutoRemove = AutoRemove;
-            _installationService.AutoRemove = AutoRemove;
         }
     }
 }

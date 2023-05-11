@@ -15,12 +15,14 @@ namespace UnitystationLauncher.Services
         private readonly HttpClient _http;
         private readonly AvaloniaList<Download> _downloads;
         private readonly IPreferencesService _preferencesService;
+        private readonly IEnvironmentService _environmentService;
 
-        public DownloadService(HttpClient http, IPreferencesService preferencesService)
+        public DownloadService(HttpClient http, IPreferencesService preferencesService, IEnvironmentService environmentService)
         {
             _http = http;
             _downloads = new();
             _preferencesService = preferencesService;
+            _environmentService = environmentService;
             _downloads.GetWeakCollectionChangedObservable().Subscribe(_ => Log.Information("Downloads changed"));
         }
 
@@ -31,12 +33,13 @@ namespace UnitystationLauncher.Services
 
         public async Task DownloadAsync(Server server)
         {
-            if (server.DownloadUrl == null)
+            string? downloadUrl = server.GetDownloadUrl(_environmentService);
+            if (string.IsNullOrWhiteSpace(downloadUrl))
             {
-                throw new ArgumentNullException(nameof(server.DownloadUrl));
+                throw new OperationCanceledException("Null or empty download url");
             }
 
-            Download download = new(server.DownloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService);
+            Download download = new(downloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService, _environmentService);
             if (!download.CanStart())
             {
                 return;
@@ -54,13 +57,14 @@ namespace UnitystationLauncher.Services
 
         public bool CanDownload(Server server)
         {
-            if (server.DownloadUrl == null)
+            string? downloadUrl = server.GetDownloadUrl(_environmentService);
+            if (string.IsNullOrWhiteSpace(downloadUrl))
             {
-                Log.Warning("Unable to download because DownloadUrl is null");
+                Log.Warning("Null or empty download url");
                 return false;
             }
 
-            Download download = new Download(server.DownloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService);
+            Download download = new(downloadUrl, server.GetInstallationPath(_preferencesService.GetPreferences()), _preferencesService, _environmentService);
             return download.CanStart();
         }
     }
