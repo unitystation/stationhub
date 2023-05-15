@@ -10,4 +10,5 @@ public static class ApiUrls
 
     public const string ChangelogBaseUrl = "https://changelog.unitystation.org";
     public const string Latest10VersionsUrl = $"{ChangelogBaseUrl}/all-changes?format=json&limit=10";
+    public const string LatestBlogPosts = $"{ChangelogBaseUrl}/posts/?format=json";
 }

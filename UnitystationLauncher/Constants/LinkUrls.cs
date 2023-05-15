@@ -8,4 +8,5 @@ public static class LinkUrls
     public const string LauncherIssuesUrl = "https://github.com/unitystation/stationhub/issues";
     public const string DiscordInviteUrl = "https://discord.com/invite/tFcTpBp";
     public const string LauncherReleasesUrl = "https://github.com/unitystation/stationhub/releases";
+    public const string BlogBaseUrl = "https://www.unitystation.org/blog";
 }
