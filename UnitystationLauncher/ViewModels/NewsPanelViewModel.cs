@@ -15,7 +15,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override bool IsEnabled => true;
 
-        private IBlogService _blogService;
+        private readonly IBlogService _blogService;
 
         public ObservableCollection<BlogPostViewModel> BlogPosts { get; }
         private BlogPostViewModel? _currentBlogPost;

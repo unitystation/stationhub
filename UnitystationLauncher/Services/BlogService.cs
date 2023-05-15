@@ -12,7 +12,7 @@ namespace UnitystationLauncher.Services;
 
 public class BlogService : IBlogService
 {
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
 
     public BlogService(HttpClient httpClient)
     {
