@@ -19,7 +19,6 @@ public class BlogService : IBlogService
         _httpClient = httpClient;
     }
 
-    // TODO: Paginate through them to get the target count
     public List<BlogPost>? GetBlogPosts(int count)
     {
         HttpResponseMessage response = _httpClient.GetAsync(Constants.ApiUrls.LatestBlogPosts).Result;
