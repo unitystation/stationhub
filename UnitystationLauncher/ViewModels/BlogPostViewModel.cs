@@ -31,7 +31,7 @@ public class BlogPostViewModel : ViewModelBase
     {
         Title = title;
         PostLink = postLink;
-        
+
         if (!string.IsNullOrWhiteSpace(postImage))
         {
             // Sometimes these come as comma seperated values, just take the first one in that case
@@ -39,7 +39,7 @@ public class BlogPostViewModel : ViewModelBase
             {
                 postImage = postImage.Split(',').First();
             }
-            
+
             PostImage = postImage;
         }
     }

@@ -79,12 +79,12 @@ namespace UnitystationLauncher.ViewModels
                     string title = post.Title ?? "";
                     string link = $"{LinkUrls.BlogBaseUrl}/{post.Slug ?? ""}";
                     string? image = post.ImageUrl ?? null;
-                    
+
                     BlogPosts.Add(new(title, link, image));
                 }
             }
         }
-        
+
         public void NextPost()
         {
             CurrentBlogPostIndex++;

@@ -13,12 +13,12 @@ namespace UnitystationLauncher.Services;
 public class BlogService : IBlogService
 {
     private HttpClient _httpClient;
-    
+
     public BlogService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
-    
+
     // TODO: Paginate through them to get the target count
     public List<BlogPost>? GetBlogPosts(int count)
     {
@@ -49,8 +49,8 @@ public class BlogService : IBlogService
                 nextPage = tempList.NextPage;
             }
         }
-        
-        
+
+
         return blogList.Posts;
     }
 }

@@ -17,7 +17,7 @@ public static class BlogPostViewModelTests
 
         blogPostViewModel.PostImage.Should().NotBeNullOrEmpty();
     }
-    
+
     [Fact]
     public static void BlogPostViewModel_ShouldHandleCommaSeperatedValues()
     {
@@ -26,7 +26,7 @@ public static class BlogPostViewModelTests
 
         blogPostViewModel.PostImage.Should().Be("first");
     }
-    
+
     [Fact]
     public static void BlogPostViewModel_ShouldSetPostImage()
     {
@@ -34,7 +34,7 @@ public static class BlogPostViewModelTests
 
         blogPostViewModel.PostImage.Should().Be("imageLinkGoesHere");
     }
-    
+
     [Fact]
     public static void BlogPostViewModel_ShouldSetPostTitle()
     {
@@ -42,7 +42,7 @@ public static class BlogPostViewModelTests
 
         blogPostViewModel.Title.Should().Be("titleGoesHere");
     }
-    
+
     [Fact]
     public static void BlogPostViewModel_ShouldSetPostLink()
     {

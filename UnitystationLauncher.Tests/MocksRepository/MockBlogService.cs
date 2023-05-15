@@ -20,10 +20,10 @@ public class MockBlogService
                 ImageUrl = $"test-{i}.png"
             });
         }
-        
+
         Mock<IBlogService> mock = new();
         mock.Setup(x => x.GetBlogPosts(It.IsAny<int>())).Returns(blogPosts);
-        
+
         return mock.Object;
     }
 }

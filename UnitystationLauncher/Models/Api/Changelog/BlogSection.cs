@@ -8,7 +8,7 @@ public class BlogSection
 {
     [JsonPropertyName("heading")]
     public string? Heading { get; set; }
-    
+
     [JsonPropertyName("body")]
     public string? Body { get; set; }
 }
