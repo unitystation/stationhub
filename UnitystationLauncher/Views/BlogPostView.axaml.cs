@@ -6,8 +6,6 @@ namespace UnitystationLauncher.Views;
 
 public class BlogPostView : UserControl
 {
-    public bool PostSummaryVisible { get; set; } = false;
-
     public BlogPostView()
     {
         InitializeComponent();
