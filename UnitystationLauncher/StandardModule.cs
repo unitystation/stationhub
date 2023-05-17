@@ -19,6 +19,7 @@ namespace UnitystationLauncher
             builder.RegisterType<InstallationService>().As<IInstallationService>().SingleInstance();
             builder.RegisterType<ServerService>().As<IServerService>().SingleInstance();
             builder.RegisterType<StateService>().As<IStateService>().SingleInstance();
+            builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
 
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)

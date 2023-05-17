@@ -2,17 +2,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UnitystationLauncher.Views.BlogPostView">
-    <Button Margin="0 0.6 0 0" Command="{Binding OpenLink}">
+    <Button Command="{Binding OpenLink}" Background="{StaticResource Primary3}" PointerEnter="InputElement_OnPointerEnter" PointerLeave="InputElement_OnPointerLeave">
         <Panel>
-            <Image Margin="0.5" Source="{Binding PostImage}" Stretch="UniformToFill" Opacity="0.459" />
-        
-            <Panel VerticalAlignment="Bottom" MaxHeight="50">
-                <Image Source="{Binding DarkenBg}" Stretch="UniformToFill" />
-                <TextBlock Text="{Binding Title}" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="35" Opacity="1" />
+            <Image asyncImageLoader:ImageLoader.Source="{Binding PostImage}" Stretch="UniformToFill" Opacity="0.459" />
+            <Panel Name="TitlePanel">
+                <Panel VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="95" MaxHeight="25" IsVisible="{Binding PostDateVisible}">
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding DarkenBg}" Stretch="UniformToFill" />
+                    <TextBlock Text="{Binding PostDate}" HorizontalAlignment="Center" Padding="2" FontSize="16" Opacity="1" />
+                </Panel>
+            
+                <Panel VerticalAlignment="Bottom" MaxHeight="50">
+                    <Image asyncImageLoader:ImageLoader.Source="{Binding DarkenBg}" Stretch="UniformToFill" />
+                    <TextBlock Text="{Binding Title}" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontSize="30" Opacity="1" />
+                </Panel>
+            </Panel>
+            <Panel Name="SummaryPanel" IsVisible="False">
+                <Image asyncImageLoader:ImageLoader.Source="{Binding DarkenBg}" Stretch="UniformToFill" />
+                <TextBlock Padding="2" Text="{Binding PostSummary}" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" />
             </Panel>
         </Panel>
     </Button>
-    
 </UserControl>
