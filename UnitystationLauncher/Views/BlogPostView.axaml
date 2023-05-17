@@ -8,6 +8,11 @@
     <Button Margin="0 0.6 0 0" Command="{Binding OpenLink}">
         <Panel>
             <Image Margin="0.5" asyncImageLoader:ImageLoader.Source="{Binding PostImage}" Stretch="UniformToFill" Opacity="0.459" />
+            
+            <Panel VerticalAlignment="Top" HorizontalAlignment="Left" MaxWidth="90" MaxHeight="25" IsVisible="{Binding PostDateVisible}">
+                <Image asyncImageLoader:ImageLoader.Source="{Binding DarkenBg}" Stretch="UniformToFill" />
+                <TextBlock Text="{Binding PostDate}" Padding="2" FontSize="16" Opacity="1" />
+            </Panel>
         
             <Panel VerticalAlignment="Bottom" MaxHeight="50">
                 <Image asyncImageLoader:ImageLoader.Source="{Binding DarkenBg}" Stretch="UniformToFill" />

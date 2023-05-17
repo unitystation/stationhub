@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reactive;
@@ -21,7 +22,7 @@ namespace UnitystationLauncher.ViewModels
         private BlogPostViewModel? _currentBlogPost;
         public BlogPostViewModel CurrentBlogPost
         {
-            get => _currentBlogPost ?? new BlogPostViewModel("Loading...", string.Empty, null);
+            get => _currentBlogPost ?? new BlogPostViewModel("Loading...", string.Empty, new(), null);
             set => this.RaiseAndSetIfChanged(ref _currentBlogPost, value);
         }
 
@@ -79,8 +80,18 @@ namespace UnitystationLauncher.ViewModels
                     string title = post.Title ?? "";
                     string link = $"{LinkUrls.BlogBaseUrl}/{post.Slug ?? ""}";
                     string? image = post.ImageUrl ?? null;
+                    DateOnly? date;
 
-                    BlogPosts.Add(new(title, link, image));
+                    if (post.CreateDateTime.HasValue)
+                    {
+                        date = DateOnly.FromDateTime(post.CreateDateTime.Value);
+                    }
+                    else
+                    {
+                        date = null;
+                    }
+
+                    BlogPosts.Add(new(title, link, date, image));
                 }
             }
         }

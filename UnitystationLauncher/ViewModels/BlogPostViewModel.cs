@@ -12,6 +12,9 @@ public class BlogPostViewModel : ViewModelBase
 {
     public string Title { get; }
     public string PostLink { get; }
+    
+    public bool PostDateVisible { get; }
+    public string PostDate { get; }
 
     private string? _postImage;
     public string PostImage
@@ -27,10 +30,22 @@ public class BlogPostViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _darkenBg, value);
     }
 
-    public BlogPostViewModel(string title, string postLink, string? postImage)
+    public BlogPostViewModel(string title, string postLink, DateOnly? postDate, string? postImage)
     {
         Title = title;
         PostLink = postLink;
+
+        if (postDate.HasValue)
+        {
+            PostDate = postDate.Value.ToString("yyyy-MM-dd");
+            PostDateVisible = true;
+        }
+        else
+        {
+            PostDate = new DateOnly().ToString("yyyy-MM-dd");
+            PostDateVisible = false;
+        }
+        
 
         if (!string.IsNullOrWhiteSpace(postImage))
         {
