@@ -24,55 +24,53 @@
                 </Border>
             </ScrollViewer>
         </Grid>
-        <Grid Grid.Column="1" Margin="5 0 15 0">
+        <Grid Grid.Column="1" Margin="5 0 15 0" Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.1*" />
                 <RowDefinition Height="0.67*" />
                 <RowDefinition Height="0.23*" />
             </Grid.RowDefinitions>
             <TextBlock Text="{Binding NewsHeader}" FontWeight="Bold" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" />
-                <Grid Grid.Row="1">
-                <Border Background="#1d3b50">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.1*" />
-                            <ColumnDefinition Width="0.8*" />
-                            <ColumnDefinition Width="0.1*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Margin="0.6 0.6 0 0" Grid.Column="0" Command="{Binding PreviousBlog}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="0.25*" />
-                                    <RowDefinition Height="0.5*" />
-                                    <RowDefinition Height="0.25*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.1*" />
-                                    <ColumnDefinition Width="0.8*" />
-                                    <ColumnDefinition Width="0.1*" />
-                                </Grid.ColumnDefinitions>
-                                <Image Margin="0.6" Grid.Row="1" Grid.Column="1"
-                                       Source="/Assets/leftbutton.png" Stretch="Uniform" />
-                            </Grid>
-                        </Button>
-                        <ContentControl Grid.Column="1" Content="{Binding CurrentBlogPost}" />
-                        <Button Margin="0 0.6 0.6 0" Grid.Column="2" Command="{Binding NextBlog}">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="0.25*" />
-                                    <RowDefinition Height="0.5*" />
-                                    <RowDefinition Height="0.25*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.1*" />
-                                    <ColumnDefinition Width="0.8*" />
-                                    <ColumnDefinition Width="0.1*" />
-                                </Grid.ColumnDefinitions>
-                                <Image Grid.Row="1" Grid.Column="1" Source="/Assets/rightbutton.png" Stretch="Uniform" />
-                            </Grid>
-                        </Button>
-                    </Grid>
-                </Border>
+            <Grid Grid.Row="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.1*" />
+                        <ColumnDefinition Width="0.8*" />
+                        <ColumnDefinition Width="0.1*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Margin="0.6 0.6 0 0" Grid.Column="0" Command="{Binding PreviousBlog}" Background="Transparent" BorderThickness="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.25*" />
+                                <RowDefinition Height="0.5*" />
+                                <RowDefinition Height="0.25*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.1*" />
+                                <ColumnDefinition Width="0.8*" />
+                                <ColumnDefinition Width="0.1*" />
+                            </Grid.ColumnDefinitions>
+                            <Image Margin="0.6" Grid.Row="1" Grid.Column="1"
+                                   Source="/Assets/leftbutton.png" Stretch="Uniform" />
+                        </Grid>
+                    </Button>
+                    <ContentControl Grid.Column="1" Content="{Binding CurrentBlogPost}" Background="Transparent" BorderThickness="0" />
+                    <Button Margin="0 0.6 0.6 0" Grid.Column="2" Command="{Binding NextBlog}" Background="Transparent" BorderThickness="0">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="0.25*" />
+                                <RowDefinition Height="0.5*" />
+                                <RowDefinition Height="0.25*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.1*" />
+                                <ColumnDefinition Width="0.8*" />
+                                <ColumnDefinition Width="0.1*" />
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Row="1" Grid.Column="1" Source="/Assets/rightbutton.png" Stretch="Uniform" />
+                        </Grid>
+                    </Button>
+                </Grid>
             </Grid>
             <WrapPanel Grid.Row="2">
                 <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenMainSite}">

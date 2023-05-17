@@ -1,9 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Avalonia;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using ReactiveUI;
 
 namespace UnitystationLauncher.ViewModels;
@@ -12,9 +9,10 @@ public class BlogPostViewModel : ViewModelBase
 {
     public string Title { get; }
     public string PostLink { get; }
-    
+    public string PostSummary { get; }
+
     public bool PostDateVisible { get; }
-    public string PostDate { get; }
+    public DateOnly PostDate { get; }
 
     private string? _postImage;
     public string PostImage
@@ -30,22 +28,22 @@ public class BlogPostViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref _darkenBg, value);
     }
 
-    public BlogPostViewModel(string title, string postLink, DateOnly? postDate, string? postImage)
+    public BlogPostViewModel(string title, string postLink, string postSummary, DateOnly? postDate, string? postImage)
     {
         Title = title;
         PostLink = postLink;
+        PostSummary = postSummary;
 
         if (postDate.HasValue)
         {
-            PostDate = postDate.Value.ToString("yyyy-MM-dd");
+            PostDate = postDate.Value;
             PostDateVisible = true;
         }
         else
         {
-            PostDate = new DateOnly().ToString("yyyy-MM-dd");
+            PostDate = new();
             PostDateVisible = false;
         }
-        
 
         if (!string.IsNullOrWhiteSpace(postImage))
         {

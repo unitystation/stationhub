@@ -22,7 +22,7 @@ namespace UnitystationLauncher.ViewModels
         private BlogPostViewModel? _currentBlogPost;
         public BlogPostViewModel CurrentBlogPost
         {
-            get => _currentBlogPost ?? new BlogPostViewModel("Loading...", string.Empty, new(), null);
+            get => _currentBlogPost ?? new BlogPostViewModel("Loading...", string.Empty, string.Empty, new(), null);
             set => this.RaiseAndSetIfChanged(ref _currentBlogPost, value);
         }
 
@@ -77,8 +77,9 @@ namespace UnitystationLauncher.ViewModels
             {
                 foreach (BlogPost post in blogPosts)
                 {
-                    string title = post.Title ?? "";
-                    string link = $"{LinkUrls.BlogBaseUrl}/{post.Slug ?? ""}";
+                    string title = post.Title;
+                    string link = $"{LinkUrls.BlogBaseUrl}/{post.Slug ?? string.Empty}";
+                    string summary = post.Summary ?? string.Empty;
                     string? image = post.ImageUrl ?? null;
                     DateOnly? date;
 
@@ -91,7 +92,7 @@ namespace UnitystationLauncher.ViewModels
                         date = null;
                     }
 
-                    BlogPosts.Add(new(title, link, date, image));
+                    BlogPosts.Add(new(title, link, summary, date, image));
                 }
             }
         }
