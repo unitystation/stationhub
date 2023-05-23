@@ -8,14 +8,14 @@
              Background="Transparent"
              x:Class="UnitystationLauncher.Views.LauncherView">
     <Grid RowDefinitions="54,*">
-        <StackPanel Background="#1d3b50" Grid.Row="0" Orientation="Horizontal">
-            <Border Margin="5 5 0 6">
+        <Grid Background="#1d3b50" Grid.Row="0" ColumnDefinitions="54,*,130">
+            <Border Margin="5 5 0 6" Grid.Column="0">
                 <Image Source="avares://StationHub/Assets/unityico.png" Margin="0 2 1 2" />
             </Border>
 
             <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent"
-                     HorizontalAlignment="Left">
+                     HorizontalAlignment="Left" Grid.Column="1">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Horizontal" />
@@ -28,14 +28,14 @@
                     <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
                         <Setter Property="Background">
                             <Setter.Value>
-                                <ImageBrush Source="/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center" />
+                                <ImageBrush Source="avares://StationHub/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center" />
                             </Setter.Value>
                         </Setter>
                     </Style>
                     <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
                         <Setter Property="Background">
                             <Setter.Value>
-                                <ImageBrush Source="/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center" />
+                                <ImageBrush Source="avares://StationHub/Assets/activaty_page.png" AlignmentY="Bottom" AlignmentX="Center" />
                             </Setter.Value>
                         </Setter>
                     </Style>
@@ -48,7 +48,18 @@
                     </DataTemplate>
                 </ListBox.DataTemplates>
             </ListBox>
-        </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Background="Transparent" BorderThickness="0" Command="{Binding OpenMainSite}">
+                    <Image Source="avares://StationHub/Assets/world-wide-web.png" Height="30" />
+                </Button>
+                <Button Background="Transparent" BorderThickness="0" Command="{Binding OpenPatreon}">
+                    <Image Source="avares://StationHub/Assets/Digital-Patreon-Logo_White.png" Height="30" />
+                </Button>
+                <Button Background="Transparent" BorderThickness="0" Command="{Binding OpenDiscordInvite}">
+                    <Image Source="avares://StationHub/Assets/discord-mark-white.png" Height="30" />
+                </Button>
+            </StackPanel>
+        </Grid>
         <Grid Grid.Row="1">
             <Border>
                 <UserControl Content="{Binding SelectedPanel}" />

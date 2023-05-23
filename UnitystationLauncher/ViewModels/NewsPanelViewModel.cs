@@ -40,11 +40,6 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _newsHeader, value);
         }
 
-        public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
-        public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
-        public ReactiveCommand<Unit, Unit> OpenGameIssues { get; }
-        public ReactiveCommand<Unit, Unit> OpenLauncherIssues { get; }
-        public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
         public ReactiveCommand<Unit, Unit> NextBlog { get; }
         public ReactiveCommand<Unit, Unit> PreviousBlog { get; }
         private int CurrentBlogPostIndex { get; set; }
@@ -53,12 +48,6 @@ namespace UnitystationLauncher.ViewModels
         {
             _changelog = changelog;
             _blogService = blogService;
-
-            OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
-            OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
-            OpenGameIssues = ReactiveCommand.Create(() => OpenLink(LinkUrls.GameIssuesUrl));
-            OpenLauncherIssues = ReactiveCommand.Create(() => OpenLink(LinkUrls.LauncherIssuesUrl));
-            OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
             BlogPosts = new();
             FetchBlogPosts();
@@ -123,17 +112,6 @@ namespace UnitystationLauncher.ViewModels
         {
             NewsHeader = $"News ({CurrentBlogPostIndex + 1}/{BlogPosts.Count})";
             CurrentBlogPost = BlogPosts[CurrentBlogPostIndex];
-        }
-
-        private static void OpenLink(string url)
-        {
-            ProcessStartInfo psi = new()
-            {
-                FileName = url,
-                UseShellExecute = true
-            };
-
-            Process.Start(psi);
         }
     }
 }

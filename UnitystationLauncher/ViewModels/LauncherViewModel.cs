@@ -2,6 +2,7 @@
 using System.Reactive;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Concurrency;
 using Serilog;
 using System.Reactive.Linq;
@@ -19,6 +20,10 @@ namespace UnitystationLauncher.ViewModels
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
         private readonly IEnvironmentService _environmentService;
+        
+        public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
+        public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
+        public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
 
         PanelBase[] _panels;
         ViewModelBase? _selectedPanel;
@@ -51,6 +56,10 @@ namespace UnitystationLauncher.ViewModels
             _hubService = hubService;
             _preferencesService = preferencesService;
             _environmentService = environmentService;
+            
+            OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
+            OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
+            OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
@@ -118,6 +127,17 @@ namespace UnitystationLauncher.ViewModels
                     Observable.Return(Unit.Default).InvokeCommand(ShowUpdateView);
                 }
             }
+        }
+        
+        private static void OpenLink(string url)
+        {
+            ProcessStartInfo psi = new()
+            {
+                FileName = url,
+                UseShellExecute = true
+            };
+
+            Process.Start(psi);
         }
 
         private HubUpdateViewModel ShowUpdateImp()

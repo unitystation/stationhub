@@ -5,9 +5,9 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UnitystationLauncher.Views.VersionView">
     <StackPanel Margin="5" Background="{StaticResource Primary2}">
-        <TextBlock Text="{Binding Version}" TextWrapping="Wrap"  Margin="2" />
-        <TextBlock Text="{Binding Date}" TextWrapping="Wrap"  Margin="2" FontWeight="Light" />
+        <TextBlock Text="{Binding Version}" TextWrapping="Wrap"  Margin="5, 3" FontSize="18" />
+        <TextBlock Text="{Binding Date}" TextWrapping="Wrap"  Margin="5, 2" FontWeight="Light" />
         <TextBlock Text="No registered changes in this build" IsVisible="{Binding NoRegisteredChanges}" TextWrapping="Wrap"  Margin="2" FontWeight="Light" />
-        <ItemsControl Items="{Binding Changes}" FontSize="12"/>
+        <ItemsControl Items="{Binding Changes}" FontSize="12" />
     </StackPanel>
 </UserControl>
