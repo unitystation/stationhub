@@ -20,7 +20,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
         private readonly IEnvironmentService _environmentService;
-        
+
         public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
         public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
         public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
@@ -56,7 +56,7 @@ namespace UnitystationLauncher.ViewModels
             _hubService = hubService;
             _preferencesService = preferencesService;
             _environmentService = environmentService;
-            
+
             OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
@@ -128,7 +128,7 @@ namespace UnitystationLauncher.ViewModels
                 }
             }
         }
-        
+
         private static void OpenLink(string url)
         {
             ProcessStartInfo psi = new()
