@@ -5,7 +5,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="UnitystationLauncher.Views.ChangeView">
     <Button Margin="5" Background="{StaticResource Primary3}" Command="{Binding OnClick}">
-        <StackPanel>
+        <StackPanel HorizontalAlignment="Left" Width="{Binding $parent[Button].Bounds.Width}">
             <TextBlock Text="{Binding Type}" TextWrapping="Wrap" Margin="2" FontWeight="Light" />
             <TextBlock Text="{Binding Description}" TextWrapping="Wrap"  Margin="2" />
             <TextBlock Text="{Binding AuthorAndPr}" TextWrapping="Wrap"  Margin="2" FontWeight="Light" />

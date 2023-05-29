@@ -72,23 +72,6 @@
                     </Button>
                 </Grid>
             </Grid>
-            <WrapPanel Grid.Row="2">
-                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenMainSite}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Official Site</TextBlock>
-                </Button>
-                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenPatreon}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Support us on Patreon</TextBlock>
-                </Button>
-                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenGameIssues}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Report Game Bug</TextBlock>
-                </Button>
-                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenLauncherIssues}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Report Launcher Bug</TextBlock>
-                </Button>
-                <Button Height="37" VerticalAlignment="Center" Margin="2" Command="{Binding OpenDiscordInvite}">
-                    <TextBlock FontWeight="Bold" FontSize="20" TextAlignment="Left">Join Discord</TextBlock>
-                </Button>
-            </WrapPanel>
         </Grid>
     </Grid>
 </UserControl>
