@@ -31,16 +31,16 @@ namespace UnitystationLauncher.ViewModels
             get => _invalidInstallationPath ?? false;
             set => this.RaiseAndSetIfChanged(ref _invalidInstallationPath, value);
         }
-        
+
         private bool? _restartClientPrompt;
         public bool RestartClientPrompt
         {
             get => _restartClientPrompt ?? false;
             set => this.RaiseAndSetIfChanged(ref _restartClientPrompt, value);
         }
-        
+
         private readonly IPreferencesService _preferencesService;
-        
+
         public PreferencesPanelViewModel(IPreferencesService preferencesService)
         {
             _preferencesService = preferencesService;
@@ -52,7 +52,7 @@ namespace UnitystationLauncher.ViewModels
         {
             if (Directory.GetDirectories(path).Length == 0 && Directory.GetFiles(path).Length == 0 && path.All(char.IsAscii))
             {
-                Log.Information("Installation directory changed to:\n{newDir}", path);
+                Log.Information("Installation directory changed to: {newDir}", path);
                 _preferencesService.GetPreferences().InstallationPath = path;
                 InstallationPath = _preferencesService.GetPreferences().InstallationPath;
                 RestartClientPrompt = true;
@@ -60,7 +60,7 @@ namespace UnitystationLauncher.ViewModels
             }
             else
             {
-                Log.Warning("Invalid directory as installation path, ignoring change:\n{newDir}", path);
+                Log.Warning("Invalid directory as installation path, ignoring change: {newDir}", path);
                 RestartClientPrompt = false;
                 InvalidInstallationPath = true;
             }

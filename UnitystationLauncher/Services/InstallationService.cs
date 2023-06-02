@@ -64,7 +64,7 @@ namespace UnitystationLauncher.Services
                 .Merge(Observable.Return(Unit.Default))
                 .Select(f =>
                     Directory.EnumerateDirectories(preferences.InstallationPath)
-                        .Select(dir =>new Installation(dir, _preferencesService, _environmentService))
+                        .Select(dir => new Installation(dir, _preferencesService, _environmentService))
                         .OrderByDescending(x => x.ForkName + x.BuildVersion)
                         .ToList())
                 .Do(x => Log.Information("Installations changed"))
