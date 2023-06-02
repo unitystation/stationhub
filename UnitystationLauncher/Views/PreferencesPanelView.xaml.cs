@@ -27,8 +27,8 @@ namespace UnitystationLauncher.Views
         // I would like for this to be an async method, but I cannot due to Avalonia not supporting that on events
         private void ChangeInstallationFolder_OnClick(object? sender, RoutedEventArgs eventArgs)
         {
-            if (Application.Current != null 
-                && Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime applicationLifetime 
+            if (Application.Current != null
+                && Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime applicationLifetime
                 && DataContext is PreferencesPanelViewModel viewModel)
             {
                 Task.Run(async () =>
