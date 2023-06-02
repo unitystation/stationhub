@@ -29,6 +29,7 @@ namespace UnitystationLauncher.Services
             _environmentService = environmentService;
 
             Preferences preferences = _preferencesService.GetPreferences();
+            Log.Information("Setting up filesystem watcher for installation directory: {dir}", preferences.InstallationPath);
             SetupInstallationPath(preferences.InstallationPath);
             _fileWatcher = new(preferences.InstallationPath)
             {
@@ -63,7 +64,7 @@ namespace UnitystationLauncher.Services
                 .Merge(Observable.Return(Unit.Default))
                 .Select(f =>
                     Directory.EnumerateDirectories(preferences.InstallationPath)
-                        .Select(dir => new Installation(dir, preferencesService, _environmentService))
+                        .Select(dir =>new Installation(dir, _preferencesService, _environmentService))
                         .OrderByDescending(x => x.ForkName + x.BuildVersion)
                         .ToList())
                 .Do(x => Log.Information("Installations changed"))
