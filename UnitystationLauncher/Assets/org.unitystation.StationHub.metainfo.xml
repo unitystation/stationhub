@@ -65,6 +65,17 @@
 </screenshots>
 
 <releases>
+	<release version="932" date="2023-06-03">
+		<description>
+			<p>Feature Changes:</p>
+			<ul>
+				<li>The News tab now shows latest blog post from our website.</li>
+				<li>The links to our socials and website have been moved to a better place, at the top of the launcher.</li>
+				<li>Changelog entries in the News tab are now aligned.</li>
+				<li>New Preferences tab where you can customize your experience. For now it only allows to change the default Installations folder to whatever you like.</li>
+			</ul>
+		</description>
+	</release>
 	<release version="931" date="2023-03-13">
 		<description>
 			<p>Feature Changes:</p>
