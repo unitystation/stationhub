@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="UnitystationLauncher.Views.SettingsPanelView">
+             x:Class="UnitystationLauncher.Views.PreferencesPanelView">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.1*" />
@@ -25,30 +25,29 @@
                     <RowDefinition Height="0.2*" />
                     <RowDefinition Height="0.21*" />
                 </Grid.RowDefinitions>
-                <Grid Grid.Row="0" Margin="0 5 0 5">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.8*" />
-                        <ColumnDefinition Width="0.2*" />
-                    </Grid.ColumnDefinitions>
-                    <Border Background="#1d3b50" Grid.Column="0" BorderBrush="#ffffff" BorderThickness="0.4"
-                            Margin="0 0 5 0">
-                        <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">Maximum download speed</TextBlock>
+                <Panel Grid.Row="0" Margin="0 5 0 5">
+                    <Border Background="#1d3b50" BorderBrush="#ffffff" BorderThickness="0.4" Margin="0 0 5 0">
+                        <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">Installation Path</TextBlock>
                     </Border>
-                    <ComboBox Grid.Column="1" Margin="5 0 0 0" Background="#1d3b50" />
-                </Grid>
+                </Panel>
                 <Grid Grid.Row="1" Margin="0 5 0 5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.8*" />
                         <ColumnDefinition Width="0.2*" />
                     </Grid.ColumnDefinitions>
-                    <Border Background="#1d3b50" Grid.Column="0" BorderBrush="#ffffff" BorderThickness="0.4"
-                            Margin="0 0 5 0">
-                        <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">Screen size</TextBlock>
+                    <Border Background="#1d3b50" Grid.Column="0" BorderBrush="#ffffff" BorderThickness="0.4" Margin="0 0 5 0">
+                        <TextBlock FontSize="16" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding InstallationPath}"/>
                     </Border>
-                    <ComboBox Grid.Column="1" Margin="5 0 0 0" Background="#1d3b50" />
+                    <Button Grid.Column="1" Click="ChangeInstallationFolder_OnClick">
+                        <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="Change" />    
+                    </Button>
+                    
                 </Grid>
                 <Grid Grid.Row="2" Margin="0 5 0 5">
-                    <Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" FontSize="12" IsVisible="{Binding InvalidInstallationPath}" Text="Invalid installation path selected, please choose an empty directory with only ASCII characters in the path."/>
+                    <TextBlock Grid.Column="0" FontSize="12" IsVisible="{Binding RestartClientPrompt}" Text="Your installation path has been set, please restart StationHub for this change to take effect."/>
+                </Grid>
+                    <!--Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.8*" />
                         <ColumnDefinition Width="0.2*" />
                     </Grid.ColumnDefinitions>
@@ -57,8 +56,8 @@
                         <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">Screen mode</TextBlock>
                     </Border>
                     <ComboBox Grid.Column="1" Margin="5 0 0 0" Background="#1d3b50" />
-                </Grid>
-                <Grid Grid.Row="3" Margin="0 5 0 0">
+                </Grid-->
+                <!--Grid Grid.Row="3" Margin="0 5 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.1*" />
                         <ColumnDefinition Width="0.35*" />
@@ -71,8 +70,8 @@
                         <TextBlock FontSize="20" FontWeight="Bold" TextAlignment="Left">Allow auto updates</TextBlock>
                         <TextBlock TextWrapping="Wrap" FontSize="12" FontWeight="Bold" TextAlignment="Left">The game and hub will automatically update</TextBlock>
                     </StackPanel>
-                </Grid>
-                <Grid Grid.Row="4" Margin="0 5 0 0">
+                </Grid-->
+                <!--Grid Grid.Row="4" Margin="0 5 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.1*" />
                         <ColumnDefinition Width="0.35*" />
@@ -85,8 +84,8 @@
                         <TextBlock FontSize="20" FontWeight="Bold" TextAlignment="Left">Clear cache</TextBlock>
                         <TextBlock TextWrapping="Wrap" FontSize="12" FontWeight="Bold" TextAlignment="Left">Clear cache the next time client starts</TextBlock>
                     </StackPanel>
-                </Grid>
-                <Grid Grid.Row="5" Margin="0 10 0 0">
+                </Grid-->
+                <!--Grid Grid.Row="5" Margin="0 10 0 0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
@@ -104,7 +103,7 @@
                             Cancel
                         </TextBlock>
                     </Button>
-                </Grid>
+                </Grid-->
             </Grid>
         </Grid>
     </Grid>

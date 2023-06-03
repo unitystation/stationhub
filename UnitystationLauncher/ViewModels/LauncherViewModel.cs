@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
-using UnitystationLauncher.Services;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
@@ -47,7 +46,7 @@ namespace UnitystationLauncher.ViewModels
             NewsPanelViewModel newsPanel,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
-            SettingsPanelViewModel settingsPanel,
+            PreferencesPanelViewModel preferencesPanel,
             IHubService hubService,
             IPreferencesService preferencesService,
             IEnvironmentService environmentService)
@@ -61,7 +60,7 @@ namespace UnitystationLauncher.ViewModels
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
-            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, settingsPanel);
+            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
@@ -72,7 +71,7 @@ namespace UnitystationLauncher.ViewModels
             NewsPanelViewModel newsPanel,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
-            SettingsPanelViewModel settingsPanel)
+            PreferencesPanelViewModel preferencesPanel)
         {
             List<PanelBase> panelBases = new();
 
@@ -91,9 +90,9 @@ namespace UnitystationLauncher.ViewModels
                 panelBases.Add(installationsPanel);
             }
 
-            if (settingsPanel.IsEnabled)
+            if (preferencesPanel.IsEnabled)
             {
-                panelBases.Add(settingsPanel);
+                panelBases.Add(preferencesPanel);
             }
 
             return panelBases.ToArray();
