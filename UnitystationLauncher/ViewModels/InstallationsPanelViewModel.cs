@@ -22,7 +22,7 @@ namespace UnitystationLauncher.ViewModels
         public override string Name => "Installations";
         public override bool IsEnabled => true;
 
-        string? _buildNum;
+        private string? _buildNum;
         public string? BuildNum
         {
             get => _buildNum;
