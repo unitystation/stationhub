@@ -4,13 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="120" FontSize="16"
              x:Class="UnitystationLauncher.Views.InstallationView">
-    <Grid ColumnDefinitions="0.15*,0.5*,0.35*" Background="#182837" Margin="5">
-        <Image Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10"
-               Source="/Assets/folders.png" />
+    <Grid ColumnDefinitions="100,0.5*,100" Background="#182837" Margin="5" Height="100">
+        <!-- Folder Icon -->
+        <Image Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Source="/Assets/folders.png" />
+        
+        <!-- Info -->
         <StackPanel VerticalAlignment="Center" Margin="10 0 0 0" Grid.Column="1">
-            <TextBlock Text="{Binding Installation.ForkName, StringFormat='Fork: {0}'}" />
-            <TextBlock Text="{Binding Installation.BuildVersion, StringFormat='Build: {0}'}" />
+            <TextBlock FontSize="16" Text="{Binding Installation.ForkName, StringFormat='Fork: {0}'}" />
+            <TextBlock FontSize="16" Text="{Binding Installation.BuildVersion, StringFormat='Build: {0}'}" />
+            <TextBlock FontSize="16" Text="{Binding Installation.InstallationPath, StringFormat='Path: {0}'}" />
+            <TextBlock FontSize="16" Text="{Binding Installation.LastPlayedDate, StringFormat='Last Played: {0}'}"  />
         </StackPanel>
+        
+        <!-- Buttons -->
         <StackPanel Grid.Column="2" VerticalAlignment="Center">
             <Button Command="{Binding LaunchCommand}" Margin="5" Background="{StaticResource PrimaryTransparent4}"
                     BorderThickness="0">

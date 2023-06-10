@@ -41,12 +41,11 @@
                     <Button Grid.Column="1" Click="ChangeInstallationFolder_OnClick">
                         <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="Change" />    
                     </Button>
-                    
                 </Grid>
-                <Grid Grid.Row="2" Margin="0 5 0 5">
+                <!--Grid Grid.Row="2" Margin="0 5 0 5">
                     <TextBlock Grid.Column="0" FontSize="12" IsVisible="{Binding InvalidInstallationPath}" Text="Invalid installation path selected, please choose an empty directory with only ASCII characters in the path."/>
                     <TextBlock Grid.Column="0" FontSize="12" IsVisible="{Binding RestartClientPrompt}" Text="Your installation path has been set, please restart StationHub for this change to take effect."/>
-                </Grid>
+                </Grid-->
                     <!--Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.8*" />
                         <ColumnDefinition Width="0.2*" />

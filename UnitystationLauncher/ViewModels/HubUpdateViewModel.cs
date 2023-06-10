@@ -96,5 +96,10 @@ namespace UnitystationLauncher.ViewModels
         {
             _thisProcess.Dispose();
         }
+
+        public override void Refresh()
+        {
+            // Do nothing
+        }
     }
 }

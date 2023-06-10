@@ -31,4 +31,9 @@ public class ChangeViewModel : ViewModelBase
             Process.Start(psi);
         }
     }
+
+    public override void Refresh()
+    {
+        // Do nothing
+    }
 }

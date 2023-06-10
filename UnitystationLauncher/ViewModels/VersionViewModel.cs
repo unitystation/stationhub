@@ -35,4 +35,9 @@ public class VersionViewModel : ViewModelBase
             Changes.Add(new(change));
         }
     }
+
+    public override void Refresh()
+    {
+        // Do nothing
+    }
 }

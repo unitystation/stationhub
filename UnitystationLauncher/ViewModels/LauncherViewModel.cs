@@ -143,5 +143,10 @@ namespace UnitystationLauncher.ViewModels
         {
             return _hubUpdateVm.Value;
         }
+
+        public override void Refresh()
+        {
+            // Do nothing
+        }
     }
 }
