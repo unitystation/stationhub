@@ -1,6 +1,6 @@
 namespace UnitystationLauncher.Constants;
 
-public class MessageBoxResults
+public static class MessageBoxResults
 {
     public const string Ok = "Ok";
     public const string Cancel = "Cancel";

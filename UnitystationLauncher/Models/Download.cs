@@ -5,10 +5,10 @@ namespace UnitystationLauncher.Models
 {
     public class Download : ReactiveObject
     {
-        public readonly string DownloadUrl;
-        public readonly string InstallPath;
-        public readonly string ForkName;
-        public readonly int BuildVersion;
+        public string DownloadUrl { get; }
+        public string InstallPath { get; }
+        public string ForkName { get; }
+        public int BuildVersion { get; }
 
         private long _size;
         public long Size
