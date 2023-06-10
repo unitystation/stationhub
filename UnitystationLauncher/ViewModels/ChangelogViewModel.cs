@@ -59,5 +59,10 @@ namespace UnitystationLauncher.ViewModels
                 Log.Error("Error: {Error}", $"Something went wrong reading from the changelog API: {e.Message}");
             }
         }
+
+        public override void Refresh()
+        {
+            // Do nothing
+        }
     }
 }

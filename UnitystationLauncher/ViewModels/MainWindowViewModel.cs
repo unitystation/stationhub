@@ -86,5 +86,10 @@ namespace UnitystationLauncher.ViewModels
                 .ObserveOn(SynchronizationContext.Current!)
                 .Subscribe(vm => Content = vm);
         }
+
+        public override void Refresh()
+        {
+            // Do nothing
+        }
     }
 }

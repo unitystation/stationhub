@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive.Linq;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Constants;
+using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Services.Interface;
 
@@ -16,25 +18,25 @@ namespace UnitystationLauncher.Services
     public class ServerService : ReactiveObject, IServerService
     {
         private readonly HttpClient _http;
-        private readonly IInstallationService _installationService;
-        private readonly IObservable<IReadOnlyList<Server>> _servers;
+        private List<Server> _servers = new();
 
-        public ServerService(HttpClient http, IInstallationService installationService)
+        public ServerService(HttpClient http)
         {
             _http = http;
-            _installationService = installationService;
-            _servers = Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(10))
-                .SelectMany(_ => GetServerListAsync())
-                .Replay(1)
-                .RefCount();
         }
 
-        public IObservable<IReadOnlyList<Server>> GetServers()
+        public async Task<List<Server>> GetServersAsync()
         {
+            _servers = await GetServerListAsync();
             return _servers;
         }
 
-        private async Task<IReadOnlyList<Server>> GetServerListAsync()
+        public bool IsInstallationInUse(Installation installation)
+        {
+            return _servers.Any(s => s.ForkName == installation.ForkName && s.BuildVersion == installation.BuildVersion);
+        }
+
+        private async Task<List<Server>> GetServerListAsync()
         {
             string data = await _http.GetStringAsync(ApiUrls.ServerListUrl);
             List<Server>? serverData = JsonSerializer.Deserialize<ServerList>(data, options: new()

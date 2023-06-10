@@ -11,52 +11,38 @@
             </Style>
         </DockPanel.Styles>
         <Image DockPanel.Dock="Left" Source="/Assets/unityico.png" Margin="5" Width="65" Height="65" Stretch="Uniform" />
-        <Panel DockPanel.Dock="Right" Margin="5" MinWidth="180">
-            <Panel Height="40">
-                <Panel.IsVisible>
-                    <MultiBinding Converter="{x:Static BoolConverters.And}">
-                        <MultiBinding.Bindings>
-                            <Binding Path="!Downloading^"></Binding>
-                            <Binding Path="!Installed"></Binding>
-                        </MultiBinding.Bindings>
-                    </MultiBinding>
-                </Panel.IsVisible>
-                <Button Command="{Binding Path=$parent[UserControl;1].DataContext.DownloadCommand}" 
-                        CommandParameter="{Binding }" 
-                        Content="Download"
-                        Background="{StaticResource PrimaryTransparent4}"
-                        BorderThickness="0" />
-            </Panel>
-            <Panel Height="40">
-                <Panel.IsVisible>
-                    <MultiBinding Converter="{x:Static BoolConverters.And}">
-                        <MultiBinding.Bindings>
-                            <Binding Path="!Downloading^"></Binding>
-                            <Binding Path="Installed"></Binding>
-                        </MultiBinding.Bindings>
-                    </MultiBinding>
-                </Panel.IsVisible>
-                <Button Command="{Binding LaunchGame}" Content="Start" Background="{StaticResource PrimaryTransparent4}"
-                        BorderThickness="0" />
-            </Panel>
-            <StackPanel IsVisible="{Binding Downloading^}" VerticalAlignment="Center">
+        <Panel DockPanel.Dock="Right" Margin="5" MinWidth="180" >
+            <!-- Download Button -->
+            <Button Command="{Binding Path=$parent[UserControl;1].DataContext.DownloadCommand}" 
+                    CommandParameter="{Binding}" 
+                    Content="Download"
+                    Height="40" IsVisible="{Binding ShowDownloadButton}"
+                    Background="{StaticResource PrimaryTransparent4}"
+                    BorderThickness="0" />
+            
+            <!-- Start Button -->
+            <Button Command="{Binding LaunchGame}" Content="Start" Background="{StaticResource PrimaryTransparent4}"
+                    BorderThickness="0" Height="40" IsVisible="{Binding ShowStartButton}" />
+            
+            <!-- Download Progress -->
+            <StackPanel IsVisible="{Binding ShowDownloadProgress}" VerticalAlignment="Center">
                 <ProgressBar Value="{Binding Download.Progress}" MinWidth="0" MinHeight="0" Height="10"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="{Binding DownloadedAmount^}"/>
+                    <TextBlock Text="{Binding DownloadedAmount}"/>
                     <TextBlock> / </TextBlock>
-                    <TextBlock Text="{Binding DownloadSize^}"/></StackPanel>
+                    <TextBlock Text="{Binding DownloadSize}"/></StackPanel>
             </StackPanel>
         </Panel>
         <Grid ColumnDefinitions="*, auto, auto" RowDefinitions="*, *" VerticalAlignment="Center">
             <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Server.ServerName}" />
-            <TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" FontSize="12"
-                       Text="{Binding Server.Description}" />
+            <!--TextBlock Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" FontSize="12"
+                       Text="{Binding Server.Description}" /-->
             <StackPanel Grid.Column="1" Grid.Row="0" Margin="5" Orientation="Horizontal" MinWidth="100"
                         VerticalAlignment="Center">
                 <TextBlock Margin="0" Text="{Binding Server.PlayerCount}" />
                 <TextBlock Margin="5, 0, 0, 0">Players</TextBlock>
             </StackPanel>
-            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding RoundTrip.Value}" MinWidth="75"
+            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding Ping}" MinWidth="75"
                        TextAlignment="Right" VerticalAlignment="Center" />
             <WrapPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal">
                 <WrapPanel.Styles>

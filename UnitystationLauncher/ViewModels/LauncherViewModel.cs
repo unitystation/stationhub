@@ -24,15 +24,14 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
         public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
 
-        PanelBase[] _panels;
-        ViewModelBase? _selectedPanel;
-
+        private PanelBase[] _panels;
         public PanelBase[] Panels
         {
             get => _panels;
             set => this.RaiseAndSetIfChanged(ref _panels, value);
         }
 
+        private ViewModelBase? _selectedPanel;
         public ViewModelBase? SelectedPanel
         {
             get => _selectedPanel;
@@ -142,6 +141,11 @@ namespace UnitystationLauncher.ViewModels
         private HubUpdateViewModel ShowUpdateImp()
         {
             return _hubUpdateVm.Value;
+        }
+
+        public override void Refresh()
+        {
+            // Do nothing
         }
     }
 }

@@ -113,5 +113,10 @@ namespace UnitystationLauncher.ViewModels
             NewsHeader = $"News ({CurrentBlogPostIndex + 1}/{BlogPosts.Count})";
             CurrentBlogPost = BlogPosts[CurrentBlogPostIndex];
         }
+
+        public override void Refresh()
+        {
+            // Do nothing
+        }
     }
 }

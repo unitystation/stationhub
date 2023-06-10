@@ -19,7 +19,7 @@ public class BlogService : IBlogService
         _httpClient = httpClient;
     }
 
-    public List<BlogPost>? GetBlogPosts(int count)
+    public List<BlogPost> GetBlogPosts(int count)
     {
         HttpResponseMessage response = _httpClient.GetAsync(Constants.ApiUrls.LatestBlogPosts).Result;
         string blogJson = response.Content.ReadAsStringAsync().Result;

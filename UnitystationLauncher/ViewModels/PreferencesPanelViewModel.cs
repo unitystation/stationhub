@@ -1,13 +1,10 @@
-﻿using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using HarfBuzzSharp;
+﻿using System.Threading.Tasks;
+using MessageBox.Avalonia.BaseWindows.Base;
 using ReactiveUI;
 using Serilog;
-using UnitystationLauncher.Models;
-using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Constants;
+using UnitystationLauncher.Infrastructure;
+using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
@@ -25,45 +22,55 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _installationPath, value);
         }
 
-        private bool? _invalidInstallationPath;
-        public bool InvalidInstallationPath
-        {
-            get => _invalidInstallationPath ?? false;
-            set => this.RaiseAndSetIfChanged(ref _invalidInstallationPath, value);
-        }
-
-        private bool? _restartClientPrompt;
-        public bool RestartClientPrompt
-        {
-            get => _restartClientPrompt ?? false;
-            set => this.RaiseAndSetIfChanged(ref _restartClientPrompt, value);
-        }
-
         private readonly IPreferencesService _preferencesService;
+        private readonly IInstallationService _installationService;
 
-        public PreferencesPanelViewModel(IPreferencesService preferencesService)
+        public PreferencesPanelViewModel(IPreferencesService preferencesService, IInstallationService installationService)
         {
             _preferencesService = preferencesService;
+            _installationService = installationService;
 
             _installationPath = _preferencesService.GetPreferences().InstallationPath;
         }
 
-        public void SetInstallationPath(string path)
+        public async Task SetInstallationPathAsync(string path)
         {
-            if (Directory.GetDirectories(path).Length == 0 && Directory.GetFiles(path).Length == 0 && path.All(char.IsAscii))
+            (bool isValidPath, string invalidReason) = _installationService.IsValidInstallationBasePath(path);
+            if (isValidPath)
             {
-                Log.Information("Installation directory changed to: {newDir}", path);
-                _preferencesService.GetPreferences().InstallationPath = path;
-                InstallationPath = _preferencesService.GetPreferences().InstallationPath;
-                RestartClientPrompt = true;
-                InvalidInstallationPath = false;
+                IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                    MessageBoxButtons.YesNo,
+                    string.Empty,
+                    $"Would you like to move your old installations to the new location?\n "
+                     + $"New installation path: {path}");
+
+                string response = await msgBox.Show();
+                Log.Information($"Move installations? {response}");
+                if (response.Equals(MessageBoxResults.Yes))
+                {
+                    bool success = _installationService.MoveInstallations(path);
+                    if (!success)
+                    {
+                        await MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Error moving installation",
+                            "Could not move existing install.").Show();
+
+                        return;
+                    }
+                }
+
+                _preferencesService.GetPreferences().InstallationPath = InstallationPath = path;
+                Log.Information($"Installation directory changed to: {path}");
             }
             else
             {
-                Log.Warning("Invalid directory as installation path, ignoring change: {newDir}", path);
-                RestartClientPrompt = false;
-                InvalidInstallationPath = true;
+                Log.Warning($"Invalid directory as installation path, ignoring change: {path}");
+                await MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Invalid installation path", invalidReason).Show();
             }
+        }
+
+        public override void Refresh()
+        {
+            // Do nothing
         }
     }
 }

@@ -54,4 +54,18 @@ public class EnvironmentService : IEnvironmentService
     {
         return _currentEnvironment == CurrentEnvironment.LinuxFlatpak;
     }
+
+    public ProcessStartInfo? GetGameProcessStartInfo(string executable, string arguments)
+    {
+        return _currentEnvironment switch
+        {
+            CurrentEnvironment.WindowsStandalone
+                => new(executable, $"{arguments}"),
+            CurrentEnvironment.MacOsStandalone
+                => new("/bin/bash", $"-c \" open -a '{executable}' --args {arguments}; \""),
+            CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak
+                => new("/bin/bash", $"-c \" '{executable}' --args {arguments}; \""),
+            _ => null
+        };
+    }
 }
