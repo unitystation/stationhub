@@ -124,17 +124,6 @@ public class InstallationService : IInstallationService
             return (false, failureReason);
         }
 
-        string arguments = string.Empty;
-        if (!string.IsNullOrWhiteSpace(server))
-        {
-            arguments += $"--server {server}";
-
-            if (port.HasValue)
-            {
-                arguments += $" --port {port}";
-            }
-        }
-
         string? executable = FindExecutable(installation.InstallationPath);
         if (string.IsNullOrWhiteSpace(executable))
         {
@@ -145,16 +134,8 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        ProcessStartInfo? startInfo = _environmentService.GetCurrentEnvironment() switch
-        {
-            CurrentEnvironment.WindowsStandalone
-                => new(executable, $"{arguments}"),
-            CurrentEnvironment.MacOsStandalone
-                => new("/bin/bash", $"-c \" open -a '{executable}' --args {arguments}; \""),
-            CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak
-                => new("/bin/bash", $"-c \" '{executable}' --args {arguments}; \""),
-            _ => null
-        };
+        string arguments = GetArguments(server, port);
+        ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
         {
@@ -170,9 +151,7 @@ public class InstallationService : IInstallationService
         };
 
         process.Start();
-
-        installation.LastPlayedDate = DateTime.Now;
-        WriteInstallations();
+        UpdateLastPlayedTime(installation);
 
         return (true, string.Empty);
     }
@@ -352,6 +331,12 @@ public class InstallationService : IInstallationService
         _installations = installations ?? new();
     }
 
+    private void UpdateLastPlayedTime(Installation installation)
+    {
+        installation.LastPlayedDate = DateTime.Now;
+        WriteInstallations();
+    }
+
     private void WriteInstallations()
     {
         string json = JsonSerializer.Serialize(_installations);
@@ -392,6 +377,23 @@ public class InstallationService : IInstallationService
         }
 
         return (true, string.Empty);
+    }
+
+    private string GetArguments(string? server, long? port)
+    {
+        string arguments = string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(server))
+        {
+            arguments += $"--server {server}";
+
+            if (port.HasValue)
+            {
+                arguments += $" --port {port}";
+            }
+        }
+
+        return arguments;
     }
 
     private async Task StartDownloadAsync(Download download)
@@ -468,12 +470,9 @@ public class InstallationService : IInstallationService
                 long deltaPercentage = deltaPos * 100 / download.Size;
                 long percentage = pos * 100 / download.Size;
 
-                if (pos != download.Size)
+                if (pos != download.Size && deltaPercentage < 25 && deltaTime.TotalSeconds < .25)
                 {
-                    if (deltaPercentage < 25 && deltaTime.TotalSeconds < .25)
-                    {
-                        return;
-                    }
+                    return;
                 }
 
                 ByteRate speed = deltaPos.Bytes().Per(deltaTime);

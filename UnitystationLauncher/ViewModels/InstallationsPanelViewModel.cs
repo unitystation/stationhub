@@ -38,7 +38,7 @@ namespace UnitystationLauncher.ViewModels
 
         public ObservableCollection<InstallationViewModel> InstallationViews { get; init; } = new();
 
-        private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(10);
+        private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(2);
         private readonly IPreferencesService _preferencesService;
         private readonly IInstallationService _installationService;
 
@@ -105,7 +105,15 @@ namespace UnitystationLauncher.ViewModels
         {
             List<Installation> installations = _installationService.GetInstallations();
 
-            // Add new
+            AddNewInstallations(installations);
+            RemoveDeletedInstallations(installations);
+            Refresh();
+
+            Log.Debug("Installations list has been refreshed.");
+        }
+
+        private void AddNewInstallations(List<Installation> installations)
+        {
             foreach (Installation installation in installations)
             {
                 InstallationViewModel? viewModel = InstallationViews.FirstOrDefault(view => view.Installation.InstallationId == installation.InstallationId);
@@ -115,9 +123,11 @@ namespace UnitystationLauncher.ViewModels
                     InstallationViews.Add(new(installation, _installationService));
                 }
             }
+        }
 
-            // Remove old
-            for (int i = 0; i < InstallationViews.Count; i++)
+        private void RemoveDeletedInstallations(List<Installation> installations)
+        {
+            for (int i = InstallationViews.Count - 1; i >= 0; i--)
             {
                 InstallationViewModel viewModel = InstallationViews[i];
                 Installation? installation = installations.FirstOrDefault(inst => inst.InstallationId == viewModel.Installation.InstallationId);
@@ -125,12 +135,8 @@ namespace UnitystationLauncher.ViewModels
                 if (installation == null)
                 {
                     InstallationViews.Remove(viewModel);
-                    i--;
                 }
             }
-
-            Refresh();
-            Log.Debug("Installations list has been refreshed.");
         }
 
         private void SaveChoice()

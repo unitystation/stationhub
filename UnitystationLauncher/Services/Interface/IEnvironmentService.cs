@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnitystationLauncher.Models.Enums;
 
 namespace UnitystationLauncher.Services.Interface;
@@ -24,4 +25,12 @@ public interface IEnvironmentService
     /// </summary>
     /// <returns>True if the update check should be disabled, false otherwise.</returns>
     public bool ShouldDisableUpdateCheck();
+
+    /// <summary>
+    ///   Gets the process start info for the provided game executable.
+    /// </summary>
+    /// <param name="executable">The game executable path</param>
+    /// <param name="arguments">The args to pass to the game</param>
+    /// <returns>The ProcessStartInfo for the current environment, otherwise `null` if the environment is unhandled</returns>
+    public ProcessStartInfo? GetGameProcessStartInfo(string executable, string arguments);
 }

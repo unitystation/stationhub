@@ -30,7 +30,11 @@ namespace UnitystationLauncher
         {
             IEnvironmentService environmentService = _container.Resolve<IEnvironmentService>();
             Log.Logger = new LoggerConfiguration()
+#if DEBUG
                 .MinimumLevel.Verbose()
+#else
+                .MinimumLevel.Information()
+#endif
                 .WriteTo.File(Path.Combine(environmentService.GetUserdataDirectory(), "Logs", "Launcher.log"), rollingInterval: RollingInterval.Day)
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
