@@ -48,7 +48,8 @@ namespace UnitystationLauncher.ViewModels
             PreferencesPanelViewModel preferencesPanel,
             IHubService hubService,
             IPreferencesService preferencesService,
-            IEnvironmentService environmentService)
+            IEnvironmentService environmentService,
+            SecurityPanelViewModel securityPanel)
         {
             _hubUpdateVm = hubUpdateVm;
             _hubService = hubService;
@@ -59,7 +60,7 @@ namespace UnitystationLauncher.ViewModels
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
-            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
+            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel, securityPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
@@ -70,7 +71,8 @@ namespace UnitystationLauncher.ViewModels
             NewsPanelViewModel newsPanel,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,
-            PreferencesPanelViewModel preferencesPanel)
+            PreferencesPanelViewModel preferencesPanel,
+            SecurityPanelViewModel securityPanel)
         {
             List<PanelBase> panelBases = new();
 
@@ -92,6 +94,11 @@ namespace UnitystationLauncher.ViewModels
             if (preferencesPanel.IsEnabled)
             {
                 panelBases.Add(preferencesPanel);
+            }
+
+            if (securityPanel.IsEnabled)
+            {
+                panelBases.Add(securityPanel);
             }
 
             return panelBases.ToArray();
