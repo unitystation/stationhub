@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using System.Reactive;
-using System.Diagnostics;
+using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.Api.Changelog;
 using UnitystationLauncher.Services.Interface;
@@ -60,10 +60,12 @@ namespace UnitystationLauncher.ViewModels
 
         private void FetchBlogPosts()
         {
-            List<BlogPost>? blogPosts = _blogService.GetBlogPosts(5);
 
-            if (blogPosts != null)
+
+            try
             {
+                List<BlogPost> blogPosts = _blogService.GetBlogPosts(5);
+
                 foreach (BlogPost post in blogPosts)
                 {
                     string title = post.Title;
@@ -83,6 +85,16 @@ namespace UnitystationLauncher.ViewModels
 
                     BlogPosts.Add(new(title, link, summary, date, image));
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"Error fetching blog posts, adding default. Exception: {e.Message}");
+                BlogPosts.Add(new(
+                    "Error fetching blog posts", 
+                    LinkUrls.BlogBaseUrl, 
+                    "Click here to check the website for blog posts.", 
+                    DateOnly.FromDateTime(DateTime.Now), 
+                    null));
             }
         }
 

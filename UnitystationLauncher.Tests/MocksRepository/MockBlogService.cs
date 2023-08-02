@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Moq;
 using UnitystationLauncher.Models.Api.Changelog;
@@ -24,6 +25,13 @@ public class MockBlogService
         Mock<IBlogService> mock = new();
         mock.Setup(x => x.GetBlogPosts(It.IsAny<int>())).Returns(blogPosts);
 
+        return mock.Object;
+    }
+
+    public static IBlogService ThrowsException()
+    {
+        Mock<IBlogService> mock = new();
+        mock.Setup(x => x.GetBlogPosts(It.IsAny<int>())).Throws<Exception>();
         return mock.Object;
     }
 }
