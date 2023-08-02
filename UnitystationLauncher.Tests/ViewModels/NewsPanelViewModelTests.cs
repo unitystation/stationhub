@@ -1,8 +1,6 @@
-using FluentAssertions;
 using UnitystationLauncher.Services.Interface;
 using UnitystationLauncher.Tests.MocksRepository;
 using UnitystationLauncher.ViewModels;
-using Xunit;
 
 namespace UnitystationLauncher.Tests.ViewModels;
 
