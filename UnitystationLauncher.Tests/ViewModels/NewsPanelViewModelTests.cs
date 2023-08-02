@@ -18,7 +18,7 @@ public static class NewsPanelViewModelTests
         newsPanelViewModel.BlogPosts.Count.Should().Be(3);
         newsPanelViewModel.NewsHeader.Should().Be("News (1/3)");
     }
-    
+
     [Fact]
     public static void NewsPanelViewModel_ShouldHandleExceptionInBlogService()
     {

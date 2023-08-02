@@ -90,10 +90,10 @@ namespace UnitystationLauncher.ViewModels
             {
                 Log.Error($"Error fetching blog posts, adding default. Exception: {e.Message}");
                 BlogPosts.Add(new(
-                    "Error fetching blog posts", 
-                    LinkUrls.BlogBaseUrl, 
-                    "Click here to check the website for blog posts.", 
-                    DateOnly.FromDateTime(DateTime.Now), 
+                    "Error fetching blog posts",
+                    LinkUrls.BlogBaseUrl,
+                    "Click here to check the website for blog posts.",
+                    DateOnly.FromDateTime(DateTime.Now),
                     null));
             }
         }
