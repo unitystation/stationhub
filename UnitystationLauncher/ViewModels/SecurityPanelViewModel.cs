@@ -86,6 +86,12 @@ public class SecurityPanelViewModel : PanelBase
     //GUIUtility
     //GUI?
     //ImageConversion 
+    //Profiling.Profiler -> .GetMonoUsedSizeLong(), EndSample(), .BeginSample(string);
+    //PlayerPrefs?
+    //Application
+    //UnityEngine.Resources
+    //Addressables
+    //Unity.Collections.NativeArray
     
     //TODO Stuff with annoying file access
     //profiler + messages to delete and add

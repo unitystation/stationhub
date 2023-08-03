@@ -2027,6 +2027,12 @@
 			"Shader":{
 				"All": true
 			},
+			"Space":{
+				"All": true
+			},
+			"SerializeReference":{
+				"All": true
+			},
 			"Material":{
 				"All": true
 			},
@@ -2035,13 +2041,178 @@
 			},
 			"AudioClip" : {
 				"All": true
+			},
+			"Screen" : {
+				"All": true
+			},
+			"RuntimePlatform" : {
+				"All": true
+			},
+			"Resolution" : {
+				"All": true
+			},
+			"RequireComponent" : {
+				"All": true
+			},
+			"RenderTextureFormat" : {
+				"All": true
+			},
+			"Renderer" : {
+				"All": true
+			},
+			"RectTransform" : {
+				"All": true
+			},
+			"RectOffset" : {
+				"All": true
+			},
+			"RectInt" : {
+				"All": true
+			},
+			"QualitySettings" : {
+				"All": true
+			},
+			"PlayerPrefs" : {
+				"All": true
+			},
+			"MinAttribute" : {
+				"All": true
+			},
+			"MeshRenderer" : {
+				"All": true
+			},
+			"MaterialPropertyBlock" : {
+				"All": true
+			},
+			"LogType" : {
+				"All": true
+			},
+			"Keyframe" : {
+				"All": true
+			},
+			"Keyframe" : {
+				"All": true
+			},
+			"KeyCode" : {
+				"All": true
+			},
+			"HideFlags" : {
+				"All": true
+			},
+			"HeaderAttribute" : {
+				"All": true
+			},
+			"Graphics" : {
+				"All": true
+			},
+			"GradientAlphaKey" : {
+				"All": true
+			},
+			"Gradient" : {
+				"All": true
+			},
+			"Gizmos" : {
+				"All": true
+			},
+			"FullScreenMode" : {
+				"All": true
+			},
+			"ExecuteInEditMode" : {
+				"All": true
+			},
+			"DrivenTransformProperties" : {
+				"All": true
+			},
+			"DrivenRectTransformTracker" : {
+				"All": true
+			},
+			"DisallowMultipleComponent" : {
+				"All": true
+			},
+			"CursorMode" : {
+				"All": true
+			},
+			"CursorLockMode" : {
+				"All": true
+			},
+			"Cursor" : {
+				"All": true
+			},
+			"ContextMenu" : {
+				"All": true
+			},
+			"ComputeShader" : {
+				"All": true
+			},
+			"CameraClearFlags" : {
+				"All": true
+			},
+			"AsyncOperation" : {
+				"All": true
+			},
+			"Application" : {
+		
+			},
+			"AnimationCurve" : {
+				"All": true
+			},
+			"AddComponentMenu" : {
+				"All": true
+			},
+			"CanBeNullAttribute" : {
+				"All": true
+			},
+			"AudioSourceCurveType" : {
+				"All": true
+			},
+			"AudioRolloffMode" : {
+				"All": true
+			},
+			"AudioListener" : {
+				"All": true
+			},
+			"Animator" : {
+				"All": true
+			},
+			"SendMessageOptions" : {
+				"All": true
+			},
+			"SelectionBaseAttribute" : {
+				"All": true
+			},
+			"ScreenOrientation" : {
+				"All": true
+			},
+			"FilterMode" : {
+				"All": true
+			},
+			"Resources" : {
+				"All": true
 			}
         },
 		"UnityEngine.Events" :{
+			"UnityEvent":{
+				"All": true
+			},
 			"UnityEvent`1":{
 				"All": true
 			},
 			"UnityEvent`2":{
+				"All": true
+			},
+			"UnityEvent`3":{
+				"All": true
+			},
+			"UnityEvent`4":{
+				"All": true
+			},
+			"UnityEvent`5":{
+				"All": true
+			},
+			"UnityEvent`6":{
+				"All": true
+			},
+			"UnityAction":{
 				"All": true
 			},
 			"UnityAction`1":{
@@ -2049,11 +2220,20 @@
 			},
 			"UnityAction`2":{
 				"All": true
-			}
-			,
-			"UnityEvent":{
+			},
+			"UnityAction`3":{
 				"All": true
-			}
+			},
+			"UnityAction`4":{
+				"All": true
+			},
+			"UnityEventCallState":{
+				"All": true
+			},
+			"UnityEventBase":{
+				"All": true
+			},
+		
 		},
 		"UnityEngine.UI":{
 			"Dropdown":{
@@ -2231,8 +2411,12 @@
 			"TilemapRenderer":{
 				"All": true
 			},
-			
-			
+			"TileAnimationData" : {
+				"All": true
+			},
+			"Tile" : {
+				"All": true
+			}	
 		},
 		"UnityEngine.Video":{
 			"VideoPlayer":{
@@ -2242,6 +2426,92 @@
 				"All": true
 			},
 			
+		},
+		"UnityEngine.SceneManagement":{
+			"SceneUtility":{
+				"All": true
+			},
+			"SceneManager":{
+				"All": true
+			},
+			"Scene":{
+				"All": true
+			},
+			"LoadSceneMode":{
+				"All": true
+			},
+
+		},
+		"UnityEngine.Rendering":{
+			"SortingGroup":{
+				"All": true
+			},
+			"GraphicsDeviceType":{
+				"All": true
+			},
+		},
+		"UnityEngine.Profiling" :{
+			
+			"Profiler":{
+				
+			},
+			"CustomSampler":{
+				"All": true
+			},
+		},
+		"UnityEngine.Pool" : {
+			"PooledObject`1":{
+				"All": true
+			},
+			"CollectionPool`1":{
+				"All": true
+			},
+			"CollectionPool`2":{
+				"All": true
+			},
+		},
+		"UnityEngine.Audio" : {
+			"AudioMixerGroup":{
+				"All": true
+			},
+			"AudioMixer":{
+				"All": true
+			}
+		},
+		"UnityEngine.Animations" : {
+			"ParentConstraint":{
+				"All": true
+			},
+			"ConstraintSource":{
+				"All": true
+			},
+		},
+		"UnityEngine.Serialization" : {
+			"FormerlySerializedAsAttribute":{
+				"All": true
+			},
+		},
+		"UnityEngine.ResourceManagement.ResourceLocations" : {
+			"IResourceLocation":{
+				"All": true
+			},
+		},
+		"UnityEngine.ResourceManagement.AsyncOperations" : {
+			"AsyncOperationStatus":{
+				"All": true
+			},
+			"AsyncOperationHandle":{
+				"All": true
+			},
+			"AsyncOperationHandle`1":{
+				"All": true
+			},
+			
+		},
+		"JetBrains.Annotations" : {
+			"CanBeNullAttribute":{
+				"All": true
+			},
 		},
         "Mirror": {
 			"Reader`1":{
