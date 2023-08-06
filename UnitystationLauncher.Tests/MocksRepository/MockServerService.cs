@@ -22,7 +22,7 @@ public static class MockServerService
     };
 
     private static readonly Random _random = new();
-    
+
     public static IServerService RandomServersRange(int min, int max)
     {
         Mock<IServerService> mockServerService = new();
@@ -32,7 +32,7 @@ public static class MockServerService
 
         return mockServerService.Object;
     }
-    
+
     public static IServerService ThrowsException()
     {
         Mock<IServerService> mockServerService = new();

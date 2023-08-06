@@ -13,7 +13,7 @@ public static class MockPingService
             .ReturnsAsync($"{pingTime}ms");
         return mock.Object;
     }
-    
+
     public static IPingService NullPingTime()
     {
         Mock<IPingService> mock = new();

@@ -14,7 +14,7 @@ public static class ServersPanelViewModelTests
         IInstallationService mockInstallationService = MockInstallationService.NoActiveDownloads();
         IPingService mockPingService = MockPingService.StaticPingTime(5);
         IServerService mockServerService = MockServerService.RandomServersRange(1, 20);
-        
+
         ServersPanelViewModel serversPanelViewModel = new(mockInstallationService, mockPingService, mockServerService);
         serversPanelViewModel.ServerViews.Should().NotBeEmpty();
     }

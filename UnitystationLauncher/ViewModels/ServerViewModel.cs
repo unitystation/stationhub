@@ -55,7 +55,7 @@ public class ServerViewModel : ViewModelBase
 
         RxApp.MainThreadScheduler.ScheduleAsync(GetPing);
     }
-    
+
     public void LaunchGame()
     {
         if (Installation == null)
@@ -66,7 +66,7 @@ public class ServerViewModel : ViewModelBase
 
         _installationService.StartInstallation(Installation.InstallationId, Server.ServerIp, (short)Server.ServerPort);
     }
-    
+
     private async Task GetPing(IScheduler scheduler, CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
@@ -83,7 +83,7 @@ public class ServerViewModel : ViewModelBase
             Ping = "Error";
             Log.Error($"Error while trying to ping: {e.Message}");
         }
-        
+
         this.RaisePropertyChanged(nameof(Ping));
     }
 

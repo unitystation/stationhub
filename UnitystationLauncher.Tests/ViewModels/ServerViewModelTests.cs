@@ -14,12 +14,12 @@ public static class ServerViewModelTests
         Server server = new("UnitTestStation", 0, "127.0.0.1", 12345);
         IInstallationService mockInstallationService = MockInstallationService.NoActiveDownloads();
         IPingService mockPingService = MockPingService.StaticPingTime(5);
-        
+
         ServerViewModel serverViewModel = new(server, mockInstallationService, mockPingService);
 
         serverViewModel.Ping.Should().Be("5ms");
     }
-    
+
     [Fact]
     public static void ServerViewModel_ShouldHandleNullPingTime()
     {
@@ -31,7 +31,7 @@ public static class ServerViewModelTests
 
         act.Should().NotThrow();
     }
-    
+
     [Fact]
     public static void ServerViewModel_ShouldHandleExceptionFromPingService()
     {
@@ -45,7 +45,7 @@ public static class ServerViewModelTests
         act.Invoke().Ping.Should().Be("Error");
     }
     #endregion
-    
+
     #region ServerViewModel.LaunchGame
     [Fact]
     public static void LaunchGame_ShouldHandleNullInstallation()
@@ -53,9 +53,9 @@ public static class ServerViewModelTests
         Server server = new("UnitTestStation", 0, "127.0.0.1", 12345);
         IInstallationService mockInstallationService = MockInstallationService.NoActiveDownloads();
         IPingService mockPingService = MockPingService.StaticPingTime(5);
-        
+
         ServerViewModel serverViewModel = new(server, mockInstallationService, mockPingService);
-        
+
         Action act = () => serverViewModel.LaunchGame();
         act.Should().NotThrow();
     }

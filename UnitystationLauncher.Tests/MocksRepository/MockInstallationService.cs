@@ -10,7 +10,7 @@ public static class MockInstallationService
         Mock<IInstallationService> mockInstallationService = new();
         mockInstallationService.Setup(x => x.GetInProgressDownload(It.IsAny<string>(), It.IsAny<int>()))
             .Returns(null as Download);
-        
+
         return mockInstallationService.Object;
     }
 }

@@ -32,7 +32,7 @@ public class PingService : IPingService
         {
             return await FlatpakGetPingTime(server);
         }
-        
+
         try
         {
             using Ping ping = new();
@@ -46,7 +46,7 @@ public class PingService : IPingService
             return "Error";
         }
     }
-    
+
     // Ping does not work in the Flatpak sandbox so we have to reconstruct its functionality in that case.
     // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
     private async Task<string> FlatpakGetPingTime(Server server)
@@ -65,7 +65,7 @@ public class PingService : IPingService
 
         pingSender.Start();
         await pingSender.WaitForExitAsync();
-        
+
         StreamReader reader = pingSender.StandardOutput;
         string pingRawOutput = await reader.ReadToEndAsync();
         Match matchedPingOutput = new Regex(@"time=(.*?)\ ").Match(pingRawOutput);
