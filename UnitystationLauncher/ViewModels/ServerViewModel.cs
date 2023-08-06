@@ -74,7 +74,16 @@ public class ServerViewModel : ViewModelBase
             return;
         }
 
-        Ping = await _pingService.GetPing(Server);
+        try
+        {
+            Ping = await _pingService.GetPing(Server);
+        }
+        catch (Exception e)
+        {
+            Ping = "Error";
+            Log.Error($"Error while trying to ping: {e.Message}");
+        }
+        
         this.RaisePropertyChanged(nameof(Ping));
     }
 

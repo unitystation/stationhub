@@ -63,7 +63,16 @@ public class ServersPanelViewModel : PanelBase
 
     private async Task RefreshServersList()
     {
-        List<Server> servers = await _serverService.GetServersAsync();
+        List<Server> servers;
+        try
+        {
+            servers = await _serverService.GetServersAsync();
+        }
+        catch (Exception e)
+        {
+            servers = new();
+            Log.Error($"Error while fetching servers list: {e.Message}");
+        }
 
         AddNewServers(servers);
         RemoveDeletedServers(servers);
