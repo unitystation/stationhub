@@ -41,63 +41,19 @@ public class ServerViewModel : ViewModelBase
     public bool ShowStartButton => Installation != null;
 
     private readonly IInstallationService _installationService;
-    private readonly IEnvironmentService _environmentService;
+    private readonly IPingService _pingService;
 
-    public ServerViewModel(Server server, IEnvironmentService environmentService, IInstallationService installationService)
+    public ServerViewModel(Server server, IInstallationService installationService, IPingService pingService)
     {
         Server = server;
         Ping = string.Empty;
 
         _installationService = installationService;
-        _environmentService = environmentService;
+        _pingService = pingService;
 
         Download = _installationService.GetInProgressDownload(server.ForkName, server.BuildVersion);
 
-        GetPingTime();
-    }
-
-    private void GetPingTime()
-    {
-        if (Server.HasValidDomainName || Server.HasValidIpAddress)
-        {
-            if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.LinuxFlatpak)
-            {
-                Task.Run(FlatpakGetPingTime);
-            }
-            else
-            {
-                try
-                {
-                    using Ping ping = new();
-                    ping.PingCompleted += PingCompletedCallback;
-                    ping.SendAsync(Server.ServerIp, null);
-                }
-                catch (ArgumentException e)
-                {
-                    Log.Error("Error: {Error}", $"Invalid IP address when trying to ping server: {e.Message}");
-                    Ping = "Error";
-                }
-            }
-        }
-        else
-        {
-            Log.Error("Error: {Error}", $"Server '{Server.ServerName}' has an invalid ip address, skipping ping...");
-            Ping = "Bad IP";
-        }
-    }
-
-    private void PingCompletedCallback(object _, PingCompletedEventArgs eventArgs)
-    {
-        // If an error occurred, display the exception to the user.  
-        if (eventArgs.Error != null)
-        {
-            Log.Error("Ping failed: {Error}", eventArgs.Error);
-            return;
-        }
-
-        long? tripTime = eventArgs.Reply?.RoundtripTime;
-        Ping = tripTime.HasValue ? $"{tripTime.Value}ms" : "null";
-        this.RaisePropertyChanged(nameof(Ping));
+        RxApp.MainThreadScheduler.ScheduleAsync(GetPing);
     }
 
     public void LaunchGame()
@@ -111,35 +67,29 @@ public class ServerViewModel : ViewModelBase
         _installationService.StartInstallation(Installation.InstallationId, Server.ServerIp, (short)Server.ServerPort);
     }
 
-    // Ping does not work in the Flatpak sandbox so we have to reconstruct its functionality in that case.
-    // Surprisingly, this is basically what that does. Looks for your system's ping tool and parses its output.
-    private async Task FlatpakGetPingTime()
+    private async Task GetPing(IScheduler scheduler, CancellationToken cancellationToken)
     {
-        using Process pingSender = new()
+        if (cancellationToken.IsCancellationRequested)
         {
-            StartInfo = new()
-            {
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                FileName = "ping",
-                Arguments = $"{Server.ServerIp} -c 1"
-            }
-        };
+            return;
+        }
 
-        pingSender.Start();
-        StreamReader reader = pingSender.StandardOutput;
-        string pingRawOutput = await reader.ReadToEndAsync();
-        Match matchedPingOutput = new Regex(@"time=(.*?)\ ").Match(pingRawOutput);
-        string pingOut = matchedPingOutput.Groups[1].ToString();
-        Ping = $"{pingOut}ms";
+        try
+        {
+            Ping = await _pingService.GetPing(Server);
+        }
+        catch (Exception e)
+        {
+            Ping = "Error";
+            Log.Error($"Error while trying to ping: {e.Message}");
+        }
+
         this.RaisePropertyChanged(nameof(Ping));
-        await pingSender.WaitForExitAsync();
     }
 
     public override void Refresh()
     {
-        GetPingTime();
+        RxApp.MainThreadScheduler.ScheduleAsync(GetPing);
         RefreshDownloadingStatus();
         this.RaisePropertyChanged(nameof(Server));
         this.RaisePropertyChanged(nameof(Server.ServerName));

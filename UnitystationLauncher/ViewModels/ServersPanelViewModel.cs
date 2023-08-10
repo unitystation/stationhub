@@ -29,13 +29,13 @@ public class ServersPanelViewModel : PanelBase
     private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(10);
 
     private readonly IInstallationService _installationService;
-    private readonly IEnvironmentService _environmentService;
+    private readonly IPingService _pingService;
     private readonly IServerService _serverService;
 
-    public ServersPanelViewModel(IInstallationService installationService, IEnvironmentService environmentService, IServerService serverService)
+    public ServersPanelViewModel(IInstallationService installationService, IPingService pingService, IServerService serverService)
     {
         _installationService = installationService;
-        _environmentService = environmentService;
+        _pingService = pingService;
         _serverService = serverService;
 
         DownloadCommand = ReactiveCommand.Create<ServerViewModel, Unit>(server =>
@@ -63,7 +63,16 @@ public class ServersPanelViewModel : PanelBase
 
     private async Task RefreshServersList()
     {
-        List<Server> servers = await _serverService.GetServersAsync();
+        List<Server> servers;
+        try
+        {
+            servers = await _serverService.GetServersAsync();
+        }
+        catch (Exception e)
+        {
+            servers = new();
+            Log.Error($"Error while fetching servers list: {e.Message}");
+        }
 
         AddNewServers(servers);
         RemoveDeletedServers(servers);
@@ -82,7 +91,7 @@ public class ServersPanelViewModel : PanelBase
 
             if (viewModel == null)
             {
-                ServerViews.Add(new(server, _environmentService, _installationService));
+                ServerViews.Add(new(server, _installationService, _pingService));
             }
             else
             {
