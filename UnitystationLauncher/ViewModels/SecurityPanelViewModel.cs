@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using Serilog;
 using UnitystationLauncher.ContentScanning;
 
@@ -22,6 +23,10 @@ public class SecurityPanelViewModel : PanelBase
     {
     }
 
+    //TODO 
+    //Linking with build to handle URL/APi allowed Host check By user
+    
+    
     //TODO
     // in-memory virtual file system
     //UnityPlayer.dll?? look in to
@@ -37,6 +42,10 @@ public class SecurityPanelViewModel : PanelBase
     // if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))  Potential security+
     //Generic maybe not allowed???:
     //return true; //RRT 
+    //Big old try catch to catch any naughties, That deletes and cancels the Scan
+    //Delete scanning before doing process
+    //Check the multi-assembly stuff, make sure you can't do any naughty with name matching and stuff
+    //tool to Make a PR Auto to add Two white lists, if PR violates White list
     //TODO Double check added stuff
     // UnityEngine.Events
     // UnityEngine.Events.UnityAction TODO Looking 
@@ -62,9 +71,7 @@ public class SecurityPanelViewModel : PanelBase
     // "Chemistry"
     // "Shared"
     //debug why logger Is not being added
-    //TO PULL out hehhe
-    //Verbal viewer
-    //Synth
+
     
     //BAD Look out for
     //System.Diagnostics.Process
@@ -93,12 +100,12 @@ public class SecurityPanelViewModel : PanelBase
     //Addressables
     //Unity.Collections.NativeArray
     
-    //TODO Stuff with annoying file access
-    //profiler + messages to delete and add
+    //TO PULL out hehhe
+    //Verbal viewer
+    //Synth
     //BuildPreferences == If editor
-    //admin/PlayerList So many file watches ;n;
-    //Application.OpenURL()
-
+    //NetworkManagerExtensions
+    
     public void OnClickCommand()
     {
         //TODO remove exes
@@ -113,6 +120,9 @@ public class SecurityPanelViewModel : PanelBase
         CopyFilesRecursively(Stagingdirectory.ToString(), Processingdirectory.ToString());
         DeleteFilesWithExtension(Processingdirectory.ToString(), "exe");
 
+
+        
+        
         // Get all files in the directory
         var Directories = Processingdirectory.GetDirectories();
 
@@ -143,19 +153,36 @@ public class SecurityPanelViewModel : PanelBase
 
         var DLLDirectory = Datapath.CreateSubdirectory("Managed");
 
-
+     
+        
+        DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "GoodFiles", "VDev","Managed"));
+        var GoodFiles = GoodFileCopy.GetFiles().Select(x=>x.Name).ToList();
+        
+        CopyFilesRecursively(GoodFileCopy.ToString(), DLLDirectory.ToString());
+        
         var Files = DLLDirectory.GetFiles();
 
         List<FileInfo> ToDelete = new List<FileInfo>();
 
+        List<string> MultiAssemblyReference = new List<string>();
+
         foreach (var File in Files)
         {
-            if (File.Name == "mscorlib.dll") continue; //TODO TEMP Causes an error If it's passed by itself
-             //DO Scan
+            if (GoodFiles.Contains(File.Name)) continue;
+            MultiAssemblyReference.Add( Path.GetFileNameWithoutExtension(File.Name));
+        }
+
+        
+        foreach (var File in Files)
+        {
+            if (GoodFiles.Contains(File.Name)) continue;
+            //DO Scan
             Log.Information("TODO Scanning " + File);
             try
             {
-                if (MakeTypeChecker().CheckAssembly(File, DLLDirectory) == false)
+                var Listy = MultiAssemblyReference.ToList();
+                Listy.Remove(Path.GetFileNameWithoutExtension(File.Name));
+                if (MakeTypeChecker().CheckAssembly(File, DLLDirectory, Listy) == false)
                 { 
                     ToDelete.Add(File);
                     
@@ -164,15 +191,25 @@ public class SecurityPanelViewModel : PanelBase
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                //TODO Explode
             }
         }
-
-
+        
+        
         foreach (var File in ToDelete)
         {
             File.Delete();
         }
         
+        Files = DLLDirectory.GetFiles();
+
+        var ToRemove = Files.Where(x => GoodFiles.Contains(x.Name)); //TODO Is temp, just to see what past And as provided
+
+        foreach (var File in ToRemove)
+        {
+            File.Delete();
+        }
+
         //TODO 
         //Drop-in good exes and rename
         //move to "finished" folder

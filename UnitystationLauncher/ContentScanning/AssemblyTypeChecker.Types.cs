@@ -38,7 +38,7 @@ internal sealed partial class AssemblyTypeChecker
 
         public override string ToString()
         {
-            return $"{ReturnType} {ParentType}.{Name}({string.Join(", ", ParameterTypes)})";
+            return $"{ParentType}.{Name}({string.Join(", ", ParameterTypes)}) Returns {ReturnType}";
         }
     }
 
@@ -53,7 +53,7 @@ internal sealed partial class AssemblyTypeChecker
 
         public override string ToString()
         {
-            return $"{FieldType} {ParentType}.{Name}";
+            return $"{ParentType}.{Name} Returns {FieldType}";
         }
     }
 

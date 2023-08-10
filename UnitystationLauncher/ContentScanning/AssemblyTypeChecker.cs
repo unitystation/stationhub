@@ -132,7 +132,7 @@ internal sealed partial class AssemblyTypeChecker
     /// </summary>
     /// <param name="assembly">Assembly to load.</param>
     /// <returns></returns>
-    public bool CheckAssembly(Stream assembly, DirectoryInfo ManagedPath)
+    public bool CheckAssembly(Stream assembly, DirectoryInfo ManagedPath, List<string> OtherAssemblies)
     {
         var fullStopwatch = Stopwatch.StartNew();
 
@@ -150,7 +150,7 @@ internal sealed partial class AssemblyTypeChecker
 
         if (VerifyIL)
         {
-            if (!DoVerifyIL(asmName, resolver, peReader, reader))
+            if (DoVerifyIL(asmName, resolver, peReader, reader) == false)
             {
                 return false;
             }
@@ -203,6 +203,9 @@ internal sealed partial class AssemblyTypeChecker
         var loadedConfig = _config.Result;
 #pragma warning restore RA0004
 
+        loadedConfig.WhitelistedAssembliesDEBUG.Clear();
+        loadedConfig.WhitelistedAssembliesDEBUG.AddRange(OtherAssemblies);
+        
         // We still do explicit type reference scanning, even though the actual whitelists work with raw members.
         // This is so that we can simplify handling of generic type specifications during member checking:
         // we won't have to check that any types in their type arguments are whitelisted.
@@ -337,7 +340,7 @@ internal sealed partial class AssemblyTypeChecker
         var type = GetTypeFromDefinition(reader, method.GetDeclaringType());
 
         return
-            $"{methodSig.ReturnType} {type}.{reader.GetString(method.Name)}({string.Join(", ", methodSig.ParameterTypes)})";
+            $"{type}.{reader.GetString(method.Name)}({string.Join(", ", methodSig.ParameterTypes)}) Returns {methodSig.ReturnType} ";
     }
 
     [SuppressMessage("ReSharper", "BitwiseOperatorOnEnumWithoutFlags")]
@@ -1115,11 +1118,11 @@ internal sealed partial class AssemblyTypeChecker
         }
     }
 
-    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo ManagedPath)
+    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo ManagedPath, List<string> OtherAssemblies)
     {
         using var file = diskPath.OpenRead();
 
-        return CheckAssembly(file, ManagedPath);
+        return CheckAssembly(file, ManagedPath, OtherAssemblies);
     }
 
     private static string? NilNullString(MetadataReader reader, StringHandle handle)

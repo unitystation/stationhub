@@ -14,9 +14,103 @@
 		"SerializableDictionary",
 		"Chemistry",
 		"Shared",
-		"Utils"
+		"Utils",
+
 	],
     "Types": {
+		"WebSocketSharp":{
+			"MessageEventArgs":{
+				"All": true
+			}, 
+			"Ext" :{
+				"All": true
+			},
+			"CloseEventArgs" :{
+				"All": true
+			},
+			"WebSocketState" :{
+				"All": true
+			},
+			"WebSocket":{
+				"All": true
+			}
+		},
+		"WebSocketSharp.Server":{
+			"HttpServer":{
+				"All": true
+			},
+			"WebSocketBehavior" :{
+				"All": true
+			},
+			"WebSocketSessionManager": {
+				"All": true
+			},
+			"WebSocketBehavior":{
+				"All": true
+			},
+			"IWebSocketSession" : {
+				"All": true
+			},
+			"WebSocketServiceManager" :{
+				"All": true
+			}
+		},
+		"WebSocketSharp.Net.WebSockets" :{
+			"WebSocketContext":{
+				"All": true
+			}
+		},
+		"WebSocketSharp.Net" :{
+			"NetworkCredential":{
+				"All": true
+			},
+			"AuthenticationSchemes" :{
+				"All": true
+			}
+		},
+		"System.Collections.Specialized" : {
+			"NotifyCollectionChangedEventHandler" : {
+				"All": true
+			},
+			"NotifyCollectionChangedEventArgs" : {
+				"All": true
+			},
+		},
+		"System.ComponentModel" : {
+			"TypeDescriptor": {
+            },
+			"DescriptionAttribute" : {
+				
+			}
+		},
+		"System.Diagnostics"  : {
+			"Process": {
+            },
+		},
+		"System.Security.Principal" :{
+			"IIdentity": {
+                "All": true
+            },
+			"IPrincipal": {
+                "All": true
+            },
+		},
+		"System.Runtime.CompilerServices": {
+            "DecimalConstantAttribute": {
+                "All": true
+            },
+			"ConfiguredTaskAwaitable" : {
+				 "All": true
+			},
+			"CallerMemberNameAttribute" : {
+				"All": true
+			}
+        },
+		"System.Drawing": {
+            "Color": {
+                "All": true
+            }
+        },
         "System.Buffers": {
             "SpanAction`2": {
                 "All": true
@@ -190,8 +284,25 @@
         "System.Collections.Specialized": {
             "NameValueCollection": {
                 "All": true
-            }
+            },
+			"NotifyCollectionChangedEventHandler" : {
+				"All": true
+			},
+			"NotifyCollectionChangedEventArgs" : {
+				"All": true
+			}	
         },
+		"System.Collections.ObjectModel" : {
+			"ObservableCollection`1" : {
+				"All": true
+			},
+			"ReadOnlyCollection`1" : {
+				"All": true
+			},
+			"Collection`1" : {
+				"All": true
+			},
+		},
         "System.Collections.Concurrent": {
             "ConcurrentBag`1": {
                 "All": true
@@ -215,7 +326,16 @@
             },
             "IReadOnlyList`1": {
                 "All": true
-            }
+            },
+            "Collection": {
+                "All": true
+            },
+			"Collection`1": {
+                "All": true
+            },
+			"IList" : {
+			    "All": true
+			}
         },
         "System.ComponentModel": {
             "CancelEventArgs": {
@@ -404,7 +524,12 @@
             },
             "TextWriter": {
                 "All": true
-            }
+            },
+			"Path" : {
+				"Methods": [
+					"string Combine(string, string)"
+				]
+			}
         },
         "System.Linq.Expressions": {
             "ConstantExpression": {},
@@ -439,11 +564,58 @@
             "IPAddress": {
                 "All": true
             },
-            "HttpStatusCode": {}
+            "HttpStatusCode": {
+				"All": true
+			},
+			"HttpStatusCode": {
+				"All": true
+			},
         },
+		"System.Net.Http" : {
+			"StringContent" : {
+				"All": true
+			},
+			"HttpResponseMessage" : {
+				"All": true
+			},
+			"HttpRequestMessage" : {
+				"All": true
+			},
+			"HttpRequestException" : {
+				"All": true
+			},
+			"HttpMethod" : {
+				"All": true
+			}, 
+			"HttpContent" : {
+				"All": true
+			},
+		},
+		"System.Net.Http.Headers" : {
+			"MediaTypeWithQualityHeaderValue" : {
+				"All": true
+			},
+			"HttpResponseHeaders" : {
+				"All": true
+			},
+			"HttpHeaderValueCollection`1" : {
+				"All": true
+			},
+			"HttpHeaders" : {
+				"All": true
+			}
+		},
         "System.Net.Sockets": {
             "AddressFamily": {}
         },
+		"System.Net.NetworkInformation" : {
+			"PhysicalAddress" : {
+				"All": true
+			},
+			"NetworkInterface" : {
+				"All": true
+			}
+		},
         "System.Numerics": {
             "BitOperations": {
                 "All": true
@@ -873,7 +1045,10 @@
             },
             "ValueTask`1": {
                 "All": true
-            }
+            },
+			"TaskScheduler" : {
+				
+			}
         },
         "System.Threading": {
             "CancellationToken": {
@@ -887,7 +1062,31 @@
             },
             "Monitor": {
                 "All": true
-            }
+            },
+			"Thread": {
+				"Methods" :[
+					"void Start()",
+					"void Sleep(int)",
+					"System.Threading.Thread get_CurrentThread()",
+					"System.Globalization.CultureInfo CurrentCulture()",
+					"void Abort()"
+				]
+			},
+			"ThreadPool" : {
+				
+			},
+			"ThreadStart" : {
+				
+			},
+			"WaitCallback" : {
+				"All": true
+			},
+			"WaitHandle" : {
+				"All": true
+			},
+			"Mutex" : {
+				"All": true
+			}
         },
         "System.Web": {
             "HttpUtility": {
@@ -1120,7 +1319,22 @@
                     "string ToHexString(byte[])",
                     "string ToHexString(byte[], int, int)",
                     "string ToHexString(System.ReadOnlySpan`1<byte>)",
-					"int ToInt32(string)"
+					"int ToInt32(string)",
+					"int ToInt32(Double)",
+					"int ToInt32(float)",
+					"int ToInt32(System.Decimal)",
+					"float ToSingle(Double)",
+					"ushort ToUInt16(int)",
+					"ushort ToUInt16(float)",
+					"float ToSingle(double)",
+					"int ToInt32(int)",
+					"int ToInt32(double)",
+					"short ToInt16(double)",
+					"double ToDouble(string)",
+					"System.Decimal ToDecimal(int)",
+					"char ToChar(int)",
+					"bool ToBoolean(string)",
+					"short ToInt16(float)",
                 ]
             },
             "Converter`2": {
@@ -1591,7 +1805,8 @@
                     "void .ctor(char[])",
                     "void .ctor(char[], int, int)",
                     "void .ctor(System.ReadOnlySpan`1<char>)",
-                    "void CopyTo(int, char[], int, int)"
+                    "void CopyTo(int, char[], int, int)",
+					"string Copy(string)"
                 ]
             },
             "StringComparison": {},
@@ -1772,6 +1987,9 @@
             "Void": {
                 "All": true
             },
+			"Tuple": {
+                "All": true
+            },
 			"Tuple`1": {
                 "All": true
             },
@@ -1781,6 +1999,37 @@
 			"Tuple`3": {
                 "All": true
             },
+			"TupleExtensions": {
+                "All": true
+            },
+			"IConvertible": {
+                "All": true
+            },
+			"WeakReference" : {
+				 "All": true
+			},
+			"WeakReference`1" : {
+				 "All": true
+			},
+			"ArgumentNullException" : {
+				"All": true
+			},
+			"UriHostNameType" : {
+				"All": true
+			},
+			"Buffer" : {
+				
+			},
+			"AppDomain" : {
+				
+			},
+			"AggregateException" :{
+				"All": true
+			},
+			"Activator" : {
+				
+			}
+
         },
         "UnityEngine": {
             "MonoBehaviour": {
@@ -1836,14 +2085,13 @@
 				"All": true
 			},
 			"Collider2D":{
+				"All": true
 			},
 			"LayerMask":{
 				"All": true
 			},
 			"Physics2D":{
-				"Methods" : [
-					"UnityEngine.Collider2D[] OverlapCircleAll(UnityEngine.Vector2, float, int)",
-				]
+				"All": true
 			},
 			"Mathf":{
 				"All": true
@@ -1894,6 +2142,7 @@
 				"All": true
 			},
 			"Texture2D":{
+				"All": true
 			},
 			"Sprite":{
 				"All": true
@@ -1978,7 +2227,6 @@
 			"Event" : {
 				"All": true
 			},
-
 			"ImageConversion":{
 				
 			},
@@ -2151,7 +2399,19 @@
 				"All": true
 			},
 			"Application" : {
-		
+				"Methods" : [
+					"bool get_isPlaying()",
+					"bool get_isMobilePlatform()",
+					"bool get_isFocused()",
+					"bool get_isEditor()",
+					"bool get_isBatchMode()",
+					"string get_version()",
+					"string get_temporaryCachePath()",
+					"string get_streamingAssetsPath()",
+					"string get_productName()",
+					"string get_persistentDataPath()",
+					"string get_dataPath()",
+				]
 			},
 			"AnimationCurve" : {
 				"All": true
@@ -2187,6 +2447,24 @@
 				"All": true
 			},
 			"Resources" : {
+				"All": true
+			},
+			"AnimatorControllerParameterType" : {
+				"All": true
+			},
+			"AnimatorControllerParameterType" : {
+				"All": true
+			},
+			"ParticleSystem" : {
+				"All": true
+			},
+			"RenderMode":{
+				"All": true
+			},
+			"ParticleSystemRenderer":{
+				"All": true
+			},
+			"GUIStyle":{
 				"All": true
 			}
         },
@@ -2508,6 +2786,27 @@
 			},
 			
 		},
+		"UnityEngine.AddressableAssets" :{
+			"ResourceLocators" :{
+				"All": true
+			},
+			"AssetReference" :{
+				"All": true
+			},
+			"Addressables" : {
+				"All": true
+			}
+		},
+		"UnityEngine.AddressableAssets.ResourceLocators" :{
+			"IResourceLocator" :{
+				"All": true
+			},
+		},
+		"UnityEngine.U2D" : {
+			"PixelPerfectCamera" : {
+				"All": true
+			}
+		},	
 		"JetBrains.Annotations" : {
 			"CanBeNullAttribute":{
 				"All": true
@@ -2596,24 +2895,28 @@
 				"All": true
 			},
 			"NetworkServer":{
-				"Methods" : [
-					"bool get_active()",
-				]
+				"All": true
 			},
 			"NetworkClient":{
-				"Methods" : [
-					"bool get_active()",
-					"Mirror.NetworkConnection get_connection()"
-				]
+				"All": true
 			},
 			"NetworkConnectionToClient":{
+				"All": true
 			},
 			"NetworkWriter":{
+				"Methods" : [
+					"void WriteByte(byte)",
+					"void Write(!!0)",
+				]
 			},
 			"NetworkWriterExtensions":{
 				"All": true
 			},
 			"NetworkReader":{
+				"Methods" : [
+					"!!0 Read()",
+					"byte ReadByte()}"
+				]
 			},
 			"NetworkReaderExtensions":{
 				"All": true
@@ -2625,8 +2928,10 @@
 				"All": true
 			},
 			"NetworkConnection":{
+				"All": true
 			},
 			"NetworkIdentity" :{
+				"All": true
 			},
             "NetworkBehaviour": {
                 "Inherit": "Allow",
@@ -2634,8 +2939,60 @@
             },
             "NetworkMessage": {
 				"All": true
-            }
+            },
+			"SyncList`1": {
+				"All": true
+            },
+			"NetworkManager":{
+				"All": true
+			},
+			"TelepathyTransport":{
+				"Field":[
+					"ushort port"
+				]
+			},
+			"SyncObject" : {
+				"All": true
+			},
+			"Transport" :{
+				"Methods" : [
+					"void Shutdown()",
+					"int GetMaxPacketSize(int)"
+				],
+				
+			},
+			"ServerCallbackAttribute" :{
+				"All": true
+			},
+			"NetworkTime" :{
+				"All": true
+			},
+			"ClientRpcAttribute" : {
+				"All": true
+			},
+			"ClientAttribute" : {
+				"All": true
+			},
+			"Extensions" : {
+				"All": true
+			},
+			"InterestManagement" : {
+				"All": true
+			},
+			"LocalConnectionToClient" : {
+				"All": true
+			},
+			
         },
+		"IgnoranceTransport":{
+			"Ignorance" :{
+				"Fields" : [
+					"int port",
+					"bool serverBindsAll",
+					"string serverBindAddress"
+				]
+			}
+		},
 		"Mirror.RemoteCalls" : {
 			"RemoteCallDelegate":{
 				"Methods" : [
@@ -2650,20 +3007,187 @@
 				]
 			},
 		},
-		"NaughtyAttributes" :
-		{
-			"ShowIfAttribute" :{
-				"All": true
-			}
-		},
-		"Logger" :
-		{
+		"Logger" :{
 			"Logger" :{
 				"All": true
 			},
 			"Category" :{
 				"All": true
 			}
+		},
+		"TMPro" : {
+			"TMP_VertexDataUpdateFlags" : {
+				"All": true
+			},
+			"TMP_TextUtilities" : {
+				"All": true
+			},
+			"TMP_TextInfo" : {
+				"All": true
+			},
+			"TMP_Text" : {
+				"All": true
+			},
+			"TMP_SpriteAsset" : {
+				"All": true
+			},
+			"TMP_MeshInfo" :{
+				"All": true
+			},
+			"TMP_LinkInfo" :{
+				"All": true
+			},
+			"TMP_InputField" :{
+				"All": true
+			},
+			"TMP_FontAsset" :{
+				"All": true
+			},
+			"TMP_Dropdown" :{
+				"All": true
+			},
+			"TMP_CharacterInfo" :{
+				"All": true
+			},
+			"TextMeshProUGUI" :{
+				"All": true
+			},
+			"FontStyles" :{
+				"All": true
+			}
+		},
+		"SecureStuff" : {
+			"SafeURL" : {
+				"All": true
+			},
+			"SafeProfileManager" : {
+				"All": true
+			},
+			"SafeHttpRequest" : {
+				"All": true
+			},
+			"SafeHttpRequest" : {
+				"All": true
+			},
+			"AccessFile" : {
+				"All": true
+			},
+			"FolderType" : {
+				"All": true
+			}
+		},
+		"Newtonsoft.Json" : {
+			"ReferenceLoopHandling" : {
+				"All": true
+			},
+			"PreserveReferencesHandling" : {
+				"All": true
+			},
+			"NullValueHandling" : {
+				"All": true
+			},
+			"JsonWriter" : {
+				"All": true
+			},
+			"JsonSerializerSettings" : {
+				"All": true
+			},
+			"JsonSerializer" : {
+				"All": true
+			},
+			"JsonReader" : {
+				"All": true
+			},
+			"JsonPropertyAttribute" : {
+				"All": true
+			},
+			"JsonIgnoreAttribute" : {
+				"All": true
+			},
+			"JsonConvert" : {
+				"All": true
+			},
+			"Formatting" : {
+				"All": true
+			}
+	
+		},
+		"Newtonsoft.Json.Bson" : {
+			"BsonWriter" : {
+				"All": true
+			},
+			"BsonReader" : {
+				"All": true
+			},
+		},
+		"YamlDotNet.Serialization" :{
+			"IDeserializer" : {
+				"All": true
+			},
+		},
+		"YamlDotNet.RepresentationModel" :{
+			"YamlStream" : {
+				"All": true
+			},
+			"YamlScalarNode" : {
+				"All": true
+			},
+			"YamlNode" : {
+				"All": true
+			},
+			"YamlMappingNode" : {
+				"All": true
+			},
+			"YamlDocument" : {
+				"All": true
+			}
+		},
+		"YamlDotNet.Helpers" :{
+			"IOrderedDictionary`2" : {
+				"All": true
+			}
+		},
+		"Firebase.Auth" : {
+			"UserProfile" :{
+				"All": true,
+				"TEMP" :  true
+			},
+			"FirebaseUser" :{
+				"All": true,
+				"TEMP" :  true
+			},
+			"FirebaseAuth" :{
+				"All": true,
+				"TEMP" :  true
+			},
+			"FirebaseException" :{
+				"All": true,
+				"TEMP" :  true
+			},
+			"FirebaseApp" :{
+				"All": true,
+				"TEMP" :  true
+			}
+		},
+		"Firebase" : {
+			"FirebaseAuth" :{
+				"All": true,
+				"TEMP" :  true
+			},
+			"FirebaseException" :{
+				"All": true,
+				"TEMP" :  true
+			},
+			"FirebaseApp" :{
+				"All": true,
+				"TEMP" :  true
+			}
+		},
+		"Firebase.Extensions" : {
+			"TaskExtension" :{
+				"All": true,
+				"TEMP" :  true
+			},
 		}
     }
 }
