@@ -2190,6 +2190,7 @@
 				"All": true
 			},
 			"CanvasRenderer":{
+				"All": true
 			},
 			"AudioSource":{
 				"All": true
@@ -2216,7 +2217,7 @@
 				"All": true
 			},
 			"Input" : {
-				
+				"All": true
 			},
 			"GUIUtility" : {
 				

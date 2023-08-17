@@ -7,7 +7,10 @@
              x:Class="UnitystationLauncher.Views.SecurityPanelView">
     <DockPanel>
         <StackPanel>
-            <Button Width="160" Command="{Binding OnClickCommand}">My Button</Button>
+            <Button Width="160" Command="{Binding OnScan}">Scan</Button>
+        </StackPanel>
+        <StackPanel>
+            <Button Width="160" Command="{Binding OnSetUpPipe}">Pipe</Button>
         </StackPanel>
     </DockPanel>
 </UserControl>

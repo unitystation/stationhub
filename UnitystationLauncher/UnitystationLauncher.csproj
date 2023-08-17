@@ -46,6 +46,12 @@
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
     <None Update="ian.icns" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Update="Views\PopUpDialogue.cs">
+      <DependentUpon>PopUpDialogue.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PopUpDialogue.cs">
+      <DependentUpon>PopUpDialogue.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="2.4.0" />

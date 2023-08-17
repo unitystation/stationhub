@@ -2,12 +2,90 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Pipes;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using MessageBox.Avalonia.BaseWindows.Base;
 using Serilog;
 using UnitystationLauncher.ContentScanning;
+using UnitystationLauncher.Infrastructure;
+using UnitystationLauncher.Models.Enums;
+using UnitystationLauncher.Views;
 
 
 namespace UnitystationLauncher.ViewModels;
+
+public class Testing
+{
+    private static NamedPipeServerStream serverPipe;
+    private static StreamReader reader;
+    private static StreamWriter writer;
+
+    public Testing()
+    {
+        serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+            PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+    }
+
+    private enum ClientRequest
+    {
+        URL = 1,
+        API_URL = 2,
+        Host_Trust_Mode = 3,
+    }
+
+    public async void Do()
+    {
+        serverPipe.WaitForConnection();
+        reader = new StreamReader(serverPipe);
+        writer = new StreamWriter(serverPipe);
+
+        while (true)
+        {
+            string request = reader.ReadLine();
+            if (request == "exit")
+                break;
+
+            var requests = request.Split(",");
+            Console.WriteLine($"Server: Received request: {request}");
+
+            if (ClientRequest.URL.ToString() == requests[0])
+            {
+            }
+            else if (ClientRequest.API_URL.ToString() == requests[0])
+            {
+            }
+            else if (ClientRequest.Host_Trust_Mode.ToString() == requests[0])
+            {
+                
+
+                // Example of using Dispatcher.InvokeAsync
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                { 
+                    IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                        MessageBoxButtons.YesNo,
+                        string.Empty,
+                        $"Would you like to move your old installations to the new location?\n "
+                        + $"New installation path: ");
+
+                    string response = await msgBox.Show();
+                
+                    var dialog = new PopUpDialogue();
+                    dialog.DialogResult += (sender, result) =>
+                    {
+                        writer.WriteLine(result.ToString());
+                        writer.Flush();
+                    };
+                    var data = dialog.ShowDialog(MainWindow.Instance);
+                    //data.Wait();
+                    //var AAAAA = data;
+                });
+               
+            }
+        }
+    }
+}
 
 public class SecurityPanelViewModel : PanelBase
 {
@@ -25,8 +103,8 @@ public class SecurityPanelViewModel : PanelBase
 
     //TODO 
     //Linking with build to handle URL/APi allowed Host check By user
-    
-    
+
+
     //TODO
     // in-memory virtual file system
     //UnityPlayer.dll?? look in to
@@ -72,20 +150,20 @@ public class SecurityPanelViewModel : PanelBase
     // "Shared"
     //debug why logger Is not being added
 
-    
+
     //BAD Look out for
     //System.Diagnostics.Process
     //System.Xml.XmlTextReader
     //UnityEngine.Windows.File
-    
+
     //GOODs 
     //var path = Path.Combine(streamingAssetsPath, fileName);
     //StringReader 
-    
-    
+
+
     //TO Patch
     //UnityEngine.Events.UnityEvent, GetValidMethodInfo
-    
+
     //Manually set 
     //Texture2D
     //ParticleSystem
@@ -99,14 +177,21 @@ public class SecurityPanelViewModel : PanelBase
     //UnityEngine.Resources
     //Addressables
     //Unity.Collections.NativeArray
-    
+    // Resources.Load?
+
     //TO PULL out hehhe
     //Verbal viewer
     //Synth
     //BuildPreferences == If editor
     //NetworkManagerExtensions
-    
-    public void OnClickCommand()
+
+    public void OnSetUpPipe()
+    {
+        var data = new Testing();
+        new Task(data.Do).Start();
+    }
+
+    public void OnScan()
     {
         //TODO remove exes
 
@@ -121,8 +206,6 @@ public class SecurityPanelViewModel : PanelBase
         DeleteFilesWithExtension(Processingdirectory.ToString(), "exe");
 
 
-        
-        
         // Get all files in the directory
         var Directories = Processingdirectory.GetDirectories();
 
@@ -153,13 +236,13 @@ public class SecurityPanelViewModel : PanelBase
 
         var DLLDirectory = Datapath.CreateSubdirectory("Managed");
 
-     
-        
-        DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "GoodFiles", "VDev","Managed"));
-        var GoodFiles = GoodFileCopy.GetFiles().Select(x=>x.Name).ToList();
-        
+
+        DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+            "GoodFiles", "VDev", "Managed"));
+        var GoodFiles = GoodFileCopy.GetFiles().Select(x => x.Name).ToList();
+
         CopyFilesRecursively(GoodFileCopy.ToString(), DLLDirectory.ToString());
-        
+
         var Files = DLLDirectory.GetFiles();
 
         List<FileInfo> ToDelete = new List<FileInfo>();
@@ -169,10 +252,10 @@ public class SecurityPanelViewModel : PanelBase
         foreach (var File in Files)
         {
             if (GoodFiles.Contains(File.Name)) continue;
-            MultiAssemblyReference.Add( Path.GetFileNameWithoutExtension(File.Name));
+            MultiAssemblyReference.Add(Path.GetFileNameWithoutExtension(File.Name));
         }
 
-        
+
         foreach (var File in Files)
         {
             if (GoodFiles.Contains(File.Name)) continue;
@@ -183,9 +266,8 @@ public class SecurityPanelViewModel : PanelBase
                 var Listy = MultiAssemblyReference.ToList();
                 Listy.Remove(Path.GetFileNameWithoutExtension(File.Name));
                 if (MakeTypeChecker().CheckAssembly(File, DLLDirectory, Listy) == false)
-                { 
+                {
                     ToDelete.Add(File);
-                    
                 }
             }
             catch (Exception e)
@@ -194,16 +276,17 @@ public class SecurityPanelViewModel : PanelBase
                 //TODO Explode
             }
         }
-        
-        
+
+
         foreach (var File in ToDelete)
         {
             File.Delete();
         }
-        
+
         Files = DLLDirectory.GetFiles();
 
-        var ToRemove = Files.Where(x => GoodFiles.Contains(x.Name)); //TODO Is temp, just to see what past And as provided
+        var ToRemove =
+            Files.Where(x => GoodFiles.Contains(x.Name)); //TODO Is temp, just to see what past And as provided
 
         foreach (var File in ToRemove)
         {

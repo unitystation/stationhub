@@ -18,8 +18,12 @@ namespace UnitystationLauncher.Views
         /// </summary>
         private readonly Border _contentControl;
 
+        
+        public static Window Instance;
+        
         public MainWindow()
         {
+            Instance = this;
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();
