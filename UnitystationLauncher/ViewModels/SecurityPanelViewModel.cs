@@ -4,9 +4,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using MessageBox.Avalonia.BaseWindows.Base;
+using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.ContentScanning;
 using UnitystationLauncher.Infrastructure;
@@ -37,51 +39,87 @@ public class Testing
 
     public async void Do()
     {
-        serverPipe.WaitForConnection();
+        await serverPipe.WaitForConnectionAsync();
         reader = new StreamReader(serverPipe);
         writer = new StreamWriter(serverPipe);
 
         while (true)
         {
-            string request = reader.ReadLine();
-            if (request == "exit")
-                break;
+            string? request = await reader.ReadLineAsync();
+            if (request == null)
+            {
+                await serverPipe.WaitForConnectionAsync();
+                reader = new StreamReader(serverPipe);
+                writer = new StreamWriter(serverPipe);
+                continue;
+            }
 
             var requests = request.Split(",");
             Console.WriteLine($"Server: Received request: {request}");
 
             if (ClientRequest.URL.ToString() == requests[0])
             {
-            }
-            else if (ClientRequest.API_URL.ToString() == requests[0])
-            {
-            }
-            else if (ClientRequest.Host_Trust_Mode.ToString() == requests[0])
-            {
-                
-
-                // Example of using Dispatcher.InvokeAsync
-                await Dispatcher.UIThread.InvokeAsync(() =>
-                { 
+                RxApp.MainThreadScheduler.ScheduleAsync(async  (_, _) =>
+                {
                     IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
-                        $"Would you like to move your old installations to the new location?\n "
-                        + $"New installation path: ");
-
+                        $"would you like to add this Domain to The allowed domains to be opened In your browser, {requests[1]} " + @"
+Justification given by the Fork : " + requests[2]); 
+                    
                     string response = await msgBox.Show();
-                
-                    var dialog = new PopUpDialogue();
-                    dialog.DialogResult += (sender, result) =>
-                    {
-                        writer.WriteLine(result.ToString());
-                        writer.Flush();
-                    };
-                    var data = dialog.ShowDialog(MainWindow.Instance);
+
+                    await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await writer.FlushAsync();
                     //data.Wait();
                     //var AAAAA = data;
+                    return Task.CompletedTask;
                 });
-               
+            }
+            else if (ClientRequest.API_URL.ToString() == requests[0])
+            {
+                RxApp.MainThreadScheduler.ScheduleAsync(async  (_, _) =>
+                {
+                    IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                        MessageBoxButtons.YesNo,
+                        string.Empty,
+                        $"The build would like to send an API request to, {requests[1]} " + @"
+do you allow this fork to now on access this domain
+Justification given by the Fork : " + requests[2]); 
+                    
+
+                    string response = await msgBox.Show();
+
+                    await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await writer.FlushAsync();
+                    //data.Wait();
+                    //var AAAAA = data;
+                    return Task.CompletedTask;
+                });
+
+            }
+            else if (ClientRequest.Host_Trust_Mode.ToString() == requests[0])
+            {
+                RxApp.MainThreadScheduler.ScheduleAsync(async  (_, _) =>
+                {
+                    IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                        MessageBoxButtons.YesNo,
+                        string.Empty,
+                         @" Trusted mode automatically allows every API and open URL action to happen without prompt, this also enables the 
+Variable viewer ( Application that can modify the games Data ) that Could potentially be used to Perform malicious actions on your PC,
+ The main purpose of this Prompt is to allow the Variable viewer (Variable editing), 
+What follows is given by the build, we do not control what is written in the Following text So treat with caution and use your brain
+ Justification : " + requests[1]); //TODO Add text
+
+                    string response = await msgBox.Show();
+
+                    await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await writer.FlushAsync();
+                    //data.Wait();
+                    //var AAAAA = data;
+                    return Task.CompletedTask;
+                });
+                
             }
         }
     }
