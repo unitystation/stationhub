@@ -48,7 +48,18 @@ public class Testing
             string? request = await reader.ReadLineAsync();
             if (request == null)
             {
-                await serverPipe.WaitForConnectionAsync();
+                try
+                {
+                    await serverPipe.WaitForConnectionAsync();
+                }
+                catch (System.IO.IOException e)
+                {
+                    serverPipe.Close();
+                    serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+                        PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                    await serverPipe.WaitForConnectionAsync();
+                }
+                
                 reader = new StreamReader(serverPipe);
                 writer = new StreamWriter(serverPipe);
                 continue;
