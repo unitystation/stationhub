@@ -18,16 +18,27 @@ internal sealed partial class AssemblyTypeChecker
         using (StreamReader file = File.OpenText(pathToconfig))
         {
             JsonSerializer serializer = new JsonSerializer();
-            var data = (SandboxConfig) serializer.Deserialize(file, typeof(SandboxConfig));
-            foreach (var Namespace in data.Types)
+            try
             {
-                foreach (var Class in Namespace.Value)
+                var data = (SandboxConfig) serializer.Deserialize(file, typeof(SandboxConfig));
+                foreach (var Namespace in data.Types)
                 {
-                    ParseTypeConfig(Class.Value);
+                    foreach (var Class in Namespace.Value)
+                    {
+                        ParseTypeConfig(Class.Value);
+                    }
                 }
-            }
 
-            return data;
+                return data;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+            
+            
         }
     }
 

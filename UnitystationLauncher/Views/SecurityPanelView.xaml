@@ -10,6 +10,9 @@
             <Button Width="160" Command="{Binding OnScan}">Scan</Button>
         </StackPanel>
         <StackPanel>
+            <Button Width="160" Command="{Binding OnUpdateSafe}">Update Safe</Button>
+        </StackPanel>
+        <StackPanel>
             <Button Width="160" Command="{Binding OnSetUpPipe}">Pipe</Button>
         </StackPanel>
     </DockPanel>

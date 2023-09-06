@@ -76,16 +76,19 @@
 				"All": true
 			},
 		},
-		"System.ComponentModel" : {
-			"TypeDescriptor": {
-            },
-			"DescriptionAttribute" : {
+		"System.Runtime.Serialization" : {
+			"SerializationInfo" : {
+				
+			},
+			"ISerializable" : {
+				"All": true
+			},
+			"IDeserializationCallback" : {
+				"All": true
+			},
+			"StreamingContext" : {
 				
 			}
-		},
-		"System.Diagnostics"  : {
-			"Process": {
-            },
 		},
 		"System.Security.Principal" :{
 			"IIdentity": {
@@ -95,17 +98,6 @@
                 "All": true
             },
 		},
-		"System.Runtime.CompilerServices": {
-            "DecimalConstantAttribute": {
-                "All": true
-            },
-			"ConfiguredTaskAwaitable" : {
-				 "All": true
-			},
-			"CallerMemberNameAttribute" : {
-				"All": true
-			}
-        },
 		"System.Drawing": {
             "Color": {
                 "All": true
@@ -114,7 +106,8 @@
         "System.Buffers": {
             "SpanAction`2": {
                 "All": true
-            }
+            },
+			
         },
         "System.Buffers.Binary": {
             "BinaryPrimitives": {
@@ -335,6 +328,18 @@
             },
 			"IList" : {
 			    "All": true
+			},
+			"IDictionary"  :{
+				"All": true
+			},
+			"IDictionaryEnumerator" : {
+				"All": true
+			},
+			"IDeserializationCallback" : {
+				"All": true
+			},
+			"ICollection" : {
+				"All": true
 			}
         },
         "System.ComponentModel": {
@@ -353,7 +358,21 @@
             },
             "ITypeDescriptorContext": {
                 "All": true
-            }
+            },
+			"TypeDescriptor": {
+				"Methods": [
+					"string GetClassName(object)"
+				]	
+            },
+			"DescriptionAttribute" : {
+				"All": true
+			},
+			"EditorBrowsableAttribute":{
+				"All": true
+			},
+			"EditorBrowsableState" :{
+				"All": true
+			}
         },
         "System.Diagnostics.CodeAnalysis": {
             "AllowNullAttribute": {
@@ -427,8 +446,20 @@
             },
             "Stopwatch": {
                 "All": true
-            }
+            },
+			"Process": {
+				"Methods": [
+					"void Kill()",
+					"System.Diagnostics.Process GetCurrentProcess()"
+				]
+				
+            },
         },
+		"System.CodeDom.Compiler" : {
+			"GeneratedCodeAttribute": {
+				 "All": true
+			}
+		},
         "System.Globalization": {
             "CompareOptions": {},
             "CultureInfo": {
@@ -529,7 +560,10 @@
 				"Methods": [
 					"string Combine(string, string)"
 				]
-			}
+			},
+			"StringReader" : {
+				"All": true
+			},
         },
         "System.Linq.Expressions": {
             "ConstantExpression": {},
@@ -603,6 +637,9 @@
 			},
 			"HttpHeaders" : {
 				"All": true
+			},
+			"HttpRequestHeaders" :{
+				"All": true
 			}
 		},
         "System.Net.Sockets": {
@@ -672,18 +709,42 @@
                 "Methods": [
                     "string get_Name()",
                     "System.Reflection.MemberTypes get_MemberType()",
-                    "System.Type get_DeclaringType()"
+                    "System.Type get_DeclaringType()",
+					"System.Type get_ReturnType()",
+					"System.Type get_ReflectedType()",
                 ]
             },
             "MemberTypes": {},
             "MethodBase": {
-                "Methods": [
-                    "System.Reflection.MethodBase GetMethodFromHandle(System.RuntimeMethodHandle)"
-                ]
+				"Methods": [
+					"System.Reflection.ParameterInfo[] GetParameters()",
+					"bool get_IsStatic()",
+				]
             },
-            "MethodInfo": {},
+            "MethodInfo": {
+				"Methods": [
+                    "System.Type get_ReturnType()"
+                ]
+			},
             "TypeAttributes": {},
-            "TypeInfo": {}
+            "TypeInfo": {},
+			"PropertyInfo": {
+				"Methods": [
+                    "bool op_Inequality(System.Reflection.PropertyInfo, System.Reflection.PropertyInfo)",
+                ]
+			},
+			"FieldInfo" : {},
+			"ParameterInfo" : {
+				"Methods": [
+                    "System.Type get_ParameterType()",
+					"bool op_Inequality(System.Reflection.PropertyInfo, System.Reflection.PropertyInfo)",
+                ]
+			},
+			"CustomAttributeExtensions": {
+				"Methods": [
+					"!!0 GetCustomAttribute(System.Reflection.MemberInfo, bool)"
+				]
+			}
         },
         "System.Runtime.CompilerServices": {
             "AsyncStateMachineAttribute": {
@@ -766,7 +827,19 @@
             },
             "ValueTaskAwaiter`1": {
                 "All": true
-            }
+            },
+			"DecimalConstantAttribute": {
+                "All": true
+            },
+			"ConfiguredTaskAwaitable" : {
+				 "All": true
+			},
+			"CallerMemberNameAttribute" : {
+				"All": true
+			},
+			"ConfiguredTaskAwaitable/ConfiguredTaskAwaiter" : {
+				"All": true
+			},
         },
         "System.Runtime.ExceptionServices": {
             "ExceptionDispatchInfo": {
@@ -868,7 +941,8 @@
                     "void .ctor()",
                     "void .ctor(string)",
                     "void .ctor(string, System.Text.RegularExpressions.RegexOptions)",
-                    "void .ctor(string, System.Text.RegularExpressions.RegexOptions, System.TimeSpan)"
+                    "void .ctor(string, System.Text.RegularExpressions.RegexOptions, System.TimeSpan)",
+					"System.Text.RegularExpressions.MatchCollection Matches(string, string)"
                 ]
             },
             "RegexMatchTimeoutException": {
@@ -916,10 +990,14 @@
                     "System.Text.Encoder GetEncoder()",
                     "System.Text.Encoding get_ASCII()",
                     "System.Text.Encoding get_BigEndianUnicode()",
+                    "System.Text.Encoder GetEncoder()",
+                    "System.Text.Encoding get_ASCII()",
+                    "System.Text.Encoding get_BigEndianUnicode()",
                     "System.Text.Encoding get_Unicode()",
                     "System.Text.Encoding get_UTF7()",
-                    "System.Text.Encoding get_UTF8()",
-                    "System.Text.Encoding get_UTF32()"
+					"System.Text.Encoding get_UTF8()",
+					"System.Text.Encoding get_UTF32()",
+					"System.Text.Encoding GetEncoding(string)"
                 ]
             },
             "NormalizationForm": {},
@@ -1009,7 +1087,10 @@
                     "void .ctor(string, int)",
                     "void .ctor(string, int, int, int)",
                     "void CopyTo(int, char[], int, int)",
-                    "void CopyTo(int, System.Span`1<char>, int)"
+                    "void CopyTo(int, System.Span`1<char>, int)",
+					"System.Text.StringBuilder Insert(int, string)",
+					"System.Text.StringBuilder Append(float)",
+					"void set_Length(int)"
                 ],
                 "NestedTypes": {
                     "ChunkEnumerator": {
@@ -1047,7 +1128,9 @@
                 "All": true
             },
 			"TaskScheduler" : {
-				
+				"Methods" :[
+					"System.Threading.Tasks.TaskScheduler FromCurrentSynchronizationContext()"
+				]
 			}
         },
         "System.Threading": {
@@ -1069,14 +1152,18 @@
 					"void Sleep(int)",
 					"System.Threading.Thread get_CurrentThread()",
 					"System.Globalization.CultureInfo CurrentCulture()",
-					"void Abort()"
+					"void Abort()",
+					"System.Globalization.CultureInfo get_CurrentCulture()",
+					"void .ctor(System.Threading.ThreadStart)"
 				]
 			},
 			"ThreadPool" : {
-				
+				"Methods" :[
+				   "bool QueueUserWorkItem(System.Threading.WaitCallback)"
+				]
 			},
 			"ThreadStart" : {
-				
+				"All": true
 			},
 			"WaitCallback" : {
 				"All": true
@@ -1086,7 +1173,7 @@
 			},
 			"Mutex" : {
 				"All": true
-			}
+			},
         },
         "System.Web": {
             "HttpUtility": {
@@ -1262,7 +1349,8 @@
                     "void Sort<>(!!0[], int, int, System.Collections.Generic.IComparer`1<!!0>)",
                     "void Sort<>(!!0[], System.Collections.Generic.IComparer`1<!!0>)",
                     "void Sort<>(!!0[], System.Collections.Generic.IComparer`1<!!0>)",
-                    "void Sort<>(!!0[], System.Comparison`1<!!0>)"
+                    "void Sort<>(!!0[], System.Comparison`1<!!0>)",
+					"void Resize<>(ref !!0[], int)"
                 ]
             },
             "ArraySegment`1": {
@@ -1350,7 +1438,11 @@
             "Delegate": {
                 "Methods": [
                     "System.Delegate Combine(System.Delegate, System.Delegate)",
-                    "System.Delegate Remove(System.Delegate, System.Delegate)"
+                    "System.Delegate Remove(System.Delegate, System.Delegate)",
+					"System.Delegate[] GetInvocationList()",
+					"object get_Target()",
+					"System.Reflection.MethodInfo get_Method()",
+					"bool op_Equality(System.Delegate, System.Delegate)"
                 ]
             },
             "DivideByZeroException": {
@@ -1367,7 +1459,8 @@
                     "int get_CurrentManagedThreadId()",
                     "int get_ProcessorCount()",
                     "string get_NewLine()",
-                    "string get_StackTrace()"
+                    "string get_StackTrace()",
+					"string[] GetCommandLineArgs() "
                 ]
             },
             "EventArgs": {
@@ -2018,7 +2111,9 @@
 				"All": true
 			},
 			"Buffer" : {
-				
+				"Methods" : [
+					"void BlockCopy (System.Array, int, System.Array, int, int)",
+				]
 			},
 			"AppDomain" : {
 				
@@ -2220,7 +2315,10 @@
 				"All": true
 			},
 			"GUIUtility" : {
-				
+				"Methods" : [
+					"void set_systemCopyBuffer(string)",
+					"void RotateAroundPivot(float, UnityEngine.Vector2)"
+					]
 			},
 			"GUI" : {
 				"All": true
@@ -2229,6 +2327,9 @@
 				"All": true
 			},
 			"ImageConversion":{
+				"Methods" : [
+					"byte[] EncodeToPNG(UnityEngine.Texture2D)",
+					]
 				
 			},
 			"GridLayout":{
@@ -2412,7 +2513,18 @@
 					"string get_productName()",
 					"string get_persistentDataPath()",
 					"string get_dataPath()",
-				]
+					"void set_targetFrameRate(int)",
+					"int get_targetFrameRate()",
+					"void set_runInBackground(bool)",
+					"void Quit()",
+					"void remove_logMessageReceived(UnityEngine.Application/LogCallback)",
+					"void add_logMessageReceived(UnityEngine.Application/LogCallback)",
+				],
+				"NestedTypes" :{
+					"LogCallback" : {
+						"All": true
+					}
+				}
 			},
 			"AnimationCurve" : {
 				"All": true
@@ -2466,6 +2578,39 @@
 				"All": true
 			},
 			"GUIStyle":{
+				"All": true
+			},
+			"Mesh" : {
+				"All": true
+			},
+			"GUIStyleState" : {
+				"All": true
+			},
+			"GUISkin" : {
+				"All": true
+			},
+			"MeshFilter" : {
+				"All": true
+			},
+			"GL" : {
+				"All": true
+			},
+			"TextAnchor" : {
+				"All": true
+			},
+			"MultilineAttribute" :{
+				"All": true
+			},
+			"DeviceType" : {
+				"All": true
+			},
+			"FFTWindow" : {
+				"All": true
+			},
+			"TextEditor" : {
+				"All": true
+			},
+			"ISerializationCallbackReceiver" : {
 				"All": true
 			}
         },
@@ -2593,7 +2738,9 @@
 			"LayoutElement":{
 				"All": true
 			},
-			
+			"MaskableGraphic" : {
+				"All": true
+			},
 		},
 		"UnityEngine.EventSystems":{
 			"EventSystem":{
@@ -2728,11 +2875,24 @@
 			"GraphicsDeviceType":{
 				"All": true
 			},
+			"AsyncGPUReadbackRequest" : {
+				"All": true
+			},
+			"AsyncGPUReadback" : {
+				"All": true
+			}
 		},
 		"UnityEngine.Profiling" :{
 			
 			"Profiler":{
-				
+				"Methods" : [
+					"long GetTotalAllocatedMemoryLong()",
+					"void EndThreadProfiling()",
+					"void EndThreadProfiling()",
+					"long GetTotalReservedMemoryLong()",
+					"long GetMonoUsedSizeLong()"
+					
+				]
 			},
 			"CustomSampler":{
 				"All": true
@@ -2802,12 +2962,33 @@
 			"IResourceLocator" :{
 				"All": true
 			},
+			"ResourceLocationMap" : {
+				"All": true
+			}
 		},
 		"UnityEngine.U2D" : {
 			"PixelPerfectCamera" : {
 				"All": true
 			}
-		},	
+		},
+		"Unity.Collections" : {
+			"NativeArray`1" : {
+				"Methods" : [	
+					"int get_Length()",
+					"!0 get_Item(int)",
+					"void Dispose()",
+					"void .ctor(Unity.Collections.NativeArray`1<!0>, Unity.Collections.Allocator)"
+				]
+			},
+			"Allocator" : {
+				"All": true
+			}
+		},
+		"UnityEngine.Experimental.Rendering" : {
+			"GraphicsFormat" : {
+				"All": true
+			}
+		},
 		"JetBrains.Annotations" : {
 			"CanBeNullAttribute":{
 				"All": true
@@ -2907,7 +3088,7 @@
 			"NetworkWriter":{
 				"Methods" : [
 					"void WriteByte(byte)",
-					"void Write(!!0)",
+					"void Write<>(!!0)",
 				]
 			},
 			"NetworkWriterExtensions":{
@@ -2915,7 +3096,7 @@
 			},
 			"NetworkReader":{
 				"Methods" : [
-					"!!0 Read()",
+					"!!0 Read<>()",
 					"byte ReadByte()}"
 				]
 			},
@@ -2948,7 +3129,7 @@
 				"All": true
 			},
 			"TelepathyTransport":{
-				"Field":[
+				"Fields":[
 					"ushort port"
 				]
 			},
@@ -2956,6 +3137,9 @@
 				"All": true
 			},
 			"Transport" :{
+				"Fields":[
+					"Mirror.Transport active"
+				],
 				"Methods" : [
 					"void Shutdown()",
 					"int GetMaxPacketSize(int)"
@@ -2983,7 +3167,12 @@
 			"LocalConnectionToClient" : {
 				"All": true
 			},
-			
+			"NetworkAuthenticator" : {
+				"All": true
+			},
+			"NetworkStartPosition" : {
+				"All": true
+			},
         },
 		"IgnoranceTransport":{
 			"Ignorance" :{
@@ -3005,14 +3194,33 @@
 					"void RemoteCallDelegate(Mirror.NetworkBehaviour, Mirror.NetworkReader , Mirror.NetworkConnectionToClient)",
 					"void RegisterCommand(System.Type, string, Mirror.RemoteCalls.RemoteCallDelegate, bool)",
 					"void RegisterRpc(System.Type, string, Mirror.RemoteCalls.RemoteCallDelegate)"
+				],
+				"Fields" : [
+					"bool mirrorProcessingCMD",
+					"Mirror.RemoteCalls.Invoker mirrorLastInvoker"
 				]
 			},
+			"Invoker" : {
+				"All": true
+			}
 		},
-		"Logger" :{
-			"Logger" :{
+		"Logs" :{
+			"Loggy" :{
+				"All": true
+			},
+			"LogOverridePref" :{
+				"All": true
+			},
+			"LoggerPreferences" :{
 				"All": true
 			},
 			"Category" :{
+				"All": true
+			},
+			"LogLevel" :{
+				"All": true
+			},
+			"ThreadLoggy" :{
 				"All": true
 			}
 		},
@@ -3075,6 +3283,58 @@
 			},
 			"FolderType" : {
 				"All": true
+			},
+			"VVNote" : {
+				"All": true
+			},
+			"VVNote" : {
+				"All": true
+			},
+			"VVHighlight":{
+				"All": true
+			},
+			"Librarian" :{
+				"All": true
+			},
+			"ICustomSerialisationSystem" : {
+				"All": true
+			},
+			"BaseAttribute" : {
+				"All": true
+			},
+			"AllowedReflection" : {
+				"All": true
+			},
+			"MethodsAndAttributee`1" : {
+				"All": true
+			},
+			"SecureMapsSaver" : {
+				"All": true
+			},
+			"SceneObjectReference" : {
+				"All": true
+			},
+			"IPopulateIDRelation" : {
+				"All": true
+			},
+			"IAllowedReflection" : {
+				"All": true
+			},
+			"FieldData" : {
+				"All": true
+			},
+			"AllowedEnvironmentVariables" : {
+				"All": true
+			},
+			"SpriteMetadata" : {
+				"Methods" : [
+					"float get_Scale()",
+					"UnityEngine.Vector2 get_Offset()",
+					"SecureStuff.SpriteMetadata Create(UnityEngine.Texture2D, ref UnityEngine.Rect)"
+				],
+				"Fields" : [
+					"SecureStuff.SpriteMetadata Default()"
+				]
 			}
 		},
 		"Newtonsoft.Json" : {
@@ -3121,10 +3381,39 @@
 				"All": true
 			},
 		},
+		"Tomlyn" : {
+			"Toml" : {
+				"Methods" : [
+					"bool TryToModel<>(string, ref !!0, ref Tomlyn.Syntax.DiagnosticsBag, string, Tomlyn.TomlModelOptions)"
+				]
+			},
+			"TomlModelOptions" : {
+				"All": true
+			}
+		},
+		"Tomlyn.Syntax" : {
+			"DiagnosticsBag"  : {
+				"All": true
+			},
+			"DiagnosticMessage" : {
+				"All": true
+			}
+		},
+		"Tomlyn.Model" : {
+			"TomlPropertiesMetadata" : {
+				"All": true
+			},
+			"ITomlMetadataProvider" : {
+				"All": true
+			}
+		},
 		"YamlDotNet.Serialization" :{
 			"IDeserializer" : {
 				"All": true
 			},
+			"DeserializerBuilder" : {
+				"All": true
+			}
 		},
 		"YamlDotNet.RepresentationModel" :{
 			"YamlStream" : {
@@ -3189,6 +3478,39 @@
 				"All": true,
 				"TEMP" :  true
 			},
+		},
+		"WebSocketSharp.Server" :{
+			"WebSocketServiceHost" :{
+				"All": true,
+			},
+			"WebSocketBehavior" : {
+				"All": true,
+			},
+			"WebSocketSessionManager" : {
+				"All": true,
+			},
+			"WebSocketServiceManager" : {
+				"All": true,
+			},
+			"IWebSocketSession" : {
+				"All": true,
+			},
+			"HttpServer" : {
+				"All": true,
+			}
+		},
+		"C5" :{
+			"IntervalHeap`1" : {
+				"All": true,
+			},
+			"CollectionValueBase`1" : {
+				"All": true,
+			}
+		},
+		"SunVox" : {
+			"SunVox" : {
+				"All": true
+			}
 		}
     }
 }

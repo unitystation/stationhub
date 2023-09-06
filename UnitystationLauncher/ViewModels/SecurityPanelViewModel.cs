@@ -55,11 +55,12 @@ public class Testing
                 catch (System.IO.IOException e)
                 {
                     serverPipe.Close();
-                    serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+                    serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
+                        1,
                         PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                     await serverPipe.WaitForConnectionAsync();
                 }
-                
+
                 reader = new StreamReader(serverPipe);
                 writer = new StreamWriter(serverPipe);
                 continue;
@@ -70,14 +71,15 @@ public class Testing
 
             if (ClientRequest.URL.ToString() == requests[0])
             {
-                RxApp.MainThreadScheduler.ScheduleAsync(async  (_, _) =>
+                RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
                 {
                     IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
-                        $"would you like to add this Domain to The allowed domains to be opened In your browser, {requests[1]} " + @"
-Justification given by the Fork : " + requests[2]); 
-                    
+                        $"would you like to add this Domain to The allowed domains to be opened In your browser, {requests[1]} " +
+                        @"
+Justification given by the Fork : " + requests[2]);
+
                     string response = await msgBox.Show();
 
                     await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
@@ -89,15 +91,15 @@ Justification given by the Fork : " + requests[2]);
             }
             else if (ClientRequest.API_URL.ToString() == requests[0])
             {
-                RxApp.MainThreadScheduler.ScheduleAsync(async  (_, _) =>
+                RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
                 {
                     IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
                         $"The build would like to send an API request to, {requests[1]} " + @"
 do you allow this fork to now on access this domain
-Justification given by the Fork : " + requests[2]); 
-                    
+Justification given by the Fork : " + requests[2]);
+
 
                     string response = await msgBox.Show();
 
@@ -107,16 +109,15 @@ Justification given by the Fork : " + requests[2]);
                     //var AAAAA = data;
                     return Task.CompletedTask;
                 });
-
             }
             else if (ClientRequest.Host_Trust_Mode.ToString() == requests[0])
             {
-                RxApp.MainThreadScheduler.ScheduleAsync(async  (_, _) =>
+                RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
                 {
                     IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
-                         @" Trusted mode automatically allows every API and open URL action to happen without prompt, this also enables the 
+                        @" Trusted mode automatically allows every API and open URL action to happen without prompt, this also enables the 
 Variable viewer ( Application that can modify the games Data ) that Could potentially be used to Perform malicious actions on your PC,
  The main purpose of this Prompt is to allow the Variable viewer (Variable editing), 
 What follows is given by the build, we do not control what is written in the Following text So treat with caution and use your brain
@@ -130,7 +131,6 @@ What follows is given by the build, we do not control what is written in the Fol
                     //var AAAAA = data;
                     return Task.CompletedTask;
                 });
-                
             }
         }
     }
@@ -198,8 +198,19 @@ public class SecurityPanelViewModel : PanelBase
     // "Chemistry"
     // "Shared"
     //debug why logger Is not being added
-
-
+    //Disable the reflection crap on type  why's it there AAA
+    //Mick copy of [System.Net.Http]System.Net.Http.Headers.HttpRequestHeaders} So can't be manipulated during the request
+    //IResource locators
+    //			"File" : {
+	//		},
+	//		"Directory" : {
+	//		},
+//			"DirectoryInfo" : {
+//			},
+//Resources.Load(\"filename\") typeof(AudioClip)
+    
+    
+    
     //BAD Look out for
     //System.Diagnostics.Process
     //System.Xml.XmlTextReader
@@ -233,11 +244,61 @@ public class SecurityPanelViewModel : PanelBase
     //Synth
     //BuildPreferences == If editor
     //NetworkManagerExtensions
+    
 
     public void OnSetUpPipe()
     {
         var data = new Testing();
         new Task(data.Do).Start();
+    }
+
+    public void OnUpdateSafe()
+    {
+        DirectoryInfo directory = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
+
+        DirectoryInfo Stagingdirectory = directory.CreateSubdirectory("staging");
+
+        Stagingdirectory = Stagingdirectory.CreateSubdirectory("unitystation_Data");
+        Stagingdirectory = Stagingdirectory.CreateSubdirectory("Managed");
+
+        DirectoryInfo GoodDirectory = directory.CreateSubdirectory("GoodFiles");
+        GoodDirectory = GoodDirectory.CreateSubdirectory("VDev");
+        GoodDirectory = GoodDirectory.CreateSubdirectory("Managed");
+
+        
+   
+
+        DirectoryInfo sourceDirInfo = Stagingdirectory;
+        DirectoryInfo targetDirInfo = GoodDirectory;
+
+        // Get the list of files that are present in both directories
+        FileInfo[] sourceFiles = sourceDirInfo.GetFiles("*.*", SearchOption.AllDirectories);
+        FileInfo[] targetFiles = targetDirInfo.GetFiles("*.*", SearchOption.AllDirectories);
+
+        var commonFiles = sourceFiles.Intersect(targetFiles, new FileInfoComparer());
+
+        // Do something with the common files
+        foreach (FileInfo file in commonFiles)
+        {
+            File.Copy(sourceDirInfo.GetFiles().FirstOrDefault(x =>x.Name == file.Name).FullName, targetDirInfo.GetFiles().FirstOrDefault(x =>x.Name == file.Name).FullName, true);
+            Console.WriteLine($"Common file: {file.FullName}");
+        }
+
+        Console.WriteLine("Common files listed.");
+    }
+
+
+    class FileInfoComparer : IEqualityComparer<FileInfo>
+    {
+        public bool Equals(FileInfo x, FileInfo y)
+        {
+            return x.Name.Equals(y.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public int GetHashCode(FileInfo obj)
+        {
+            return obj.Name.GetHashCode();
+        }
     }
 
     public void OnScan()
@@ -342,6 +403,14 @@ public class SecurityPanelViewModel : PanelBase
             File.Delete();
         }
 
+        //Tomlyn
+        //Unity.AI.Navigation
+        //UnityEngine.CommandStateObserverModule
+        //UnityEngine.ContentLoadModule
+        //UnityEngine.GraphToolsFoundationModule
+        //UnityEngine.MarshallingModule
+        //UnityEngine.PropertiesModule
+        
         //TODO 
         //Drop-in good exes and rename
         //move to "finished" folder
