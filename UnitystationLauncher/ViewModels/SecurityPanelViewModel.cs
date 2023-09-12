@@ -165,9 +165,7 @@ public class SecurityPanelViewModel : PanelBase
     //Cleanup files end
     //  Directory.CreateDirectory(destinationDirectory) keep in Directory
     //LoadConfig(ISawmill sawmill)
-    //private const string SystemAssemblyName = "mscorlib"; //TODO check security Not trusted Need to input Safe DLL
     // if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))  Potential security+
-    //Generic maybe not allowed???:
     //return true; //RRT 
     //Big old try catch to catch any naughties, That deletes and cancels the Scan
     //Delete scanning before doing process
@@ -189,7 +187,7 @@ public class SecurityPanelViewModel : PanelBase
     // UnityEngine.Rect?
     // Ray?
     // Texture2D
-    // Sprite
+
     //Decimal
     // to!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //remove DEBUG Exceptions ; 
@@ -231,21 +229,13 @@ public class SecurityPanelViewModel : PanelBase
     //GUIUtility
     //GUI?
     //ImageConversion 
-    //Profiling.Profiler -> .GetMonoUsedSizeLong(), EndSample(), .BeginSample(string);
-    //PlayerPrefs?
     //Application
     //UnityEngine.Resources
     //Addressables
     //Unity.Collections.NativeArray
     // Resources.Load?
 
-    //TO PULL out hehhe
-    //Verbal viewer
-    //Synth
-    //BuildPreferences == If editor
-    //NetworkManagerExtensions
     
-
     public void OnSetUpPipe()
     {
         var data = new Testing();
@@ -303,9 +293,6 @@ public class SecurityPanelViewModel : PanelBase
 
     public void OnScan()
     {
-        //TODO remove exes
-
-
         // Create a DirectoryInfo object for the directory
         DirectoryInfo directory = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
 
@@ -314,7 +301,7 @@ public class SecurityPanelViewModel : PanelBase
         deleteContentsOfDirectory(Processingdirectory);
         CopyFilesRecursively(Stagingdirectory.ToString(), Processingdirectory.ToString());
         DeleteFilesWithExtension(Processingdirectory.ToString(), "exe");
-
+        DeleteFilesWithExtension(Processingdirectory.ToString(), "dll", false);
 
         // Get all files in the directory
         var Directories = Processingdirectory.GetDirectories();
@@ -349,11 +336,62 @@ public class SecurityPanelViewModel : PanelBase
 
         DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
             "GoodFiles", "VDev", "Managed"));
-        var GoodFiles = GoodFileCopy.GetFiles().Select(x => x.Name).ToList();
 
-        CopyFilesRecursively(GoodFileCopy.ToString(), DLLDirectory.ToString());
 
-        var Files = DLLDirectory.GetFiles();
+        ScanFolder(DLLDirectory, GoodFileCopy);
+        
+        var PluginsFolder = Datapath.CreateSubdirectory("Plugins");
+        PluginsFolder.Delete(true);
+        
+        PluginsFolder =  Datapath.CreateSubdirectory("Plugins");
+        
+        DirectoryInfo GoodPluginsCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+            "GoodFiles", "VDev", "Plugins"));
+        
+        //TODO OS Switch?
+        CopyFilesRecursively(GoodPluginsCopy.ToString(), PluginsFolder.ToString());
+
+
+        var MonoBleedingEdge =  Processingdirectory.CreateSubdirectory("MonoBleedingEdge");
+        
+        MonoBleedingEdge.Delete(true);
+        
+        
+        
+        var GOODRoot = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+            "GoodFiles", "VDev", "Root"));
+
+        try
+        {
+            CopyFilesRecursively(GOODRoot.ToString(), Processingdirectory.ToString());
+        }
+        catch (Exception e)
+        {
+            Log.Error("e > " + e);
+           
+        }
+       
+
+        var exeRename = Processingdirectory.GetFiles().FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe" ); //TODO OS
+
+        if (exeRename == null) return;
+        
+        exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), Datapath.Name.Replace("_Data", "") + ".exe") );
+
+        
+        
+        DirectoryInfo GoodBuilddirectory = directory.CreateSubdirectory("GoodBuild");
+        deleteContentsOfDirectory(GoodBuilddirectory);
+        CopyFilesRecursively(Processingdirectory.ToString(), GoodBuilddirectory.ToString());
+    }
+
+    public bool ScanFolder(DirectoryInfo Unsafe, DirectoryInfo SaveFiles)
+    {
+        var GoodFiles = SaveFiles.GetFiles().Select(x => x.Name).ToList();
+
+        CopyFilesRecursively(SaveFiles.ToString(), Unsafe.ToString());
+
+        var Files = Unsafe.GetFiles();
 
         List<FileInfo> ToDelete = new List<FileInfo>();
 
@@ -375,14 +413,16 @@ public class SecurityPanelViewModel : PanelBase
             {
                 var Listy = MultiAssemblyReference.ToList();
                 Listy.Remove(Path.GetFileNameWithoutExtension(File.Name));
-                if (MakeTypeChecker().CheckAssembly(File, DLLDirectory, Listy) == false)
+                if (MakeTypeChecker().CheckAssembly(File, Unsafe, Listy) == false)
                 {
                     ToDelete.Add(File);
+                    
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                return false;
                 //TODO Explode
             }
         }
@@ -390,35 +430,15 @@ public class SecurityPanelViewModel : PanelBase
 
         foreach (var File in ToDelete)
         {
+            //TODO Technically should error and explode
             File.Delete();
+            return false;
         }
 
-        Files = DLLDirectory.GetFiles();
+        return true;
 
-        var ToRemove =
-            Files.Where(x => GoodFiles.Contains(x.Name)); //TODO Is temp, just to see what past And as provided
-
-        foreach (var File in ToRemove)
-        {
-            File.Delete();
-        }
-
-        //Tomlyn
-        //Unity.AI.Navigation
-        //UnityEngine.CommandStateObserverModule
-        //UnityEngine.ContentLoadModule
-        //UnityEngine.GraphToolsFoundationModule
-        //UnityEngine.MarshallingModule
-        //UnityEngine.PropertiesModule
-        
-        //TODO 
-        //Drop-in good exes and rename
-        //move to "finished" folder
-
-        DirectoryInfo GoodBuilddirectory = directory.CreateSubdirectory("GoodBuild");
-        deleteContentsOfDirectory(GoodBuilddirectory);
-        CopyFilesRecursively(Processingdirectory.ToString(), GoodBuilddirectory.ToString());
     }
+    
 
     #region Scanning
 
@@ -452,7 +472,7 @@ public class SecurityPanelViewModel : PanelBase
         }
     }
 
-    static void DeleteFilesWithExtension(string directoryPath, string fileExtension)
+    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool Recursive =true)
     {
         DirectoryInfo directory = new DirectoryInfo(directoryPath);
 
@@ -472,43 +492,54 @@ public class SecurityPanelViewModel : PanelBase
             Console.WriteLine("Deleted file: " + file.FullName);
         }
 
-        // Recursively process subdirectories
-        DirectoryInfo[] subdirectories = directory.GetDirectories();
-        foreach (DirectoryInfo subdirectory in subdirectories)
+        if (Recursive)
         {
-            DeleteFilesWithExtension(subdirectory.FullName, fileExtension);
+            // Recursively process subdirectories
+            DirectoryInfo[] subdirectories = directory.GetDirectories();
+            foreach (DirectoryInfo subdirectory in subdirectories)
+            {
+                DeleteFilesWithExtension(subdirectory.FullName, fileExtension);
+            }
         }
+        
     }
 
     static void CopyFilesRecursively(string sourceDirectory, string destinationDirectory)
     {
-        // Create the destination directory if it doesn't exist
-        Directory.CreateDirectory(destinationDirectory);
-
-        DirectoryInfo source = new DirectoryInfo(sourceDirectory);
-
-        // Get the files from the source directory
-        FileInfo[] files = source.GetFiles();
-
-        foreach (FileInfo file in files)
+        try
         {
-            // Get the destination file path by combining the destination directory with the file name
-            string destinationFile = Path.Combine(destinationDirectory, file.Name);
+            // Create the destination directory if it doesn't exist
+            Directory.CreateDirectory(destinationDirectory);
 
-            // Copy the file to the destination
-            file.CopyTo(destinationFile, true);
+            DirectoryInfo source = new DirectoryInfo(sourceDirectory);
+
+            // Get the files from the source directory
+            FileInfo[] files = source.GetFiles();
+
+            foreach (FileInfo file in files)
+            {
+                // Get the destination file path by combining the destination directory with the file name
+                string destinationFile = Path.Combine(destinationDirectory, file.Name);
+
+                // Copy the file to the destination
+                file.CopyTo(destinationFile, true);
+            }
+
+            // Get the directories from the source directory
+            DirectoryInfo[] directories = source.GetDirectories();
+
+            foreach (DirectoryInfo directory in directories)
+            {
+                // Get the destination directory path by combining the destination directory with the directory name
+                string destinationSubdirectory = Path.Combine(destinationDirectory, directory.Name);
+
+                // Copy the files from the subdirectory recursively
+                CopyFilesRecursively(directory.FullName, destinationSubdirectory);
+            }
         }
-
-        // Get the directories from the source directory
-        DirectoryInfo[] directories = source.GetDirectories();
-
-        foreach (DirectoryInfo directory in directories)
+        catch (Exception e)
         {
-            // Get the destination directory path by combining the destination directory with the directory name
-            string destinationSubdirectory = Path.Combine(destinationDirectory, directory.Name);
-
-            // Copy the files from the subdirectory recursively
-            CopyFilesRecursively(directory.FullName, destinationSubdirectory);
+            Log.Error(e.ToString());
         }
     }
 
