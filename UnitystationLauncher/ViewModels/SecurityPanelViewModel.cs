@@ -151,26 +151,25 @@ public class SecurityPanelViewModel : PanelBase
     }
 
     //TODO 
-    //Linking with build to handle URL/APi allowed Host check By user
+    //Automatic start-up pipe
 
 
     //TODO
     // in-memory virtual file system
+
     //UnityPlayer.dll?? look in to
-    //Unitystation_Data\Plugins
-    //MonoBleedingEdge
-    //the delete any DLLs outside of the folder Just to be safe
-    //Replace exes with Good ones
-    //Scan files in 
-    //Cleanup files end
-    //  Directory.CreateDirectory(destinationDirectory) keep in Directory
-    //LoadConfig(ISawmill sawmill)
+    //Unitystation.exe
+
+    //Cleanup files end 
+
+    // if (sandboxConfig.WhitelistedAssembliesDEBUG.Contains(
+    //(type.ResolutionScope as AssemblyTypeChecker.MResScopeAssembly).Name))
+
     // if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))  Potential security+
-    //return true; //RRT 
-    //Big old try catch to catch any naughties, That deletes and cancels the Scan
-    //Delete scanning before doing process
+    
     //Check the multi-assembly stuff, make sure you can't do any naughty with name matching and stuff
     //tool to Make a PR Auto to add Two white lists, if PR violates White list
+
     //TODO Double check added stuff
     // UnityEngine.Events
     // UnityEngine.Events.UnityAction TODO Looking 
@@ -187,41 +186,6 @@ public class SecurityPanelViewModel : PanelBase
     // UnityEngine.Rect?
     // Ray?
     // Texture2D
-
-    //Decimal
-    // to!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //remove DEBUG Exceptions ; 
-    // "Assets"
-    // "SerializableDictionary"
-    // "Chemistry"
-    // "Shared"
-    //debug why logger Is not being added
-    //Disable the reflection crap on type  why's it there AAA
-    //Mick copy of [System.Net.Http]System.Net.Http.Headers.HttpRequestHeaders} So can't be manipulated during the request
-    //IResource locators
-    //			"File" : {
-	//		},
-	//		"Directory" : {
-	//		},
-//			"DirectoryInfo" : {
-//			},
-//Resources.Load(\"filename\") typeof(AudioClip)
-    
-    
-    
-    //BAD Look out for
-    //System.Diagnostics.Process
-    //System.Xml.XmlTextReader
-    //UnityEngine.Windows.File
-
-    //GOODs 
-    //var path = Path.Combine(streamingAssetsPath, fileName);
-    //StringReader 
-
-
-    //TO Patch
-    //UnityEngine.Events.UnityEvent, GetValidMethodInfo
-
     //Manually set 
     //Texture2D
     //ParticleSystem
@@ -232,10 +196,15 @@ public class SecurityPanelViewModel : PanelBase
     //Application
     //UnityEngine.Resources
     //Addressables
-    //Unity.Collections.NativeArray
-    // Resources.Load?
 
-    
+
+    //Mick copy of [System.Net.Http]System.Net.Http.Headers.HttpRequestHeaders} So can't be manipulated during the request
+
+
+    //TODO Patch
+    //UnityEngine.Events.UnityEvent, GetValidMethodInfo
+
+
     public void OnSetUpPipe()
     {
         var data = new Testing();
@@ -255,8 +224,6 @@ public class SecurityPanelViewModel : PanelBase
         GoodDirectory = GoodDirectory.CreateSubdirectory("VDev");
         GoodDirectory = GoodDirectory.CreateSubdirectory("Managed");
 
-        
-   
 
         DirectoryInfo sourceDirInfo = Stagingdirectory;
         DirectoryInfo targetDirInfo = GoodDirectory;
@@ -270,7 +237,8 @@ public class SecurityPanelViewModel : PanelBase
         // Do something with the common files
         foreach (FileInfo file in commonFiles)
         {
-            File.Copy(sourceDirInfo.GetFiles().FirstOrDefault(x =>x.Name == file.Name).FullName, targetDirInfo.GetFiles().FirstOrDefault(x =>x.Name == file.Name).FullName, true);
+            File.Copy(sourceDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name).FullName,
+                targetDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name).FullName, true);
             Console.WriteLine($"Common file: {file.FullName}");
         }
 
@@ -293,102 +261,136 @@ public class SecurityPanelViewModel : PanelBase
 
     public void OnScan()
     {
+        Action<string> Info = new Action<string>((string log) => { });
+        Action<string> Errors = new Action<string>((string log) => { });
+        
         // Create a DirectoryInfo object for the directory
         DirectoryInfo directory = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
 
         DirectoryInfo Stagingdirectory = directory.CreateSubdirectory("staging"); //TODO temp
         DirectoryInfo Processingdirectory = directory.CreateSubdirectory("processing");
-        deleteContentsOfDirectory(Processingdirectory);
-        CopyFilesRecursively(Stagingdirectory.ToString(), Processingdirectory.ToString());
-        DeleteFilesWithExtension(Processingdirectory.ToString(), "exe");
-        DeleteFilesWithExtension(Processingdirectory.ToString(), "dll", false);
-
-        // Get all files in the directory
-        var Directories = Processingdirectory.GetDirectories();
-
         DirectoryInfo Datapath = null;
-
-        // Loop through each file
-        foreach (var Directorie in Directories)
-        {
-            if (Directorie.Name.Contains("_Data"))
-            {
-                if (Datapath != null)
-                {
-                    Log.Error("oh God 2 Datapaths Exiting!!!");
-                    return;
-                }
-
-                Datapath = Directorie;
-            }
-        }
-
-        if (Datapath == null)
-        {
-            Log.Error("oh God NO Datapath Exiting!!!");
-            return;
-        }
-
-        Log.Error("Datapath > " + Datapath);
-
-        var DLLDirectory = Datapath.CreateSubdirectory("Managed");
-
-
-        DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
-            "GoodFiles", "VDev", "Managed"));
-
-
-        ScanFolder(DLLDirectory, GoodFileCopy);
-        
-        var PluginsFolder = Datapath.CreateSubdirectory("Plugins");
-        PluginsFolder.Delete(true);
-        
-        PluginsFolder =  Datapath.CreateSubdirectory("Plugins");
-        
-        DirectoryInfo GoodPluginsCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
-            "GoodFiles", "VDev", "Plugins"));
-        
-        //TODO OS Switch?
-        CopyFilesRecursively(GoodPluginsCopy.ToString(), PluginsFolder.ToString());
-
-
-        var MonoBleedingEdge =  Processingdirectory.CreateSubdirectory("MonoBleedingEdge");
-        
-        MonoBleedingEdge.Delete(true);
-        
-        
-        
-        var GOODRoot = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
-            "GoodFiles", "VDev", "Root"));
 
         try
         {
-            CopyFilesRecursively(GOODRoot.ToString(), Processingdirectory.ToString());
+            deleteContentsOfDirectory(Processingdirectory);
+            Info.Invoke("Copying files");
+            CopyFilesRecursively(Stagingdirectory.ToString(), Processingdirectory.ToString());
+
+            Info.Invoke("Cleaning out Dlls and Executables");
+            DeleteFilesWithExtension(Processingdirectory.ToString(), "exe");
+            DeleteFilesWithExtension(Processingdirectory.ToString(), "dll");
+
+            // Get all files in the directory
+            var Directories = Processingdirectory.GetDirectories();
+
+
+            // Loop through each file
+            foreach (var Directorie in Directories)
+            {
+                if (Directorie.Name.Contains("_Data"))
+                {
+                    if (Datapath != null)
+                    {
+                        Errors.Invoke("oh God 2 Datapaths Exiting!!!");
+                        return;
+                    }
+
+                    Datapath = Directorie;
+                }
+            }
+
+            if (Datapath == null)
+            {
+                Errors.Invoke("oh God NO Datapath Exiting!!!");
+                return;
+            }
+
+            
+            var StagingManaged =
+                Datapath.CreateSubdirectory(Path.Combine(Stagingdirectory.ToString(), Datapath.Name, "Managed"));
+
+            var DLLDirectory = Datapath.CreateSubdirectory("Managed");
+
+            CopyFilesRecursively(StagingManaged.ToString(), DLLDirectory.ToString());
+
+
+            DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+                "GoodFiles", "VDev", "Managed"));
+
+            Info.Invoke("Proceeding to scan folder");
+            if (ScanFolder(DLLDirectory, GoodFileCopy, Info, Errors))
+            {
+                deleteContentsOfDirectory(Processingdirectory);
+                return;
+            }
+
+            var PluginsFolder = Datapath.CreateSubdirectory("Plugins");
+            PluginsFolder.Delete(true);
+
+            PluginsFolder = Datapath.CreateSubdirectory("Plugins");
+
+            DirectoryInfo GoodPluginsCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+                "GoodFiles", "VDev", "Plugins"));
+
+            //TODO OS Switch?
+            CopyFilesRecursively(GoodPluginsCopy.ToString(), PluginsFolder.ToString());
+
+
+            var MonoBleedingEdge = Processingdirectory.CreateSubdirectory("MonoBleedingEdge");
+
+            MonoBleedingEdge.Delete(true);
+
+
+            var GOODRoot = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+                "GoodFiles", "VDev", "Root"));
+
+            try
+            {
+                CopyFilesRecursively(GOODRoot.ToString(), Processingdirectory.ToString());
+            }
+            catch (Exception e)
+            {
+                Errors.Invoke("e > " + e);
+                deleteContentsOfDirectory(Processingdirectory);
+                return;
+            }
+
+
+            var exeRename = Processingdirectory.GetFiles()
+                .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
+
+            if (exeRename == null)
+            {
+                Errors.Invoke("no Executable found ");
+                deleteContentsOfDirectory(Processingdirectory);
+                return;
+            }
+
+            exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), Datapath.Name.Replace("_Data", "") + ".exe"));
+
+
+            DirectoryInfo GoodBuilddirectory = directory.CreateSubdirectory("GoodBuild");
+            deleteContentsOfDirectory(GoodBuilddirectory);
+            CopyFilesRecursively(Processingdirectory.ToString(), GoodBuilddirectory.ToString());
+            deleteContentsOfDirectory(Processingdirectory);
+            //deleteContentsOfDirectory(Stagingdirectory); TODO
         }
         catch (Exception e)
         {
-            Log.Error("e > " + e);
-           
+            Errors.Invoke( " an Error happened > " + e.ToString());
+            deleteContentsOfDirectory(Processingdirectory);
+            //deleteContentsOfDirectory(Stagingdirectory); TODO
+            return;
         }
-       
-
-        var exeRename = Processingdirectory.GetFiles().FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe" ); //TODO OS
-
-        if (exeRename == null) return;
-        
-        exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), Datapath.Name.Replace("_Data", "") + ".exe") );
-
-        
-        
-        DirectoryInfo GoodBuilddirectory = directory.CreateSubdirectory("GoodBuild");
-        deleteContentsOfDirectory(GoodBuilddirectory);
-        CopyFilesRecursively(Processingdirectory.ToString(), GoodBuilddirectory.ToString());
     }
 
-    public bool ScanFolder(DirectoryInfo Unsafe, DirectoryInfo SaveFiles)
+    public bool ScanFolder(DirectoryInfo Unsafe, DirectoryInfo SaveFiles, Action<string> Info, Action<string> Errors)
     {
         var GoodFiles = SaveFiles.GetFiles().Select(x => x.Name).ToList();
 
+        Info.Invoke("Provided files " + string.Join(",", GoodFiles));
+        
         CopyFilesRecursively(SaveFiles.ToString(), Unsafe.ToString());
 
         var Files = Unsafe.GetFiles();
@@ -407,38 +409,30 @@ public class SecurityPanelViewModel : PanelBase
         foreach (var File in Files)
         {
             if (GoodFiles.Contains(File.Name)) continue;
-            //DO Scan
-            Log.Information("TODO Scanning " + File);
+
+            Info.Invoke("Scanning " + File.Name);
+
             try
             {
                 var Listy = MultiAssemblyReference.ToList();
                 Listy.Remove(Path.GetFileNameWithoutExtension(File.Name));
-                if (MakeTypeChecker().CheckAssembly(File, Unsafe, Listy) == false)
+                if (MakeTypeChecker().CheckAssembly(File, Unsafe, Listy, Errors) == false)
                 {
-                    ToDelete.Add(File);
-                    
+                    Errors.Invoke($"{File.Name} Failed scanning Cancelling");
+                    return false;
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Errors.Invoke(" Failed scan due to error of " + e.ToString());
                 return false;
-                //TODO Explode
             }
         }
 
 
-        foreach (var File in ToDelete)
-        {
-            //TODO Technically should error and explode
-            File.Delete();
-            return false;
-        }
-
         return true;
-
     }
-    
+
 
     #region Scanning
 
@@ -472,7 +466,7 @@ public class SecurityPanelViewModel : PanelBase
         }
     }
 
-    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool Recursive =true)
+    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool Recursive = true)
     {
         DirectoryInfo directory = new DirectoryInfo(directoryPath);
 
@@ -501,7 +495,6 @@ public class SecurityPanelViewModel : PanelBase
                 DeleteFilesWithExtension(subdirectory.FullName, fileExtension);
             }
         }
-        
     }
 
     static void CopyFilesRecursively(string sourceDirectory, string destinationDirectory)

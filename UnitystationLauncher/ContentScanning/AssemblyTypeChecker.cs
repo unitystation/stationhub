@@ -132,9 +132,11 @@ internal sealed partial class AssemblyTypeChecker
     /// </summary>
     /// <param name="assembly">Assembly to load.</param>
     /// <returns></returns>
-    public bool CheckAssembly(Stream assembly, DirectoryInfo ManagedPath, List<string> OtherAssemblies)
+    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo ManagedPath, List<string> OtherAssemblies, Action<string> Errors)
     {
-        var fullStopwatch = Stopwatch.StartNew();
+        
+        using var assembly = diskPath.OpenRead();
+        //var fullStopwatch = Stopwatch.StartNew();
 
         var resolver = CreateResolver(ManagedPath);
         using var peReader = new PEReader(assembly, PEStreamOptions.LeaveOpen);
@@ -142,9 +144,9 @@ internal sealed partial class AssemblyTypeChecker
 
         var asmName = reader.GetString(reader.GetAssemblyDefinition().Name);
 
-        if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is {Size: not 0}) //RRT Vulnerable??
+        if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is {Size: not 0})
         {
-            //_sawmill.Error($"Assembly {asmName} contains native code.");
+            Errors.Invoke($"Assembly {asmName} contains native code.");
             return false;
         }
 
@@ -152,6 +154,7 @@ internal sealed partial class AssemblyTypeChecker
         {
             if (DoVerifyIL(asmName, resolver, peReader, reader) == false)
             {
+                Errors.Invoke($"Assembly {asmName} Has invalid IL code");
                 return false;
             }
         }
@@ -164,33 +167,33 @@ internal sealed partial class AssemblyTypeChecker
         var inherited = GetExternalInheritedTypes(reader, errors);
         //_sawmill.Debug($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
 
-        if ((Dump & DumpFlags.Types) != 0)
-        {
-            foreach (var mType in types)
-            {
-                // _sawmill.Debug($"RefType: {mType}");
-            }
-        }
-
-        if ((Dump & DumpFlags.Members) != 0)
-        {
-            foreach (var memberRef in members)
-            {
-                // _sawmill.Debug($"RefMember: {memberRef}");
-            }
-        }
-
-        if ((Dump & DumpFlags.Inheritance) != 0)
-        {
-            foreach (var (name, baseType, interfaces) in inherited)
-            {
-                //  _sawmill.Debug($"Inherit: {name} -> {baseType}");
-                foreach (var @interface in interfaces)
-                {
-                    //        _sawmill.Debug($"  Interface: {@interface}");
-                }
-            }
-        }
+        // if ((Dump & DumpFlags.Types) != 0)
+        // {
+        //     foreach (var mType in types)
+        //     {
+        //         // _sawmill.Debug($"RefType: {mType}");
+        //     }
+        // }
+        //
+        // if ((Dump & DumpFlags.Members) != 0)
+        // {
+        //     foreach (var memberRef in members)
+        //     {
+        //         // _sawmill.Debug($"RefMember: {memberRef}");
+        //     }
+        // }
+        //
+        // if ((Dump & DumpFlags.Inheritance) != 0)
+        // {
+        //     foreach (var (name, baseType, interfaces) in inherited)
+        //     {
+        //         //  _sawmill.Debug($"Inherit: {name} -> {baseType}");
+        //         foreach (var @interface in interfaces)
+        //         {
+        //             //        _sawmill.Debug($"  Interface: {@interface}");
+        //         }
+        //     }
+        // }
 
         if (DisableTypeCheck)
         {
@@ -237,7 +240,7 @@ internal sealed partial class AssemblyTypeChecker
         
         foreach (var error in errors)
         {
-            //      _sawmill.Error($"Sandbox violation: {error.Message}");
+            Errors.Invoke($"Sandbox violation: {error.Message}");
         }
 
         //_sawmill.Debug($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
@@ -1117,14 +1120,7 @@ internal sealed partial class AssemblyTypeChecker
         {
         }
     }
-
-    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo ManagedPath, List<string> OtherAssemblies)
-    {
-        using var file = diskPath.OpenRead();
-
-        return CheckAssembly(file, ManagedPath, OtherAssemblies);
-    }
-
+    
     private static string? NilNullString(MetadataReader reader, StringHandle handle)
     {
         return handle.IsNil ? null : reader.GetString(handle);
