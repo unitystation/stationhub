@@ -196,10 +196,7 @@ public class SecurityPanelViewModel : PanelBase
     //Application
     //UnityEngine.Resources
     //Addressables
-
-
-    //Mick copy of [System.Net.Http]System.Net.Http.Headers.HttpRequestHeaders} So can't be manipulated during the request
-
+    
 
     //TODO Patch
     //UnityEngine.Events.UnityEvent, GetValidMethodInfo
