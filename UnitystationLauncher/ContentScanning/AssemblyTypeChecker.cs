@@ -12,6 +12,7 @@ using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
 using ILVerify;
 using MoreLinq;
+using UnitystationLauncher.Services.Interface;
 
 // psst
 // You know ECMA-335 right? The specification for the CLI that .NET runs on?
@@ -25,7 +26,7 @@ namespace UnitystationLauncher.ContentScanning;
 /// <summary>
 ///     Manages the type white/black list of types and namespaces, and verifies assemblies against them.
 /// </summary>
-internal sealed partial class AssemblyTypeChecker
+public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 {
     // Used to be in Sandbox.yml, moved out of there to facilitate faster loading.
     private const string SystemAssemblyName = "mscorlib"; //TODO check security
@@ -43,10 +44,17 @@ internal sealed partial class AssemblyTypeChecker
 
     private readonly Task<SandboxConfig> _config;
 
-    public AssemblyTypeChecker()
+    private readonly IEnvironmentService _environmentService;
+
+    public AssemblyTypeChecker(IEnvironmentService environmentService)
     {
+        _environmentService = environmentService;
+        VerifyIL = true;
+        DisableTypeCheck = false;
         _config = Task.Run(() => LoadConfig());
     }
+    
+
 
 
     private sealed class Resolver : IResolver

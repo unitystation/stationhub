@@ -9,7 +9,7 @@ using Internal.TypeSystem.Ecma;
 
 namespace UnitystationLauncher.ContentScanning;
 
-internal sealed partial class AssemblyTypeChecker
+public sealed partial class AssemblyTypeChecker
 {
     public static IEnumerable<string> DumpMetaMembers(Type type)
     {

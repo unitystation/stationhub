@@ -13,6 +13,7 @@ using Serilog;
 using UnitystationLauncher.ContentScanning;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.Enums;
+using UnitystationLauncher.Services.Interface;
 using UnitystationLauncher.Views;
 
 
@@ -141,8 +142,11 @@ public class SecurityPanelViewModel : PanelBase
     public override string Name => "Security";
     public override bool IsEnabled => true;
 
-    public SecurityPanelViewModel()
+    private readonly IAssemblyChecker _IAssemblyChecker;
+    
+    public SecurityPanelViewModel(IAssemblyChecker assemblyChecker)
     {
+        _IAssemblyChecker = assemblyChecker;
     }
 
 
@@ -305,7 +309,7 @@ public class SecurityPanelViewModel : PanelBase
 
             
             var StagingManaged =
-                Datapath.CreateSubdirectory(Path.Combine(Stagingdirectory.ToString(), Datapath.Name, "Managed"));
+                Processingdirectory.CreateSubdirectory(Path.Combine(Datapath.Name, "Managed"));
 
             var DLLDirectory = Datapath.CreateSubdirectory("Managed");
 
@@ -316,7 +320,7 @@ public class SecurityPanelViewModel : PanelBase
                 "GoodFiles", "VDev", "Managed"));
 
             Info.Invoke("Proceeding to scan folder");
-            if (ScanFolder(DLLDirectory, GoodFileCopy, Info, Errors))
+            if (ScanFolder(DLLDirectory, GoodFileCopy, Info, Errors) == false)
             {
                 deleteContentsOfDirectory(Processingdirectory);
                 return;
@@ -413,7 +417,7 @@ public class SecurityPanelViewModel : PanelBase
             {
                 var Listy = MultiAssemblyReference.ToList();
                 Listy.Remove(Path.GetFileNameWithoutExtension(File.Name));
-                if (MakeTypeChecker().CheckAssembly(File, Unsafe, Listy, Errors) == false)
+                if (_IAssemblyChecker.CheckAssembly(File, Unsafe, Listy, Errors) == false)
                 {
                     Errors.Invoke($"{File.Name} Failed scanning Cancelling");
                     return false;
@@ -429,20 +433,7 @@ public class SecurityPanelViewModel : PanelBase
 
         return true;
     }
-
-
-    #region Scanning
-
-    private AssemblyTypeChecker MakeTypeChecker()
-    {
-        return new()
-        {
-            VerifyIL = true,
-            DisableTypeCheck = false,
-        };
-    }
-
-    #endregion
+    
 
     #region Utilities
 

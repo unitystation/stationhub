@@ -4,18 +4,8 @@
         "InterfaceMethodNotImplemented"
     ],
     "WhitelistedNamespaces": [
-		"Assets",
-		"SerializableDictionary",
-		"Chemistry",
-		"Shared"
     ],
 	"WhitelistedAssembliesDEBUG" : [
-		"Assets",
-		"SerializableDictionary",
-		"Chemistry",
-		"Shared",
-		"Utils",
-
 	],
     "Types": {
 		"WebSocketSharp":{
@@ -570,12 +560,6 @@
             "Expression": {
                 "Methods": [
                     "System.Linq.Expressions.Expression`1<!!0> Lambda<>(System.Linq.Expressions.Expression, System.Linq.Expressions.ParameterExpression[])",
-                    "System.Linq.Expressions.MemberExpression Field(System.Linq.Expressions.Expression, System.Reflection.FieldInfo)",
-                    "System.Linq.Expressions.MemberExpression Property(System.Linq.Expressions.Expression, System.Reflection.MethodInfo)",
-                    "System.Linq.Expressions.ParameterExpression Parameter(System.Type)",
-                    "System.Linq.Expressions.ParameterExpression Parameter(System.Type, string)",
-                    "System.Linq.Expressions.ParameterExpression Variable(System.Type)",
-                    "System.Linq.Expressions.ParameterExpression Variable(System.Type, string)"
                 ]
             },
             "Expression`1": {},
@@ -1978,13 +1962,6 @@
                     "System.Reflection.MemberInfo[] GetMembers()",
                     "System.Reflection.MemberInfo[] GetMembers(System.Reflection.BindingFlags)",
                     "System.Reflection.MemberTypes get_MemberType()",
-                    "System.Reflection.MethodBase get_DeclaringMethod()",
-                    "System.Reflection.MethodInfo GetMethod(string)",
-                    "System.Reflection.MethodInfo GetMethod(string, int, System.Type[])",
-                    "System.Reflection.MethodInfo GetMethod(string, System.Reflection.BindingFlags)",
-                    "System.Reflection.MethodInfo GetMethod(string, System.Type[])",
-                    "System.Reflection.MethodInfo[] GetMethods()",
-                    "System.Reflection.MethodInfo[] GetMethods(System.Reflection.BindingFlags)",
                     "System.Reflection.PropertyInfo GetProperty(string)",
                     "System.Reflection.PropertyInfo GetProperty(string, System.Reflection.BindingFlags)",
                     "System.Reflection.PropertyInfo GetProperty(string, System.Type)",

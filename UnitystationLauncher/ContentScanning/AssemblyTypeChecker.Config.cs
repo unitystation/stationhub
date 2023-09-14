@@ -6,16 +6,22 @@ using System.Text;
 using ILVerify;
 using Newtonsoft.Json;
 using Pidgin;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ContentScanning;
 
-internal sealed partial class AssemblyTypeChecker
+public sealed partial class AssemblyTypeChecker
 {
-    private static string pathToconfig = @"Q:\Fast programmes\DevStationHub\allowed.json"; //TODO!!!
+    private static string NameConfig = @"CodeScanList.json"; //TODO!!!
+    
 
-    private static SandboxConfig LoadConfig()
+
+    private SandboxConfig LoadConfig()
     {
-        using (StreamReader file = File.OpenText(pathToconfig))
+        
+        if (File.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false) return null; //TODO Needs a file on the server to download
+        
+        using (StreamReader file = File.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
         {
             JsonSerializer serializer = new JsonSerializer();
             try
@@ -36,9 +42,6 @@ internal sealed partial class AssemblyTypeChecker
                 Console.WriteLine(e);
                 throw;
             }
-            
-            
-            
         }
     }
 

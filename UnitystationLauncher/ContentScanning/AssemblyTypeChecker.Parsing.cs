@@ -9,7 +9,7 @@ using static Pidgin.Parser<char>;
 
 namespace UnitystationLauncher.ContentScanning;
 
-internal sealed partial class AssemblyTypeChecker
+public sealed partial class AssemblyTypeChecker
 {
     // Contains primary parsing code for method and field declarations in the sandbox whitelist.
 

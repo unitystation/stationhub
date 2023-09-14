@@ -7,7 +7,7 @@ using System.Reflection.Metadata;
 
 namespace UnitystationLauncher.ContentScanning;
 
-internal sealed partial class AssemblyTypeChecker
+public sealed partial class AssemblyTypeChecker
 {
     
     internal abstract class MMemberRef
