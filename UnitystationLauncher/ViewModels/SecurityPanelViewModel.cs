@@ -213,18 +213,18 @@ public class SecurityPanelViewModel : PanelBase
     {
         DirectoryInfo directory = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
 
-        DirectoryInfo Stagingdirectory = directory.CreateSubdirectory("staging");
+        DirectoryInfo stagingDirectory = directory.CreateSubdirectory("staging");
 
-        Stagingdirectory = Stagingdirectory.CreateSubdirectory("unitystation_Data");
-        Stagingdirectory = Stagingdirectory.CreateSubdirectory("Managed");
+        stagingDirectory = stagingDirectory.CreateSubdirectory("unitystation_Data");
+        stagingDirectory = stagingDirectory.CreateSubdirectory("Managed");
 
-        DirectoryInfo GoodDirectory = directory.CreateSubdirectory("GoodFiles");
-        GoodDirectory = GoodDirectory.CreateSubdirectory("VDev");
-        GoodDirectory = GoodDirectory.CreateSubdirectory("Managed");
+        DirectoryInfo goodDirectory = directory.CreateSubdirectory("GoodFiles");
+        goodDirectory = goodDirectory.CreateSubdirectory("VDev");
+        goodDirectory = goodDirectory.CreateSubdirectory("Managed");
 
 
-        DirectoryInfo sourceDirInfo = Stagingdirectory;
-        DirectoryInfo targetDirInfo = GoodDirectory;
+        DirectoryInfo sourceDirInfo = stagingDirectory;
+        DirectoryInfo targetDirInfo = goodDirectory;
 
         // Get the list of files that are present in both directories
         FileInfo[] sourceFiles = sourceDirInfo.GetFiles("*.*", SearchOption.AllDirectories);
@@ -319,7 +319,7 @@ public class SecurityPanelViewModel : PanelBase
 
             
             var stagingManaged =
-                processingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, "Managed"));
+                stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, "Managed"));
 
             var dllDirectory = dataPath.CreateSubdirectory("Managed");
 

@@ -202,8 +202,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         var loadedConfig = _config.Result;
 #pragma warning restore RA0004
 
-        loadedConfig.WhitelistedAssembliesDEBUG.Clear();
-        loadedConfig.WhitelistedAssembliesDEBUG.AddRange(OtherAssemblies);
+        loadedConfig.MultiAssemblyOtherReferences.Clear();
+        loadedConfig.MultiAssemblyOtherReferences.AddRange(OtherAssemblies);
         
         // We still do explicit type reference scanning, even though the actual whitelists work with raw members.
         // This is so that we can simplify handling of generic type specifications during member checking:
@@ -665,7 +665,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 return false;
             }
 
-            if (type.ResolutionScope is MResScopeAssembly mResScopeAssembly && sandboxConfig.WhitelistedAssembliesDEBUG.Contains(mResScopeAssembly.Name))
+            if (type.ResolutionScope is MResScopeAssembly mResScopeAssembly && sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
             {
                 cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
                 return true;
@@ -686,7 +686,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             }
         }
 
-        if (type.ResolutionScope is MResScopeAssembly resScopeAssembly && sandboxConfig.WhitelistedAssembliesDEBUG.Contains(resScopeAssembly.Name))
+        if (type.ResolutionScope is MResScopeAssembly resScopeAssembly && sandboxConfig.MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
         {
             cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
             return true;
