@@ -17,13 +17,10 @@ namespace UnitystationLauncher.Views
         /// If user don't use Windows OS then Grid.Row update and Grid.RowSpan
         /// </summary>
         private readonly Border _contentControl;
-
-        
-        public static Window Instance;
         
         public MainWindow()
         {
-            Instance = this;
+    
             InitializeComponent();
 #if DEBUG
             this.AttachDevTools();

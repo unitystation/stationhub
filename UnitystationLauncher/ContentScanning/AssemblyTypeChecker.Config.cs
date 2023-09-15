@@ -6,6 +6,7 @@ using System.Text;
 using ILVerify;
 using Newtonsoft.Json;
 using Pidgin;
+using Serilog;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ContentScanning;
@@ -17,14 +18,19 @@ public sealed partial class AssemblyTypeChecker
     private SandboxConfig LoadConfig()
     {
         
-        if (_FileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false) return null; //TODO Needs a file on the server to download
+        if (_fileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false) throw new NotImplementedException("Config is not downloaded"); //TODO Needs a file on the server to download
         
-        using (StreamReader file = _FileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
+        using (StreamReader file = _fileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
         {
             JsonSerializer serializer = new JsonSerializer();
             try
             {
-                var data = (SandboxConfig) serializer.Deserialize(file, typeof(SandboxConfig));
+                var data = (SandboxConfig?) serializer.Deserialize(file, typeof(SandboxConfig));
+                if (data == null)
+                {
+                    Log.Error("unable to de-serialise config");
+                    throw new Exception("unable to de-serialise config");
+                }
                 foreach (var Namespace in data.Types)
                 {
                     foreach (var Class in Namespace.Value)
@@ -56,8 +62,7 @@ public sealed partial class AssemblyTypeChecker
                 }
                 catch (ParseException e)
                 {
-                    Console.WriteLine("oh no..");
-                    // sawmill.Error($"Parse exception for '{m}': {e}");
+                    Log.Error($"Parse exception for '{m}': {e}");
                 }
             }
 

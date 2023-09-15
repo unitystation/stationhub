@@ -40,21 +40,21 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
     public bool DisableTypeCheck { get; init; }
 
     public DumpFlags Dump { get; init; } = DumpFlags.None;
-    public bool VerifyIL { get; init; } = true;
+    public bool VerifyIl { get; init; }
 
     private readonly Task<SandboxConfig> _config;
 
     private readonly IEnvironmentService _environmentService;
 
-    private readonly IFileService _FileService;
+    private readonly IFileService _fileService;
     
     public AssemblyTypeChecker(IEnvironmentService environmentService, IFileService FileService)
     {
         _environmentService = environmentService;
-        VerifyIL = true;
+        VerifyIl = true;
         DisableTypeCheck = false;
-        _FileService = FileService;
-        _config = Task.Run(() => LoadConfig());
+        _fileService = FileService;
+        _config = Task.Run(LoadConfig);
     }
     
 
@@ -62,32 +62,14 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
     private sealed class Resolver : IResolver
     {
-        public DirectoryInfo ManagedPath;
+        private readonly DirectoryInfo _managedPath;
+        
 
-        private Stream stream;
-
-
-        private Dictionary<string, PEReader> DictionaryLookup = new Dictionary<string, PEReader>();
-
-        // PEReader IResolver.Resolve(string simpleName)
-        // {
-        //     FileInfo[] files = ManagedPath.GetFiles("*.dll"); // Change the file extension to match your DLLs
-        //
-        //     foreach (FileInfo file in files)
-        //     {
-        //         string fileName = Path.GetFileNameWithoutExtension(file.Name);
-        //         if (string.Equals(fileName, simpleName, StringComparison.OrdinalIgnoreCase))
-        //         {
-        //             Console.WriteLine($"Found DLL for assembly '{simpleName}': {file.FullName}");
-        //             return new PEReader(file.Open( FileMode.Open , FileAccess.Read, FileShare.Read));
-        //         }
-        //     }
-        //     throw new Exception("Unable to find it " +simpleName);
-        // }
-
+        private readonly Dictionary<string, PEReader> _dictionaryLookup = new Dictionary<string, PEReader>();
+        
         public void Dispose()
         {
-            foreach (var Lookup in DictionaryLookup)
+            foreach (var Lookup in _dictionaryLookup)
             {
                 Lookup.Value.Dispose();
             }
@@ -100,12 +82,12 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 throw new Exception("Unable to find it " + assemblyName.FullName);
             }
 
-            if (DictionaryLookup.ContainsKey(assemblyName.Name))
+            if (_dictionaryLookup.TryGetValue(assemblyName.Name, out var assembly))
             {
-                return DictionaryLookup[assemblyName.Name];
+                return assembly;
             }
 
-            FileInfo[] files = ManagedPath.GetFiles("*.dll"); // Change the file extension to match your DLLs
+            FileInfo[] files = _managedPath.GetFiles("*.dll"); // Change the file extension to match your DLLs
 
             foreach (FileInfo file in files)
             {
@@ -113,28 +95,31 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     Console.WriteLine($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
-                    DictionaryLookup[assemblyName.Name] =
+                    _dictionaryLookup[assemblyName.Name] =
                         new PEReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
-                    return DictionaryLookup[assemblyName.Name];
+                    return _dictionaryLookup[assemblyName.Name];
                 }
             }
 
             throw new Exception("Unable to find it " + assemblyName.FullName);
         }
 
+        public Resolver(DirectoryInfo inManagedPath)
+        {
+            _managedPath = inManagedPath;
+        }
+        
         PEReader IResolver.ResolveModule(AssemblyName referencingAssembly, string fileName)
         {
-            //TODO!!!
-            return new PEReader(stream);
+            //TODO idk This is never used anywhere
+            throw new NotImplementedException(
+                "idk How IResolver.ResolveModule(AssemblyName referencingAssembly, string fileName) , And it's never been called so.. ");
         }
     }
 
     private Resolver CreateResolver(DirectoryInfo ManagedPath)
     {
-        return new Resolver()
-        {
-            ManagedPath = ManagedPath
-        };
+        return new Resolver(ManagedPath);
     }
 
     /// <summary>
@@ -161,7 +146,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             return false;
         }
 
-        if (VerifyIL)
+        if (VerifyIl)
         {
             if (DoVerifyIL(asmName, resolver, peReader, reader) == false)
             {
@@ -679,9 +664,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 cfg = null;
                 return false;
             }
-            
-            if (sandboxConfig.WhitelistedAssembliesDEBUG.Contains(
-                    (type.ResolutionScope as AssemblyTypeChecker.MResScopeAssembly).Name))
+
+            if (type.ResolutionScope is MResScopeAssembly mResScopeAssembly && sandboxConfig.WhitelistedAssembliesDEBUG.Contains(mResScopeAssembly.Name))
             {
                 cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
                 return true;
@@ -702,9 +686,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             }
         }
 
-
-        if (sandboxConfig.WhitelistedAssembliesDEBUG.Contains(
-                (type.ResolutionScope as AssemblyTypeChecker.MResScopeAssembly).Name))
+        if (type.ResolutionScope is MResScopeAssembly resScopeAssembly && sandboxConfig.WhitelistedAssembliesDEBUG.Contains(resScopeAssembly.Name))
         {
             cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
             return true;

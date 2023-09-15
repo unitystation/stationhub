@@ -1,34 +1,30 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.IO.Pipes;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
-using Avalonia.Threading;
 using MessageBox.Avalonia.BaseWindows.Base;
 using ReactiveUI;
 using Serilog;
-using UnitystationLauncher.ContentScanning;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
-using UnitystationLauncher.Views;
-
 
 namespace UnitystationLauncher.ViewModels;
 
-public class Testing
+public class PipeHubBuildCommunication
 {
-    private static NamedPipeServerStream serverPipe;
-    private static StreamReader reader;
-    private static StreamWriter writer;
+    private NamedPipeServerStream _serverPipe;
+    private StreamReader? _reader;
+    private StreamWriter? _writer;
 
-    public Testing()
+    public PipeHubBuildCommunication()
     {
-        serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+        _serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        
     }
 
     private enum ClientRequest
@@ -40,30 +36,31 @@ public class Testing
 
     public async void Do()
     {
-        await serverPipe.WaitForConnectionAsync();
-        reader = new StreamReader(serverPipe);
-        writer = new StreamWriter(serverPipe);
+        await _serverPipe.WaitForConnectionAsync();
+        _reader = new StreamReader(_serverPipe);
+        _writer = new StreamWriter(_serverPipe);
 
         while (true)
         {
-            string? request = await reader.ReadLineAsync();
+            string? request = await _reader.ReadLineAsync();
             if (request == null)
             {
                 try
                 {
-                    await serverPipe.WaitForConnectionAsync();
+                    await _serverPipe.WaitForConnectionAsync();
                 }
                 catch (System.IO.IOException e)
                 {
-                    serverPipe.Close();
-                    serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
+                    Log.Error(e.ToString());
+                    _serverPipe.Close();
+                    _serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
                         1,
                         PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-                    await serverPipe.WaitForConnectionAsync();
+                    await _serverPipe.WaitForConnectionAsync();
                 }
 
-                reader = new StreamReader(serverPipe);
-                writer = new StreamWriter(serverPipe);
+                _reader = new StreamReader(_serverPipe);
+                _writer = new StreamWriter(_serverPipe);
                 continue;
             }
 
@@ -83,8 +80,8 @@ Justification given by the Fork : " + requests[2]);
 
                     string response = await msgBox.Show();
 
-                    await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
-                    await writer.FlushAsync();
+                    await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await _writer.FlushAsync();
                     //data.Wait();
                     //var AAAAA = data;
                     return Task.CompletedTask;
@@ -104,8 +101,8 @@ Justification given by the Fork : " + requests[2]);
 
                     string response = await msgBox.Show();
 
-                    await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
-                    await writer.FlushAsync();
+                    await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await _writer.FlushAsync();
                     //data.Wait();
                     //var AAAAA = data;
                     return Task.CompletedTask;
@@ -126,8 +123,8 @@ What follows is given by the build, we do not control what is written in the Fol
 
                     string response = await msgBox.Show();
 
-                    await writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
-                    await writer.FlushAsync();
+                    await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await _writer.FlushAsync();
                     //data.Wait();
                     //var AAAAA = data;
                     return Task.CompletedTask;
@@ -208,7 +205,7 @@ public class SecurityPanelViewModel : PanelBase
 
     public void OnSetUpPipe()
     {
-        var data = new Testing();
+        var data = new PipeHubBuildCommunication();
         new Task(data.Do).Start();
     }
 
@@ -238,8 +235,20 @@ public class SecurityPanelViewModel : PanelBase
         // Do something with the common files
         foreach (FileInfo file in commonFiles)
         {
-            File.Copy(sourceDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name).FullName,
-                targetDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name).FullName, true);
+            var sourceFile = sourceDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name);
+            if (sourceFile == null)
+            {
+                throw new Exception("Common files don't match somehow?!");
+            }
+            
+            var targetFile = targetDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name);
+            if (targetFile == null)
+            {
+                throw new Exception("Common files don't match somehow?!");
+            }
+            
+            File.Copy(sourceFile.FullName,
+                targetFile.FullName, true);
             Console.WriteLine($"Common file: {file.FullName}");
         }
 
@@ -249,8 +258,9 @@ public class SecurityPanelViewModel : PanelBase
 
     class FileInfoComparer : IEqualityComparer<FileInfo>
     {
-        public bool Equals(FileInfo x, FileInfo y)
+        public bool Equals(FileInfo? x, FileInfo? y)
         {
+            if (x == null || y == null) return false;
             return x.Name.Equals(y.Name, StringComparison.OrdinalIgnoreCase);
         }
 
@@ -262,170 +272,169 @@ public class SecurityPanelViewModel : PanelBase
 
     public void OnScan()
     {
-        Action<string> Info = new Action<string>((string log) => { });
-        Action<string> Errors = new Action<string>((string log) => { });
+        Action<string> info = new Action<string>((string log) => { });
+        Action<string> errors = new Action<string>((string log) => { });
         
         // Create a DirectoryInfo object for the directory
         DirectoryInfo directory = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
 
-        DirectoryInfo Stagingdirectory = directory.CreateSubdirectory("staging"); //TODO temp
-        DirectoryInfo Processingdirectory = directory.CreateSubdirectory("processing");
-        DirectoryInfo Datapath = null;
+        DirectoryInfo stagingDirectory = directory.CreateSubdirectory("staging"); //TODO temp
+        DirectoryInfo processingDirectory = directory.CreateSubdirectory("processing");
+        DirectoryInfo? dataPath = null;
 
         try
         {
-            deleteContentsOfDirectory(Processingdirectory);
-            Info.Invoke("Copying files");
-            CopyFilesRecursively(Stagingdirectory.ToString(), Processingdirectory.ToString());
+            DeleteContentsOfDirectory(processingDirectory);
+            info.Invoke("Copying files");
+            CopyFilesRecursively(stagingDirectory.ToString(), processingDirectory.ToString());
 
-            Info.Invoke("Cleaning out Dlls and Executables");
-            DeleteFilesWithExtension(Processingdirectory.ToString(), "exe");
-            DeleteFilesWithExtension(Processingdirectory.ToString(), "dll");
+            info.Invoke("Cleaning out Dlls and Executables");
+            DeleteFilesWithExtension(processingDirectory.ToString(), "exe");
+            DeleteFilesWithExtension(processingDirectory.ToString(), "dll");
 
             // Get all files in the directory
-            var Directories = Processingdirectory.GetDirectories();
+            var directories = processingDirectory.GetDirectories();
 
 
             // Loop through each file
-            foreach (var Directorie in Directories)
+            foreach (var directorie in directories)
             {
-                if (Directorie.Name.Contains("_Data"))
+                if (directorie.Name.Contains("_Data"))
                 {
-                    if (Datapath != null)
+                    if (dataPath != null)
                     {
-                        Errors.Invoke("oh God 2 Datapaths Exiting!!!");
+                        errors.Invoke("oh God 2 Datapaths Exiting!!!");
                         return;
                     }
 
-                    Datapath = Directorie;
+                    dataPath = directorie;
                 }
             }
 
-            if (Datapath == null)
+            if (dataPath == null)
             {
-                Errors.Invoke("oh God NO Datapath Exiting!!!");
+                errors.Invoke("oh God NO Datapath Exiting!!!");
                 return;
             }
 
             
-            var StagingManaged =
-                Processingdirectory.CreateSubdirectory(Path.Combine(Datapath.Name, "Managed"));
+            var stagingManaged =
+                processingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, "Managed"));
 
-            var DLLDirectory = Datapath.CreateSubdirectory("Managed");
+            var dllDirectory = dataPath.CreateSubdirectory("Managed");
 
-            CopyFilesRecursively(StagingManaged.ToString(), DLLDirectory.ToString());
+            CopyFilesRecursively(stagingManaged.ToString(), dllDirectory.ToString());
 
 
-            DirectoryInfo GoodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+            DirectoryInfo goodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
                 "GoodFiles", "VDev", "Managed"));
 
-            Info.Invoke("Proceeding to scan folder");
-            if (ScanFolder(DLLDirectory, GoodFileCopy, Info, Errors) == false)
+            info.Invoke("Proceeding to scan folder");
+            if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
             {
-                deleteContentsOfDirectory(Processingdirectory);
+                DeleteContentsOfDirectory(processingDirectory);
                 return;
             }
 
-            var PluginsFolder = Datapath.CreateSubdirectory("Plugins");
-            PluginsFolder.Delete(true);
+            var pluginsFolder = dataPath.CreateSubdirectory("Plugins");
+            pluginsFolder.Delete(true);
 
-            PluginsFolder = Datapath.CreateSubdirectory("Plugins");
+            pluginsFolder = dataPath.CreateSubdirectory("Plugins");
 
-            DirectoryInfo GoodPluginsCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+            DirectoryInfo goodPluginsCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
                 "GoodFiles", "VDev", "Plugins"));
 
             //TODO OS Switch?
-            CopyFilesRecursively(GoodPluginsCopy.ToString(), PluginsFolder.ToString());
+            CopyFilesRecursively(goodPluginsCopy.ToString(), pluginsFolder.ToString());
 
 
-            var MonoBleedingEdge = Processingdirectory.CreateSubdirectory("MonoBleedingEdge");
+            var monoBleedingEdge = processingDirectory.CreateSubdirectory("MonoBleedingEdge");
 
-            MonoBleedingEdge.Delete(true);
+            monoBleedingEdge.Delete(true);
 
 
-            var GOODRoot = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
+            var goodRoot = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
                 "GoodFiles", "VDev", "Root"));
 
             try
             {
-                CopyFilesRecursively(GOODRoot.ToString(), Processingdirectory.ToString());
+                CopyFilesRecursively(goodRoot.ToString(), processingDirectory.ToString());
             }
             catch (Exception e)
             {
-                Errors.Invoke("e > " + e);
-                deleteContentsOfDirectory(Processingdirectory);
+                errors.Invoke("e > " + e);
+                DeleteContentsOfDirectory(processingDirectory);
                 return;
             }
 
 
-            var exeRename = Processingdirectory.GetFiles()
+            var exeRename = processingDirectory.GetFiles()
                 .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
 
-            if (exeRename == null)
+            if (exeRename == null || exeRename.Directory == null)
             {
-                Errors.Invoke("no Executable found ");
-                deleteContentsOfDirectory(Processingdirectory);
+                errors.Invoke("no Executable found ");
+                DeleteContentsOfDirectory(processingDirectory);
                 return;
             }
 
-            exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), Datapath.Name.Replace("_Data", "") + ".exe"));
+            exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
 
 
-            DirectoryInfo GoodBuilddirectory = directory.CreateSubdirectory("GoodBuild");
-            deleteContentsOfDirectory(GoodBuilddirectory);
-            CopyFilesRecursively(Processingdirectory.ToString(), GoodBuilddirectory.ToString());
-            deleteContentsOfDirectory(Processingdirectory);
+            DirectoryInfo goodBuilddirectory = directory.CreateSubdirectory("GoodBuild");
+            DeleteContentsOfDirectory(goodBuilddirectory);
+            CopyFilesRecursively(processingDirectory.ToString(), goodBuilddirectory.ToString());
+            DeleteContentsOfDirectory(processingDirectory);
             //deleteContentsOfDirectory(Stagingdirectory); TODO
         }
         catch (Exception e)
         {
-            Errors.Invoke( " an Error happened > " + e.ToString());
-            deleteContentsOfDirectory(Processingdirectory);
+            errors.Invoke( " an Error happened > " + e.ToString());
+            DeleteContentsOfDirectory(processingDirectory);
             //deleteContentsOfDirectory(Stagingdirectory); TODO
             return;
         }
     }
 
-    public bool ScanFolder(DirectoryInfo Unsafe, DirectoryInfo SaveFiles, Action<string> Info, Action<string> Errors)
+    public bool ScanFolder(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
     {
-        var GoodFiles = SaveFiles.GetFiles().Select(x => x.Name).ToList();
+        var goodFiles = saveFiles.GetFiles().Select(x => x.Name).ToList();
 
-        Info.Invoke("Provided files " + string.Join(",", GoodFiles));
+        info.Invoke("Provided files " + string.Join(",", goodFiles));
         
-        CopyFilesRecursively(SaveFiles.ToString(), Unsafe.ToString());
+        CopyFilesRecursively(saveFiles.ToString(), @unsafe.ToString());
 
-        var Files = Unsafe.GetFiles();
+        var files = @unsafe.GetFiles();
+        
 
-        List<FileInfo> ToDelete = new List<FileInfo>();
+        List<string> multiAssemblyReference = new List<string>();
 
-        List<string> MultiAssemblyReference = new List<string>();
-
-        foreach (var File in Files)
+        foreach (var file in files)
         {
-            if (GoodFiles.Contains(File.Name)) continue;
-            MultiAssemblyReference.Add(Path.GetFileNameWithoutExtension(File.Name));
+            if (goodFiles.Contains(file.Name)) continue;
+            multiAssemblyReference.Add(Path.GetFileNameWithoutExtension(file.Name));
         }
 
 
-        foreach (var File in Files)
+        foreach (var file in files)
         {
-            if (GoodFiles.Contains(File.Name)) continue;
+            if (goodFiles.Contains(file.Name)) continue;
 
-            Info.Invoke("Scanning " + File.Name);
+            info.Invoke("Scanning " + file.Name);
 
             try
             {
-                var Listy = MultiAssemblyReference.ToList();
-                Listy.Remove(Path.GetFileNameWithoutExtension(File.Name));
-                if (_IAssemblyChecker.CheckAssembly(File, Unsafe, Listy, Errors) == false)
+                var listy = multiAssemblyReference.ToList();
+                listy.Remove(Path.GetFileNameWithoutExtension(file.Name));
+                if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, errors) == false)
                 {
-                    Errors.Invoke($"{File.Name} Failed scanning Cancelling");
+                    errors.Invoke($"{file.Name} Failed scanning Cancelling");
                     return false;
                 }
             }
             catch (Exception e)
             {
-                Errors.Invoke(" Failed scan due to error of " + e.ToString());
+                errors.Invoke(" Failed scan due to error of " + e.ToString());
                 return false;
             }
         }
@@ -437,7 +446,7 @@ public class SecurityPanelViewModel : PanelBase
 
     #region Utilities
 
-    public void deleteContentsOfDirectory(DirectoryInfo directory)
+    public static void DeleteContentsOfDirectory(DirectoryInfo directory)
     {
         // Delete files within the folder
         var files = directory.GetFiles();
@@ -454,7 +463,7 @@ public class SecurityPanelViewModel : PanelBase
         }
     }
 
-    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool Recursive = true)
+    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool recursive = true)
     {
         DirectoryInfo directory = new DirectoryInfo(directoryPath);
 
@@ -474,7 +483,7 @@ public class SecurityPanelViewModel : PanelBase
             Console.WriteLine("Deleted file: " + file.FullName);
         }
 
-        if (Recursive)
+        if (recursive)
         {
             // Recursively process subdirectories
             DirectoryInfo[] subdirectories = directory.GetDirectories();
