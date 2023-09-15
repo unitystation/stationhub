@@ -21,7 +21,7 @@ namespace UnitystationLauncher
             builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
             builder.RegisterType<AssemblyTypeChecker>().As<IAssemblyChecker>().SingleInstance();
             
-            builder.RegisterType<IFileService>().As<FileService>().SingleInstance();
+            builder.RegisterType<FileService>().As<IFileService >().SingleInstance();
            
             builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
             // View Models
