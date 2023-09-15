@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using ILVerify;
-using Newtonsoft.Json;
 using Pidgin;
 using Serilog;
 using UnitystationLauncher.Services.Interface;
@@ -22,20 +22,22 @@ public sealed partial class AssemblyTypeChecker
         
         using (StreamReader file = _fileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
         {
-            JsonSerializer serializer = new JsonSerializer();
             try
             {
-                var data = (SandboxConfig?) serializer.Deserialize(file, typeof(SandboxConfig));
+                var data = JsonSerializer.Deserialize<SandboxConfig>(file.ReadToEnd(), new JsonSerializerOptions()
+                {
+                    AllowTrailingCommas = true
+                });
                 if (data == null)
                 {
                     Log.Error("unable to de-serialise config");
                     throw new Exception("unable to de-serialise config");
                 }
-                foreach (var Namespace in data.Types)
+                foreach (var @namespace in data.Types)
                 {
-                    foreach (var Class in Namespace.Value)
+                    foreach (var @class in @namespace.Value)
                     {
-                        ParseTypeConfig(Class.Value);
+                        ParseTypeConfig(@class.Value);
                     }
                 }
 

@@ -62,7 +62,6 @@
     <PackageReference Include="MessageBox.Avalonia" Version="2.1.0" />
     <PackageReference Include="Microsoft.ILVerification" Version="8.0.0-preview.6.23329.7" />
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9.3" />
     <PackageReference Include="Pidgin" Version="3.2.2" />
     <PackageReference Include="ReactiveProperty" Version="8.2.0" />

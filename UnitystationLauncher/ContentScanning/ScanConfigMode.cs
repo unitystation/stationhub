@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using ILVerify;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace UnitystationLauncher.ContentScanning;
 
@@ -12,11 +10,11 @@ namespace UnitystationLauncher.ContentScanning;
 
 public sealed class SandboxConfig
 {
-    public string SystemAssemblyName = default!;
-    public HashSet<VerifierError> AllowedVerifierErrors = default!;
-    public List<string> WhitelistedNamespaces = default!;
-    public List<string> WhitelistedAssembliesDEBUG = new List<string>();
-    public Dictionary<string, Dictionary<string, TypeConfig>> Types = default!;
+    public string SystemAssemblyName  { get; set; }
+    public List<VerifierError> AllowedVerifierErrors  { get; set; }
+    public List<string> WhitelistedNamespaces { get; set; }
+    public List<string> MultiAssemblyOtherReferences { get; set; }
+    public Dictionary<string, Dictionary<string, TypeConfig>> Types { get; set; }
 }
 
 
@@ -90,12 +88,12 @@ public sealed class TypeConfig
     // e.g. nested types or namespace whitelist.
     public static readonly TypeConfig DefaultAll = new TypeConfig {All = true};
 
-    public bool All;
-    public InheritMode Inherit = InheritMode.Default;
-    public string[]? Methods;
+    public bool All  { get; set; }
+    public InheritMode Inherit { get; set; } = InheritMode.Default;
+    public string[]? Methods  { get; set; }
     [NonSerialized] public WhitelistMethodDefine[] MethodsParsed = Array.Empty<WhitelistMethodDefine>();
-    public string[]? Fields;
+    public string[]? Fields  { get; set; }
     [NonSerialized] public WhitelistFieldDefine[] FieldsParsed = Array.Empty<WhitelistFieldDefine>();
-    public Dictionary<string, TypeConfig>? NestedTypes;
+    public Dictionary<string, TypeConfig>? NestedTypes  { get; set; }
 }
 
