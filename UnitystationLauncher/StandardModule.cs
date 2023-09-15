@@ -22,7 +22,8 @@ namespace UnitystationLauncher
             builder.RegisterType<AssemblyTypeChecker>().As<IAssemblyChecker>().SingleInstance();
             
             builder.RegisterType<IFileService>().As<FileService>().SingleInstance();
-            
+           
+            builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("ViewModel"));

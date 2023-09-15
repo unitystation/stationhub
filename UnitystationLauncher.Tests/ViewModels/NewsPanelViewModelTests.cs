@@ -1,8 +1,6 @@
-using FluentAssertions;
 using UnitystationLauncher.Services.Interface;
 using UnitystationLauncher.Tests.MocksRepository;
 using UnitystationLauncher.ViewModels;
-using Xunit;
 
 namespace UnitystationLauncher.Tests.ViewModels;
 
@@ -17,6 +15,16 @@ public static class NewsPanelViewModelTests
         NewsPanelViewModel newsPanelViewModel = new(null!, blogService);
         newsPanelViewModel.BlogPosts.Count.Should().Be(3);
         newsPanelViewModel.NewsHeader.Should().Be("News (1/3)");
+    }
+
+    [Fact]
+    public static void NewsPanelViewModel_ShouldHandleExceptionInBlogService()
+    {
+        IBlogService blogService = MockBlogService.ThrowsException();
+
+        NewsPanelViewModel newsPanelViewModel = new(null!, blogService);
+        newsPanelViewModel.NewsHeader.Should().Be("News (1/1)");
+        newsPanelViewModel.CurrentBlogPost.Title.Should().Be("Error fetching blog posts");
     }
     #endregion
 

@@ -65,6 +65,18 @@
 </screenshots>
 
 <releases>
+	<release version="933" date="2023-08-10">
+		<description>
+			<p>Bug Fixes:</p>
+			<ul>
+				<li>Fixes a crash that would happen when the blog API was not available.</li>
+			</ul>
+			<p>Improvements:</p>
+			<ul>
+				<li>Several improvements that will make the application more resilient to regression errors.</li>
+			</ul>
+		</description>
+	</release>
 	<release version="932" date="2023-06-03">
 		<description>
 			<p>Feature Changes:</p>
