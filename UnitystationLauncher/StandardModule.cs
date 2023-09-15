@@ -21,6 +21,8 @@ namespace UnitystationLauncher
             builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
             builder.RegisterType<AssemblyTypeChecker>().As<IAssemblyChecker>().SingleInstance();
             
+            builder.RegisterType<IFileService>().As<FileService>().SingleInstance();
+            
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("ViewModel"));

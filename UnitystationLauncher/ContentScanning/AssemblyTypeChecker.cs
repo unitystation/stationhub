@@ -46,11 +46,14 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
     private readonly IEnvironmentService _environmentService;
 
-    public AssemblyTypeChecker(IEnvironmentService environmentService)
+    private readonly IFileService _FileService;
+    
+    public AssemblyTypeChecker(IEnvironmentService environmentService, IFileService FileService)
     {
         _environmentService = environmentService;
         VerifyIL = true;
         DisableTypeCheck = false;
+        _FileService = FileService;
         _config = Task.Run(() => LoadConfig());
     }
     

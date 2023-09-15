@@ -14,14 +14,12 @@ public sealed partial class AssemblyTypeChecker
 {
     private static string NameConfig = @"CodeScanList.json"; //TODO!!!
     
-
-
     private SandboxConfig LoadConfig()
     {
         
-        if (File.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false) return null; //TODO Needs a file on the server to download
+        if (_FileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false) return null; //TODO Needs a file on the server to download
         
-        using (StreamReader file = File.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
+        using (StreamReader file = _FileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
         {
             JsonSerializer serializer = new JsonSerializer();
             try
