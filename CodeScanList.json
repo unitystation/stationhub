@@ -35,15 +35,15 @@
 			"WebSocketSessionManager": {
 				"All": true
 			},
-			"WebSocketBehavior":{
-				"All": true
-			},
 			"IWebSocketSession" : {
 				"All": true
 			},
 			"WebSocketServiceManager" :{
 				"All": true
-			}
+			},
+			"WebSocketServiceHost" :{
+				"All": true,
+			},
 		},
 		"WebSocketSharp.Net.WebSockets" :{
 			"WebSocketContext":{
@@ -3455,26 +3455,6 @@
 				"All": true,
 				"TEMP" :  true
 			},
-		},
-		"WebSocketSharp.Server" :{
-			"WebSocketServiceHost" :{
-				"All": true,
-			},
-			"WebSocketBehavior" : {
-				"All": true,
-			},
-			"WebSocketSessionManager" : {
-				"All": true,
-			},
-			"WebSocketServiceManager" : {
-				"All": true,
-			},
-			"IWebSocketSession" : {
-				"All": true,
-			},
-			"HttpServer" : {
-				"All": true,
-			}
 		},
 		"C5" :{
 			"IntervalHeap`1" : {

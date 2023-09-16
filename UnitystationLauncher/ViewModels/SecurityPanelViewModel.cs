@@ -14,7 +14,7 @@ using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels;
 
-public class PipeHubBuildCommunication
+public class PipeHubBuildCommunication : IDisposable
 {
     private NamedPipeServerStream _serverPipe;
     private StreamReader? _reader;
@@ -125,13 +125,19 @@ What follows is given by the build, we do not control what is written in the Fol
 
                     await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                     await _writer.FlushAsync();
-                    //data.Wait();
-                    //var AAAAA = data;
                     return Task.CompletedTask;
                 });
             }
         }
     }
+
+    public void Dispose()
+    {
+        _serverPipe.Dispose();
+        _reader?.Dispose();
+        _writer?.Dispose();
+    }
+    
 }
 
 public class SecurityPanelViewModel : PanelBase
@@ -238,13 +244,13 @@ public class SecurityPanelViewModel : PanelBase
             var sourceFile = sourceDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name);
             if (sourceFile == null)
             {
-                throw new Exception("Common files don't match somehow?!");
+                throw new FileNotFoundException("Common files don't match somehow?!");
             }
             
             var targetFile = targetDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name);
             if (targetFile == null)
             {
-                throw new Exception("Common files don't match somehow?!");
+                throw new FileNotFoundException("Common files don't match somehow?!");
             }
             
             File.Copy(sourceFile.FullName,
@@ -389,10 +395,9 @@ public class SecurityPanelViewModel : PanelBase
         }
         catch (Exception e)
         {
-            errors.Invoke( " an Error happened > " + e.ToString());
+            errors.Invoke( " an Error happened > " + e);
             DeleteContentsOfDirectory(processingDirectory);
             //deleteContentsOfDirectory(Stagingdirectory); TODO
-            return;
         }
     }
 
@@ -426,7 +431,7 @@ public class SecurityPanelViewModel : PanelBase
             {
                 var listy = multiAssemblyReference.ToList();
                 listy.Remove(Path.GetFileNameWithoutExtension(file.Name));
-                if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, errors) == false)
+                if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, info ,errors) == false)
                 {
                     errors.Invoke($"{file.Name} Failed scanning Cancelling");
                     return false;
@@ -434,7 +439,7 @@ public class SecurityPanelViewModel : PanelBase
             }
             catch (Exception e)
             {
-                errors.Invoke(" Failed scan due to error of " + e.ToString());
+                errors.Invoke(" Failed scan due to error of " + e);
                 return false;
             }
         }

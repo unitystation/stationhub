@@ -79,7 +79,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
             if (assemblyName.Name == null)
             {
-                throw new Exception("Unable to find it " + assemblyName.FullName);
+                throw new FileNotFoundException("Unable to find " + assemblyName.FullName);
             }
 
             if (_dictionaryLookup.TryGetValue(assemblyName.Name, out var assembly))
@@ -101,7 +101,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 }
             }
 
-            throw new Exception("Unable to find it " + assemblyName.FullName);
+            throw new FileNotFoundException("Unable to find it " + assemblyName.FullName);
         }
 
         public Resolver(DirectoryInfo inManagedPath)
@@ -113,7 +113,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
             //TODO idk This is never used anywhere
             throw new NotImplementedException(
-                "idk How IResolver.ResolveModule(AssemblyName referencingAssembly, string fileName) , And it's never been called so.. ");
+                $"idk How IResolver.ResolveModule(AssemblyName {referencingAssembly}, string {fileName}) , And it's never been called so.. ");
         }
     }
 
@@ -126,15 +126,20 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
     ///     Check the assembly for any illegal types. Any types not on the white list
     ///     will cause the assembly to be rejected.
     /// </summary>
+    /// <param name="diskPath"></param>
+    /// <param name="managedPath"></param>
+    /// <param name="otherAssemblies"></param>
+    /// <param name="info"></param>
+    /// <param name="Errors"></param>
     /// <param name="assembly">Assembly to load.</param>
     /// <returns></returns>
-    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo ManagedPath, List<string> OtherAssemblies, Action<string> Errors)
+    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies, Action<string>  info ,  Action<string> Errors)
     {
         
         using var assembly = diskPath.OpenRead();
-        //var fullStopwatch = Stopwatch.StartNew();
+        var fullStopwatch = Stopwatch.StartNew();
 
-        var resolver = CreateResolver(ManagedPath);
+        var resolver = CreateResolver(managedPath);
         using var peReader = new PEReader(assembly, PEStreamOptions.LeaveOpen);
         var reader = peReader.GetMetadataReader();
 
@@ -148,7 +153,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
         if (VerifyIl)
         {
-            if (DoVerifyIL(asmName, resolver, peReader, reader) == false)
+            if (DoVerifyIL(asmName, resolver, peReader, reader, info , Errors) == false)
             {
                 Errors.Invoke($"Assembly {asmName} Has invalid IL code");
                 return false;
@@ -161,36 +166,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         var types = GetReferencedTypes(reader, errors);
         var members = GetReferencedMembers(reader, errors);
         var inherited = GetExternalInheritedTypes(reader, errors);
-        //_sawmill.Debug($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
-
-        // if ((Dump & DumpFlags.Types) != 0)
-        // {
-        //     foreach (var mType in types)
-        //     {
-        //         // _sawmill.Debug($"RefType: {mType}");
-        //     }
-        // }
-        //
-        // if ((Dump & DumpFlags.Members) != 0)
-        // {
-        //     foreach (var memberRef in members)
-        //     {
-        //         // _sawmill.Debug($"RefMember: {memberRef}");
-        //     }
-        // }
-        //
-        // if ((Dump & DumpFlags.Inheritance) != 0)
-        // {
-        //     foreach (var (name, baseType, interfaces) in inherited)
-        //     {
-        //         //  _sawmill.Debug($"Inherit: {name} -> {baseType}");
-        //         foreach (var @interface in interfaces)
-        //         {
-        //             //        _sawmill.Debug($"  Interface: {@interface}");
-        //         }
-        //     }
-        // }
-
+        info.Invoke($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
+        
         if (DisableTypeCheck)
         {
             resolver.Dispose();
@@ -203,7 +180,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 #pragma warning restore RA0004
 
         loadedConfig.MultiAssemblyOtherReferences.Clear();
-        loadedConfig.MultiAssemblyOtherReferences.AddRange(OtherAssemblies);
+        loadedConfig.MultiAssemblyOtherReferences.AddRange(otherAssemblies);
         
         // We still do explicit type reference scanning, even though the actual whitelists work with raw members.
         // This is so that we can simplify handling of generic type specifications during member checking:
@@ -216,19 +193,19 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             }
         }
 
-        // _sawmill.Debug($"Types... {fullStopwatch.ElapsedMilliseconds}ms");
+        info.Invoke($"Types... {fullStopwatch.ElapsedMilliseconds}ms");
 
         CheckInheritance(loadedConfig, inherited, errors);
 
-        // _sawmill.Debug($"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms");
+        info.Invoke($"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms");
 
         CheckNoUnmanagedMethodDefs(reader, errors);
 
-        //_sawmill.Debug($"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms");
+        info.Invoke($"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms");
 
         CheckNoTypeAbuse(reader, errors);
 
-        // _sawmill.Debug($"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms");
+        info.Invoke($"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms");
 
         CheckMemberReferences(loadedConfig, members, errors);
 
@@ -239,7 +216,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             Errors.Invoke($"Sandbox violation: {error.Message}");
         }
 
-        //_sawmill.Debug($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
+        info.Invoke($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
         resolver.Dispose();
         peReader.Dispose();
         return errors.IsEmpty;
@@ -249,9 +226,11 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         string name,
         IResolver resolver,
         PEReader peReader,
-        MetadataReader reader)
+        MetadataReader reader, 
+        Action<string>  info, 
+        Action<string> logErrors)
     {
-        //_sawmill.Debug($"{name}: Verifying IL...");
+        info.Invoke($"{name}: Verifying IL...");
         var sw = Stopwatch.StartNew();
         var bag = new ConcurrentBag<VerificationResult>();
 
@@ -288,11 +267,9 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 }
             }
         }
-
-
+        
         var loadedCfg = _config.Result;
-
-
+        
         var verifyErrors = false;
         foreach (var res in bag)
         {
@@ -320,10 +297,10 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
 
             verifyErrors = true;
-            // _sawmill.Error(msg);
+            logErrors.Invoke(msg);
         }
 
-        // _sawmill.Debug($"{name}: Verified IL in {sw.Elapsed.TotalMilliseconds}ms");
+        info.Invoke($"{name}: Verified IL in {sw.Elapsed.TotalMilliseconds}ms");
 
         if (verifyErrors)
         {

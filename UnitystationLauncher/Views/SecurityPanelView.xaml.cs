@@ -7,10 +7,8 @@ namespace UnitystationLauncher.Views
 {
     public class SecurityPanelView : UserControl
     {
-        //public ReactiveCommand<Unit, Unit> OnClickCommand { get; }
         public SecurityPanelView()
         {
-            //OnClickCommand = ReactiveCommand.Create(() => { DoThing(); });
             InitializeComponent();
         }
 

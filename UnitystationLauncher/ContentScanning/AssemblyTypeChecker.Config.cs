@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -18,20 +19,22 @@ public sealed partial class AssemblyTypeChecker
     private SandboxConfig LoadConfig()
     {
         
-        if (_fileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false) throw new NotImplementedException("Config is not downloaded"); //TODO Needs a file on the server to download
+        if (_fileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false){
+            throw new NotImplementedException("Config is not downloaded"); //TODO Needs a file on the server to download
+        }
         
         using (StreamReader file = _fileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
         {
             try
             {
-                var data = JsonSerializer.Deserialize<SandboxConfig>(file.ReadToEnd(), new JsonSerializerOptions()
+                var data = JsonSerializer.Deserialize<SandboxConfig>(file.ReadToEnd(), new JsonSerializerOptions
                 {
                     AllowTrailingCommas = true
                 });
                 if (data == null)
                 {
                     Log.Error("unable to de-serialise config");
-                    throw new Exception("unable to de-serialise config");
+                    throw new DataException("unable to de-serialise config");
                 }
                 foreach (var @namespace in data.Types)
                 {
@@ -80,15 +83,15 @@ public sealed partial class AssemblyTypeChecker
             var list = new List<WhitelistFieldDefine>();
             foreach (var f in cfg.Fields)
             {
-                // try
-                // {
-                list.Add(FieldParser.ParseOrThrow(f));
-                // }
-                // catch (ParseException e)
-                // {
-                //     //sawmill.Error($"Parse exception for '{f}': {e}");
-                //     
-                // }
+                try
+                {
+                    list.Add(FieldParser.ParseOrThrow(f));
+                }
+                catch (ParseException e)
+                {
+                    Log.Error($"Parse exception for '{f}': {e}");
+                    throw;
+                }
             }
 
             cfg.FieldsParsed = list.ToArray();
