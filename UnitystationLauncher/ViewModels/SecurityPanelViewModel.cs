@@ -149,6 +149,7 @@ public class SecurityPanelViewModel : PanelBase
 
     public override void Refresh()
     {
+        //what does this do?!?
     }
 
     //TODO 
