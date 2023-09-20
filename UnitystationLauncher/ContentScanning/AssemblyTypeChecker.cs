@@ -458,7 +458,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                                 return; // Found
                             }
 
-                        paramMismatch:;
+                            paramMismatch:;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
