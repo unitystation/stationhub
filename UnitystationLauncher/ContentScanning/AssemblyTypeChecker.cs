@@ -926,7 +926,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             ArraySegment<MType> interfaceImpls;
             ScanningTypes.MTypeDefined type = GetTypeFromDefinition(reader, typeDefHandle);
 
-            if (!ParseInheritType(type, typeDef.BaseType, out var parent))
+            if (!ParseInheritType(type, typeDef.BaseType, out var parent,reader , errors))
             {
                 continue;
             }
@@ -944,7 +944,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 {
                     var interfaceImpl = reader.GetInterfaceImplementation(implHandle);
 
-                    if (ParseInheritType(type, interfaceImpl.Interface, out var implemented, errors))
+                    if (ParseInheritType(type, interfaceImpl.Interface, out var implemented,reader, errors))
                     {
                         interfaceImpls[i++] = implemented;
                     }
@@ -959,7 +959,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         return list;
     }
     
-    private bool ParseInheritType(MType ownerType, EntityHandle handle, [NotNullWhen(true)] out MType? type, ConcurrentBag<SandboxError> errors)
+    private bool ParseInheritType(MType ownerType, EntityHandle handle, [NotNullWhen(true)] out MType? type, MetadataReader reader ,ConcurrentBag<SandboxError> errors)
     {
         type = default;
 
