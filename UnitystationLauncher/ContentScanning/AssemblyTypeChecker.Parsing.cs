@@ -87,7 +87,7 @@ public sealed partial class AssemblyTypeChecker
                 Try(StringTypeParser),
                 Try(ObjectTypeParser),
                 TypedReferenceTypeParser)
-            .Select(code => (MType) new MTypePrimitive(code)).Labelled("Primitive type");
+            .Select(code => (MType)new MTypePrimitive(code)).Labelled("Primitive type");
 
     private static readonly Parser<char, string> NamespacedIdentifier =
         Token(c => char.IsLetterOrDigit(c) || c == '.' || c == '_' || c == '`')
@@ -103,12 +103,12 @@ public sealed partial class AssemblyTypeChecker
     private static readonly Parser<char, MType> GenericMethodPlaceholderParser =
         String("!!")
             .Then(Digit.AtLeastOnceString())
-            .Select(p => (MType) new MTypeGenericMethodPlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
+            .Select(p => (MType)new MTypeGenericMethodPlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
 
     private static readonly Parser<char, MType> GenericTypePlaceholderParser =
         String("!")
             .Then(Digit.AtLeastOnceString())
-            .Select(p => (MType) new MTypeGenericTypePlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
+            .Select(p => (MType)new MTypeGenericTypePlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
 
     private static readonly Parser<char, MType> GenericPlaceholderParser = Try(GenericTypePlaceholderParser)
         .Or(Try(GenericMethodPlaceholderParser)).Labelled("Generic placeholder");
@@ -142,7 +142,7 @@ public sealed partial class AssemblyTypeChecker
         String("ref")
             .Then(SkipWhitespaces)
             .Then(MaybeArrayTypeParser)
-            .Select(t => (MType) new MTypeByRef(t))
+            .Select(t => (MType)new MTypeByRef(t))
             .Labelled("ByRef type");
 
     private static readonly Parser<char, MType> TypeParser = Try(ByRefTypeParser).Or(MaybeArrayTypeParser);

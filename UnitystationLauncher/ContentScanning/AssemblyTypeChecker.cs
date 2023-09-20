@@ -143,7 +143,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
         var asmName = reader.GetString(reader.GetAssemblyDefinition().Name);
 
-        if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is {Size: not 0})
+        if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is { Size: not 0 })
         {
             Errors.Invoke($"Assembly {asmName} contains native code.");
             return false;
@@ -380,30 +380,30 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     switch (baseType)
                     {
                         case MTypeGeneric generic:
-                        {
-                            baseType = generic.GenericType;
+                            {
+                                baseType = generic.GenericType;
 
-                            break;
-                        }
+                                break;
+                            }
                         case MTypeWackyArray:
-                        {
-                            // Members on arrays (not to be confused with vectors) are all fine.
-                            // See II.14.2 in ECMA-335.
-                            return;
-                        }
+                            {
+                                // Members on arrays (not to be confused with vectors) are all fine.
+                                // See II.14.2 in ECMA-335.
+                                return;
+                            }
                         case MTypeDefined:
-                        {
-                            // Valid for this to show up, safe to ignore.
-                            return;
-                        }
+                            {
+                                // Valid for this to show up, safe to ignore.
+                                return;
+                            }
                         default:
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
+                            {
+                                throw new ArgumentOutOfRangeException();
+                            }
                     }
                 }
 
-                var baseTypeReferenced = (MTypeReferenced) baseType;
+                var baseTypeReferenced = (MTypeReferenced)baseType;
 
                 if (IsTypeAccessAllowed(sandboxConfig, baseTypeReferenced, out var typeCfg) == false)
                 {
@@ -423,19 +423,19 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 switch (memberRef)
                 {
                     case MMemberRefField mMemberRefField:
-                    {
-                        foreach (var field in typeCfg.FieldsParsed)
                         {
-                            if (field.Name == mMemberRefField.Name &&
-                                mMemberRefField.FieldType.WhitelistEquals(field.FieldType))
+                            foreach (var field in typeCfg.FieldsParsed)
                             {
-                                return; // Found
+                                if (field.Name == mMemberRefField.Name &&
+                                    mMemberRefField.FieldType.WhitelistEquals(field.FieldType))
+                                {
+                                    return; // Found
+                                }
                             }
-                        }
 
-                        errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
-                        break;
-                    }
+                            errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
+                            break;
+                        }
                     case MMemberRefMethod mMemberRefMethod:
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
@@ -458,7 +458,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                                 return; // Found
                             }
 
-                            paramMismatch: ;
+                        paramMismatch:;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
@@ -478,30 +478,30 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     switch (baseType)
                     {
                         case MTypeGeneric generic:
-                        {
-                            baseType = generic.GenericType;
+                            {
+                                baseType = generic.GenericType;
 
-                            break;
-                        }
+                                break;
+                            }
                         case MTypeWackyArray:
-                        {
-                            // Members on arrays (not to be confused with vectors) are all fine.
-                            // See II.14.2 in ECMA-335.
-                            continue;
-                        }
+                            {
+                                // Members on arrays (not to be confused with vectors) are all fine.
+                                // See II.14.2 in ECMA-335.
+                                continue;
+                            }
                         case MTypeDefined:
-                        {
-                            // Valid for this to show up, safe to ignore.
-                            continue;
-                        }
+                            {
+                                // Valid for this to show up, safe to ignore.
+                                continue;
+                            }
                         default:
-                        {
-                            throw new ArgumentOutOfRangeException();
-                        }
+                            {
+                                throw new ArgumentOutOfRangeException();
+                            }
                     }
                 }
 
-                var baseTypeReferenced = (MTypeReferenced) baseType;
+                var baseTypeReferenced = (MTypeReferenced)baseType;
 
                 if (IsTypeAccessAllowed(sandboxConfig, baseTypeReferenced, out var typeCfg) == false)
                 {
@@ -521,19 +521,19 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 switch (memberRef)
                 {
                     case MMemberRefField mMemberRefField:
-                    {
-                        foreach (var field in typeCfg.FieldsParsed)
                         {
-                            if (field.Name == mMemberRefField.Name &&
-                                mMemberRefField.FieldType.WhitelistEquals(field.FieldType))
+                            foreach (var field in typeCfg.FieldsParsed)
                             {
-                                continue; // Found
+                                if (field.Name == mMemberRefField.Name &&
+                                    mMemberRefField.FieldType.WhitelistEquals(field.FieldType))
+                                {
+                                    continue; // Found
+                                }
                             }
-                        }
 
-                        errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
-                        break;
-                    }
+                            errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
+                            break;
+                        }
                     case MMemberRefMethod mMemberRefMethod:
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
@@ -556,7 +556,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                                 continue; // Found
                             }
 
-                            paramMismatch: ;
+                        paramMismatch:;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
@@ -594,7 +594,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             {
                 var realBaseType = inheritType switch
                 {
-                    MTypeGeneric generic => (MTypeReferenced) generic.GenericType,
+                    MTypeGeneric generic => (MTypeReferenced)generic.GenericType,
                     MTypeReferenced referenced => referenced,
                     _ => throw new InvalidOperationException() // Can't happen.
                 };
@@ -616,7 +616,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
             if (type.ResolutionScope is MResScopeType parentType)
             {
-                if (IsTypeAccessAllowed(sandboxConfig, (MTypeReferenced) parentType.Type, out var parentCfg) == false)
+                if (IsTypeAccessAllowed(sandboxConfig, (MTypeReferenced)parentType.Type, out var parentCfg) == false)
                 {
                     cfg = null;
                     return false;
@@ -712,67 +712,67 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     {
                         // See II.22.25 in ECMA-335.
                         case HandleKind.TypeReference:
-                        {
-                            // Regular type reference.
-                            try
                             {
-                                parent = ParseTypeReference(reader, (TypeReferenceHandle) memRef.Parent);
-                            }
-                            catch (UnsupportedMetadataException u)
-                            {
-                                errors.Add(new SandboxError(u));
-                                return null;
-                            }
+                                // Regular type reference.
+                                try
+                                {
+                                    parent = ParseTypeReference(reader, (TypeReferenceHandle)memRef.Parent);
+                                }
+                                catch (UnsupportedMetadataException u)
+                                {
+                                    errors.Add(new SandboxError(u));
+                                    return null;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case HandleKind.TypeDefinition:
-                        {
-                            try
                             {
-                                parent = GetTypeFromDefinition(reader, (TypeDefinitionHandle) memRef.Parent);
-                            }
-                            catch (UnsupportedMetadataException u)
-                            {
-                                errors.Add(new SandboxError(u));
-                                return null;
-                            }
+                                try
+                                {
+                                    parent = GetTypeFromDefinition(reader, (TypeDefinitionHandle)memRef.Parent);
+                                }
+                                catch (UnsupportedMetadataException u)
+                                {
+                                    errors.Add(new SandboxError(u));
+                                    return null;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case HandleKind.TypeSpecification:
-                        {
-                            var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle) memRef.Parent);
-                            // Generic type reference.
-                            var provider = new TypeProvider();
-                            parent = typeSpec.DecodeSignature(provider, 0);
-
-                            if (parent.IsCoreTypeDefined())
                             {
-                                // Ensure this isn't a self-defined type.
-                                // This can happen due to generics since MethodSpec needs to point to MemberRef.
+                                var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)memRef.Parent);
+                                // Generic type reference.
+                                var provider = new TypeProvider();
+                                parent = typeSpec.DecodeSignature(provider, 0);
+
+                                if (parent.IsCoreTypeDefined())
+                                {
+                                    // Ensure this isn't a self-defined type.
+                                    // This can happen due to generics since MethodSpec needs to point to MemberRef.
+                                    return null;
+                                }
+
+                                break;
+                            }
+                        case HandleKind.ModuleReference:
+                            {
+                                errors.Add(new SandboxError(
+                                    $"Module global variables and methods are unsupported. Name: {memName}"));
                                 return null;
                             }
-
-                            break;
-                        }
-                        case HandleKind.ModuleReference:
-                        {
-                            errors.Add(new SandboxError(
-                                $"Module global variables and methods are unsupported. Name: {memName}"));
-                            return null;
-                        }
                         case HandleKind.MethodDefinition:
-                        {
-                            errors.Add(new SandboxError($"Vararg calls are unsupported. Name: {memName}"));
-                            return null;
-                        }
+                            {
+                                errors.Add(new SandboxError($"Vararg calls are unsupported. Name: {memName}"));
+                                return null;
+                            }
                         default:
-                        {
-                            errors.Add(new SandboxError(
-                                $"Unsupported member ref parent type: {memRef.Parent.Kind}. Name: {memName}"));
-                            return null;
-                        }
+                            {
+                                errors.Add(new SandboxError(
+                                    $"Unsupported member ref parent type: {memRef.Parent.Kind}. Name: {memName}"));
+                                return null;
+                            }
                     }
 
                     MMemberRef memberRef;
@@ -780,24 +780,24 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     switch (memRef.GetKind())
                     {
                         case MemberReferenceKind.Method:
-                        {
-                            var sig = memRef.DecodeMethodSignature(new TypeProvider(), 0);
+                            {
+                                var sig = memRef.DecodeMethodSignature(new TypeProvider(), 0);
 
-                            memberRef = new MMemberRefMethod(
-                                parent,
-                                memName,
-                                sig.ReturnType,
-                                sig.GenericParameterCount,
-                                sig.ParameterTypes);
+                                memberRef = new MMemberRefMethod(
+                                    parent,
+                                    memName,
+                                    sig.ReturnType,
+                                    sig.GenericParameterCount,
+                                    sig.ParameterTypes);
 
-                            break;
-                        }
+                                break;
+                            }
                         case MemberReferenceKind.Field:
-                        {
-                            var fieldType = memRef.DecodeFieldSignature(new TypeProvider(), 0);
-                            memberRef = new MMemberRefField(parent, memName, fieldType);
-                            break;
-                        }
+                            {
+                                var fieldType = memRef.DecodeFieldSignature(new TypeProvider(), 0);
+                                memberRef = new MMemberRefField(parent, memName, fieldType);
+                                break;
+                            }
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -818,67 +818,67 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     {
                         // See II.22.25 in ECMA-335.
                         case HandleKind.TypeReference:
-                        {
-                            // Regular type reference.
-                            try
                             {
-                                parent = ParseTypeReference(reader, (TypeReferenceHandle) memRef.Parent);
-                            }
-                            catch (UnsupportedMetadataException u)
-                            {
-                                errors.Add(new SandboxError(u));
-                                return null;
-                            }
+                                // Regular type reference.
+                                try
+                                {
+                                    parent = ParseTypeReference(reader, (TypeReferenceHandle)memRef.Parent);
+                                }
+                                catch (UnsupportedMetadataException u)
+                                {
+                                    errors.Add(new SandboxError(u));
+                                    return null;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case HandleKind.TypeDefinition:
-                        {
-                            try
                             {
-                                parent = GetTypeFromDefinition(reader, (TypeDefinitionHandle) memRef.Parent);
-                            }
-                            catch (UnsupportedMetadataException u)
-                            {
-                                errors.Add(new SandboxError(u));
-                                return null;
-                            }
+                                try
+                                {
+                                    parent = GetTypeFromDefinition(reader, (TypeDefinitionHandle)memRef.Parent);
+                                }
+                                catch (UnsupportedMetadataException u)
+                                {
+                                    errors.Add(new SandboxError(u));
+                                    return null;
+                                }
 
-                            break;
-                        }
+                                break;
+                            }
                         case HandleKind.TypeSpecification:
-                        {
-                            var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle) memRef.Parent);
-                            // Generic type reference.
-                            var provider = new TypeProvider();
-                            parent = typeSpec.DecodeSignature(provider, 0);
-
-                            if (parent.IsCoreTypeDefined())
                             {
-                                // Ensure this isn't a self-defined type.
-                                // This can happen due to generics since MethodSpec needs to point to MemberRef.
+                                var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)memRef.Parent);
+                                // Generic type reference.
+                                var provider = new TypeProvider();
+                                parent = typeSpec.DecodeSignature(provider, 0);
+
+                                if (parent.IsCoreTypeDefined())
+                                {
+                                    // Ensure this isn't a self-defined type.
+                                    // This can happen due to generics since MethodSpec needs to point to MemberRef.
+                                    return null;
+                                }
+
+                                break;
+                            }
+                        case HandleKind.ModuleReference:
+                            {
+                                errors.Add(new SandboxError(
+                                    $"Module global variables and methods are unsupported. Name: {memName}"));
                                 return null;
                             }
-
-                            break;
-                        }
-                        case HandleKind.ModuleReference:
-                        {
-                            errors.Add(new SandboxError(
-                                $"Module global variables and methods are unsupported. Name: {memName}"));
-                            return null;
-                        }
                         case HandleKind.MethodDefinition:
-                        {
-                            errors.Add(new SandboxError($"Vararg calls are unsupported. Name: {memName}"));
-                            return null;
-                        }
+                            {
+                                errors.Add(new SandboxError($"Vararg calls are unsupported. Name: {memName}"));
+                                return null;
+                            }
                         default:
-                        {
-                            errors.Add(new SandboxError(
-                                $"Unsupported member ref parent type: {memRef.Parent.Kind}. Name: {memName}"));
-                            return null;
-                        }
+                            {
+                                errors.Add(new SandboxError(
+                                    $"Unsupported member ref parent type: {memRef.Parent.Kind}. Name: {memName}"));
+                                return null;
+                            }
                     }
 
                     MMemberRef memberRef;
@@ -886,24 +886,24 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     switch (memRef.GetKind())
                     {
                         case MemberReferenceKind.Method:
-                        {
-                            var sig = memRef.DecodeMethodSignature(new TypeProvider(), 0);
+                            {
+                                var sig = memRef.DecodeMethodSignature(new TypeProvider(), 0);
 
-                            memberRef = new MMemberRefMethod(
-                                parent,
-                                memName,
-                                sig.ReturnType,
-                                sig.GenericParameterCount,
-                                sig.ParameterTypes);
+                                memberRef = new MMemberRefMethod(
+                                    parent,
+                                    memName,
+                                    sig.ReturnType,
+                                    sig.GenericParameterCount,
+                                    sig.ParameterTypes);
 
-                            break;
-                        }
+                                break;
+                            }
                         case MemberReferenceKind.Field:
-                        {
-                            var fieldType = memRef.DecodeFieldSignature(new TypeProvider(), 0);
-                            memberRef = new MMemberRefField(parent, memName, fieldType);
-                            break;
-                        }
+                            {
+                                var fieldType = memRef.DecodeFieldSignature(new TypeProvider(), 0);
+                                memberRef = new MMemberRefField(parent, memName, fieldType);
+                                break;
+                            }
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -973,7 +973,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     // Regular type reference.
                     try
                     {
-                        type = ParseTypeReference(reader, (TypeReferenceHandle) handle);
+                        type = ParseTypeReference(reader, (TypeReferenceHandle)handle);
                         return true;
                     }
                     catch (UnsupportedMetadataException u)
@@ -983,7 +983,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     }
 
                 case HandleKind.TypeSpecification:
-                    var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle) handle);
+                    var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)handle);
                     // Generic type reference.
                     var provider = new TypeProvider();
                     type = typeSpec.DecodeSignature(provider, 0);
@@ -1043,27 +1043,27 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         switch (typeRef.ResolutionScope.Kind)
         {
             case HandleKind.AssemblyReference:
-            {
-                // Different assembly.
-                var assemblyRef =
-                    reader.GetAssemblyReference((AssemblyReferenceHandle) typeRef.ResolutionScope);
-                var assemblyName = reader.GetString(assemblyRef.Name);
-                resScope = new MResScopeAssembly(assemblyName);
-                break;
-            }
+                {
+                    // Different assembly.
+                    var assemblyRef =
+                        reader.GetAssemblyReference((AssemblyReferenceHandle)typeRef.ResolutionScope);
+                    var assemblyName = reader.GetString(assemblyRef.Name);
+                    resScope = new MResScopeAssembly(assemblyName);
+                    break;
+                }
             case HandleKind.TypeReference:
-            {
-                // Nested type.
-                var enclosingType = ParseTypeReference(reader, (TypeReferenceHandle) typeRef.ResolutionScope);
-                resScope = new MResScopeType(enclosingType);
-                break;
-            }
+                {
+                    // Nested type.
+                    var enclosingType = ParseTypeReference(reader, (TypeReferenceHandle)typeRef.ResolutionScope);
+                    resScope = new MResScopeType(enclosingType);
+                    break;
+                }
             case HandleKind.ModuleReference:
-            {
-                // Same-assembly-different-module
-                throw new UnsupportedMetadataException(
-                    $"Cross-module reference to type {nameSpace}.{name}. ");
-            }
+                {
+                    // Same-assembly-different-module
+                    throw new UnsupportedMetadataException(
+                        $"Cross-module reference to type {nameSpace}.{name}. ");
+                }
             default:
                 // Edge cases not handled:
                 // https://github.com/dotnet/runtime/blob/b2e5a89085fcd87e2fa9300b4bb00cd499c5845b/src/libraries/System.Reflection.Metadata/tests/Metadata/Decoding/DisassemblingTypeProvider.cs#L130-L132

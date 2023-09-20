@@ -20,11 +20,11 @@ namespace UnitystationLauncher
             builder.RegisterType<ServerService>().As<IServerService>().SingleInstance();
             builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
             builder.RegisterType<AssemblyTypeChecker>().As<IAssemblyChecker>().SingleInstance();
-            
-            
-            
-            builder.RegisterType<FileService>().As<IFileService >().SingleInstance();
-           
+
+
+
+            builder.RegisterType<FileService>().As<IFileService>().SingleInstance();
+
             builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)

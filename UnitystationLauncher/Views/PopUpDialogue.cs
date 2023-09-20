@@ -15,7 +15,7 @@ namespace UnitystationLauncher.Views
 
         public PopUpDialogue()
         {
- 
+
             InitializeComponent();
         }
 
