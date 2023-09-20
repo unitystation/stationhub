@@ -36,6 +36,7 @@ public sealed partial class AssemblyTypeChecker
                         new JsonStringEnumConverter(allowIntegerValues: false)
                     }
                 });
+                
                 if (data == null)
                 {
                     Log.Error("unable to de-serialise config");
