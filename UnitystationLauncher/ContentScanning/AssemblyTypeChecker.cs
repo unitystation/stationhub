@@ -440,7 +440,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
                             bool notParamMismatch = true;
-                            
+
                             if (parsed.Name == mMemberRefMethod.Name &&
                                 mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) &&
                                 mMemberRefMethod.ParameterTypes.Length == parsed.ParameterTypes.Count &&
@@ -542,7 +542,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
                             bool notParamMismatch = true;
-                            
+
                             if (parsed.Name == mMemberRefMethod.Name &&
                                 mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) &&
                                 mMemberRefMethod.ParameterTypes.Length == parsed.ParameterTypes.Count &&
@@ -557,7 +557,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                                     {
                                         notParamMismatch = false;
                                         break;
-                                        
+
                                     }
                                 }
 
@@ -939,7 +939,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             ArraySegment<MType> interfaceImpls;
             ScanningTypes.MTypeDefined type = GetTypeFromDefinition(reader, typeDefHandle);
 
-            if (!ParseInheritType(type, typeDef.BaseType, out var parent,reader , errors))
+            if (!ParseInheritType(type, typeDef.BaseType, out var parent, reader, errors))
             {
                 continue;
             }
@@ -957,7 +957,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 {
                     var interfaceImpl = reader.GetInterfaceImplementation(implHandle);
 
-                    if (ParseInheritType(type, interfaceImpl.Interface, out var implemented,reader, errors))
+                    if (ParseInheritType(type, interfaceImpl.Interface, out var implemented, reader, errors))
                     {
                         interfaceImpls[i++] = implemented;
                     }
@@ -971,8 +971,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
         return list;
     }
-    
-    private bool ParseInheritType(MType ownerType, EntityHandle handle, [NotNullWhen(true)] out MType? type, MetadataReader reader ,ConcurrentBag<SandboxError> errors)
+
+    private bool ParseInheritType(MType ownerType, EntityHandle handle, [NotNullWhen(true)] out MType? type, MetadataReader reader, ConcurrentBag<SandboxError> errors)
     {
         type = default;
 
@@ -1019,8 +1019,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         type = default!;
         return false;
     }
-    
-    
+
+
 
     private sealed class SandboxError
     {
