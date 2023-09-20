@@ -9,7 +9,6 @@ namespace UnitystationLauncher.ContentScanning;
 
 public sealed partial class AssemblyTypeChecker
 {
-    
     public abstract class MMemberRef
     {
         public readonly MType ParentType;
@@ -69,7 +68,7 @@ public sealed partial class AssemblyTypeChecker
             switch (other)
             {
                 case MTypeParsed parsed:
-                    if (NestedParent != null 
+                    if (NestedParent != null
                         && (parsed.NestedParent == null || NestedParent.WhitelistEquals(parsed.NestedParent) == false))
                     {
                         return false;
@@ -77,8 +76,9 @@ public sealed partial class AssemblyTypeChecker
 
                     return parsed.FullName == FullName;
                 case MTypeReferenced referenced:
-                    if (NestedParent != null 
-                        && (referenced.ResolutionScope is not MResScopeType parentRes || NestedParent.WhitelistEquals(parentRes.Type) == false))
+                    if (NestedParent != null
+                        && (referenced.ResolutionScope is not MResScopeType parentRes ||
+                            NestedParent.WhitelistEquals(parentRes.Type) == false))
                     {
                         return false;
                     }

@@ -160,18 +160,13 @@ public sealed partial class AssemblyTypeChecker
     internal static readonly Parser<char, WhitelistMethodDefine> MethodParser =
         Parser.Map(
             (a, b, d, c) => new WhitelistMethodDefine(b, a, c.ToList(), d),
-            
             SkipWhitespaces.Then(TypeParser),
-            
             SkipWhitespaces.Then(NamespacedIdentifier),
-            
             MethodGenericParameterCountParser,
-            
             SkipWhitespaces.Then(MethodParamsParser));
 
     internal static readonly Parser<char, WhitelistFieldDefine> FieldParser = Parser.Map(
         (a, b) => new WhitelistFieldDefine(b, a),
         MaybeArrayTypeParser.Between(SkipWhitespaces),
         NamespacedIdentifier);
-    
 }

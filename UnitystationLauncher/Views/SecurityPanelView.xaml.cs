@@ -16,7 +16,5 @@ namespace UnitystationLauncher.Views
         {
             AvaloniaXamlLoader.Load(this);
         }
-        
-
     }
 }

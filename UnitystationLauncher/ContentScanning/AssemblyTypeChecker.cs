@@ -47,7 +47,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
     private readonly IEnvironmentService _environmentService;
 
     private readonly IFileService _fileService;
-    
+
     public AssemblyTypeChecker(IEnvironmentService environmentService, IFileService FileService)
     {
         _environmentService = environmentService;
@@ -56,17 +56,15 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         _fileService = FileService;
         _config = Task.Run(LoadConfig);
     }
-    
-
 
 
     private sealed class Resolver : IResolver
     {
         private readonly DirectoryInfo _managedPath;
-        
+
 
         private readonly Dictionary<string, PEReader> _dictionaryLookup = new Dictionary<string, PEReader>();
-        
+
         public void Dispose()
         {
             foreach (var Lookup in _dictionaryLookup)
@@ -108,7 +106,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
             _managedPath = inManagedPath;
         }
-        
+
         PEReader IResolver.ResolveModule(AssemblyName referencingAssembly, string fileName)
         {
             //TODO idk This is never used anywhere
@@ -133,9 +131,9 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
     /// <param name="Errors"></param>
     /// <param name="assembly">Assembly to load.</param>
     /// <returns></returns>
-    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies, Action<string>  info ,  Action<string> Errors)
+    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies,
+        Action<string> info, Action<string> Errors)
     {
-        
         using var assembly = diskPath.OpenRead();
         var fullStopwatch = Stopwatch.StartNew();
 
@@ -153,7 +151,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
         if (VerifyIl)
         {
-            if (DoVerifyIL(asmName, resolver, peReader, reader, info , Errors) == false)
+            if (DoVerifyIL(asmName, resolver, peReader, reader, info, Errors) == false)
             {
                 Errors.Invoke($"Assembly {asmName} Has invalid IL code");
                 return false;
@@ -167,7 +165,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         var members = GetReferencedMembers(reader, errors);
         var inherited = GetExternalInheritedTypes(reader, errors);
         info.Invoke($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
-        
+
         if (DisableTypeCheck)
         {
             resolver.Dispose();
@@ -181,7 +179,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
         loadedConfig.MultiAssemblyOtherReferences.Clear();
         loadedConfig.MultiAssemblyOtherReferences.AddRange(otherAssemblies);
-        
+
         // We still do explicit type reference scanning, even though the actual whitelists work with raw members.
         // This is so that we can simplify handling of generic type specifications during member checking:
         // we won't have to check that any types in their type arguments are whitelisted.
@@ -210,7 +208,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         CheckMemberReferences(loadedConfig, members, errors);
 
         errors = new ConcurrentBag<SandboxError>(errors.OrderBy(x => x.Message));
-        
+
         foreach (var error in errors)
         {
             Errors.Invoke($"Sandbox violation: {error.Message}");
@@ -226,15 +224,15 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         string name,
         IResolver resolver,
         PEReader peReader,
-        MetadataReader reader, 
-        Action<string>  info, 
+        MetadataReader reader,
+        Action<string> info,
         Action<string> logErrors)
     {
         info.Invoke($"{name}: Verifying IL...");
         var sw = Stopwatch.StartNew();
         var bag = new ConcurrentBag<VerificationResult>();
 
-    
+
         var UesParallel = false;
 
         if (UesParallel)
@@ -267,9 +265,9 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 }
             }
         }
-        
+
         var loadedCfg = _config.Result;
-        
+
         var verifyErrors = false;
         foreach (var res in bag)
         {
@@ -642,12 +640,13 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 return false;
             }
 
-            if (type.ResolutionScope is MResScopeAssembly mResScopeAssembly && sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
+            if (type.ResolutionScope is MResScopeAssembly mResScopeAssembly &&
+                sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
             {
                 cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
                 return true;
             }
-            
+
             // Types without namespaces or nesting parent are not allowed at all.
             cfg = null;
             return false;
@@ -663,15 +662,14 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             }
         }
 
-        if (type.ResolutionScope is MResScopeAssembly resScopeAssembly && sandboxConfig.MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
+        if (type.ResolutionScope is MResScopeAssembly resScopeAssembly &&
+            sandboxConfig.MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
         {
             cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
             return true;
         }
 
-        
-        
-        
+
         if (sandboxConfig.Types.TryGetValue(type.Namespace, out var nsDict) == false)
         {
             cfg = null;
@@ -1090,7 +1088,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
         }
     }
-    
+
     private static string? NilNullString(MetadataReader reader, StringHandle handle)
     {
         return handle.IsNil ? null : reader.GetString(handle);

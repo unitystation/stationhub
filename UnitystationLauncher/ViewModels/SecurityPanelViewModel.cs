@@ -24,7 +24,6 @@ public class PipeHubBuildCommunication : IDisposable
     {
         _serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-        
     }
 
     private enum ClientRequest
@@ -137,7 +136,6 @@ What follows is given by the build, we do not control what is written in the Fol
         _reader?.Dispose();
         _writer?.Dispose();
     }
-    
 }
 
 public class SecurityPanelViewModel : PanelBase
@@ -146,7 +144,7 @@ public class SecurityPanelViewModel : PanelBase
     public override bool IsEnabled => false;
 
     private readonly IAssemblyChecker _IAssemblyChecker;
-    
+
     public SecurityPanelViewModel(IAssemblyChecker assemblyChecker)
     {
         _IAssemblyChecker = assemblyChecker;
@@ -174,7 +172,7 @@ public class SecurityPanelViewModel : PanelBase
     //(type.ResolutionScope as AssemblyTypeChecker.MResScopeAssembly).Name))
 
     // if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))  Potential security+
-    
+
     //Check the multi-assembly stuff, make sure you can't do any naughty with name matching and stuff
     //tool to Make a PR Auto to add Two white lists, if PR violates White list
 
@@ -204,7 +202,7 @@ public class SecurityPanelViewModel : PanelBase
     //Application
     //UnityEngine.Resources
     //Addressables
-    
+
 
     //TODO Patch
     //UnityEngine.Events.UnityEvent, GetValidMethodInfo
@@ -247,13 +245,13 @@ public class SecurityPanelViewModel : PanelBase
             {
                 throw new FileNotFoundException("Common files don't match somehow?!");
             }
-            
+
             var targetFile = targetDirInfo.GetFiles().FirstOrDefault(x => x.Name == file.Name);
             if (targetFile == null)
             {
                 throw new FileNotFoundException("Common files don't match somehow?!");
             }
-            
+
             File.Copy(sourceFile.FullName,
                 targetFile.FullName, true);
             Console.WriteLine($"Common file: {file.FullName}");
@@ -281,7 +279,7 @@ public class SecurityPanelViewModel : PanelBase
     {
         Action<string> info = new Action<string>((string log) => { });
         Action<string> errors = new Action<string>((string log) => { });
-        
+
         // Create a DirectoryInfo object for the directory
         DirectoryInfo directory = new DirectoryInfo(System.AppDomain.CurrentDomain.BaseDirectory);
 
@@ -324,7 +322,7 @@ public class SecurityPanelViewModel : PanelBase
                 return;
             }
 
-            
+
             var stagingManaged =
                 stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, "Managed"));
 
@@ -396,7 +394,7 @@ public class SecurityPanelViewModel : PanelBase
         }
         catch (Exception e)
         {
-            errors.Invoke( " an Error happened > " + e);
+            errors.Invoke(" an Error happened > " + e);
             DeleteContentsOfDirectory(processingDirectory);
             //deleteContentsOfDirectory(Stagingdirectory); TODO
         }
@@ -407,11 +405,11 @@ public class SecurityPanelViewModel : PanelBase
         var goodFiles = saveFiles.GetFiles().Select(x => x.Name).ToList();
 
         info.Invoke("Provided files " + string.Join(",", goodFiles));
-        
+
         CopyFilesRecursively(saveFiles.ToString(), @unsafe.ToString());
 
         var files = @unsafe.GetFiles();
-        
+
 
         List<string> multiAssemblyReference = new List<string>();
 
@@ -432,7 +430,7 @@ public class SecurityPanelViewModel : PanelBase
             {
                 var listy = multiAssemblyReference.ToList();
                 listy.Remove(Path.GetFileNameWithoutExtension(file.Name));
-                if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, info ,errors) == false)
+                if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, info, errors) == false)
                 {
                     errors.Invoke($"{file.Name} Failed scanning Cancelling");
                     return false;
@@ -448,7 +446,7 @@ public class SecurityPanelViewModel : PanelBase
 
         return true;
     }
-    
+
 
     #region Utilities
 

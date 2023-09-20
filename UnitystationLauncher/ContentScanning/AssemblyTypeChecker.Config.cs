@@ -16,15 +16,16 @@ namespace UnitystationLauncher.ContentScanning;
 public sealed partial class AssemblyTypeChecker
 {
     private static string NameConfig = @"CodeScanList.json"; //TODO!!!
-    
+
     private SandboxConfig LoadConfig()
     {
-        
-        if (_fileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false){
+        if (_fileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false)
+        {
             throw new NotImplementedException("Config is not downloaded"); //TODO Needs a file on the server to download
         }
-        
-        using (StreamReader file = _fileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
+
+        using (StreamReader file =
+               _fileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
         {
             try
             {
@@ -36,12 +37,13 @@ public sealed partial class AssemblyTypeChecker
                         new JsonStringEnumConverter(allowIntegerValues: false)
                     }
                 });
-                
+
                 if (data == null)
                 {
                     Log.Error("unable to de-serialise config");
                     throw new DataException("unable to de-serialise config");
                 }
+
                 foreach (var @namespace in data.Types)
                 {
                     foreach (var @class in @namespace.Value)

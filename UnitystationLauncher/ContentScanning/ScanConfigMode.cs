@@ -5,20 +5,16 @@ using ILVerify;
 
 namespace UnitystationLauncher.ContentScanning;
 
-
-
-
 public sealed class SandboxConfig
 {
     public string? SystemAssemblyName { get; set; }
     public List<VerifierError> AllowedVerifierErrors { get; set; } = new List<VerifierError>();
     public List<string> WhitelistedNamespaces { get; set; } = new List<string>();
-    public List<string> MultiAssemblyOtherReferences { get; set; }  = new List<string>();
+    public List<string> MultiAssemblyOtherReferences { get; set; } = new List<string>();
 
     public Dictionary<string, Dictionary<string, TypeConfig>> Types { get; set; } =
         new Dictionary<string, Dictionary<string, TypeConfig>>();
 }
-
 
 public enum InheritMode : byte
 {
@@ -83,19 +79,17 @@ public abstract record MType
     }
 }
 
-
 public sealed class TypeConfig
 {
     // Used for type configs where the type config doesn't exist due to a bigger-scoped All whitelisting.
     // e.g. nested types or namespace whitelist.
     public static readonly TypeConfig DefaultAll = new TypeConfig {All = true};
 
-    public bool All  { get; set; }
+    public bool All { get; set; }
     public InheritMode Inherit { get; set; } = InheritMode.Default;
-    public string[]? Methods  { get; set; }
+    public string[]? Methods { get; set; }
     [NonSerialized] public WhitelistMethodDefine[] MethodsParsed = Array.Empty<WhitelistMethodDefine>();
-    public string[]? Fields  { get; set; }
+    public string[]? Fields { get; set; }
     [NonSerialized] public WhitelistFieldDefine[] FieldsParsed = Array.Empty<WhitelistFieldDefine>();
-    public Dictionary<string, TypeConfig>? NestedTypes  { get; set; }
+    public Dictionary<string, TypeConfig>? NestedTypes { get; set; }
 }
-
