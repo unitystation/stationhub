@@ -9,7 +9,7 @@ namespace UnitystationLauncher.ContentScanning;
 
 public static class ScanningTypes
 {
-    public abstract class MMemberRef
+    public class MMemberRef
     {
         public readonly MType ParentType;
         public readonly string Name;
@@ -360,7 +360,7 @@ public static class ScanningTypes
         }
     }
 
-    public abstract record MResScope
+    public record MResScope
     {
     }
 

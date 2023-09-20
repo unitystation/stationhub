@@ -58,7 +58,7 @@ public sealed class WhitelistFieldDefine
     }
 }
 
-public abstract record MType
+public record MType
 {
     public virtual bool WhitelistEquals(MType other)
     {

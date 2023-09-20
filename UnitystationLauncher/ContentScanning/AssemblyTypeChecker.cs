@@ -1074,7 +1074,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         return new ScanningTypes.MTypeReferenced(resScope, name, nameSpace);
     }
 
-    private sealed class UnsupportedMetadataException : Exception
+    public sealed class UnsupportedMetadataException : Exception
     {
         public UnsupportedMetadataException()
         {
@@ -1131,9 +1131,9 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             return AssemblyTypeChecker.GetTypeFromDefinition(reader, handle);
         }
 
-        public MType GetTypeFromReference(MetadataReader reader, TypeReferenceHandle handle, byte rawTypeKind)
+        public MType GetTypeFromReference(MetadataReader inReader, TypeReferenceHandle inHandle, byte inRawTypeKind)
         {
-            return ParseTypeReference(reader, handle);
+            return ParseTypeReference(inReader, inHandle);
         }
 
         public MType GetFunctionPointerType(MethodSignature<MType> signature)
