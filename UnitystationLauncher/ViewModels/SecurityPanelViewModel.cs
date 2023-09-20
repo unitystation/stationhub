@@ -81,8 +81,6 @@ Justification given by the Fork : " + requests[2]);
 
                     await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                     await _writer.FlushAsync();
-                    //data.Wait();
-                    //var AAAAA = data;
                     return Task.CompletedTask;
                 });
             }
@@ -102,8 +100,6 @@ Justification given by the Fork : " + requests[2]);
 
                     await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                     await _writer.FlushAsync();
-                    //data.Wait();
-                    //var AAAAA = data;
                     return Task.CompletedTask;
                 });
             }

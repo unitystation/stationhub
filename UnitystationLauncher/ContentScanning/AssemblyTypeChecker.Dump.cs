@@ -9,7 +9,7 @@ using Internal.TypeSystem.Ecma;
 
 namespace UnitystationLauncher.ContentScanning;
 
-public sealed partial class AssemblyTypeChecker
+public static class MetaMembersHelper
 {
     public static IEnumerable<string> DumpMetaMembers(Type type)
     {
@@ -29,7 +29,7 @@ public sealed partial class AssemblyTypeChecker
         {
             var tempTypeDef = metaReader.GetTypeDefinition(typeDefHandle);
             var name = metaReader.GetString(tempTypeDef.Name);
-            var @namespace = NilNullString(metaReader, tempTypeDef.Namespace);
+            var @namespace = AssemblyTypeChecker.NilNullString(metaReader, tempTypeDef.Namespace);
             if (name == type.Name && @namespace == type.Namespace)
             {
                 typeDef = tempTypeDef;
@@ -44,7 +44,7 @@ public sealed partial class AssemblyTypeChecker
         }
 
         // Dump the list.
-        var provider = new TypeProvider();
+        var provider = new AssemblyTypeChecker.TypeProvider();
 
         foreach (var fieldHandle in typeDef.GetFields())
         {

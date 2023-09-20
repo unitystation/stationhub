@@ -365,7 +365,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
     private void CheckMemberReferences(
         SandboxConfig sandboxConfig,
-        List<MMemberRef> members,
+        List<ScanningTypes.MMemberRef> members,
         ConcurrentBag<SandboxError> errors)
     {
         bool IsParallel = true;
@@ -375,23 +375,23 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             Parallel.ForEach(members, memberRef =>
             {
                 MType baseType = memberRef.ParentType;
-                while (!(baseType is MTypeReferenced))
+                while (!(baseType is ScanningTypes.MTypeReferenced))
                 {
                     switch (baseType)
                     {
-                        case MTypeGeneric generic:
+                        case ScanningTypes.MTypeGeneric generic:
                             {
                                 baseType = generic.GenericType;
 
                                 break;
                             }
-                        case MTypeWackyArray:
+                        case ScanningTypes.MTypeWackyArray:
                             {
                                 // Members on arrays (not to be confused with vectors) are all fine.
                                 // See II.14.2 in ECMA-335.
                                 return;
                             }
-                        case MTypeDefined:
+                        case ScanningTypes.MTypeDefined:
                             {
                                 // Valid for this to show up, safe to ignore.
                                 return;
@@ -403,7 +403,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     }
                 }
 
-                var baseTypeReferenced = (MTypeReferenced)baseType;
+                var baseTypeReferenced = (ScanningTypes.MTypeReferenced)baseType;
 
                 if (IsTypeAccessAllowed(sandboxConfig, baseTypeReferenced, out var typeCfg) == false)
                 {
@@ -422,7 +422,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
                 switch (memberRef)
                 {
-                    case MMemberRefField mMemberRefField:
+                    case ScanningTypes.MMemberRefField mMemberRefField:
                         {
                             foreach (var field in typeCfg.FieldsParsed)
                             {
@@ -436,7 +436,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
                             break;
                         }
-                    case MMemberRefMethod mMemberRefMethod:
+                    case ScanningTypes.MMemberRefMethod mMemberRefMethod:
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
                             if (parsed.Name == mMemberRefMethod.Name &&
@@ -458,7 +458,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                                 return; // Found
                             }
 
-                        paramMismatch:;
+                            paramMismatch:;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
@@ -473,23 +473,23 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             foreach (var memberRef in members)
             {
                 MType baseType = memberRef.ParentType;
-                while (!(baseType is MTypeReferenced))
+                while (!(baseType is ScanningTypes.MTypeReferenced))
                 {
                     switch (baseType)
                     {
-                        case MTypeGeneric generic:
+                        case ScanningTypes.MTypeGeneric generic:
                             {
                                 baseType = generic.GenericType;
 
                                 break;
                             }
-                        case MTypeWackyArray:
+                        case ScanningTypes.MTypeWackyArray:
                             {
                                 // Members on arrays (not to be confused with vectors) are all fine.
                                 // See II.14.2 in ECMA-335.
                                 continue;
                             }
-                        case MTypeDefined:
+                        case ScanningTypes.MTypeDefined:
                             {
                                 // Valid for this to show up, safe to ignore.
                                 continue;
@@ -501,7 +501,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     }
                 }
 
-                var baseTypeReferenced = (MTypeReferenced)baseType;
+                var baseTypeReferenced = (ScanningTypes.MTypeReferenced)baseType;
 
                 if (IsTypeAccessAllowed(sandboxConfig, baseTypeReferenced, out var typeCfg) == false)
                 {
@@ -520,7 +520,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
                 switch (memberRef)
                 {
-                    case MMemberRefField mMemberRefField:
+                    case ScanningTypes.MMemberRefField mMemberRefField:
                         {
                             foreach (var field in typeCfg.FieldsParsed)
                             {
@@ -534,7 +534,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
                             break;
                         }
-                    case MMemberRefMethod mMemberRefMethod:
+                    case ScanningTypes.MMemberRefMethod mMemberRefMethod:
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
                             if (parsed.Name == mMemberRefMethod.Name &&
@@ -594,8 +594,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             {
                 var realBaseType = inheritType switch
                 {
-                    MTypeGeneric generic => (MTypeReferenced)generic.GenericType,
-                    MTypeReferenced referenced => referenced,
+                    ScanningTypes.MTypeGeneric generic => (ScanningTypes.MTypeReferenced)generic.GenericType,
+                    ScanningTypes.MTypeReferenced referenced => referenced,
                     _ => throw new InvalidOperationException() // Can't happen.
                 };
 
@@ -609,14 +609,14 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         }
     }
 
-    private bool IsTypeAccessAllowed(SandboxConfig sandboxConfig, MTypeReferenced type,
+    private bool IsTypeAccessAllowed(SandboxConfig sandboxConfig, ScanningTypes.MTypeReferenced type,
         [NotNullWhen(true)] out TypeConfig? cfg)
     {
         if (type.Namespace == null)
         {
-            if (type.ResolutionScope is MResScopeType parentType)
+            if (type.ResolutionScope is ScanningTypes.MResScopeType parentType)
             {
-                if (IsTypeAccessAllowed(sandboxConfig, (MTypeReferenced)parentType.Type, out var parentCfg) == false)
+                if (IsTypeAccessAllowed(sandboxConfig, (ScanningTypes.MTypeReferenced)parentType.Type, out var parentCfg) == false)
                 {
                     cfg = null;
                     return false;
@@ -640,7 +640,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 return false;
             }
 
-            if (type.ResolutionScope is MResScopeAssembly mResScopeAssembly &&
+            if (type.ResolutionScope is ScanningTypes.MResScopeAssembly mResScopeAssembly &&
                 sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
             {
                 cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
@@ -662,7 +662,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             }
         }
 
-        if (type.ResolutionScope is MResScopeAssembly resScopeAssembly &&
+        if (type.ResolutionScope is ScanningTypes.MResScopeAssembly resScopeAssembly &&
             sandboxConfig.MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
         {
             cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
@@ -679,7 +679,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         return nsDict.TryGetValue(type.Name, out cfg);
     }
 
-    private List<MTypeReferenced> GetReferencedTypes(MetadataReader reader, ConcurrentBag<SandboxError> errors)
+    private List<ScanningTypes.MTypeReferenced> GetReferencedTypes(MetadataReader reader, ConcurrentBag<SandboxError> errors)
     {
         return reader.TypeReferences.Select(typeRefHandle =>
             {
@@ -697,7 +697,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             .ToList()!;
     }
 
-    private List<MMemberRef> GetReferencedMembers(MetadataReader reader, ConcurrentBag<SandboxError> errors)
+    private List<ScanningTypes.MMemberRef> GetReferencedMembers(MetadataReader reader, ConcurrentBag<SandboxError> errors)
     {
         bool Parallel = true;
         if (Parallel)
@@ -775,7 +775,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             }
                     }
 
-                    MMemberRef memberRef;
+                    ScanningTypes.MMemberRef memberRef;
 
                     switch (memRef.GetKind())
                     {
@@ -783,7 +783,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             {
                                 var sig = memRef.DecodeMethodSignature(new TypeProvider(), 0);
 
-                                memberRef = new MMemberRefMethod(
+                                memberRef = new ScanningTypes.MMemberRefMethod(
                                     parent,
                                     memName,
                                     sig.ReturnType,
@@ -795,7 +795,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                         case MemberReferenceKind.Field:
                             {
                                 var fieldType = memRef.DecodeFieldSignature(new TypeProvider(), 0);
-                                memberRef = new MMemberRefField(parent, memName, fieldType);
+                                memberRef = new ScanningTypes.MMemberRefField(parent, memName, fieldType);
                                 break;
                             }
                         default:
@@ -881,7 +881,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             }
                     }
 
-                    MMemberRef memberRef;
+                    ScanningTypes.MMemberRef memberRef;
 
                     switch (memRef.GetKind())
                     {
@@ -889,7 +889,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             {
                                 var sig = memRef.DecodeMethodSignature(new TypeProvider(), 0);
 
-                                memberRef = new MMemberRefMethod(
+                                memberRef = new ScanningTypes.MMemberRefMethod(
                                     parent,
                                     memName,
                                     sig.ReturnType,
@@ -901,7 +901,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                         case MemberReferenceKind.Field:
                             {
                                 var fieldType = memRef.DecodeFieldSignature(new TypeProvider(), 0);
-                                memberRef = new MMemberRefField(parent, memName, fieldType);
+                                memberRef = new ScanningTypes.MMemberRefField(parent, memName, fieldType);
                                 break;
                             }
                         default:
@@ -924,7 +924,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
             var typeDef = reader.GetTypeDefinition(typeDefHandle);
             ArraySegment<MType> interfaceImpls;
-            MTypeDefined type = GetTypeFromDefinition(reader, typeDefHandle);
+            ScanningTypes.MTypeDefined type = GetTypeFromDefinition(reader, typeDefHandle);
 
             if (!ParseInheritType(type, typeDef.BaseType, out var parent))
             {
@@ -1026,12 +1026,12 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
     /// <exception href="UnsupportedMetadataException">
     ///     Thrown if the metadata does something funny we don't "support" like type forwarding.
     /// </exception>
-    internal static MTypeReferenced ParseTypeReference(MetadataReader reader, TypeReferenceHandle handle)
+    internal static ScanningTypes.MTypeReferenced ParseTypeReference(MetadataReader reader, TypeReferenceHandle handle)
     {
         var typeRef = reader.GetTypeReference(handle);
         var name = reader.GetString(typeRef.Name);
         var nameSpace = NilNullString(reader, typeRef.Namespace);
-        MResScope resScope;
+        ScanningTypes.MResScope resScope;
 
         // See II.22.38 in ECMA-335
         if (typeRef.ResolutionScope.IsNil)
@@ -1048,14 +1048,14 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     var assemblyRef =
                         reader.GetAssemblyReference((AssemblyReferenceHandle)typeRef.ResolutionScope);
                     var assemblyName = reader.GetString(assemblyRef.Name);
-                    resScope = new MResScopeAssembly(assemblyName);
+                    resScope = new ScanningTypes.MResScopeAssembly(assemblyName);
                     break;
                 }
             case HandleKind.TypeReference:
                 {
                     // Nested type.
                     var enclosingType = ParseTypeReference(reader, (TypeReferenceHandle)typeRef.ResolutionScope);
-                    resScope = new MResScopeType(enclosingType);
+                    resScope = new ScanningTypes.MResScopeType(enclosingType);
                     break;
                 }
             case HandleKind.ModuleReference:
@@ -1071,7 +1071,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     $"TypeRef to {typeRef.ResolutionScope.Kind} for type {nameSpace}.{name}");
         }
 
-        return new MTypeReferenced(resScope, name, nameSpace);
+        return new ScanningTypes.MTypeReferenced(resScope, name, nameSpace);
     }
 
     private sealed class UnsupportedMetadataException : Exception
@@ -1089,7 +1089,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         }
     }
 
-    private static string? NilNullString(MetadataReader reader, StringHandle handle)
+    public static string? NilNullString(MetadataReader reader, StringHandle handle)
     {
         return handle.IsNil ? null : reader.GetString(handle);
     }
@@ -1098,32 +1098,32 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
     {
         public MType GetSZArrayType(MType elementType)
         {
-            return new MTypeSZArray(elementType);
+            return new ScanningTypes.MTypeSZArray(elementType);
         }
 
         public MType GetArrayType(MType elementType, ArrayShape shape)
         {
-            return new MTypeWackyArray(elementType, shape);
+            return new ScanningTypes.MTypeWackyArray(elementType, shape);
         }
 
         public MType GetByReferenceType(MType elementType)
         {
-            return new MTypeByRef(elementType);
+            return new ScanningTypes.MTypeByRef(elementType);
         }
 
         public MType GetGenericInstantiation(MType genericType, ImmutableArray<MType> typeArguments)
         {
-            return new MTypeGeneric(genericType, typeArguments);
+            return new ScanningTypes.MTypeGeneric(genericType, typeArguments);
         }
 
         public MType GetPointerType(MType elementType)
         {
-            return new MTypePointer(elementType);
+            return new ScanningTypes.MTypePointer(elementType);
         }
 
         public MType GetPrimitiveType(PrimitiveTypeCode typeCode)
         {
-            return new MTypePrimitive(typeCode);
+            return new ScanningTypes.MTypePrimitive(typeCode);
         }
 
         public MType GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle, byte rawTypeKind)
@@ -1143,17 +1143,17 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
         public MType GetGenericMethodParameter(int genericContext, int index)
         {
-            return new MTypeGenericMethodPlaceHolder(index);
+            return new ScanningTypes.MTypeGenericMethodPlaceHolder(index);
         }
 
         public MType GetGenericTypeParameter(int genericContext, int index)
         {
-            return new MTypeGenericTypePlaceHolder(index);
+            return new ScanningTypes.MTypeGenericTypePlaceHolder(index);
         }
 
         public MType GetModifiedType(MType modifier, MType unmodifiedType, bool isRequired)
         {
-            return new MTypeModified(unmodifiedType, modifier, isRequired);
+            return new ScanningTypes.MTypeModified(unmodifiedType, modifier, isRequired);
         }
 
         public MType GetPinnedType(MType elementType)
@@ -1169,18 +1169,18 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         }
     }
 
-    private static MTypeDefined GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle)
+    private static ScanningTypes.MTypeDefined GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle)
     {
         var typeDef = reader.GetTypeDefinition(handle);
         var name = reader.GetString(typeDef.Name);
         var ns = NilNullString(reader, typeDef.Namespace);
-        MTypeDefined? enclosing = null;
+        ScanningTypes.MTypeDefined? enclosing = null;
         if (typeDef.IsNested)
         {
             enclosing = GetTypeFromDefinition(reader, typeDef.GetDeclaringType());
         }
 
-        return new MTypeDefined(name, ns, enclosing);
+        return new ScanningTypes.MTypeDefined(name, ns, enclosing);
     }
 
     [Flags]
