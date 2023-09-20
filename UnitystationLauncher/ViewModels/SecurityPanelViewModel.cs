@@ -143,7 +143,7 @@ What follows is given by the build, we do not control what is written in the Fol
 public class SecurityPanelViewModel : PanelBase
 {
     public override string Name => "Security";
-    public override bool IsEnabled => true;
+    public override bool IsEnabled => false;
 
     private readonly IAssemblyChecker _IAssemblyChecker;
     
@@ -159,6 +159,7 @@ public class SecurityPanelViewModel : PanelBase
 
     //TODO 
     //Automatic start-up pipe
+    //Zip bomb prevention
 
 
     //TODO

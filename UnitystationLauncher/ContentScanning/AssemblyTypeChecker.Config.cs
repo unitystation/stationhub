@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ILVerify;
 using Pidgin;
 using Serilog;
@@ -29,7 +30,11 @@ public sealed partial class AssemblyTypeChecker
             {
                 var data = JsonSerializer.Deserialize<SandboxConfig>(file.ReadToEnd(), new JsonSerializerOptions
                 {
-                    AllowTrailingCommas = true
+                    AllowTrailingCommas = true,
+                    Converters =
+                    {
+                        new JsonStringEnumConverter(allowIntegerValues: false)
+                    }
                 });
                 if (data == null)
                 {
