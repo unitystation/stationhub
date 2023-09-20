@@ -9,7 +9,7 @@ using static Pidgin.Parser<char>;
 
 namespace UnitystationLauncher.ContentScanning;
 
-public sealed partial class AssemblyTypeChecker
+public static class Parsers
 {
     // Contains primary parsing code for method and field declarations in the sandbox whitelist.
 
@@ -87,7 +87,7 @@ public sealed partial class AssemblyTypeChecker
                 Try(StringTypeParser),
                 Try(ObjectTypeParser),
                 TypedReferenceTypeParser)
-            .Select(code => (MType)new MTypePrimitive(code)).Labelled("Primitive type");
+            .Select(code => (MType)new ScanningTypes.MTypePrimitive(code)).Labelled("Primitive type");
 
     private static readonly Parser<char, string> NamespacedIdentifier =
         Token(c => char.IsLetterOrDigit(c) || c == '.' || c == '_' || c == '`')
@@ -103,19 +103,19 @@ public sealed partial class AssemblyTypeChecker
     private static readonly Parser<char, MType> GenericMethodPlaceholderParser =
         String("!!")
             .Then(Digit.AtLeastOnceString())
-            .Select(p => (MType)new MTypeGenericMethodPlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
+            .Select(p => (MType)new ScanningTypes.MTypeGenericMethodPlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
 
     private static readonly Parser<char, MType> GenericTypePlaceholderParser =
         String("!")
             .Then(Digit.AtLeastOnceString())
-            .Select(p => (MType)new MTypeGenericTypePlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
+            .Select(p => (MType)new ScanningTypes.MTypeGenericTypePlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
 
     private static readonly Parser<char, MType> GenericPlaceholderParser = Try(GenericTypePlaceholderParser)
         .Or(Try(GenericMethodPlaceholderParser)).Labelled("Generic placeholder");
 
-    private static readonly Parser<char, MTypeParsed> TypeNameParser =
+    private static readonly Parser<char, ScanningTypes.MTypeParsed> TypeNameParser =
         Parser.Map(
-            (a, b) => b.Aggregate(new MTypeParsed(a), (parsed, s) => new MTypeParsed(s, parsed)),
+            (a, b) => b.Aggregate(new ScanningTypes.MTypeParsed(a), (parsed, s) => new ScanningTypes.MTypeParsed(s, parsed)),
             NamespacedIdentifier,
             Char('/').Then(NamespacedIdentifier).Many());
 
@@ -125,7 +125,7 @@ public sealed partial class AssemblyTypeChecker
                 MType type = arg1;
                 if (arg2.HasValue)
                 {
-                    type = new MTypeGeneric(type, arg2.Value.ToImmutableArray());
+                    type = new ScanningTypes.MTypeGeneric(type, arg2.Value.ToImmutableArray());
                 }
 
                 return type;
@@ -134,7 +134,7 @@ public sealed partial class AssemblyTypeChecker
             GenericParametersParser.Optional());
 
     private static readonly Parser<char, MType> MaybeArrayTypeParser = Parser.Map(
-        (a, b) => b.Aggregate(a, (type, _) => new MTypeSZArray(type)),
+        (a, b) => b.Aggregate(a, (type, _) => new ScanningTypes.MTypeSZArray(type)),
         Try(GenericPlaceholderParser).Or(Try(PrimitiveTypeParser)).Or(ConstructedObjectTypeParser),
         String("[]").Many());
 
@@ -142,7 +142,7 @@ public sealed partial class AssemblyTypeChecker
         String("ref")
             .Then(SkipWhitespaces)
             .Then(MaybeArrayTypeParser)
-            .Select(t => (MType)new MTypeByRef(t))
+            .Select(t => (MType)new ScanningTypes.MTypeByRef(t))
             .Labelled("ByRef type");
 
     private static readonly Parser<char, MType> TypeParser = Try(ByRefTypeParser).Or(MaybeArrayTypeParser);

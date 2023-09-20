@@ -71,7 +71,7 @@ public sealed partial class AssemblyTypeChecker
             {
                 try
                 {
-                    list.Add(MethodParser.ParseOrThrow(m));
+                    list.Add(Parsers.MethodParser.ParseOrThrow(m));
                 }
                 catch (ParseException e)
                 {
@@ -93,7 +93,7 @@ public sealed partial class AssemblyTypeChecker
             {
                 try
                 {
-                    list.Add(FieldParser.ParseOrThrow(f));
+                    list.Add(Parsers.FieldParser.ParseOrThrow(f));
                 }
                 catch (ParseException e)
                 {
