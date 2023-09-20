@@ -439,6 +439,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     case ScanningTypes.MMemberRefMethod mMemberRefMethod:
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
+                            bool notParamMismatch = true;
+                            
                             if (parsed.Name == mMemberRefMethod.Name &&
                                 mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) &&
                                 mMemberRefMethod.ParameterTypes.Length == parsed.ParameterTypes.Count &&
@@ -451,14 +453,16 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
                                     if (a.WhitelistEquals(b) == false)
                                     {
-                                        goto paramMismatch;
+                                        notParamMismatch = false;
+                                        break;
                                     }
                                 }
 
-                                return; // Found
+                                if (notParamMismatch)
+                                {
+                                    return; // Found
+                                }
                             }
-
-                            paramMismatch:;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
@@ -537,6 +541,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     case ScanningTypes.MMemberRefMethod mMemberRefMethod:
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
+                            bool notParamMismatch = true;
+                            
                             if (parsed.Name == mMemberRefMethod.Name &&
                                 mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) &&
                                 mMemberRefMethod.ParameterTypes.Length == parsed.ParameterTypes.Count &&
@@ -549,14 +555,21 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
                                     if (!a.WhitelistEquals(b))
                                     {
-                                        goto paramMismatch;
+                                        notParamMismatch = false;
+                                        break;
+                                        
                                     }
                                 }
 
-                                continue; // Found
+                                if (notParamMismatch)
+                                {
+                                    continue; // Found
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
-
-                        paramMismatch:;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
