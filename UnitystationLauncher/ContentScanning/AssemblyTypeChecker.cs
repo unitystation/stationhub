@@ -539,10 +539,9 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                             break;
                         }
                     case ScanningTypes.MMemberRefMethod mMemberRefMethod:
+                        bool notParamMismatch = true;
                         foreach (var parsed in typeCfg.MethodsParsed)
                         {
-                            bool notParamMismatch = true;
-
                             if (parsed.Name == mMemberRefMethod.Name &&
                                 mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) &&
                                 mMemberRefMethod.ParameterTypes.Length == parsed.ParameterTypes.Count &&
@@ -563,13 +562,15 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
                                 if (notParamMismatch)
                                 {
-                                    continue; // Found
+                                    break; // Found
                                 }
-                                else
-                                {
-                                    break;
-                                }
+                                break;
                             }
+                        }
+
+                        if (notParamMismatch == false)
+                        {
+                            continue;
                         }
 
                         errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));

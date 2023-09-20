@@ -33,7 +33,7 @@ public class PipeHubBuildCommunication : IDisposable
         Host_Trust_Mode = 3,
     }
 
-    public async void Do()
+    public async void StartServerPipe()
     {
         await _serverPipe.WaitForConnectionAsync();
         _reader = new StreamReader(_serverPipe);
@@ -207,7 +207,7 @@ public class SecurityPanelViewModel : PanelBase
     public void OnSetUpPipe()
     {
         var data = new PipeHubBuildCommunication();
-        new Task(data.Do).Start();
+        new Task(data.StartServerPipe).Start();
     }
 
     public void OnUpdateSafe()
