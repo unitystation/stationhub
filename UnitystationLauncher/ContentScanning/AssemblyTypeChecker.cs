@@ -944,7 +944,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                 {
                     var interfaceImpl = reader.GetInterfaceImplementation(implHandle);
 
-                    if (ParseInheritType(type, interfaceImpl.Interface, out var implemented))
+                    if (ParseInheritType(type, interfaceImpl.Interface, out var implemented, errors))
                     {
                         interfaceImpls[i++] = implemented;
                     }
@@ -957,56 +957,57 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         }
 
         return list;
-
-
-        bool ParseInheritType(MType ownerType, EntityHandle handle, [NotNullWhen(true)] out MType? type)
-        {
-            type = default;
-
-            switch (handle.Kind)
-            {
-                case HandleKind.TypeDefinition:
-                    // Definition to type in same assembly, allowed without hassle.
-                    return false;
-
-                case HandleKind.TypeReference:
-                    // Regular type reference.
-                    try
-                    {
-                        type = ParseTypeReference(reader, (TypeReferenceHandle)handle);
-                        return true;
-                    }
-                    catch (UnsupportedMetadataException u)
-                    {
-                        errors.Add(new SandboxError(u));
-                        return false;
-                    }
-
-                case HandleKind.TypeSpecification:
-                    var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)handle);
-                    // Generic type reference.
-                    var provider = new TypeProvider();
-                    type = typeSpec.DecodeSignature(provider, 0);
-
-                    if (type.IsCoreTypeDefined())
-                    {
-                        // Ensure this isn't a self-defined type.
-                        // This can happen due to generics.
-                        return false;
-                    }
-
-                    break;
-
-                default:
-                    errors.Add(new SandboxError(
-                        $"Unsupported BaseType of kind {handle.Kind} on type {ownerType}"));
-                    return false;
-            }
-
-            type = default!;
-            return false;
-        }
     }
+    
+    private bool ParseInheritType(MType ownerType, EntityHandle handle, [NotNullWhen(true)] out MType? type, ConcurrentBag<SandboxError> errors)
+    {
+        type = default;
+
+        switch (handle.Kind)
+        {
+            case HandleKind.TypeDefinition:
+                // Definition to type in same assembly, allowed without hassle.
+                return false;
+
+            case HandleKind.TypeReference:
+                // Regular type reference.
+                try
+                {
+                    type = ParseTypeReference(reader, (TypeReferenceHandle)handle);
+                    return true;
+                }
+                catch (UnsupportedMetadataException u)
+                {
+                    errors.Add(new SandboxError(u));
+                    return false;
+                }
+
+            case HandleKind.TypeSpecification:
+                var typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)handle);
+                // Generic type reference.
+                var provider = new TypeProvider();
+                type = typeSpec.DecodeSignature(provider, 0);
+
+                if (type.IsCoreTypeDefined())
+                {
+                    // Ensure this isn't a self-defined type.
+                    // This can happen due to generics.
+                    return false;
+                }
+
+                break;
+
+            default:
+                errors.Add(new SandboxError(
+                    $"Unsupported BaseType of kind {handle.Kind} on type {ownerType}"));
+                return false;
+        }
+
+        type = default!;
+        return false;
+    }
+    
+    
 
     private sealed class SandboxError
     {
