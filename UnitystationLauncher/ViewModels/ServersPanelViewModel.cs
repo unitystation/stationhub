@@ -127,7 +127,7 @@ public class ServersPanelViewModel : PanelBase
             return;
         }
 
-        foreach (ServerViewModel viewModel in
+        foreach (ServerViewModel viewModel in   
                  ServerViews.Where(viewModel => viewModel.Server.ForkName == download.ForkName
                                                 && viewModel.Server.BuildVersion == download.BuildVersion))
         {

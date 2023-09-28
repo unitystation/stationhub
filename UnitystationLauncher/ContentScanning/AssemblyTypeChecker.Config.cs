@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using ILVerify;
 using Pidgin;
 using Serilog;
@@ -15,17 +19,50 @@ namespace UnitystationLauncher.ContentScanning;
 
 public sealed partial class AssemblyTypeChecker
 {
-    private static string NameConfig = @"CodeScanList.json"; //TODO!!!
+    private static string NameConfig = @"CodeScanList.json"; 
 
-    private SandboxConfig LoadConfig()
+    private async Task<SandboxConfig> LoadConfig()
     {
-        if (_fileService.Exists(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)) == false)
+        var configPath = Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig);
+        try
         {
-            throw new NotImplementedException("Config is not downloaded"); //TODO Needs a file on the server to download
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync("https://raw.githubusercontent.com/unitystation/unitystation/develop/CodeScanList.json");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadAsStringAsync();
+                File.Delete(configPath);
+                await File.WriteAllTextAsync(configPath, jsonData);
+                Console.WriteLine("JSON file saved successfully.");
+            }
+            else
+            {
+                Log.Error("Unable to download config" + response.ToString());
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Error("Unable to download config" + e.ToString());
+        }
+        
+        
+        if (_fileService.Exists(configPath) == false)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "UnitystationLauncher.CodeScanList.json";
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                // Copy the contents of the resource to a file location
+                using (var fileStream = File.Create(configPath))
+                {
+                    stream.Seek(0L, SeekOrigin.Begin);
+                    await stream.CopyToAsync(fileStream);
+                }
+            }
+            Log.Error("had to use backup config");
         }
 
-        using (StreamReader file =
-               _fileService.OpenText(Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig)))
+        using (StreamReader file = _fileService.OpenText(configPath))
         {
             try
             {

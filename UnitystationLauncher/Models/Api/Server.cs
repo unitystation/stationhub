@@ -30,6 +30,9 @@ namespace UnitystationLauncher.Models.Api
         public string? WinDownload { get; set; }
         public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }
+        
+        public string ServerGoodFileVersion { get; set; }
+        
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
         public string? GetDownloadUrl(IEnvironmentService environmentService)

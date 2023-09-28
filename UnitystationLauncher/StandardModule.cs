@@ -20,7 +20,7 @@ namespace UnitystationLauncher
             builder.RegisterType<ServerService>().As<IServerService>().SingleInstance();
             builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
             builder.RegisterType<AssemblyTypeChecker>().As<IAssemblyChecker>().SingleInstance();
-
+            builder.RegisterType<CodeScanService>().As<ICodeScanService>().SingleInstance();
 
 
             builder.RegisterType<FileService>().As<IFileService>().SingleInstance();

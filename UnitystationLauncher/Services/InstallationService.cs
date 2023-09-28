@@ -29,17 +29,21 @@ public class InstallationService : IInstallationService
     private readonly IEnvironmentService _environmentService;
     private readonly IPreferencesService _preferencesService;
     private readonly IServerService _serverService;
+    
+    private readonly ICodeScanService _codeScanService;
+    
 
     private readonly List<Download> _downloads;
     private List<Installation> _installations = new();
     private readonly string _installationsJsonFilePath;
 
-    public InstallationService(HttpClient httpClient, IPreferencesService preferencesService, IEnvironmentService environmentService, IServerService serverService)
+    public InstallationService(HttpClient httpClient, IPreferencesService preferencesService, IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService)
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
         _environmentService = environmentService;
         _serverService = serverService;
+        _codeScanService = codeScanService;
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
 
@@ -80,6 +84,20 @@ public class InstallationService : IInstallationService
             return (null, failureReason);
         }
 
+        server.ServerGoodFileVersion = "1.1.1"; //TODO
+
+        // var task = ValidGoodFilesVersion(server.ServerGoodFileVersion);
+        //
+        // task.Wait();
+        //
+        // if (task.Result == false)
+        // {
+        //     const string failureReason = "server does not have a valid ServerGoodFileVersion ";
+        //     Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.ServerGoodFileVersion}");
+        //     return (null, failureReason);
+        // }
+        
+    
         Download? download = GetInProgressDownload(server.ForkName, server.BuildVersion);
 
         if (download != null)
@@ -90,9 +108,9 @@ public class InstallationService : IInstallationService
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         // should be something like {basePath}/{forkName}/{version}
-        string installationPath = Path.Combine(Path.Combine(installationBasePath, server.ForkName), server.BuildVersion.ToString());
+        string installationPath = "AAA TODO";// = Path.Combine(installationBasePath, SanitiseStringPath(server.ForkName), SanitiseStringPath(server.ServerGoodFileVersion),  server.BuildVersion.ToString());
 
-        download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion);
+        download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.ServerGoodFileVersion);
 
         (bool canStartDownload, string cantDownloadReason) = CanStartDownload(download);
 
@@ -113,6 +131,9 @@ public class InstallationService : IInstallationService
         RxApp.MainThreadScheduler.ScheduleAsync((_, _) => StartDownloadAsync(download));
         return (download, string.Empty);
     }
+
+ 
+    
 
     public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
@@ -421,23 +442,32 @@ public class InstallationService : IInstallationService
                 try
                 {
                     ZipArchive archive = new(progressStream);
-
-                    // TODO: Enable extraction cancelling
-                    archive.ExtractToDirectory(download.InstallPath, true);
-
-                    Log.Information("Download completed");
-
-                    _installations.Add(new()
+                    
+                    
+                    //TODO UI
+                    Action<string> info = new Action<string>((string log) => { });
+                    Action<string> errors = new Action<string>((string log) => { });
+                    if (_codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion ,info, errors))
                     {
-                        BuildVersion = download.BuildVersion,
-                        ForkName = download.ForkName,
-                        InstallationId = Guid.NewGuid(),
-                        InstallationPath = download.InstallPath,
-                        LastPlayedDate = DateTime.Now
-                    });
+                        Log.Information("Download completed");
 
-                    WriteInstallations();
-                    EnsureExecutableFlagOnUnixSystems(download.InstallPath);
+                        _installations.Add(new()
+                        {
+                            BuildVersion = download.BuildVersion,
+                            ForkName = download.ForkName,
+                            InstallationId = Guid.NewGuid(),
+                            InstallationPath = download.InstallPath,
+                            LastPlayedDate = DateTime.Now
+                        });
+
+                        WriteInstallations();
+                        EnsureExecutableFlagOnUnixSystems(download.InstallPath);
+                    }
+                    else
+                    {
+                        //TODO UI
+                        Log.Information("Scan Failed");
+                    }
                 }
                 catch
                 {

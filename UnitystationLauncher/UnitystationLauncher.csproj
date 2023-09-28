@@ -99,4 +99,12 @@
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="Dotnet.Bundle" Version="0.9.13" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="CodeScanList.json" />
+    <EmbeddedResource Include="CodeScanList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CustomToolNamespace>InBuiltData</CustomToolNamespace>
+      <Generator>InBuiltData</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
