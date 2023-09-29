@@ -116,10 +116,10 @@ public class ServersPanelViewModel : PanelBase
         }
     }
 
-    private void DownloadServer(Server server)
+    private async Task DownloadServer(Server server)
     {
-        (Download? download, string downloadFailReason) = _installationService.DownloadInstallation(server);
-
+        (Download? download, string downloadFailReason) = await _installationService.DownloadInstallation(server);
+        
         if (download == null)
         {
             MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Problem downloading server",

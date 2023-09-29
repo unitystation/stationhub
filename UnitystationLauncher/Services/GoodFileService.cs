@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog;
+using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services;
 
-public class GoodFileService
+public class GoodFileService : IGoodFileService
 {
     private readonly HttpClient _httpClient;
     
     private readonly IPreferencesService _preferencesService;
 
-    private const string GoodFileURL = "";
+    private const string GoodFileURL = "Https://unitystationfile.b-cdn.net/GoodFiles/";
     
     public GoodFileService(HttpClient httpClient, IPreferencesService preferencesService)
     {
@@ -31,19 +33,35 @@ public class GoodFileService
         }
         
         var pathBase = _preferencesService.GetPreferences().InstallationPath;
-        var versionPath = Path.Combine(pathBase, version.Replace(".", "_"));
-
+        var folderName = GetFolderName(version);
+        var versionPath = Path.Combine(pathBase, version, folderName);
+        
         if (Directory.Exists(versionPath) == false)
         {
-            HttpResponseMessage request = await _httpClient.GetAsync(GoodFileURL, HttpCompletionOption.ResponseHeadersRead);
+            
+            HttpResponseMessage request = await _httpClient.GetAsync(GoodFileURL + version +"/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
+            await using Stream responseStream = await request.Content.ReadAsStreamAsync();
+            ZipArchive archive = new(responseStream);
+            archive.ExtractToDirectory(Path.Combine(versionPath), true);
+        }
+        
+        return (versionPath, true);
+    }
+
+    private static string GetFolderName(string version)
+    {
+
+        var OS = "Windows";
+        switch (OS) //TODO get OS
+        {
+            case "Windows":
+                return version + "_Windows";
         }
 
-        return ("AAA", false);
-
-
+        return "idk";
     }
     
-    private static async Task<bool> ValidGoodFilesVersion(string goodFileVersion)
+    public async Task<bool> ValidGoodFilesVersion(string goodFileVersion)
     {
         var jsonData = "";
         try
@@ -79,7 +97,7 @@ public class GoodFileService
         return allowedList.Contains(goodFileVersion);
     }
 
-    private static string SanitiseStringPath(string inString)
+    public string SanitiseStringPath(string inString)
     {
         return inString.Replace(@"\", "").Replace("/", "").Replace(".", "_");
     }

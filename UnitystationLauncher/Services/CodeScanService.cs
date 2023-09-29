@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Services.Interface;
 
@@ -12,17 +13,20 @@ public class CodeScanService : ICodeScanService
 {
     private readonly IAssemblyChecker _IAssemblyChecker;
     private readonly IEnvironmentService _environmentService;
-
+    private readonly IGoodFileService _iGoodFileService;
+    
+    
     private const string Managed = "Managed";
     private const string Plugins = "Plugins";
 
     
     
     
-    public CodeScanService(IAssemblyChecker assemblyChecker, IEnvironmentService environmentService)
+    public CodeScanService(IAssemblyChecker assemblyChecker, IEnvironmentService environmentService, IGoodFileService iGoodFileService)
     {
         _IAssemblyChecker = assemblyChecker;
         _environmentService = environmentService;
+        _iGoodFileService = iGoodFileService;
     }
     
     
@@ -41,7 +45,7 @@ public class CodeScanService : ICodeScanService
         }
     }
 
-    public bool OnScan( ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
+    public async Task<bool> OnScan( ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
         
@@ -60,6 +64,7 @@ public class CodeScanService : ICodeScanService
             info.Invoke("Cleaning out Dlls and Executables");
             DeleteFilesWithExtension(processingDirectory.ToString(), "exe");
             DeleteFilesWithExtension(processingDirectory.ToString(), "dll");
+            //TODO os
 
             // Get all files in the directory
             var directories = processingDirectory.GetDirectories();
@@ -93,9 +98,15 @@ public class CodeScanService : ICodeScanService
 
             CopyFilesRecursively(stagingManaged.ToString(), dllDirectory.ToString());
 
+            var (goodFilePath, booly) = await _iGoodFileService.GetGoodFileVersion(goodFileVersion);
 
-            DirectoryInfo goodFileCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
-                "GoodFiles", "VDev", Managed));
+            if (booly == false)
+            {
+                DeleteContentsOfDirectory(processingDirectory);
+                return false;
+            }
+            
+            DirectoryInfo goodFileCopy = new DirectoryInfo(GetManagedOnOS(goodFilePath, "Windows")); //TODO
 
             info.Invoke("Proceeding to scan folder");
             if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
@@ -104,37 +115,16 @@ public class CodeScanService : ICodeScanService
                 return false;
             }
 
-            var pluginsFolder = dataPath.CreateSubdirectory(Plugins);
-            pluginsFolder.Delete(true);
-
-            pluginsFolder = dataPath.CreateSubdirectory(Plugins);
-
-            DirectoryInfo goodPluginsCopy = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
-                "GoodFiles", "VDev", Plugins));
-
-            //TODO OS Switch?
-            CopyFilesRecursively(goodPluginsCopy.ToString(), pluginsFolder.ToString());
-
-
-            var monoBleedingEdge = processingDirectory.CreateSubdirectory("MonoBleedingEdge");
-
-            monoBleedingEdge.Delete(true);
-
-
-            var goodRoot = new DirectoryInfo(Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory,
-                "GoodFiles", "VDev", "Root"));
-
-            try
+        
+            
+            CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
+            if (dataPath.Name != "Unitystation_Data") //I know Cases and to file systems but F  
             {
-                CopyFilesRecursively(goodRoot.ToString(), processingDirectory.ToString());
+                var oldPath = Path.Combine(processingDirectory.ToString(), "unitystation_Data");
+                CopyFilesRecursively(oldPath,  dataPath.ToString());
+                Directory.Delete(oldPath,true);
             }
-            catch (Exception e)
-            {
-                errors.Invoke("e > " + e);
-                DeleteContentsOfDirectory(processingDirectory);
-                return false;
-            }
-
+           
 
             var exeRename = processingDirectory.GetFiles()
                 .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
@@ -147,11 +137,14 @@ public class CodeScanService : ICodeScanService
             }
 
             exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
-               
 
-            DirectoryInfo goodBuildDirectory = Directory.CreateDirectory(System.AppDomain.CurrentDomain.BaseDirectory);
-            DeleteContentsOfDirectory(goodBuildDirectory);
-            CopyFilesRecursively(processingDirectory.ToString(), goodBuildDirectory.ToString());
+            var targetDirectoryinfo = new DirectoryInfo(targetDirectory);
+            if (targetDirectoryinfo.Exists)
+            {
+                DeleteContentsOfDirectory(targetDirectoryinfo);
+            }
+            
+            CopyFilesRecursively(processingDirectory.ToString(), targetDirectory.ToString());
             DeleteContentsOfDirectory(processingDirectory);
             DeleteContentsOfDirectory(stagingDirectory); 
         }
@@ -165,6 +158,19 @@ public class CodeScanService : ICodeScanService
 
         return true;
     }
+
+    public string GetManagedOnOS(string GoodFiles, string OS)
+    {
+        switch (OS) //TODO
+        {
+            case "Windows":
+                return Path.Combine(GoodFiles, "unitystation_Data", Managed);
+        }
+
+        return "idk";
+    }
+    
+    
 
     public bool ScanFolder(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
     {

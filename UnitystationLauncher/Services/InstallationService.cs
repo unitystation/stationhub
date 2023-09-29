@@ -31,19 +31,23 @@ public class InstallationService : IInstallationService
     private readonly IServerService _serverService;
     
     private readonly ICodeScanService _codeScanService;
-    
+    private readonly IGoodFileService _iGoodFileService;
 
     private readonly List<Download> _downloads;
     private List<Installation> _installations = new();
     private readonly string _installationsJsonFilePath;
 
-    public InstallationService(HttpClient httpClient, IPreferencesService preferencesService, IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService)
+    public InstallationService(HttpClient httpClient, IPreferencesService preferencesService, 
+        IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
+        IGoodFileService iGoodFileService)
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
         _environmentService = environmentService;
         _serverService = serverService;
         _codeScanService = codeScanService;
+        _iGoodFileService = iGoodFileService;
+        
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
 
@@ -74,32 +78,30 @@ public class InstallationService : IInstallationService
             && d.BuildVersion == buildVersion);
     }
 
-    public (Download?, string) DownloadInstallation(Server server)
+    public async Task<(Download?, string)> DownloadInstallation(Server server)
     {
         string? downloadUrl = server.GetDownloadUrl(_environmentService);
         if (string.IsNullOrWhiteSpace(downloadUrl))
         {
             const string failureReason = "Empty or missing download url for server.";
             Log.Warning(failureReason + $" ServerName: {server.ServerName}");
-            return (null, failureReason);
+            return (null!, failureReason);
         }
 
-        server.ServerGoodFileVersion = "1.1.1"; //TODO
+        server.ServerGoodFileVersion = "1.0.0"; //TODO
 
-        // var task = ValidGoodFilesVersion(server.ServerGoodFileVersion);
-        //
-        // task.Wait();
-        //
-        // if (task.Result == false)
-        // {
-        //     const string failureReason = "server does not have a valid ServerGoodFileVersion ";
-        //     Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.ServerGoodFileVersion}");
-        //     return (null, failureReason);
-        // }
+        var result = await _iGoodFileService.ValidGoodFilesVersion(server.ServerGoodFileVersion);
+        
+        if (result == false)
+        {
+            const string failureReason = "server does not have a valid ServerGoodFileVersion ";
+            Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.ServerGoodFileVersion}");
+            return (null!, failureReason);
+        }
         
     
         Download? download = GetInProgressDownload(server.ForkName, server.BuildVersion);
-
+ 
         if (download != null)
         {
             Log.Warning($"Download already in progress. ForkName={server.ForkName} BuildVersion={server.BuildVersion}");
@@ -108,7 +110,7 @@ public class InstallationService : IInstallationService
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         // should be something like {basePath}/{forkName}/{version}
-        string installationPath = "AAA TODO";// = Path.Combine(installationBasePath, SanitiseStringPath(server.ForkName), SanitiseStringPath(server.ServerGoodFileVersion),  server.BuildVersion.ToString());
+        string installationPath = Path.Combine(installationBasePath,_iGoodFileService.SanitiseStringPath(server.ForkName), _iGoodFileService.SanitiseStringPath(server.ServerGoodFileVersion),  server.BuildVersion.ToString());
 
         download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.ServerGoodFileVersion);
 
@@ -447,7 +449,10 @@ public class InstallationService : IInstallationService
                     //TODO UI
                     Action<string> info = new Action<string>((string log) => { });
                     Action<string> errors = new Action<string>((string log) => { });
-                    if (_codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion ,info, errors))
+                    var scanTask = _codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion,
+                        info, errors);
+                    scanTask.Wait();
+                    if (scanTask.Result)
                     {
                         Log.Information("Download completed");
 
