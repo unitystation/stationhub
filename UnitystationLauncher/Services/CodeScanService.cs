@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
+using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services;
@@ -48,7 +49,6 @@ public class CodeScanService : ICodeScanService
     public async Task<bool> OnScan( ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
-        
         var root = new DirectoryInfo( _environmentService.GetUserdataDirectory());
         
         DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory"); 
@@ -64,35 +64,50 @@ public class CodeScanService : ICodeScanService
             info.Invoke("Cleaning out Dlls and Executables");
             DeleteFilesWithExtension(processingDirectory.ToString(), "exe");
             DeleteFilesWithExtension(processingDirectory.ToString(), "dll");
-            //TODO os
-
-            // Get all files in the directory
-            var directories = processingDirectory.GetDirectories();
-
-
-            // Loop through each file
-            foreach (var directorie in directories)
+            DeleteFilesWithExtension(processingDirectory.ToString(), ".so");
+            DeleteFilesWithExtension(processingDirectory.ToString(), ".dylib");
+            if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
             {
-                if (directorie.Name.Contains("_Data"))
+                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data\StreamingAssets")  );
+            }
+            
+           
+
+            DirectoryInfo stagingManaged = null;
+            if (_environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone)
+            {
+                // Get all files in the directory
+                var directories = processingDirectory.GetDirectories();
+                // Loop through each file
+                foreach (var directorie in directories)
                 {
-                    if (dataPath != null)
+                    if (directorie.Name.Contains("_Data"))
                     {
-                        errors.Invoke("oh God 2 Datapaths Exiting!!!");
-                        return false;
+                        if (dataPath != null)
+                        {
+                            errors.Invoke("oh God 2 Datapaths Exiting!!!");
+                            return false;
+                        }
+
+                        dataPath = directorie;
                     }
-
-                    dataPath = directorie;
                 }
-            }
 
-            if (dataPath == null)
+                if (dataPath == null)
+                {
+                    errors.Invoke("oh God NO Datapath Exiting!!!");
+                    return false;
+                }
+                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, Managed));
+            }
+            else
             {
-                errors.Invoke("oh God NO Datapath Exiting!!!");
-                return false;
+                //MAC
+                dataPath = new DirectoryInfo( Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data"));
+                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Contents\Resources\Data", Managed));
             }
 
-
-            var stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, Managed));
+            
 
             var dllDirectory = dataPath.CreateSubdirectory(Managed);
 
@@ -106,7 +121,7 @@ public class CodeScanService : ICodeScanService
                 return false;
             }
             
-            DirectoryInfo goodFileCopy = new DirectoryInfo(GetManagedOnOS(goodFilePath, "Windows")); //TODO
+            DirectoryInfo goodFileCopy = new DirectoryInfo(GetManagedOnOS(goodFilePath)); 
 
             info.Invoke("Proceeding to scan folder");
             if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
@@ -118,25 +133,42 @@ public class CodeScanService : ICodeScanService
         
             
             CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
-            if (dataPath.Name != "Unitystation_Data") //I know Cases and to file systems but F  
+            if (dataPath.Name != "Unitystation_Data" && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
             {
-                var oldPath = Path.Combine(processingDirectory.ToString(), "unitystation_Data");
+                var oldPath = Path.Combine(processingDirectory.ToString(), "Unitystation_Data");
                 CopyFilesRecursively(oldPath,  dataPath.ToString());
                 Directory.Delete(oldPath,true);
             }
-           
 
-            var exeRename = processingDirectory.GetFiles()
-                .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
 
-            if (exeRename == null || exeRename.Directory == null)
+            switch (_environmentService.GetCurrentEnvironment())
             {
-                errors.Invoke("no Executable found ");
-                DeleteContentsOfDirectory(processingDirectory);
-                return false;
-            }
+                case CurrentEnvironment.WindowsStandalone:
+                    var exeRename = processingDirectory.GetFiles()
+                        .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
 
-            exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
+                    if (exeRename == null || exeRename.Directory == null)
+                    {
+                        errors.Invoke("no Executable found ");
+                        DeleteContentsOfDirectory(processingDirectory);
+                        return false;
+                    }
+                    exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
+                    break;
+                case CurrentEnvironment.LinuxStandalone:
+                    var ExecutableRename = processingDirectory.GetFiles()
+                        .FirstOrDefault(x => x.Extension == ".x86_64"); 
+
+                    if (ExecutableRename == null || ExecutableRename.Directory == null)
+                    {
+                        errors.Invoke("no Executable found ");
+                        DeleteContentsOfDirectory(processingDirectory);
+                        return false;
+                    }
+                    ExecutableRename.MoveTo(Path.Combine(ExecutableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".x86_64"));
+                    break;
+            }
+            
 
             var targetDirectoryinfo = new DirectoryInfo(targetDirectory);
             if (targetDirectoryinfo.Exists)
@@ -159,12 +191,17 @@ public class CodeScanService : ICodeScanService
         return true;
     }
 
-    public string GetManagedOnOS(string GoodFiles, string OS)
+    public string GetManagedOnOS(string GoodFiles)
     {
-        switch (OS) //TODO
+        var OS = _environmentService.GetCurrentEnvironment();
+        switch (OS)
         {
-            case "Windows":
-                return Path.Combine(GoodFiles, "unitystation_Data", Managed);
+            case CurrentEnvironment.WindowsStandalone:
+                return Path.Combine(GoodFiles, "Unitystation_Data", Managed);
+            case CurrentEnvironment.LinuxStandalone:
+                return Path.Combine(GoodFiles, "Unitystation_Data", Managed);
+            case CurrentEnvironment.MacOsStandalone:
+                return Path.Combine(GoodFiles, @"Contents\Resources\Data", Managed);
         }
 
         return "idk";
@@ -239,7 +276,7 @@ public class CodeScanService : ICodeScanService
         }
     }
 
-    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool recursive = true)
+    static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool recursive = true, string? exceptionDirectory = null)
     {
         DirectoryInfo directory = new DirectoryInfo(directoryPath);
 
@@ -254,6 +291,13 @@ public class CodeScanService : ICodeScanService
         FileInfo[] files = directory.GetFiles("*" + fileExtension);
         foreach (FileInfo file in files)
         {
+            if (exceptionDirectory != null)
+            {
+                if (file.Directory?.ToString().Contains(exceptionDirectory) == true)
+                {
+                    continue;
+                } 
+            }
             // Delete the file
             file.Delete();
             Console.WriteLine("Deleted file: " + file.FullName);
@@ -265,7 +309,7 @@ public class CodeScanService : ICodeScanService
             DirectoryInfo[] subdirectories = directory.GetDirectories();
             foreach (DirectoryInfo subdirectory in subdirectories)
             {
-                DeleteFilesWithExtension(subdirectory.FullName, fileExtension);
+                DeleteFilesWithExtension(subdirectory.FullName, fileExtension, exceptionDirectory : exceptionDirectory);
             }
         }
     }

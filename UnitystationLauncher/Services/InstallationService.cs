@@ -424,7 +424,6 @@ public class InstallationService : IInstallationService
         Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", download.InstallPath, download.DownloadUrl);
         try
         {
-            Directory.CreateDirectory(download.InstallPath);
             Log.Information("Download started...");
             HttpResponseMessage request = await _httpClient.GetAsync(download.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();

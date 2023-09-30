@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Infrastructure;
+using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services;
@@ -16,13 +17,16 @@ public class GoodFileService : IGoodFileService
     private readonly HttpClient _httpClient;
     
     private readonly IPreferencesService _preferencesService;
+    private readonly IEnvironmentService _environmentService;
 
     private const string GoodFileURL = "Https://unitystationfile.b-cdn.net/GoodFiles/";
     
-    public GoodFileService(HttpClient httpClient, IPreferencesService preferencesService)
+    public GoodFileService(HttpClient httpClient, IPreferencesService preferencesService, IEnvironmentService environmentService)
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
+        _environmentService = environmentService;
+
     }
 
     public async Task<(string, bool)> GetGoodFileVersion(string version)
@@ -48,14 +52,17 @@ public class GoodFileService : IGoodFileService
         return (versionPath, true);
     }
 
-    private static string GetFolderName(string version)
+    private string GetFolderName(string version)
     {
-
-        var OS = "Windows";
-        switch (OS) //TODO get OS
+        var OS = _environmentService.GetCurrentEnvironment();
+        switch (OS)
         {
-            case "Windows":
+            case CurrentEnvironment.WindowsStandalone:
                 return version + "_Windows";
+            case CurrentEnvironment.LinuxStandalone:
+                return version + "_Linux";
+            case CurrentEnvironment.MacOsStandalone:
+                return version + "_Mac";
         }
 
         return "idk";
