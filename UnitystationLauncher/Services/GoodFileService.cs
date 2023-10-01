@@ -35,7 +35,7 @@ public class GoodFileService : IGoodFileService
         {
             return ("", false);
         }
-        
+  
         var pathBase = _preferencesService.GetPreferences().InstallationPath;
         var folderName = GetFolderName(version);
         var versionPath = Path.Combine(pathBase, version, folderName);
