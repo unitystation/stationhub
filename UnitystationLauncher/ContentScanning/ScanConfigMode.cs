@@ -15,13 +15,3 @@ public sealed class SandboxConfig
     public Dictionary<string, Dictionary<string, TypeConfig>> Types { get; set; } =
         new Dictionary<string, Dictionary<string, TypeConfig>>();
 }
-
-public enum InheritMode : byte
-{
-    // Allow if All is set, block otherwise
-    Default,
-    Allow,
-
-    // Block even is All is set
-    Block
-}
