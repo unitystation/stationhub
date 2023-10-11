@@ -1,0 +1,3 @@
+[submodule "docs/Installation-Script"]
+	path = docs/Installation-Script
+	url = https://github.com/Unitystation-fork/Unitystation-Others.git
