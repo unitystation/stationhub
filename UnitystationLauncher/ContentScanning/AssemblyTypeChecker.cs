@@ -187,7 +187,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         {
             if (IsTypeAccessAllowed(loadedConfig, type, out _) == false)
             {
-                errors.Add(new SandboxError($"Access to type not allowed: {type}"));
+                errors.Add(new SandboxError($"Access to type not allowed: {type} asmName {asmName}"));
             }
         }
 
