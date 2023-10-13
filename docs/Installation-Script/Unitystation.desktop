@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=UnityStation
+GenericName=UnityStation
+Exec=/usr/share/Unitystation/StationHub
+Type=Application
+Categories=Game
+Comment=UnityStation- Connect to Unitystation servers & manage your installs.
+Comment[fr_FR]=UnityStation - Connectez-vous aux serveurs Unitystation & gérez vos installations.
+Icon=/usr/share/Unitystation/unityico.png
+Path=/usr/share/Unitystation/
