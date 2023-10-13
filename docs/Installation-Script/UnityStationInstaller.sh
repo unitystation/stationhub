@@ -16,14 +16,14 @@ function get_latest_version {
 latest_version=$(get_latest_version)
 
 while true; do
-    echo "Choisissez votre distribution :"
+    echo "Choose your distribution :"
     echo "1 - Ubuntu/Debian"
     echo "2 - Arch-Linux"
     echo "3 - Fedora"
     echo "4 - OpenSUSE"
     echo "5 - CentOS"
     echo "6 - Gentoo"
-    read -p "Entrez le numéro de votre choix : " choice
+    read -p "Enter the number of your choice : " choice
 
     case $choice in
         1)
@@ -64,7 +64,7 @@ while true; do
             ;;
 
         *)
-            echo "Choix invalide. Réessayez."
+            echo "Invalid choice. Please try again."
             ;;
     esac
 
@@ -86,5 +86,5 @@ unzip /usr/share/Unitystation/lin-latest.zip || handle_error
 rm -rfv /usr/share/Unitystation/lin-latest.zip || handle_error
 chmod -R 777 /usr/share/Unitystation/StationHub || handle_error
 
-echo "Installation terminée."
+echo "Installation done."
 exit 1
