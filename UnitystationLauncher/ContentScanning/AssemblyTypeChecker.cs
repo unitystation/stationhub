@@ -203,9 +203,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             return true;
         }
 
-#pragma warning disable RA0004
+
         var loadedConfig = _config.Result;
-#pragma warning restore RA0004
 
         loadedConfig.MultiAssemblyOtherReferences.Clear();
         loadedConfig.MultiAssemblyOtherReferences.AddRange(otherAssemblies);
