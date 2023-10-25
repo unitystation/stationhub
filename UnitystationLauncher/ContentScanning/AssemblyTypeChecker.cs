@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
@@ -48,12 +49,15 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
 
     private readonly IFileService _fileService;
 
-    public AssemblyTypeChecker(IEnvironmentService environmentService, IFileService FileService)
+    private readonly HttpClient _httpClient;
+
+    public AssemblyTypeChecker(IEnvironmentService environmentService, IFileService FileService, HttpClient httpClient)
     {
         _environmentService = environmentService;
         VerifyIl = true;
         DisableTypeCheck = false;
         _fileService = FileService;
+        _httpClient = httpClient;
         _config = Task.Run(LoadConfig);
     }
 

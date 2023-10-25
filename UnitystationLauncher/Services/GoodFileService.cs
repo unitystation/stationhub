@@ -74,8 +74,7 @@ public class GoodFileService : IGoodFileService
         var jsonData = "";
         try
         {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("https://unitystationfile.b-cdn.net/GoodFiles/AllowGoodFiles.json");
+            var response = await _httpClient.GetAsync("https://unitystationfile.b-cdn.net/GoodFiles/AllowGoodFiles.json");
             if (!response.IsSuccessStatusCode)
             {
                 Log.Error("Unable to download config" + response);

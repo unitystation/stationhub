@@ -26,8 +26,7 @@ public sealed partial class AssemblyTypeChecker
         var configPath = Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig);
         try
         {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync("https://raw.githubusercontent.com/unitystation/unitystation/develop/CodeScanList.json");
+            var response = await _httpClient.GetAsync("https://raw.githubusercontent.com/unitystation/unitystation/develop/CodeScanList.json");
             if (response.IsSuccessStatusCode)
             {
                 var jsonData = await response.Content.ReadAsStringAsync();
