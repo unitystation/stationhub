@@ -59,6 +59,7 @@ public class GoodFileService : IGoodFileService
         {
             case CurrentEnvironment.WindowsStandalone:
                 return version + "_Windows";
+            case CurrentEnvironment.LinuxFlatpak:
             case CurrentEnvironment.LinuxStandalone:
                 return version + "_Linux";
             case CurrentEnvironment.MacOsStandalone:

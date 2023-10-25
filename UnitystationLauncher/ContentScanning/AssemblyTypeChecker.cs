@@ -98,6 +98,36 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     return _dictionaryLookup[assemblyName.Name];
                 }
             }
+            
+            files = _managedPath.GetFiles("*.so"); // Change the file extension to match Linux stuff to
+
+            foreach (FileInfo file in files)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file.Name);
+                if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                    _dictionaryLookup[assemblyName.Name] =
+                        new PEReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
+                    return _dictionaryLookup[assemblyName.Name];
+                }
+            }
+            
+            files = _managedPath.GetFiles("*.dylib"); // Change the file extension to match mac stuff to
+
+            foreach (FileInfo file in files)
+            {
+                string fileName = Path.GetFileNameWithoutExtension(file.Name);
+                if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                    _dictionaryLookup[assemblyName.Name] =
+                        new PEReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
+                    return _dictionaryLookup[assemblyName.Name];
+                }
+            }
+            
+            
 
             throw new FileNotFoundException("Unable to find it " + assemblyName.FullName);
         }
@@ -316,8 +346,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         return
             $"{type}.{reader.GetString(method.Name)}({string.Join(", ", methodSig.ParameterTypes)}) Returns {methodSig.ReturnType} ";
     }
-
-    [SuppressMessage("ReSharper", "BitwiseOperatorOnEnumWithoutFlags")]
+    
     private static void CheckNoUnmanagedMethodDefs(MetadataReader reader, ConcurrentBag<SandboxError> errors)
     {
         foreach (var methodDefHandle in reader.MethodDefinitions)

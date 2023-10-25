@@ -198,6 +198,7 @@ public class CodeScanService : ICodeScanService
         {
             case CurrentEnvironment.WindowsStandalone:
                 return Path.Combine(GoodFiles, "Unitystation_Data", Managed);
+            case CurrentEnvironment.LinuxFlatpak:
             case CurrentEnvironment.LinuxStandalone:
                 return Path.Combine(GoodFiles, "Unitystation_Data", Managed);
             case CurrentEnvironment.MacOsStandalone:
