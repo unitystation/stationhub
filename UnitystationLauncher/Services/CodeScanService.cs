@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Models.Enums;
@@ -68,6 +69,8 @@ public class CodeScanService : ICodeScanService
             DeleteFilesWithExtension(processingDirectory.ToString(), "dll");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".so");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".dylib");
+            DeleteFilesWithExtension(processingDirectory.ToString(), "", false);
+            
             if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
             {
                 DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data\StreamingAssets")  );
@@ -278,7 +281,7 @@ public class CodeScanService : ICodeScanService
             subdirectory.Delete(true);
         }
     }
-
+    
     static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool recursive = true, string? exceptionDirectory = null)
     {
         DirectoryInfo directory = new DirectoryInfo(directoryPath);
