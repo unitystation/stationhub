@@ -19,7 +19,9 @@ public class CodeScanService : ICodeScanService
     
     private const string Managed = "Managed";
     private const string Plugins = "Plugins";
-
+    private const string Unitystation_Data = "Unitystation_Data";
+    
+    
     
     
     
@@ -133,9 +135,9 @@ public class CodeScanService : ICodeScanService
         
             
             CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
-            if (dataPath.Name != "Unitystation_Data" && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
+            if (dataPath.Name != Unitystation_Data && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
             {
-                var oldPath = Path.Combine(processingDirectory.ToString(), "Unitystation_Data");
+                var oldPath = Path.Combine(processingDirectory.ToString(), Unitystation_Data);
                 CopyFilesRecursively(oldPath,  dataPath.ToString());
                 Directory.Delete(oldPath,true);
             }
@@ -197,15 +199,15 @@ public class CodeScanService : ICodeScanService
         switch (OS)
         {
             case CurrentEnvironment.WindowsStandalone:
-                return Path.Combine(GoodFiles, "Unitystation_Data", Managed);
+                return Path.Combine(GoodFiles, Unitystation_Data, Managed);
             case CurrentEnvironment.LinuxFlatpak:
             case CurrentEnvironment.LinuxStandalone:
-                return Path.Combine(GoodFiles, "Unitystation_Data", Managed);
+                return Path.Combine(GoodFiles, Unitystation_Data, Managed);
             case CurrentEnvironment.MacOsStandalone:
                 return Path.Combine(GoodFiles, @"Contents\Resources\Data", Managed);
+            default:
+                throw new Exception($"Unable to determine OS Version {OS}");
         }
-
-        return "idk";
     }
     
     

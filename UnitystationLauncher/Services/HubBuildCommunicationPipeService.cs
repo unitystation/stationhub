@@ -15,12 +15,12 @@ namespace UnitystationLauncher.Services;
 public static class HubBuildCommunicationPipeService
 {
 
-    public static PipeHubBuildCommunication coolPipeHubBuildCommunication;
+    private static PipeHubBuildCommunication coolPipeHubBuildCommunication;
 
     public static void  Init()
     {
         var data = new PipeHubBuildCommunication();
-        new Task(data.StartServerPipe).Start();
+        _ = data.StartServerPipe();
         coolPipeHubBuildCommunication = data;
     }
     
@@ -44,7 +44,7 @@ public static class HubBuildCommunicationPipeService
             Host_Trust_Mode = 3,
         }
 
-        public async void StartServerPipe()
+        public async Task StartServerPipe()
         {
             await _serverPipe.WaitForConnectionAsync();
             _reader = new StreamReader(_serverPipe);

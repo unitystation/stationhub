@@ -64,9 +64,9 @@ public class GoodFileService : IGoodFileService
                 return version + "_Linux";
             case CurrentEnvironment.MacOsStandalone:
                 return version + "_Mac";
+            default:
+                throw new Exception($"Unable to determine OS Version {OS}");
         }
-
-        return "idk";
     }
     
     public async Task<bool> ValidGoodFilesVersion(string goodFileVersion)
@@ -78,7 +78,7 @@ public class GoodFileService : IGoodFileService
             var response = await httpClient.GetAsync("https://unitystationfile.b-cdn.net/GoodFiles/AllowGoodFiles.json");
             if (!response.IsSuccessStatusCode)
             {
-                Log.Error("Unable to download config" + response.ToString());
+                Log.Error("Unable to download config" + response);
                 return false;
             }
         
@@ -86,7 +86,7 @@ public class GoodFileService : IGoodFileService
         }
         catch (Exception e)
         {
-            Log.Error("Unable to download ValidGoodFilesVersion config" + e.ToString());
+            Log.Error("Unable to download ValidGoodFilesVersion config" + e);
             return false; 
         }
 
