@@ -75,7 +75,7 @@ public static class HubBuildCommunicationPipeService
                 }
 
                 var requests = request.Split(",");
-                Console.WriteLine($"Server: Received request: {request}");
+                Log.Information($"Server: Received request: {request}");
 
                 if (ClientRequest.URL.ToString() == requests[0])
                 {
@@ -89,7 +89,7 @@ public static class HubBuildCommunicationPipeService
     Justification given by the Fork : " + requests[2]);
 
                         string response = await msgBox.Show();
-
+                        Log.Information($"response {response}");
                         await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                         await _writer.FlushAsync();
                         return Task.CompletedTask;
@@ -108,7 +108,7 @@ public static class HubBuildCommunicationPipeService
 
 
                         string response = await msgBox.Show();
-
+                        Log.Information($"response {response}");
                         await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                         await _writer.FlushAsync();
                         return Task.CompletedTask;
@@ -128,7 +128,7 @@ public static class HubBuildCommunicationPipeService
      Justification : " + requests[1]); //TODO Add text
 
                         string response = await msgBox.Show();
-
+                        Log.Information($"response {response}");
                         await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                         await _writer.FlushAsync();
                         return Task.CompletedTask;
