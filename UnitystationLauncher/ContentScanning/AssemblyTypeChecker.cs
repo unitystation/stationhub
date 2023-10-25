@@ -705,7 +705,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         }
 
         if (type.ResolutionScope is ScanningTypes.MResScopeAssembly resScopeAssembly &&
-            sandboxConfig.MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
+            sandboxConfig. MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
         {
             cfg = TypeConfig.DefaultAll; //TODO DEBUG!!!
             return true;

@@ -5,8 +5,6 @@
     ],
     "WhitelistedNamespaces": [
     ],
-	"WhitelistedAssembliesDEBUG" : [
-	],
     "Types": {
 		"WebSocketSharp":{
 			"MessageEventArgs":{
