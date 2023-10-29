@@ -17,14 +17,14 @@ public static class HubBuildCommunicationPipeService
 
     private static PipeHubBuildCommunication coolPipeHubBuildCommunication;
 
-    public static void  Init()
+    public static void Init()
     {
         var data = new PipeHubBuildCommunication();
         _ = data.StartServerPipe();
         coolPipeHubBuildCommunication = data;
     }
-    
-    
+
+
     public class PipeHubBuildCommunication : IDisposable
     {
         private NamedPipeServerStream _serverPipe;

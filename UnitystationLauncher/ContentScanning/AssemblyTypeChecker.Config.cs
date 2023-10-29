@@ -19,7 +19,7 @@ namespace UnitystationLauncher.ContentScanning;
 
 public sealed partial class AssemblyTypeChecker
 {
-    private static string NameConfig = @"CodeScanList.json"; 
+    private static string NameConfig = @"CodeScanList.json";
 
     private async Task<SandboxConfig> LoadConfig()
     {
@@ -43,8 +43,8 @@ public sealed partial class AssemblyTypeChecker
         {
             Log.Error("Unable to download config" + e.ToString());
         }
-        
-        
+
+
         if (_fileService.Exists(configPath) == false)
         {
             var assembly = Assembly.GetExecutingAssembly();

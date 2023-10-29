@@ -9,7 +9,7 @@ namespace UnitystationLauncher.Models
         public string InstallPath { get; }
         public string ForkName { get; }
         public int BuildVersion { get; }
-        
+
         public string GoodFileVersion { get; }
 
         private long _size;

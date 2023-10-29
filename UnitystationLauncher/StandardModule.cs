@@ -24,7 +24,7 @@ namespace UnitystationLauncher
             builder.RegisterType<GoodFileService>().As<IGoodFileService>().SingleInstance();
             builder.RegisterType<FileService>().As<IFileService>().SingleInstance();
             builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
-            
+
             HubBuildCommunicationPipeService.Init();
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)

@@ -29,7 +29,7 @@ public class InstallationService : IInstallationService
     private readonly IEnvironmentService _environmentService;
     private readonly IPreferencesService _preferencesService;
     private readonly IServerService _serverService;
-    
+
     private readonly ICodeScanService _codeScanService;
     private readonly IGoodFileService _iGoodFileService;
 
@@ -37,7 +37,7 @@ public class InstallationService : IInstallationService
     private List<Installation> _installations = new();
     private readonly string _installationsJsonFilePath;
 
-    public InstallationService(HttpClient httpClient, IPreferencesService preferencesService, 
+    public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
         IGoodFileService iGoodFileService)
     {
@@ -47,7 +47,7 @@ public class InstallationService : IInstallationService
         _serverService = serverService;
         _codeScanService = codeScanService;
         _iGoodFileService = iGoodFileService;
-        
+
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
 
@@ -91,17 +91,17 @@ public class InstallationService : IInstallationService
         server.ServerGoodFileVersion = "1.0.0"; //TODO
 
         var result = await _iGoodFileService.ValidGoodFilesVersion(server.ServerGoodFileVersion);
-        
+
         if (result == false)
         {
             const string failureReason = "server does not have a valid ServerGoodFileVersion ";
             Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.ServerGoodFileVersion}");
             return (null!, failureReason);
         }
-        
-    
+
+
         Download? download = GetInProgressDownload(server.ForkName, server.BuildVersion);
- 
+
         if (download != null)
         {
             Log.Warning($"Download already in progress. ForkName={server.ForkName} BuildVersion={server.BuildVersion}");
@@ -110,7 +110,7 @@ public class InstallationService : IInstallationService
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         // should be something like {basePath}/{forkName}/{version}
-        string installationPath = Path.Combine(installationBasePath,_iGoodFileService.SanitiseStringPath(server.ForkName), _iGoodFileService.SanitiseStringPath(server.ServerGoodFileVersion),  server.BuildVersion.ToString());
+        string installationPath = Path.Combine(installationBasePath, _iGoodFileService.SanitiseStringPath(server.ForkName), _iGoodFileService.SanitiseStringPath(server.ServerGoodFileVersion), server.BuildVersion.ToString());
 
         download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.ServerGoodFileVersion);
 
@@ -134,8 +134,8 @@ public class InstallationService : IInstallationService
         return (download, string.Empty);
     }
 
- 
-    
+
+
 
     public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
@@ -443,8 +443,8 @@ public class InstallationService : IInstallationService
                 try
                 {
                     ZipArchive archive = new(progressStream);
-                    
-                    
+
+
                     //TODO UI
                     Action<string> info = new Action<string>((string log) => { });
                     Action<string> errors = new Action<string>((string log) => { });

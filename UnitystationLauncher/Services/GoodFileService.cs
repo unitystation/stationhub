@@ -15,12 +15,12 @@ namespace UnitystationLauncher.Services;
 public class GoodFileService : IGoodFileService
 {
     private readonly HttpClient _httpClient;
-    
+
     private readonly IPreferencesService _preferencesService;
     private readonly IEnvironmentService _environmentService;
 
     private const string GoodFileURL = "Https://unitystationfile.b-cdn.net/GoodFiles/";
-    
+
     public GoodFileService(HttpClient httpClient, IPreferencesService preferencesService, IEnvironmentService environmentService)
     {
         _httpClient = httpClient;
@@ -35,20 +35,20 @@ public class GoodFileService : IGoodFileService
         {
             return ("", false);
         }
-  
+
         var pathBase = _preferencesService.GetPreferences().InstallationPath;
         var folderName = GetFolderName(version);
         var versionPath = Path.Combine(pathBase, version, folderName);
-        
+
         if (Directory.Exists(versionPath) == false)
         {
-            
-            HttpResponseMessage request = await _httpClient.GetAsync(GoodFileURL + version +"/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
+
+            HttpResponseMessage request = await _httpClient.GetAsync(GoodFileURL + version + "/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             ZipArchive archive = new(responseStream);
             archive.ExtractToDirectory(Path.Combine(versionPath), true);
         }
-        
+
         return (versionPath, true);
     }
 
@@ -68,7 +68,7 @@ public class GoodFileService : IGoodFileService
                 throw new Exception($"Unable to determine OS Version {OS}");
         }
     }
-    
+
     public async Task<bool> ValidGoodFilesVersion(string goodFileVersion)
     {
         var jsonData = "";
@@ -80,16 +80,16 @@ public class GoodFileService : IGoodFileService
                 Log.Error("Unable to download config" + response);
                 return false;
             }
-        
+
             jsonData = await response.Content.ReadAsStringAsync();
         }
         catch (Exception e)
         {
             Log.Error("Unable to download ValidGoodFilesVersion config" + e);
-            return false; 
+            return false;
         }
 
-        
+
         var allowedList = JsonSerializer.Deserialize<HashSet<string>>(jsonData, options: new()
         {
             IgnoreReadOnlyProperties = true,
@@ -100,7 +100,7 @@ public class GoodFileService : IGoodFileService
         {
             return false;
         }
-        
+
         return allowedList.Contains(goodFileVersion);
     }
 

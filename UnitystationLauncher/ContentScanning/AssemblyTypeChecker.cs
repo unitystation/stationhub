@@ -102,7 +102,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     return _dictionaryLookup[assemblyName.Name];
                 }
             }
-            
+
             files = _managedPath.GetFiles("*.so"); // Change the file extension to match Linux stuff to
 
             foreach (FileInfo file in files)
@@ -116,7 +116,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     return _dictionaryLookup[assemblyName.Name];
                 }
             }
-            
+
             files = _managedPath.GetFiles("*.dylib"); // Change the file extension to match mac stuff to
 
             foreach (FileInfo file in files)
@@ -130,8 +130,8 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
                     return _dictionaryLookup[assemblyName.Name];
                 }
             }
-            
-            
+
+
 
             throw new FileNotFoundException("Unable to find it " + assemblyName.FullName);
         }
@@ -349,7 +349,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         return
             $"{type}.{reader.GetString(method.Name)}({string.Join(", ", methodSig.ParameterTypes)}) Returns {methodSig.ReturnType} ";
     }
-    
+
     private static void CheckNoUnmanagedMethodDefs(MetadataReader reader, ConcurrentBag<SandboxError> errors)
     {
         foreach (var methodDefHandle in reader.MethodDefinitions)
@@ -689,7 +689,7 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
             if (type.ResolutionScope is ScanningTypes.MResScopeAssembly mResScopeAssembly &&
                 sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
             {
-                cfg = TypeConfig.DefaultAll; 
+                cfg = TypeConfig.DefaultAll;
                 return true;
             }
 
@@ -709,9 +709,9 @@ public sealed partial class AssemblyTypeChecker : IAssemblyChecker
         }
 
         if (type.ResolutionScope is ScanningTypes.MResScopeAssembly resScopeAssembly &&
-            sandboxConfig. MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
+            sandboxConfig.MultiAssemblyOtherReferences.Contains(resScopeAssembly.Name))
         {
-            cfg = TypeConfig.DefaultAll; 
+            cfg = TypeConfig.DefaultAll;
             return true;
         }
 

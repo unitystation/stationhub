@@ -16,24 +16,24 @@ public class CodeScanService : ICodeScanService
     private readonly IAssemblyChecker _IAssemblyChecker;
     private readonly IEnvironmentService _environmentService;
     private readonly IGoodFileService _iGoodFileService;
-    
-    
+
+
     private const string Managed = "Managed";
     private const string Plugins = "Plugins";
     private const string Unitystation_Data = "Unitystation_Data";
-    
-    
-    
-    
-    
+
+
+
+
+
     public CodeScanService(IAssemblyChecker assemblyChecker, IEnvironmentService environmentService, IGoodFileService iGoodFileService)
     {
         _IAssemblyChecker = assemblyChecker;
         _environmentService = environmentService;
         _iGoodFileService = iGoodFileService;
     }
-    
-    
+
+
 
     class FileInfoComparer : IEqualityComparer<FileInfo>
     {
@@ -49,12 +49,12 @@ public class CodeScanService : ICodeScanService
         }
     }
 
-    public async Task<bool> OnScan( ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
+    public async Task<bool> OnScan(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
-        var root = new DirectoryInfo( _environmentService.GetUserdataDirectory());
-        
-        DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory"); 
+        var root = new DirectoryInfo(_environmentService.GetUserdataDirectory());
+
+        DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory");
         DirectoryInfo processingDirectory = root.CreateSubdirectory("UnsafeBuildProcessing");
         DirectoryInfo? dataPath = null;
         archive.ExtractToDirectory(stagingDirectory.ToString(), true);
@@ -70,13 +70,13 @@ public class CodeScanService : ICodeScanService
             DeleteFilesWithExtension(processingDirectory.ToString(), ".so");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".dylib");
             DeleteFilesWithExtension(processingDirectory.ToString(), "", false);
-            
+
             if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
             {
-                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data\StreamingAssets")  );
+                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data\StreamingAssets"));
             }
-            
-           
+
+
 
             DirectoryInfo stagingManaged = null;
             if (_environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone)
@@ -108,11 +108,11 @@ public class CodeScanService : ICodeScanService
             else
             {
                 //MAC
-                dataPath = new DirectoryInfo( Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data"));
+                dataPath = new DirectoryInfo(Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data"));
                 stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Contents\Resources\Data", Managed));
             }
 
-            
+
 
             var dllDirectory = dataPath.CreateSubdirectory(Managed);
 
@@ -125,8 +125,8 @@ public class CodeScanService : ICodeScanService
                 DeleteContentsOfDirectory(processingDirectory);
                 return false;
             }
-            
-            DirectoryInfo goodFileCopy = new DirectoryInfo(GetManagedOnOS(goodFilePath)); 
+
+            DirectoryInfo goodFileCopy = new DirectoryInfo(GetManagedOnOS(goodFilePath));
 
             info.Invoke("Proceeding to scan folder");
             if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
@@ -135,14 +135,14 @@ public class CodeScanService : ICodeScanService
                 return false;
             }
 
-        
-            
+
+
             CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
             if (dataPath.Name != Unitystation_Data && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
             {
                 var oldPath = Path.Combine(processingDirectory.ToString(), Unitystation_Data);
-                CopyFilesRecursively(oldPath,  dataPath.ToString());
-                Directory.Delete(oldPath,true);
+                CopyFilesRecursively(oldPath, dataPath.ToString());
+                Directory.Delete(oldPath, true);
             }
 
 
@@ -162,7 +162,7 @@ public class CodeScanService : ICodeScanService
                     break;
                 case CurrentEnvironment.LinuxStandalone:
                     var ExecutableRename = processingDirectory.GetFiles()
-                        .FirstOrDefault(x => x.Extension == ".x86_64"); 
+                        .FirstOrDefault(x => x.Extension == ".x86_64");
 
                     if (ExecutableRename == null || ExecutableRename.Directory == null)
                     {
@@ -173,17 +173,17 @@ public class CodeScanService : ICodeScanService
                     ExecutableRename.MoveTo(Path.Combine(ExecutableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".x86_64"));
                     break;
             }
-            
+
 
             var targetDirectoryinfo = new DirectoryInfo(targetDirectory);
             if (targetDirectoryinfo.Exists)
             {
                 DeleteContentsOfDirectory(targetDirectoryinfo);
             }
-            
+
             CopyFilesRecursively(processingDirectory.ToString(), targetDirectory.ToString());
             DeleteContentsOfDirectory(processingDirectory);
-            DeleteContentsOfDirectory(stagingDirectory); 
+            DeleteContentsOfDirectory(stagingDirectory);
         }
         catch (Exception e)
         {
@@ -212,8 +212,8 @@ public class CodeScanService : ICodeScanService
                 throw new Exception($"Unable to determine OS Version {OS}");
         }
     }
-    
-    
+
+
 
     public bool ScanFolder(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
     {
@@ -281,7 +281,7 @@ public class CodeScanService : ICodeScanService
             subdirectory.Delete(true);
         }
     }
-    
+
     static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool recursive = true, string? exceptionDirectory = null)
     {
         DirectoryInfo directory = new DirectoryInfo(directoryPath);
@@ -302,7 +302,7 @@ public class CodeScanService : ICodeScanService
                 if (file.Directory?.ToString().Contains(exceptionDirectory) == true)
                 {
                     continue;
-                } 
+                }
             }
             // Delete the file
             file.Delete();
@@ -315,7 +315,7 @@ public class CodeScanService : ICodeScanService
             DirectoryInfo[] subdirectories = directory.GetDirectories();
             foreach (DirectoryInfo subdirectory in subdirectories)
             {
-                DeleteFilesWithExtension(subdirectory.FullName, fileExtension, exceptionDirectory : exceptionDirectory);
+                DeleteFilesWithExtension(subdirectory.FullName, fileExtension, exceptionDirectory: exceptionDirectory);
             }
         }
     }

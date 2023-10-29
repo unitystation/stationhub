@@ -93,7 +93,7 @@ namespace UnitystationLauncher.ViewModels
             {
                 panelBases.Add(preferencesPanel);
             }
-            
+
             return panelBases.ToArray();
         }
 
