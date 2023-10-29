@@ -32,7 +32,8 @@ public class ServersPanelViewModel : PanelBase
     private readonly IPingService _pingService;
     private readonly IServerService _serverService;
 
-    public ServersPanelViewModel(IInstallationService installationService, IPingService pingService, IServerService serverService)
+    public ServersPanelViewModel(IInstallationService installationService, IPingService pingService,
+        IServerService serverService)
     {
         _installationService = installationService;
         _pingService = pingService;
@@ -55,10 +56,8 @@ public class ServersPanelViewModel : PanelBase
         Log.Information("Scheduling periodic refresh for servers list...");
 
         // Why can you not just run async methods with this?? Instead we have to do this ugly thing
-        RxApp.TaskpoolScheduler.SchedulePeriodic(_refreshInterval, () =>
-        {
-            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => RefreshServersList());
-        });
+        RxApp.TaskpoolScheduler.SchedulePeriodic(_refreshInterval,
+            () => { RxApp.MainThreadScheduler.ScheduleAsync((_, _) => RefreshServersList()); });
     }
 
     private async Task RefreshServersList()
@@ -119,7 +118,7 @@ public class ServersPanelViewModel : PanelBase
     private async Task DownloadServer(Server server)
     {
         (Download? download, string downloadFailReason) = await _installationService.DownloadInstallation(server);
-        
+
         if (download == null)
         {
             MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Problem downloading server",
@@ -127,7 +126,7 @@ public class ServersPanelViewModel : PanelBase
             return;
         }
 
-        foreach (ServerViewModel viewModel in   
+        foreach (ServerViewModel viewModel in
                  ServerViews.Where(viewModel => viewModel.Server.ForkName == download.ForkName
                                                 && viewModel.Server.BuildVersion == download.BuildVersion))
         {
