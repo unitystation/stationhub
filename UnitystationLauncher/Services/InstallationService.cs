@@ -446,8 +446,8 @@ public class InstallationService : IInstallationService
 
 
                     //TODO UI
-                    Action<string> info = new Action<string>((string log) => { Console.WriteLine($"info {log}");});
-                    Action<string> errors = new Action<string>((string log) => {  Console.WriteLine($"error {log}");});
+                    Action<string> info = new Action<string>((string log) => { Console.WriteLine($"info {log}"); });
+                    Action<string> errors = new Action<string>((string log) => { Console.WriteLine($"error {log}"); });
                     var scanTask = _codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion,
                         info, errors);
                     scanTask.Wait();
