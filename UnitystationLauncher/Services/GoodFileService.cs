@@ -42,16 +42,37 @@ public class GoodFileService : IGoodFileService
 
         if (Directory.Exists(versionPath) == false)
         {
-
+            var ZIPExtractPath =  Path.Combine(pathBase, version);
             HttpResponseMessage request = await _httpClient.GetAsync(GoodFileURL + version + "/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             ZipArchive archive = new(responseStream);
-            archive.ExtractToDirectory(Path.Combine(versionPath), true);
+            archive.ExtractToDirectory(ZIPExtractPath, true);
+
+            var ZIPDirectory = Path.Combine(ZIPExtractPath,GetZipFolderName());
+            Directory.Move(ZIPDirectory, versionPath);
         }
 
         return (versionPath, true);
     }
 
+    
+    private string GetZipFolderName()
+    {
+        var OS = _environmentService.GetCurrentEnvironment();
+        switch (OS)
+        {
+            case CurrentEnvironment.WindowsStandalone:
+                return "Windows";
+            case CurrentEnvironment.LinuxFlatpak:
+            case CurrentEnvironment.LinuxStandalone:
+                return "Linux";
+            case CurrentEnvironment.MacOsStandalone:
+                return "Mac";
+            default:
+                throw new Exception($"Unable to determine OS Version {OS}");
+        }
+    }
+    
     private string GetFolderName(string version)
     {
         var OS = _environmentService.GetCurrentEnvironment();
