@@ -123,6 +123,7 @@ public class CodeScanService : ICodeScanService
             if (booly == false)
             {
                 DeleteContentsOfDirectory(processingDirectory);
+                DeleteContentsOfDirectory(stagingDirectory);
                 return false;
             }
 
@@ -132,6 +133,7 @@ public class CodeScanService : ICodeScanService
             if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
             {
                 DeleteContentsOfDirectory(processingDirectory);
+                DeleteContentsOfDirectory(stagingDirectory);
                 return false;
             }
 
@@ -156,6 +158,7 @@ public class CodeScanService : ICodeScanService
                     {
                         errors.Invoke("no Executable found ");
                         DeleteContentsOfDirectory(processingDirectory);
+                        DeleteContentsOfDirectory(stagingDirectory);
                         return false;
                     }
                     exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
@@ -168,6 +171,7 @@ public class CodeScanService : ICodeScanService
                     {
                         errors.Invoke("no Executable found ");
                         DeleteContentsOfDirectory(processingDirectory);
+                        DeleteContentsOfDirectory(stagingDirectory);
                         return false;
                     }
                     ExecutableRename.MoveTo(Path.Combine(ExecutableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".x86_64"));

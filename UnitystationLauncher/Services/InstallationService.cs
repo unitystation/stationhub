@@ -419,6 +419,8 @@ public class InstallationService : IInstallationService
         return arguments;
     }
 
+    public static List<string> InfoList = new List<string>();
+    public static List<string> ErrorList = new List<string>();
     private async Task StartDownloadAsync(Download download)
     {
         Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", download.InstallPath, download.DownloadUrl);
@@ -446,8 +448,13 @@ public class InstallationService : IInstallationService
 
 
                     //TODO UI
-                    Action<string> info = new Action<string>((string log) => { Console.WriteLine($"info {log}"); });
-                    Action<string> errors = new Action<string>((string log) => { Console.WriteLine($"error {log}"); });
+                    Action<string> info = new Action<string>((string log) => { 
+                        Console.WriteLine($"info {log}");
+                        InfoList.Add(log); });
+                    Action<string> errors = new Action<string>((string log) => { 
+                        Console.WriteLine($"error {log}");
+                        ErrorList.Add(log);
+                    });
                     var scanTask = _codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion,
                         info, errors);
                     scanTask.Wait();
@@ -469,6 +476,13 @@ public class InstallationService : IInstallationService
                     }
                     else
                     {
+                        string jsonString = System.Text.Json.JsonSerializer.Serialize(ErrorList);
+
+                        string directoryPath = AppDomain.CurrentDomain.BaseDirectory;
+                        string filePath = Path.Combine(directoryPath, "CodeScanErrors.json");
+
+                        File.WriteAllText(filePath, jsonString);
+                        
                         //TODO UI
                         Log.Information("Scan Failed");
                     }
