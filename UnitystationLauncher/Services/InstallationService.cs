@@ -448,10 +448,13 @@ public class InstallationService : IInstallationService
 
 
                     //TODO UI
-                    Action<string> info = new Action<string>((string log) => { 
+                    Action<string> info = new Action<string>((string log) =>
+                    {
                         Console.WriteLine($"info {log}");
-                        InfoList.Add(log); });
-                    Action<string> errors = new Action<string>((string log) => { 
+                        InfoList.Add(log);
+                    });
+                    Action<string> errors = new Action<string>((string log) =>
+                    {
                         Console.WriteLine($"error {log}");
                         ErrorList.Add(log);
                     });
@@ -482,7 +485,7 @@ public class InstallationService : IInstallationService
                         string filePath = Path.Combine(directoryPath, "CodeScanErrors.json");
 
                         File.WriteAllText(filePath, jsonString);
-                        
+
                         //TODO UI
                         Log.Information("Scan Failed");
                     }
