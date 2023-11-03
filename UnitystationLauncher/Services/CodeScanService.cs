@@ -65,8 +65,8 @@ public class CodeScanService : ICodeScanService
             CopyFilesRecursively(stagingDirectory.ToString(), processingDirectory.ToString());
 
             info.Invoke("Cleaning out Dlls and Executables");
-            DeleteFilesWithExtension(processingDirectory.ToString(), "exe");
-            DeleteFilesWithExtension(processingDirectory.ToString(), "dll");
+            DeleteFilesWithExtension(processingDirectory.ToString(), ".exe");
+            DeleteFilesWithExtension(processingDirectory.ToString(), ".dll");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".so");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".dylib");
             DeleteFilesWithExtension(processingDirectory.ToString(), "", false);
@@ -154,6 +154,7 @@ public class CodeScanService : ICodeScanService
                     var exeRename = processingDirectory.GetFiles()
                         .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
 
+
                     if (exeRename == null || exeRename.Directory == null)
                     {
                         errors.Invoke("no Executable found ");
@@ -161,11 +162,13 @@ public class CodeScanService : ICodeScanService
                         DeleteContentsOfDirectory(stagingDirectory);
                         return false;
                     }
+                    info.Invoke($"Found exeRename {exeRename}");
                     exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
                     break;
+                case CurrentEnvironment.LinuxFlatpak:
                 case CurrentEnvironment.LinuxStandalone:
                     var ExecutableRename = processingDirectory.GetFiles()
-                        .FirstOrDefault(x => x.Extension == ".x86_64");
+                        .FirstOrDefault(x => x.Extension == "");
 
                     if (ExecutableRename == null || ExecutableRename.Directory == null)
                     {
@@ -174,7 +177,8 @@ public class CodeScanService : ICodeScanService
                         DeleteContentsOfDirectory(stagingDirectory);
                         return false;
                     }
-                    ExecutableRename.MoveTo(Path.Combine(ExecutableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".x86_64"));
+                    info.Invoke($"Found ExecutableRename {ExecutableRename}");
+                    ExecutableRename.MoveTo(Path.Combine(ExecutableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ""));
                     break;
             }
 
