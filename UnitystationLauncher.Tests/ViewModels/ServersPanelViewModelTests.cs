@@ -1,7 +1,8 @@
 using UnitystationLauncher.Services.Interface;
-using UnitystationLauncher.Tests.MocksRepository;
+using UnitystationLauncher.Tests.MocksRepository.InstallationService;
+using UnitystationLauncher.Tests.MocksRepository.PingService;
+using UnitystationLauncher.Tests.MocksRepository.ServerService;
 using UnitystationLauncher.ViewModels;
-using Xunit.Sdk;
 
 namespace UnitystationLauncher.Tests.ViewModels;
 
@@ -11,9 +12,9 @@ public static class ServersPanelViewModelTests
     [Fact]
     public static void ServersPanelViewModel_ShouldFetchServers()
     {
-        IInstallationService mockInstallationService = MockInstallationService.NoActiveDownloads();
-        IPingService mockPingService = MockPingService.StaticPingTime(5);
-        IServerService mockServerService = MockServerService.RandomServersRange(1, 20);
+        IInstallationService mockInstallationService = new MockNoActiveDownloads();
+        IPingService mockPingService = new MockPingStaticPingTime(5);
+        IServerService mockServerService = new MockRandomServers(1, 20);
 
         ServersPanelViewModel serversPanelViewModel = new(mockInstallationService, mockPingService, mockServerService);
         serversPanelViewModel.ServerViews.Should().NotBeEmpty();
@@ -22,9 +23,9 @@ public static class ServersPanelViewModelTests
     [Fact]
     public static void ServersPanelViewModel_ShouldHandleExceptionInServerService()
     {
-        IInstallationService mockInstallationService = MockInstallationService.NoActiveDownloads();
-        IPingService mockPingService = MockPingService.StaticPingTime(5);
-        IServerService mockServerService = MockServerService.ThrowsException();
+        IInstallationService mockInstallationService = new MockNoActiveDownloads();
+        IPingService mockPingService = new MockPingStaticPingTime(5);
+        IServerService mockServerService = new MockServersThrowsException();
 
         Func<ServersPanelViewModel> act = () => new(mockInstallationService, mockPingService, mockServerService);
         act.Should().NotThrow();

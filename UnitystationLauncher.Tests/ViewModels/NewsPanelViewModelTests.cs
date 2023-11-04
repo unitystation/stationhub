@@ -1,5 +1,5 @@
 using UnitystationLauncher.Services.Interface;
-using UnitystationLauncher.Tests.MocksRepository;
+using UnitystationLauncher.Tests.MocksRepository.BlogService;
 using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Tests.ViewModels;
@@ -10,17 +10,17 @@ public static class NewsPanelViewModelTests
     [Fact]
     public static void NewsPanelViewModel_ShouldFetchBlogPosts()
     {
-        IBlogService blogService = MockBlogService.NormalBlogPosts(3);
+        IBlogService blogService = new MockNormalBlogPosts();
 
         NewsPanelViewModel newsPanelViewModel = new(null!, blogService);
-        newsPanelViewModel.BlogPosts.Count.Should().Be(3);
-        newsPanelViewModel.NewsHeader.Should().Be("News (1/3)");
+        newsPanelViewModel.BlogPosts.Count.Should().Be(5);
+        newsPanelViewModel.NewsHeader.Should().Be("News (1/5)");
     }
 
     [Fact]
     public static void NewsPanelViewModel_ShouldHandleExceptionInBlogService()
     {
-        IBlogService blogService = MockBlogService.ThrowsException();
+        IBlogService blogService = new MockBlogPostsThrowException();
 
         NewsPanelViewModel newsPanelViewModel = new(null!, blogService);
         newsPanelViewModel.NewsHeader.Should().Be("News (1/1)");
@@ -32,20 +32,20 @@ public static class NewsPanelViewModelTests
     [Fact]
     public static void NextPost_ShouldGoToNextPostWithWrapAroundAndUpdateTitle()
     {
-        IBlogService blogService = MockBlogService.NormalBlogPosts(2);
+        IBlogService blogService = new MockNormalBlogPosts();
 
         NewsPanelViewModel newsPanelViewModel = new(null!, blogService);
-        newsPanelViewModel.BlogPosts.Count.Should().Be(2);
-        newsPanelViewModel.NewsHeader.Should().Be("News (1/2)");
-        string firstTitle = newsPanelViewModel.CurrentBlogPost.Title;
+        newsPanelViewModel.BlogPosts.Count.Should().Be(5);
+        newsPanelViewModel.NewsHeader.Should().Be("News (1/5)");
+
+        newsPanelViewModel.NextPost(); // 2
+        newsPanelViewModel.NextPost(); // 3
+        newsPanelViewModel.NextPost(); // 4
+        newsPanelViewModel.NextPost(); // 5
+        newsPanelViewModel.NewsHeader.Should().Be("News (5/5)");
 
         newsPanelViewModel.NextPost();
-        newsPanelViewModel.CurrentBlogPost.Title.Should().NotBe(firstTitle);
-        newsPanelViewModel.NewsHeader.Should().Be("News (2/2)");
-
-        newsPanelViewModel.NextPost();
-        newsPanelViewModel.CurrentBlogPost.Title.Should().Be(firstTitle);
-        newsPanelViewModel.NewsHeader.Should().Be("News (1/2)");
+        newsPanelViewModel.NewsHeader.Should().Be("News (1/5)");
     }
     #endregion
 
@@ -53,20 +53,17 @@ public static class NewsPanelViewModelTests
     [Fact]
     public static void PreviousPost_ShouldGoToPreviousPostWithWrapAroundAndUpdateTitle()
     {
-        IBlogService blogService = MockBlogService.NormalBlogPosts(2);
+        IBlogService blogService = new MockNormalBlogPosts();
 
         NewsPanelViewModel newsPanelViewModel = new(null!, blogService);
-        newsPanelViewModel.BlogPosts.Count.Should().Be(2);
-        newsPanelViewModel.NewsHeader.Should().Be("News (1/2)");
-        string firstTitle = newsPanelViewModel.CurrentBlogPost.Title;
+        newsPanelViewModel.BlogPosts.Count.Should().Be(5);
+        newsPanelViewModel.NewsHeader.Should().Be("News (1/5)");
 
         newsPanelViewModel.PreviousPost();
-        newsPanelViewModel.CurrentBlogPost.Title.Should().NotBe(firstTitle);
-        newsPanelViewModel.NewsHeader.Should().Be("News (2/2)");
+        newsPanelViewModel.NewsHeader.Should().Be("News (5/5)");
 
         newsPanelViewModel.PreviousPost();
-        newsPanelViewModel.CurrentBlogPost.Title.Should().Be(firstTitle);
-        newsPanelViewModel.NewsHeader.Should().Be("News (1/2)");
+        newsPanelViewModel.NewsHeader.Should().Be("News (4/5)");
     }
     #endregion
 }

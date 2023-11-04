@@ -1,6 +1,5 @@
 using UnitystationLauncher.ViewModels;
 
-
 namespace UnitystationLauncher.Tests.ViewModels;
 
 public static class BlogPostViewModelTests

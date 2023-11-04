@@ -1,5 +1,6 @@
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Tests.MocksRepository;
+using UnitystationLauncher.Tests.MocksRepository.EnvironmentService;
 
 namespace UnitystationLauncher.Tests.Models.Api;
 
@@ -20,25 +21,25 @@ public static class ServerTests
     [Fact]
     public static void GetDownloadUrl_ShouldReturnLinuxUrlWhenPlatformIsLinux()
     {
-        _server.GetDownloadUrl(MockEnvironmentService.GetLinuxStandaloneEnvironment()).Should().Be(LinuxUrl);
+        _server.GetDownloadUrl(new MockLinuxStandaloneEnvironment()).Should().Be(LinuxUrl);
     }
 
     [Fact]
     public static void GetDownloadUrl_ShouldReturnLinuxUrlWhenPlatformIsLinuxFlatpak()
     {
-        _server.GetDownloadUrl(MockEnvironmentService.GetLinuxFlatpakEnvironment()).Should().Be(LinuxUrl);
+        _server.GetDownloadUrl(new MockLinuxFlatpakEnvironment()).Should().Be(LinuxUrl);
     }
 
     [Fact]
     public static void GetDownloadUrl_ShouldReturnWindowsUrlWhenPlatformIsWindows()
     {
-        _server.GetDownloadUrl(MockEnvironmentService.GetWindowsStandaloneEnvironment()).Should().Be(WindowsUrl);
+        _server.GetDownloadUrl(new MockWindowsStandaloneEnvironment()).Should().Be(WindowsUrl);
     }
 
     [Fact]
     public static void GetDownloadUrl_ShouldReturnMacUrlWhenPlatformIsMac()
     {
-        _server.GetDownloadUrl(MockEnvironmentService.GetMacStandaloneEnvironment()).Should().Be(MacUrl);
+        _server.GetDownloadUrl(new MockMacOsStandaloneEnvironment()).Should().Be(MacUrl);
     }
     #endregion
 
