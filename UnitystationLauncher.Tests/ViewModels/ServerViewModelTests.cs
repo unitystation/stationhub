@@ -14,7 +14,7 @@ public static class ServerViewModelTests
     {
         Server server = new("UnitTestStation", 0, "127.0.0.1", 12345);
         IInstallationService mockInstallationService = new MockNoActiveDownloads();
-        IPingService mockPingService =  new MockPingStaticPingTime(5);
+        IPingService mockPingService = new MockPingStaticPingTime(5);
 
         ServerViewModel serverViewModel = new(server, mockInstallationService, mockPingService);
 

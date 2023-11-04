@@ -22,7 +22,7 @@ public class MockRandomServers : IServerService
         "🤡 Station",
         "I have no idea how many names this needs but I'll just end it here."
     };
-    
+
     private static readonly Random _random = new();
 
     private readonly int _min;
