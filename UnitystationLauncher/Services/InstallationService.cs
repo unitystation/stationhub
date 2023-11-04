@@ -490,9 +490,9 @@ public class InstallationService : IInstallationService
                         Log.Information("Scan Failed");
                     }
                 }
-                catch
+                catch (Exception e)
                 {
-                    Log.Information("Extracting stopped");
+                    Log.Information($"Extracting stopped with {e.ToString()}");
                 }
             });
         }
