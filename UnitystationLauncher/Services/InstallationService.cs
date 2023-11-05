@@ -487,7 +487,7 @@ public class InstallationService : IInstallationService
                         File.WriteAllText(filePath, jsonString);
 
                         //TODO UI
-                        Log.Information("Scan Failed");
+                        Log.Information($"Scan Failed saved to filePath {filePath}");
                     }
                 }
                 catch (Exception e)
