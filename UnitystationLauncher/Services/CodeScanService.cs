@@ -215,7 +215,7 @@ public class CodeScanService : ICodeScanService
             case CurrentEnvironment.LinuxStandalone:
                 return Path.Combine(GoodFiles, Unitystation_Data, Managed);
             case CurrentEnvironment.MacOsStandalone:
-                return Path.Combine(GoodFiles, @"Contents\Resources\Data", Managed);
+                return Path.Combine(GoodFiles, @"Contents/Resources/Data", Managed);
             default:
                 throw new Exception($"Unable to determine OS Version {OS}");
         }
