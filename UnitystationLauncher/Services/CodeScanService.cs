@@ -108,8 +108,8 @@ public class CodeScanService : ICodeScanService
             else
             {
                 //MAC
-                dataPath = new DirectoryInfo(Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data"));
-                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Contents\Resources\Data", Managed));
+                dataPath = new DirectoryInfo(Path.Combine(processingDirectory.ToString(), @"Contents/Resources/Data"));
+                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Contents/Resources/Data", Managed));
             }
 
 
