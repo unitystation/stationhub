@@ -73,7 +73,7 @@ public class CodeScanService : ICodeScanService
 
             if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
             {
-                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents\Resources\Data\StreamingAssets"));
+                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents/Resources/Data/StreamingAssets"));
             }
 
 
