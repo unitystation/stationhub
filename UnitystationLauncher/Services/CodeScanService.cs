@@ -73,7 +73,7 @@ public class CodeScanService : ICodeScanService
 
             if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
             {
-                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Contents/Resources/Data/StreamingAssets"));
+                DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Unitystation/Contents/Resources/Data/StreamingAssets"));
             }
 
 
@@ -108,8 +108,8 @@ public class CodeScanService : ICodeScanService
             else
             {
                 //MAC
-                dataPath = new DirectoryInfo(Path.Combine(processingDirectory.ToString(), @"Contents/Resources/Data"));
-                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Contents/Resources/Data", Managed));
+                dataPath = new DirectoryInfo(Path.Combine(processingDirectory.ToString(), @"Unitystation/Contents/Resources/Data"));
+                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Unitystation/Contents/Resources/Data", Managed));
             }
 
 
@@ -215,7 +215,7 @@ public class CodeScanService : ICodeScanService
             case CurrentEnvironment.LinuxStandalone:
                 return Path.Combine(GoodFiles, Unitystation_Data, Managed);
             case CurrentEnvironment.MacOsStandalone:
-                return Path.Combine(GoodFiles, @"Contents/Resources/Data", Managed);
+                return Path.Combine(GoodFiles, @"Unitystation/Contents/Resources/Data", Managed);
             default:
                 throw new Exception($"Unable to determine OS Version {OS}");
         }
