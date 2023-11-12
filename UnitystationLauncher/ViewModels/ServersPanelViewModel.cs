@@ -41,7 +41,7 @@ public class ServersPanelViewModel : PanelBase
 
         DownloadCommand = ReactiveCommand.Create<ServerViewModel, Unit>(server =>
         {
-            DownloadServer(server.Server);
+            _ = DownloadServer(server.Server);
             return Unit.Default;
         });
 
@@ -121,7 +121,7 @@ public class ServersPanelViewModel : PanelBase
 
         if (download == null)
         {
-            MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Problem downloading server",
+            _ = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Problem downloading server",
                 downloadFailReason).Show();
             return;
         }

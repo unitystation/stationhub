@@ -31,7 +31,7 @@ namespace UnitystationLauncher.Models.Api
         public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }
 
-        public string ServerGoodFileVersion { get; set; }
+        public string ServerGoodFileVersion { get; set; } = string.Empty;
 
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 

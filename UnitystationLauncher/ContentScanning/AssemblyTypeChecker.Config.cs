@@ -51,11 +51,14 @@ public sealed partial class AssemblyTypeChecker
             var resourceName = "UnitystationLauncher.CodeScanList.json";
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
-                // Copy the contents of the resource to a file location
-                using (var fileStream = File.Create(configPath))
+                if (stream != null)
                 {
-                    stream.Seek(0L, SeekOrigin.Begin);
-                    await stream.CopyToAsync(fileStream);
+                    // Copy the contents of the resource to a file location
+                    using (var fileStream = File.Create(configPath))
+                    {
+                        stream.Seek(0L, SeekOrigin.Begin);
+                        await stream.CopyToAsync(fileStream);
+                    }
                 }
             }
             Log.Error("had to use backup config");

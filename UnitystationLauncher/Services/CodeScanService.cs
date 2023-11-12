@@ -80,7 +80,7 @@ public class CodeScanService : ICodeScanService
 
 
 
-            DirectoryInfo stagingManaged = null;
+            DirectoryInfo? stagingManaged = null;
             if (_environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone)
             {
                 // Get all files in the directory

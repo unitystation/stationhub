@@ -15,13 +15,13 @@ namespace UnitystationLauncher.Services;
 public static class HubBuildCommunicationPipeService
 {
 
-    private static PipeHubBuildCommunication coolPipeHubBuildCommunication;
+    private static PipeHubBuildCommunication? _coolPipeHubBuildCommunication;
 
     public static void Init()
     {
         var data = new PipeHubBuildCommunication();
         _ = data.StartServerPipe();
-        coolPipeHubBuildCommunication = data;
+        _coolPipeHubBuildCommunication = data;
     }
 
 
