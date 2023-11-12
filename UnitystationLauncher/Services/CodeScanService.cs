@@ -54,7 +54,7 @@ public class CodeScanService : ICodeScanService
     public async Task<bool> OnScan(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
-        var root = new DirectoryInfo( _preferencesService.GetPreferences().InstallationPath);
+        var root = new DirectoryInfo(_preferencesService.GetPreferences().InstallationPath);
 
         DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory");
         DirectoryInfo processingDirectory = root.CreateSubdirectory("UnsafeBuildProcessing");
