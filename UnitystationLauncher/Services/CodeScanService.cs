@@ -16,7 +16,7 @@ public class CodeScanService : ICodeScanService
     private readonly IAssemblyChecker _IAssemblyChecker;
     private readonly IEnvironmentService _environmentService;
     private readonly IGoodFileService _iGoodFileService;
-
+    private readonly IPreferencesService _preferencesService;
 
     private const string Managed = "Managed";
     private const string Plugins = "Plugins";
@@ -26,11 +26,13 @@ public class CodeScanService : ICodeScanService
 
 
 
-    public CodeScanService(IAssemblyChecker assemblyChecker, IEnvironmentService environmentService, IGoodFileService iGoodFileService)
+    public CodeScanService(IAssemblyChecker assemblyChecker, IEnvironmentService environmentService, IGoodFileService iGoodFileService,
+        IPreferencesService ipreferencesService)
     {
         _IAssemblyChecker = assemblyChecker;
         _environmentService = environmentService;
         _iGoodFileService = iGoodFileService;
+        _preferencesService = ipreferencesService;
     }
 
 
@@ -52,7 +54,7 @@ public class CodeScanService : ICodeScanService
     public async Task<bool> OnScan(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
-        var root = new DirectoryInfo(_environmentService.GetUserdataDirectory());
+        var root = new DirectoryInfo( _preferencesService.GetPreferences().InstallationPath);
 
         DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory");
         DirectoryInfo processingDirectory = root.CreateSubdirectory("UnsafeBuildProcessing");
