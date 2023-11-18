@@ -480,9 +480,8 @@ public class InstallationService : IInstallationService
                     else
                     {
                         string jsonString = System.Text.Json.JsonSerializer.Serialize(ErrorList);
-
-                        string directoryPath = AppDomain.CurrentDomain.BaseDirectory;
-                        string filePath = Path.Combine(directoryPath, "CodeScanErrors.json");
+                        
+                        string filePath = Path.Combine(_preferencesService.GetPreferences().InstallationPath, "CodeScanErrors.json");
 
                         File.WriteAllText(filePath, jsonString);
 
