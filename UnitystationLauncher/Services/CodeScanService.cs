@@ -134,8 +134,15 @@ public class CodeScanService : ICodeScanService
             info.Invoke("Proceeding to scan folder");
             if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
             {
-                DeleteContentsOfDirectory(processingDirectory);
-                DeleteContentsOfDirectory(stagingDirectory);
+                try
+                {
+                    DeleteContentsOfDirectory(processingDirectory);
+                    DeleteContentsOfDirectory(stagingDirectory);
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
                 return false;
             }
 
