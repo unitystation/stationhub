@@ -31,7 +31,7 @@ public class InstallationService : IInstallationService
     private readonly IServerService _serverService;
 
     private readonly ICodeScanService _codeScanService;
-    private readonly IGoodFileService _iGoodFileService;
+    private readonly ICodeScanConfigService _iGoodFileService;
 
     private readonly List<Download> _downloads;
     private List<Installation> _installations = new();
@@ -39,7 +39,7 @@ public class InstallationService : IInstallationService
 
     public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
-        IGoodFileService iGoodFileService)
+        ICodeScanConfigService iGoodFileService)
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
@@ -90,7 +90,7 @@ public class InstallationService : IInstallationService
 
         server.ServerGoodFileVersion = "1.0.0"; //TODO
 
-        var result = await _iGoodFileService.ValidGoodFilesVersion(server.ServerGoodFileVersion);
+        bool result = await _iGoodFileService.ValidGoodFilesVersion(server.ServerGoodFileVersion);
 
         if (result == false)
         {
@@ -114,7 +114,7 @@ public class InstallationService : IInstallationService
 
         download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.ServerGoodFileVersion);
 
-        (bool canStartDownload, string cantDownloadReason) = CanStartDownload(download);
+        (bool canStartDownload, string cantDownloadReason) = InstallationService.CanStartDownload(download);
 
         if (!canStartDownload)
         {
@@ -157,7 +157,7 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        string arguments = GetArguments(server, port);
+        string arguments = InstallationService.GetArguments(server, port);
         ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
@@ -269,7 +269,7 @@ public class InstallationService : IInstallationService
                     continue;
                 }
 
-                CreateParentDirectory(newPath);
+                InstallationService.CreateParentDirectory(newPath);
 
                 if (Directory.Exists(newPath))
                 {
@@ -367,7 +367,7 @@ public class InstallationService : IInstallationService
         Log.Debug("Installations JSON written");
     }
 
-    private void CreateParentDirectory(string path)
+    private static void CreateParentDirectory(string path)
     {
         DirectoryInfo directoryInfo = new(path);
         string? parentDir = directoryInfo.Parent?.FullName;
@@ -383,7 +383,7 @@ public class InstallationService : IInstallationService
         return _installations.FirstOrDefault(i => i.InstallationId == installationId);
     }
 
-    private (bool, string) CanStartDownload(Download download)
+    private static (bool, string) CanStartDownload(Download download)
     {
         if (Directory.Exists(download.InstallPath))
         {
@@ -402,7 +402,7 @@ public class InstallationService : IInstallationService
         return (true, string.Empty);
     }
 
-    private string GetArguments(string? server, long? port)
+    private static string GetArguments(string? server, long? port)
     {
         string arguments = string.Empty;
 
@@ -434,7 +434,7 @@ public class InstallationService : IInstallationService
             download.Size = request.Content.Headers.ContentLength ??
                             throw new ContentLengthNullException(download.DownloadUrl);
 
-            using IDisposable logProgressDisposable = LogProgress(progressStream, download);
+            using IDisposable logProgressDisposable = InstallationService.LogProgress(progressStream, download);
 
             using IDisposable progressDisposable = progressStream.Progress
                 .Subscribe(p => { download.Downloaded = p; });
@@ -458,7 +458,7 @@ public class InstallationService : IInstallationService
                         Console.WriteLine($"error {log}");
                         ErrorList.Add(log);
                     });
-                    var scanTask = _codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion,
+                    Task<bool> scanTask = _codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion,
                         info, errors);
                     scanTask.Wait();
                     if (scanTask.Result)
@@ -506,7 +506,7 @@ public class InstallationService : IInstallationService
         }
     }
 
-    private IDisposable LogProgress(ProgressStream progressStream, Download download)
+    private static IDisposable LogProgress(ProgressStream progressStream, Download download)
     {
         long lastPosition = 0L;
         DateTime lastTime = DateTime.Now;

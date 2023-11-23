@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using ILVerify;
+using UnitystationLauncher.Models.ContentScanning;
 
-namespace UnitystationLauncher.ContentScanning;
+namespace UnitystationLauncher.Models.ConfigFile;
 
+[Serializable]
 public sealed class SandboxConfig
 {
     public string? SystemAssemblyName { get; set; }
