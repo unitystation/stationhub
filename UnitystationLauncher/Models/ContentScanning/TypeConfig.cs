@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using UnitystationLauncher.Models.Enums;
 
-namespace UnitystationLauncher.ContentScanning;
+namespace UnitystationLauncher.Models.ContentScanning;
 
 public sealed class TypeConfig
 {

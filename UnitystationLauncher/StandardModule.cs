@@ -1,6 +1,5 @@
 using System.Net.Http;
 using Autofac;
-using UnitystationLauncher.ContentScanning;
 using UnitystationLauncher.Services;
 using UnitystationLauncher.Services.Interface;
 
@@ -19,13 +18,12 @@ namespace UnitystationLauncher
             builder.RegisterType<InstallationService>().As<IInstallationService>().SingleInstance();
             builder.RegisterType<ServerService>().As<IServerService>().SingleInstance();
             builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
-            builder.RegisterType<AssemblyTypeChecker>().As<IAssemblyChecker>().SingleInstance();
-            builder.RegisterType<CodeScanService>().As<ICodeScanService>().SingleInstance();
-            builder.RegisterType<GoodFileService>().As<IGoodFileService>().SingleInstance();
-            builder.RegisterType<FileService>().As<IFileService>().SingleInstance();
             builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
+            builder.RegisterType<AssemblyTypeCheckerService>().As<IAssemblyTypeCheckerService>().SingleInstance();
+            builder.RegisterType<CodeScanService>().As<ICodeScanService>().SingleInstance();
+            builder.RegisterType<CodeScanConfigService>().As<ICodeScanConfigService>().SingleInstance();
+            builder.RegisterType<GameCommunicationPipeService>().As<IGameCommunicationPipeService>().SingleInstance();
 
-            HubBuildCommunicationPipeService.Init();
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("ViewModel"));

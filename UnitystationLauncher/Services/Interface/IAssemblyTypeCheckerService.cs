@@ -4,7 +4,7 @@ using System.IO;
 
 namespace UnitystationLauncher.Services.Interface;
 
-public interface IAssemblyChecker
+public interface IAssemblyTypeCheckerService
 {
     public bool CheckAssembly(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies, Action<string> info, Action<string> errors);
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Models.Enums;
@@ -13,20 +12,16 @@ namespace UnitystationLauncher.Services;
 
 public class CodeScanService : ICodeScanService
 {
-    private readonly IAssemblyChecker _IAssemblyChecker;
+    private readonly IAssemblyTypeCheckerService _IAssemblyChecker;
     private readonly IEnvironmentService _environmentService;
-    private readonly IGoodFileService _iGoodFileService;
+    private readonly ICodeScanConfigService _iGoodFileService;
     private readonly IPreferencesService _preferencesService;
 
     private const string Managed = "Managed";
     private const string Plugins = "Plugins";
     private const string Unitystation_Data = "Unitystation_Data";
 
-
-
-
-
-    public CodeScanService(IAssemblyChecker assemblyChecker, IEnvironmentService environmentService, IGoodFileService iGoodFileService,
+    public CodeScanService(IAssemblyTypeCheckerService assemblyChecker, IEnvironmentService environmentService, ICodeScanConfigService iGoodFileService,
         IPreferencesService ipreferencesService)
     {
         _IAssemblyChecker = assemblyChecker;
@@ -37,24 +32,12 @@ public class CodeScanService : ICodeScanService
 
 
 
-    class FileInfoComparer : IEqualityComparer<FileInfo>
-    {
-        public bool Equals(FileInfo? x, FileInfo? y)
-        {
-            if (x == null || y == null) return false;
-            return x.Name.Equals(y.Name, StringComparison.OrdinalIgnoreCase);
-        }
 
-        public int GetHashCode(FileInfo obj)
-        {
-            return obj.Name.GetHashCode();
-        }
-    }
 
     public async Task<bool> OnScan(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
-        var root = new DirectoryInfo(_preferencesService.GetPreferences().InstallationPath);
+        DirectoryInfo root = new DirectoryInfo(_preferencesService.GetPreferences().InstallationPath);
 
         DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory");
         DirectoryInfo processingDirectory = root.CreateSubdirectory("UnsafeBuildProcessing");
@@ -84,9 +67,9 @@ public class CodeScanService : ICodeScanService
             if (_environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone)
             {
                 // Get all files in the directory
-                var directories = processingDirectory.GetDirectories();
+                DirectoryInfo[] directories = processingDirectory.GetDirectories();
                 // Loop through each file
-                foreach (var directorie in directories)
+                foreach (DirectoryInfo directorie in directories)
                 {
                     if (directorie.Name.Contains("_Data"))
                     {
@@ -116,11 +99,11 @@ public class CodeScanService : ICodeScanService
 
 
 
-            var dllDirectory = dataPath.CreateSubdirectory(Managed);
+            DirectoryInfo dllDirectory = dataPath.CreateSubdirectory(Managed);
 
             CopyFilesRecursively(stagingManaged.ToString(), dllDirectory.ToString());
 
-            var (goodFilePath, booly) = await _iGoodFileService.GetGoodFileVersion(goodFileVersion);
+            (string goodFilePath, bool booly) = await _iGoodFileService.GetGoodFileVersion(goodFileVersion);
 
             if (booly == false)
             {
@@ -151,7 +134,7 @@ public class CodeScanService : ICodeScanService
             CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
             if (dataPath.Name != Unitystation_Data && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
             {
-                var oldPath = Path.Combine(processingDirectory.ToString(), Unitystation_Data);
+                string oldPath = Path.Combine(processingDirectory.ToString(), Unitystation_Data);
                 CopyFilesRecursively(oldPath, dataPath.ToString());
                 Directory.Delete(oldPath, true);
             }
@@ -160,7 +143,7 @@ public class CodeScanService : ICodeScanService
             switch (_environmentService.GetCurrentEnvironment())
             {
                 case CurrentEnvironment.WindowsStandalone:
-                    var exeRename = processingDirectory.GetFiles()
+                    FileInfo? exeRename = processingDirectory.GetFiles()
                         .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
 
 
@@ -176,7 +159,7 @@ public class CodeScanService : ICodeScanService
                     break;
                 case CurrentEnvironment.LinuxFlatpak:
                 case CurrentEnvironment.LinuxStandalone:
-                    var ExecutableRename = processingDirectory.GetFiles()
+                    FileInfo? ExecutableRename = processingDirectory.GetFiles()
                         .FirstOrDefault(x => x.Extension == "");
 
                     if (ExecutableRename == null || ExecutableRename.Directory == null)
@@ -192,7 +175,7 @@ public class CodeScanService : ICodeScanService
             }
 
 
-            var targetDirectoryinfo = new DirectoryInfo(targetDirectory);
+            DirectoryInfo targetDirectoryinfo = new DirectoryInfo(targetDirectory);
             if (targetDirectoryinfo.Exists)
             {
                 DeleteContentsOfDirectory(targetDirectoryinfo);
@@ -215,7 +198,7 @@ public class CodeScanService : ICodeScanService
 
     public string GetManagedOnOS(string GoodFiles)
     {
-        var OS = _environmentService.GetCurrentEnvironment();
+        CurrentEnvironment OS = _environmentService.GetCurrentEnvironment();
         switch (OS)
         {
             case CurrentEnvironment.WindowsStandalone:
@@ -234,25 +217,25 @@ public class CodeScanService : ICodeScanService
 
     public bool ScanFolder(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
     {
-        var goodFiles = saveFiles.GetFiles().Select(x => x.Name).ToList();
+        List<string> goodFiles = saveFiles.GetFiles().Select(x => x.Name).ToList();
 
         info.Invoke("Provided files " + string.Join(",", goodFiles));
 
         CopyFilesRecursively(saveFiles.ToString(), @unsafe.ToString());
 
-        var files = @unsafe.GetFiles();
+        FileInfo[] files = @unsafe.GetFiles();
 
 
         List<string> multiAssemblyReference = new List<string>();
 
-        foreach (var file in files)
+        foreach (FileInfo file in files)
         {
             if (goodFiles.Contains(file.Name)) continue;
             multiAssemblyReference.Add(Path.GetFileNameWithoutExtension(file.Name));
         }
 
 
-        foreach (var file in files)
+        foreach (FileInfo file in files)
         {
             if (goodFiles.Contains(file.Name)) continue;
 
@@ -260,7 +243,7 @@ public class CodeScanService : ICodeScanService
 
             try
             {
-                var listy = multiAssemblyReference.ToList();
+                List<string> listy = multiAssemblyReference.ToList();
                 listy.Remove(Path.GetFileNameWithoutExtension(file.Name));
                 if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, info, errors) == false)
                 {
@@ -285,15 +268,15 @@ public class CodeScanService : ICodeScanService
     public static void DeleteContentsOfDirectory(DirectoryInfo directory)
     {
         // Delete files within the folder
-        var files = directory.GetFiles();
-        foreach (var file in files)
+        FileInfo[] files = directory.GetFiles();
+        foreach (FileInfo file in files)
         {
             file.Delete();
         }
 
         // Delete subdirectories within the folder
-        var subdirectories = directory.GetDirectories();
-        foreach (var subdirectory in subdirectories)
+        DirectoryInfo[] subdirectories = directory.GetDirectories();
+        foreach (DirectoryInfo subdirectory in subdirectories)
         {
             subdirectory.Delete(true);
         }

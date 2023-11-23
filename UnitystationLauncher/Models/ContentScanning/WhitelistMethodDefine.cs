@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace UnitystationLauncher.ContentScanning;
+namespace UnitystationLauncher.Models.ContentScanning;
 
 public sealed class WhitelistMethodDefine
 {

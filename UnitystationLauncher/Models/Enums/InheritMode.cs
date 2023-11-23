@@ -1,4 +1,4 @@
-﻿namespace UnitystationLauncher.ContentScanning;
+﻿namespace UnitystationLauncher.Models.Enums;
 
 public enum InheritMode : byte
 {

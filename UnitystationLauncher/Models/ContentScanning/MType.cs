@@ -1,4 +1,4 @@
-﻿namespace UnitystationLauncher.ContentScanning;
+﻿namespace UnitystationLauncher.Models.ContentScanning;
 
 
 public record MType
