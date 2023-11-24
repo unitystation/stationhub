@@ -30,6 +30,9 @@ namespace UnitystationLauncher.Models.Api
         public string? WinDownload { get; set; }
         public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }
+
+        public string ServerGoodFileVersion { get; set; } = string.Empty;
+
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 
         public string? GetDownloadUrl(IEnvironmentService environmentService)
@@ -48,7 +51,6 @@ namespace UnitystationLauncher.Models.Api
         {
             get
             {
-                const string trustedHost = "unitystationfile.b-cdn.net";
                 string?[] urls = { WinDownload, OsxDownload, LinuxDownload };
                 foreach (string? url in urls)
                 {
@@ -58,7 +60,7 @@ namespace UnitystationLauncher.Models.Api
                     }
 
                     Uri uri = new(url);
-                    if (uri.Scheme != "https" || uri.Host != trustedHost)
+                    if (uri.Scheme != "https")
                     {
                         return false;
                     }

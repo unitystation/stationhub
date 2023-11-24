@@ -32,7 +32,8 @@ public class ServersPanelViewModel : PanelBase
     private readonly IPingService _pingService;
     private readonly IServerService _serverService;
 
-    public ServersPanelViewModel(IInstallationService installationService, IPingService pingService, IServerService serverService)
+    public ServersPanelViewModel(IInstallationService installationService, IPingService pingService,
+        IServerService serverService)
     {
         _installationService = installationService;
         _pingService = pingService;
@@ -40,7 +41,7 @@ public class ServersPanelViewModel : PanelBase
 
         DownloadCommand = ReactiveCommand.Create<ServerViewModel, Unit>(server =>
         {
-            DownloadServer(server.Server);
+            _ = DownloadServer(server.Server);
             return Unit.Default;
         });
 
@@ -55,10 +56,8 @@ public class ServersPanelViewModel : PanelBase
         Log.Information("Scheduling periodic refresh for servers list...");
 
         // Why can you not just run async methods with this?? Instead we have to do this ugly thing
-        RxApp.TaskpoolScheduler.SchedulePeriodic(_refreshInterval, () =>
-        {
-            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => RefreshServersList());
-        });
+        RxApp.TaskpoolScheduler.SchedulePeriodic(_refreshInterval,
+            () => { RxApp.MainThreadScheduler.ScheduleAsync((_, _) => RefreshServersList()); });
     }
 
     private async Task RefreshServersList()
@@ -116,13 +115,13 @@ public class ServersPanelViewModel : PanelBase
         }
     }
 
-    private void DownloadServer(Server server)
+    private async Task DownloadServer(Server server)
     {
-        (Download? download, string downloadFailReason) = _installationService.DownloadInstallation(server);
+        (Download? download, string downloadFailReason) = await _installationService.DownloadInstallation(server);
 
         if (download == null)
         {
-            MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Problem downloading server",
+            _ = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Problem downloading server",
                 downloadFailReason).Show();
             return;
         }

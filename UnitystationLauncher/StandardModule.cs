@@ -19,6 +19,10 @@ namespace UnitystationLauncher
             builder.RegisterType<ServerService>().As<IServerService>().SingleInstance();
             builder.RegisterType<BlogService>().As<IBlogService>().SingleInstance();
             builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
+            builder.RegisterType<AssemblyTypeCheckerService>().As<IAssemblyTypeCheckerService>().SingleInstance();
+            builder.RegisterType<CodeScanService>().As<ICodeScanService>().SingleInstance();
+            builder.RegisterType<CodeScanConfigService>().As<ICodeScanConfigService>().SingleInstance();
+            builder.RegisterType<GameCommunicationPipeService>().As<IGameCommunicationPipeService>().SingleInstance();
 
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)

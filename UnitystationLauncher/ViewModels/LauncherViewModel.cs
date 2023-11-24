@@ -48,25 +48,27 @@ namespace UnitystationLauncher.ViewModels
             PreferencesPanelViewModel preferencesPanel,
             IHubService hubService,
             IPreferencesService preferencesService,
-            IEnvironmentService environmentService)
+            IEnvironmentService environmentService,
+            IGameCommunicationPipeService gameCommunicationPipeService)
         {
             _hubUpdateVm = hubUpdateVm;
             _hubService = hubService;
             _preferencesService = preferencesService;
             _environmentService = environmentService;
+            gameCommunicationPipeService.Init();
 
             OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
-            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
+            _panels = LauncherViewModel.GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 
             RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync());
         }
 
-        private PanelBase[] GetEnabledPanels(
+        private static PanelBase[] GetEnabledPanels(
             NewsPanelViewModel newsPanel,
             ServersPanelViewModel serversPanel,
             InstallationsPanelViewModel installationsPanel,

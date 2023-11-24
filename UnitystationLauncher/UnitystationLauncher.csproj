@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
     <Nullable>enable</Nullable>
@@ -46,6 +46,12 @@
     </AvaloniaResource>
     <AvaloniaResource Include="Assets\**" />
     <None Update="ian.icns" CopyToOutputDirectory="PreserveNewest" />
+    <Compile Update="Views\PopUpDialogue.cs">
+      <DependentUpon>PopUpDialogue.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PopUpDialogue.cs">
+      <DependentUpon>PopUpDialogue.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AsyncImageLoader.Avalonia" Version="2.4.0" />
@@ -54,8 +60,10 @@
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="0.10.18" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.18" />
     <PackageReference Include="MessageBox.Avalonia" Version="2.1.0" />
+    <PackageReference Include="Microsoft.ILVerification" Version="8.0.0-preview.6.23329.7" />
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="nulastudio.NetCoreBeauty" Version="1.2.9.3" />
+    <PackageReference Include="Pidgin" Version="3.2.2" />
     <PackageReference Include="ReactiveProperty" Version="8.2.0" />
     <PackageReference Include="Serilog" Version="2.12.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
@@ -90,5 +98,13 @@
     <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="Dotnet.Bundle" Version="0.9.13" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="CodeScanList.json" />
+    <EmbeddedResource Include="CodeScanList.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CustomToolNamespace>InBuiltData</CustomToolNamespace>
+      <Generator>InBuiltData</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
