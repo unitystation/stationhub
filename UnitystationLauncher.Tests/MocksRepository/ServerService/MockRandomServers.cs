@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Services.Interface;
 
-namespace UnitystationLauncher.Tests.MocksRepository;
+namespace UnitystationLauncher.Tests.MocksRepository.ServerService;
 
-public static class MockServerService
+public class MockRandomServers : IServerService
 {
     private static readonly List<string> _serverNames = new()
     {
@@ -23,36 +25,30 @@ public static class MockServerService
 
     private static readonly Random _random = new();
 
-    public static IServerService RandomServersRange(int min, int max)
+    private readonly int _min;
+    private readonly int _max;
+
+    public MockRandomServers(int min, int max)
     {
-        Mock<IServerService> mockServerService = new();
-
-        mockServerService.Setup(x => x.GetServersAsync())
-            .ReturnsAsync(GetRandomServers(min, max));
-
-        return mockServerService.Object;
+        _min = min;
+        _max = max;
     }
 
-    public static IServerService ThrowsException()
-    {
-        Mock<IServerService> mockServerService = new();
-
-        mockServerService.Setup(x => x.GetServersAsync())
-            .Throws<Exception>();
-
-        return mockServerService.Object;
-    }
-
-    private static List<Server> GetRandomServers(int min, int max)
+    public Task<List<Server>> GetServersAsync()
     {
         List<Server> servers = new();
 
-        int numberOfServers = _random.Next(min, max);
+        int numberOfServers = _random.Next(_min, _max);
         for (int i = 0; i < numberOfServers; i++)
         {
             servers.Add(new(_serverNames[_random.Next(_serverNames.Count)], _random.Next(0, 10), "127.0.0.1", _random.Next(1, 65535)));
         }
 
-        return servers;
+        return Task.FromResult(servers);
+    }
+
+    public bool IsInstallationInUse(Installation installation)
+    {
+        throw new NotImplementedException();
     }
 }
