@@ -12,7 +12,7 @@ public class MockPingStaticPingTime : IPingService
     {
         _pingTime = $"{pingInMilliseconds}ms";
     }
-    public Task<string> GetPing(Server server)
+    public Task<string> GetPingAsync(Server server)
     {
         return Task.FromResult(_pingTime);
     }

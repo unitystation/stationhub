@@ -6,7 +6,7 @@ namespace UnitystationLauncher.Tests.MocksRepository.PingService;
 
 public class MockPingReturnsNull : IPingService
 {
-    public Task<string> GetPing(Server server)
+    public Task<string> GetPingAsync(Server server)
     {
         return Task.FromResult(null as string)!;
     }
