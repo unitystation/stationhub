@@ -12,30 +12,16 @@ namespace UnitystationLauncher.ContentScanning.Scanners;
 internal static class MemberReferenceScanner
 {
     // Using the Parallel implementation of this
-    internal static void CheckMemberReferences(SandboxConfig sandboxConfig, List<MMemberRef> members, ConcurrentBag<SandboxError> errors)
+    internal static void CheckMemberReferences(SandboxConfig sandboxConfig, IEnumerable<MMemberRef> members, ConcurrentBag<SandboxError> errors)
     {
         Parallel.ForEach(members, memberRef =>
         {
-            MType baseType = memberRef.ParentType;
-            while (baseType is not MTypeReferenced)
+            MTypeReferenced? baseTypeReferenced = GetBaseMTypeReferenced(memberRef);
+
+            if (baseTypeReferenced == null)
             {
-                switch (baseType)
-                {
-                    case MTypeGeneric generic:
-                        baseType = generic.GenericType;
-
-                        break;
-                    // Members on arrays (not to be confused with vectors) are all fine.
-                    // See II.14.2 in ECMA-335.
-                    case MTypeWackyArray:
-                    // Valid for this to show up, safe to ignore.
-                    case MTypeDefined:
-                        return;
-                    default: throw new ArgumentOutOfRangeException();
-                }
+                return;
             }
-
-            MTypeReferenced baseTypeReferenced = (MTypeReferenced)baseType;
 
             if (baseTypeReferenced.IsTypeAccessAllowed(sandboxConfig, out TypeConfig? typeCfg) == false)
             {
@@ -52,19 +38,24 @@ internal static class MemberReferenceScanner
                 return;
             }
 
-            switch (memberRef)
-            {
-                case MMemberRefField mMemberRefField:
-                    if (typeCfg.FieldsParsed.Any(field =>
-                            field.Name == mMemberRefField.Name
-                            && mMemberRefField.FieldType.WhitelistEquals(field.FieldType)))
-                    {
-                        return; // Found
-                    }
+            CheckMemberRefType(memberRef, typeCfg, errors);
+        });
 
-                    errors.Add(new($"Access to field not allowed: {mMemberRefField}"));
-                    break;
-                case MMemberRefMethod mMemberRefMethod:
+    }
+
+    private static void CheckMemberRefType(MMemberRef memberRef, TypeConfig typeCfg, ConcurrentBag<SandboxError> errors)
+    {
+        switch (memberRef)
+        {
+            case MMemberRefField mMemberRefField
+                when typeCfg.FieldsParsed.Any(field => field.Name == mMemberRefField.Name
+                                                       && mMemberRefField.FieldType.WhitelistEquals(field.FieldType)):
+                return; // Found
+            case MMemberRefField mMemberRefField:
+                errors.Add(new($"Access to field not allowed: {mMemberRefField}"));
+                return;
+            case MMemberRefMethod mMemberRefMethod:
+                {
                     foreach (WhitelistMethodDefine parsed in typeCfg.MethodsParsed)
                     {
                         bool paramMismatch = false;
@@ -98,11 +89,35 @@ internal static class MemberReferenceScanner
                     }
 
                     errors.Add(new($"Access to method not allowed: {mMemberRefMethod}"));
-                    break;
+                    return;
+                }
+            default:
+                throw new ArgumentException($"Invalid memberRef type: {memberRef.GetType()}", nameof(memberRef));
+        }
+    }
+
+
+    private static MTypeReferenced? GetBaseMTypeReferenced(MMemberRef memberRef)
+    {
+        MType baseType = memberRef.ParentType;
+        while (baseType is not MTypeReferenced)
+        {
+            switch (baseType)
+            {
+                case MTypeGeneric generic:
+                    baseType = generic.GenericType;
+                    continue;
+                // MTypeWackyArray: Members on arrays (not to be confused with vectors) are all fine.
+                //                  See II.14.2 in ECMA-335.
+                // MTypeDefined: Valid for this to show up, safe to ignore.
+                case MTypeWackyArray or MTypeDefined:
+                    return null;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(memberRef));
+                    throw new ArgumentException($"Invalid baseType in memberRef: {baseType.GetType()}", nameof(memberRef));
             }
-        });
+        }
+
+        return (MTypeReferenced)baseType;
     }
 
     // TODO: We should probably just remove this if we aren't going to use it
