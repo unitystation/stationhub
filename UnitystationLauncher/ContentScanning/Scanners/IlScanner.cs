@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
-using System.Threading.Tasks;
 using ILVerify;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
@@ -13,8 +12,6 @@ namespace UnitystationLauncher.ContentScanning.Scanners;
 
 internal static class IlScanner
 {
-    private static readonly bool _parallelIlScanning = false;
-
     internal static bool DoVerifyIl(string name, IResolver resolver, PEReader peReader,
         MetadataReader reader, Action<string> info, Action<string> logErrors, SandboxConfig loadedCfg)
     {
@@ -22,15 +19,7 @@ internal static class IlScanner
         Stopwatch sw = Stopwatch.StartNew();
         ConcurrentBag<VerificationResult> bag = new();
 
-        // TODO: We should probably just pick one of these and remove the other
-        if (_parallelIlScanning)
-        {
-            IlScanner.ParallelIlScanning(reader, resolver, peReader, bag);
-        }
-        else
-        {
-            IlScanner.NonParallelIlScanning(reader, resolver, peReader, bag);
-        }
+        IlScanning(reader, resolver, peReader, bag);
 
         bool verifyErrors = false;
         foreach (VerificationResult res in bag)
@@ -52,24 +41,26 @@ internal static class IlScanner
         return true;
     }
 
-    private static void ParallelIlScanning(MetadataReader reader, IResolver resolver, PEReader peReader, ConcurrentBag<VerificationResult> bag)
-    {
-        OrderablePartitioner<TypeDefinitionHandle> partitioner = Partitioner.Create(reader.TypeDefinitions);
-        Parallel.ForEach(partitioner.GetPartitions(Environment.ProcessorCount), handle =>
-        {
-            Verifier ver = new(resolver);
-            ver.SetSystemModuleName(new(AssemblyNames.SystemAssemblyName));
-            while (handle.MoveNext())
-            {
-                foreach (VerificationResult? result in ver.Verify(peReader, handle.Current, verifyMethods: true))
-                {
-                    bag.Add(result);
-                }
-            }
-        });
-    }
+    // TODO: We should probably just remove this if we aren't going to use it
+    //private static void ParallelIlScanning(MetadataReader reader, IResolver resolver, PEReader peReader, ConcurrentBag<VerificationResult> bag)
+    //{
+    //    OrderablePartitioner<TypeDefinitionHandle> partitioner = Partitioner.Create(reader.TypeDefinitions);
+    //    Parallel.ForEach(partitioner.GetPartitions(Environment.ProcessorCount), handle =>
+    //    {
+    //        Verifier ver = new(resolver);
+    //        ver.SetSystemModuleName(new(AssemblyNames.SystemAssemblyName));
+    //        while (handle.MoveNext())
+    //        {
+    //            foreach (VerificationResult? result in ver.Verify(peReader, handle.Current, verifyMethods: true))
+    //            {
+    //                bag.Add(result);
+    //            }
+    //        }
+    //    });
+    //}
 
-    private static void NonParallelIlScanning(MetadataReader reader, IResolver resolver, PEReader peReader, ConcurrentBag<VerificationResult> bag)
+    // Using the Non-parallel implementation of this
+    private static void IlScanning(MetadataReader reader, IResolver resolver, PEReader peReader, ConcurrentBag<VerificationResult> bag)
     {
         Verifier ver = new(resolver);
         //mscorlib
