@@ -51,7 +51,7 @@ internal sealed record MTypeGeneric(MType GenericType, ImmutableArray<MType> Typ
 
     public override int GetHashCode()
     {
-        HashCode hc = new HashCode();
+        HashCode hc = new();
         hc.Add(GenericType);
         foreach (MType typeArg in TypeArguments)
         {

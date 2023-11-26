@@ -2,9 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              FontSize="12"
-             x:Class="UnitystationLauncher.Views.InstallationsPanelView">
+             x:Class="UnitystationLauncher.Views.InstallationsPanelView"
+             x:DataType="viewModels:InstallationsPanelViewModel">
+    
+    <Design.DataContext>
+        <viewModels:InstallationsPanelViewModel/>
+    </Design.DataContext>
+    
     <DockPanel>
         <DockPanel DockPanel.Dock="Top" Background="#1d3b50">
             <TextBlock DockPanel.Dock="Left" Margin="5" Text="{Binding BuildNum}" />

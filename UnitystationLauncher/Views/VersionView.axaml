@@ -2,8 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="UnitystationLauncher.Views.VersionView">
+             x:Class="UnitystationLauncher.Views.VersionView"
+             x:DataType="viewModels:VersionViewModel">
+    <Design.DataContext>
+        <viewModels:VersionViewModel/>
+    </Design.DataContext>
+    
     <StackPanel Margin="5" Background="{StaticResource Primary2}">
         <TextBlock Text="{Binding Version}" TextWrapping="Wrap"  Margin="5, 3" FontSize="18" />
         <TextBlock Text="{Binding Date}" TextWrapping="Wrap"  Margin="5, 2" FontWeight="Light" />

@@ -51,7 +51,7 @@ namespace UnitystationLauncher.Views
                 _titleBar.IsVisible = false;
                 Grid.SetRow(_contentControl, 0);
                 Grid.SetRowSpan(_contentControl, 2);
-                _contentControl.BorderThickness = new Thickness();
+                _contentControl.BorderThickness = new();
             }
             else
             {
@@ -87,12 +87,12 @@ namespace UnitystationLauncher.Views
             if (WindowState == WindowState.Maximized)
             {
                 WindowState = WindowState.Normal;
-                _contentControl.BorderThickness = new Thickness(0.4, 0, 0.4, 0.4);
+                _contentControl.BorderThickness = new(0.4, 0, 0.4, 0.4);
             }
             else if (WindowState == WindowState.Normal)
             {
                 WindowState = WindowState.Maximized;
-                _contentControl.BorderThickness = new Thickness();
+                _contentControl.BorderThickness = new();
             }
         }
 

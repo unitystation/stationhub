@@ -19,7 +19,7 @@ public static class TypeExtensions
 
         // Load assembly with System.Reflection.Metadata.
         using FileStream fs = File.OpenRead(assemblyLoc);
-        using PEReader peReader = new PEReader(fs);
+        using PEReader peReader = new(fs);
 
         MetadataReader metaReader = peReader.GetMetadataReader();
 

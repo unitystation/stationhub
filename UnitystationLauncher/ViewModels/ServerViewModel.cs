@@ -1,22 +1,14 @@
 using System;
-using System.Net.NetworkInformation;
-using System.Reactive.Linq;
-using System.Diagnostics;
-using System.IO;
-using System.Reactive;
 using System.Reactive.Concurrency;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Humanizer;
-using Reactive.Bindings;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
-using ReactiveCommand = ReactiveUI.ReactiveCommand;
 
 namespace UnitystationLauncher.ViewModels;
 
@@ -34,11 +26,11 @@ public class ServerViewModel : ViewModelBase
 
     public Installation? Installation => _installationService.GetInstallation(Server.ForkName, Server.BuildVersion);
 
-    public bool ShowDownloadButton => Installation == null && !ShowDownloadProgress;
-
-    public bool ShowDownloadProgress => Download?.Active ?? false;
-
+    public bool ShowDownloadButton => Installation == null && (Download == null || Download.DownloadState == DownloadState.NotDownloaded);
+    public bool ShowDownloadProgress => Download?.DownloadState == DownloadState.InProgress;
+    public bool ShowScanningProgress => Download?.DownloadState == DownloadState.Scanning;
     public bool ShowStartButton => Installation != null;
+    public bool ShowDownloadFailed => Download?.DownloadState == DownloadState.Failed;
 
     private readonly IInstallationService _installationService;
     private readonly IPingService _pingService;
@@ -67,7 +59,7 @@ public class ServerViewModel : ViewModelBase
         _installationService.StartInstallation(Installation.InstallationId, Server.ServerIp, (short)Server.ServerPort);
     }
 
-    private async Task GetPing(IScheduler scheduler, CancellationToken cancellationToken)
+    private async Task GetPing(IScheduler _, CancellationToken cancellationToken)
     {
         if (cancellationToken.IsCancellationRequested)
         {
@@ -76,7 +68,7 @@ public class ServerViewModel : ViewModelBase
 
         try
         {
-            Ping = await _pingService.GetPing(Server);
+            Ping = await _pingService.GetPingAsync(Server);
         }
         catch (Exception e)
         {
@@ -107,6 +99,8 @@ public class ServerViewModel : ViewModelBase
         this.RaisePropertyChanged(nameof(ShowDownloadProgress));
         this.RaisePropertyChanged(nameof(DownloadSize));
         this.RaisePropertyChanged(nameof(DownloadedAmount));
+        this.RaisePropertyChanged(nameof(ShowScanningProgress));
+        this.RaisePropertyChanged(nameof(ShowDownloadFailed));
 
         // Refresh the UI for this server more often while it is downloading.
         if (ShowDownloadProgress)

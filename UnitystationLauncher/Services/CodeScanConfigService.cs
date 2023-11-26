@@ -10,7 +10,9 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Pidgin;
 using Serilog;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.ContentScanning;
+using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Models.ContentScanning;
 using UnitystationLauncher.Models.Enums;
@@ -20,14 +22,12 @@ namespace UnitystationLauncher.Services;
 
 public class CodeScanConfigService : ICodeScanConfigService
 {
-    private static string NameConfig = @"CodeScanList.json";
+    private static string _nameConfig = @"CodeScanList.json";
 
     private readonly HttpClient _httpClient;
 
     private readonly IPreferencesService _preferencesService;
     private readonly IEnvironmentService _environmentService;
-
-    private const string GoodFileURL = "Https://unitystationfile.b-cdn.net/GoodFiles/";
 
     public CodeScanConfigService(HttpClient httpClient, IPreferencesService preferencesService, IEnvironmentService environmentService)
     {
@@ -37,9 +37,10 @@ public class CodeScanConfigService : ICodeScanConfigService
 
     }
 
-    public async Task<(string, bool)> GetGoodFileVersion(string version)
+    #region Public Interface
+    public async Task<(string, bool)> GetGoodFileVersionAsync(string version)
     {
-        if (await ValidGoodFilesVersion(version) == false)
+        if (await ValidGoodFilesVersionAsync(version) == false)
         {
             return ("", false);
         }
@@ -50,60 +51,25 @@ public class CodeScanConfigService : ICodeScanConfigService
 
         if (Directory.Exists(versionPath) == false)
         {
-            string ZIPExtractPath = Path.Combine(pathBase, version);
-            HttpResponseMessage request = await _httpClient.GetAsync(GoodFileURL + version + "/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
+            string zipExtractPath = Path.Combine(pathBase, version);
+            HttpResponseMessage request = await _httpClient.GetAsync(ApiUrls.GoodFilesBaseUrl + version + "/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             ZipArchive archive = new(responseStream);
-            archive.ExtractToDirectory(ZIPExtractPath, true);
+            archive.ExtractToDirectory(zipExtractPath, true);
 
-            string ZIPDirectory = Path.Combine(ZIPExtractPath, GetZipFolderName());
-            Directory.Move(ZIPDirectory, versionPath);
+            string zipDirectory = Path.Combine(zipExtractPath, GetZipFolderName());
+            Directory.Move(zipDirectory, versionPath);
         }
 
         return (versionPath, true);
     }
 
-
-    private string GetZipFolderName()
-    {
-        CurrentEnvironment OS = _environmentService.GetCurrentEnvironment();
-        switch (OS)
-        {
-            case CurrentEnvironment.WindowsStandalone:
-                return "Windows";
-            case CurrentEnvironment.LinuxFlatpak:
-            case CurrentEnvironment.LinuxStandalone:
-                return "Linux";
-            case CurrentEnvironment.MacOsStandalone:
-                return "Mac";
-            default:
-                throw new Exception($"Unable to determine OS Version {OS}");
-        }
-    }
-
-    private string GetFolderName(string version)
-    {
-        CurrentEnvironment OS = _environmentService.GetCurrentEnvironment();
-        switch (OS)
-        {
-            case CurrentEnvironment.WindowsStandalone:
-                return version + "_Windows";
-            case CurrentEnvironment.LinuxFlatpak:
-            case CurrentEnvironment.LinuxStandalone:
-                return version + "_Linux";
-            case CurrentEnvironment.MacOsStandalone:
-                return version + "_Mac";
-            default:
-                throw new Exception($"Unable to determine OS Version {OS}");
-        }
-    }
-
-    public async Task<bool> ValidGoodFilesVersion(string goodFileVersion)
+    public async Task<bool> ValidGoodFilesVersionAsync(string goodFileVersion)
     {
         string jsonData = "";
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("https://unitystationfile.b-cdn.net/GoodFiles/AllowGoodFiles.json");
+            HttpResponseMessage response = await _httpClient.GetAsync(ApiUrls.AllowedGoodFilesUrl);
             if (!response.IsSuccessStatusCode)
             {
                 Log.Error("Unable to download config" + response);
@@ -114,7 +80,7 @@ public class CodeScanConfigService : ICodeScanConfigService
         }
         catch (Exception e)
         {
-            Log.Error("Unable to download ValidGoodFilesVersion config" + e);
+            Log.Error("Unable to download ValidGoodFilesVersionAsync config" + e);
             return false;
         }
 
@@ -133,93 +99,115 @@ public class CodeScanConfigService : ICodeScanConfigService
         return allowedList.Contains(goodFileVersion);
     }
 
-    public string SanitiseStringPath(string inString)
-    {
-        return inString.Replace(@"\", "").Replace("/", "").Replace(".", "_");
-    }
-
-    private static bool TryDownloadVersion()
-    {
-        return false;
-    }
-
     public async Task<SandboxConfig> LoadConfigAsync()
     {
-        string configPath = Path.Combine(_environmentService.GetUserdataDirectory(), NameConfig);
+        string configPath = Path.Combine(_environmentService.GetUserdataDirectory(), _nameConfig);
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("https://raw.githubusercontent.com/unitystation/unitystation/develop/CodeScanList.json");
+            HttpResponseMessage response = await _httpClient.GetAsync(ApiUrls.CodeScanListUrl);
             if (response.IsSuccessStatusCode)
             {
                 string jsonData = await response.Content.ReadAsStringAsync();
                 File.Delete(configPath);
                 await File.WriteAllTextAsync(configPath, jsonData);
-                Console.WriteLine("JSON file saved successfully.");
+                Log.Information("JSON file saved successfully.");
             }
             else
             {
-                Log.Error("Unable to download config" + response.ToString());
+                Log.Error("Unable to download config" + response);
             }
         }
         catch (Exception e)
         {
-            Log.Error("Unable to download config" + e.ToString());
+            Log.Error("Unable to download config" + e);
         }
 
 
-        if (Exists(configPath) == false)
+        if (File.Exists(configPath) == false)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             string resourceName = "UnitystationLauncher.CodeScanList.json";
-            using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
+            await using (Stream? stream = assembly.GetManifestResourceStream(resourceName))
             {
                 if (stream != null)
                 {
                     // Copy the contents of the resource to a file location
-                    using (FileStream fileStream = File.Create(configPath))
-                    {
-                        stream.Seek(0L, SeekOrigin.Begin);
-                        await stream.CopyToAsync(fileStream);
-                    }
+                    await using FileStream fileStream = File.Create(configPath);
+                    stream.Seek(0L, SeekOrigin.Begin);
+                    await stream.CopyToAsync(fileStream);
                 }
             }
             Log.Error("had to use backup config");
         }
 
-        using (StreamReader file = OpenText(configPath))
+        using StreamReader file = File.OpenText(configPath);
+        try
         {
-            try
+            SandboxConfig? data = JsonSerializer.Deserialize<SandboxConfig>(await file.ReadToEndAsync(), new JsonSerializerOptions
             {
-                SandboxConfig? data = JsonSerializer.Deserialize<SandboxConfig>(file.ReadToEnd(), new JsonSerializerOptions
+                AllowTrailingCommas = true,
+                Converters =
                 {
-                    AllowTrailingCommas = true,
-                    Converters =
-                    {
-                        new JsonStringEnumConverter(allowIntegerValues: false)
-                    }
-                });
-
-                if (data == null)
-                {
-                    Log.Error("unable to de-serialise config");
-                    throw new DataException("unable to de-serialise config");
+                    new JsonStringEnumConverter(allowIntegerValues: false)
                 }
+            });
 
-                foreach (KeyValuePair<string, Dictionary<string, TypeConfig>> @namespace in data.Types)
-                {
-                    foreach (KeyValuePair<string, TypeConfig> @class in @namespace.Value)
-                    {
-                        ParseTypeConfig(@class.Value);
-                    }
-                }
-
-                return data;
-            }
-            catch (Exception e)
+            if (data == null)
             {
-                Console.WriteLine(e);
-                throw;
+                Log.Error("unable to de-serialise config");
+                throw new DataException("unable to de-serialise config");
             }
+
+            foreach (KeyValuePair<string, Dictionary<string, TypeConfig>> @namespace in data.Types)
+            {
+                foreach (KeyValuePair<string, TypeConfig> @class in @namespace.Value)
+                {
+                    ParseTypeConfig(@class.Value);
+                }
+            }
+
+            return data;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, e.Message);
+            throw;
+        }
+    }
+    #endregion
+
+    #region Private Helpers
+    private string GetZipFolderName()
+    {
+        CurrentEnvironment os = _environmentService.GetCurrentEnvironment();
+        switch (os)
+        {
+            case CurrentEnvironment.WindowsStandalone:
+                return "Windows";
+            case CurrentEnvironment.LinuxFlatpak:
+            case CurrentEnvironment.LinuxStandalone:
+                return "Linux";
+            case CurrentEnvironment.MacOsStandalone:
+                return "Mac";
+            default:
+                throw new UnsupportedPlatformException($"Unable to determine OS Version {os}");
+        }
+    }
+
+    private string GetFolderName(string version)
+    {
+        CurrentEnvironment os = _environmentService.GetCurrentEnvironment();
+        switch (os)
+        {
+            case CurrentEnvironment.WindowsStandalone:
+                return version + "_Windows";
+            case CurrentEnvironment.LinuxFlatpak:
+            case CurrentEnvironment.LinuxStandalone:
+                return version + "_Linux";
+            case CurrentEnvironment.MacOsStandalone:
+                return version + "_Mac";
+            default:
+                throw new UnsupportedPlatformException($"Unable to determine OS Version {os}");
         }
     }
 
@@ -227,7 +215,7 @@ public class CodeScanConfigService : ICodeScanConfigService
     {
         if (cfg.Methods != null)
         {
-            List<WhitelistMethodDefine> list = new List<WhitelistMethodDefine>();
+            List<WhitelistMethodDefine> list = new();
             foreach (string m in cfg.Methods)
             {
                 try
@@ -249,7 +237,7 @@ public class CodeScanConfigService : ICodeScanConfigService
 
         if (cfg.Fields != null)
         {
-            List<WhitelistFieldDefine> list = new List<WhitelistFieldDefine>();
+            List<WhitelistFieldDefine> list = new();
             foreach (string f in cfg.Fields)
             {
                 try
@@ -278,14 +266,5 @@ public class CodeScanConfigService : ICodeScanConfigService
             }
         }
     }
-
-    public StreamReader OpenText(string path)
-    {
-        return File.OpenText(path);
-    }
-
-    public bool Exists(string path)
-    {
-        return File.Exists(path);
-    }
+    #endregion
 }

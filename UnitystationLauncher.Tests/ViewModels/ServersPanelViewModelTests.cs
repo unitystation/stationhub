@@ -1,7 +1,6 @@
 using UnitystationLauncher.Services.Interface;
 using UnitystationLauncher.Tests.MocksRepository;
 using UnitystationLauncher.ViewModels;
-using Xunit.Sdk;
 
 namespace UnitystationLauncher.Tests.ViewModels;
 

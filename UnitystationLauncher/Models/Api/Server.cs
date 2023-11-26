@@ -1,7 +1,5 @@
 using System;
-using System.IO;
 using System.Net;
-using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
@@ -86,7 +84,7 @@ namespace UnitystationLauncher.Models.Api
 
         public override int GetHashCode()
         {
-            var hash = new HashCode();
+            HashCode hash = new();
             hash.Add(ServerIp);
             hash.Add(ServerPort);
             return hash.ToHashCode();

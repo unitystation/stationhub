@@ -38,7 +38,7 @@ public interface IInstallationService
     /// </summary>
     /// <param name="server">The server to get the download from</param>
     /// <returns>Download will be `null` if it was unsuccessful in starting, and the string will have the reason</returns>
-    public Task<(Download?, string)> DownloadInstallation(Server server);
+    public Task<(Download?, string)> DownloadInstallationAsync(Server server);
 
     /// <summary>
     ///   Starts an installation so we can finally just play the game.

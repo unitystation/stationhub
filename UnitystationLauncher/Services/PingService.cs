@@ -20,7 +20,7 @@ public class PingService : IPingService
         _environmentService = environmentService;
     }
 
-    public async Task<string> GetPing(Server server)
+    public async Task<string> GetPingAsync(Server server)
     {
         if (server is { HasValidDomainName: false, HasValidIpAddress: false })
         {

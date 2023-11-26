@@ -5,13 +5,11 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Reflection;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
 using ILVerify;
-using MoreLinq;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.ContentScanning;
 using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Models.ContentScanning;
@@ -31,33 +29,15 @@ namespace UnitystationLauncher.Services;
 /// <summary>
 ///     Manages the type white/black list of types and namespaces, and verifies assemblies against them.
 /// </summary>
-public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
+public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
 {
-    /// <summary>
-    ///     Completely disables type checking, allowing everything.
-    /// </summary>
-    public bool DisableTypeCheck { get; init; }
-
-    public DumpFlags Dump { get; init; } = DumpFlags.None;
-    public bool VerifyIl { get; init; }
-
+    private readonly bool _parallelIlScanning = false;
+    private readonly bool _parallelMemberReferencesScanning = true;
     private readonly Task<SandboxConfig> _config;
 
-    private readonly IEnvironmentService _environmentService;
-
-
-    private readonly ICodeScanConfigService _codeScanConfigService;
-
-    private readonly HttpClient _httpClient;
-
-    public AssemblyTypeCheckerService(IEnvironmentService environmentService, HttpClient httpClient, ICodeScanConfigService codeScanConfigService)
+    public AssemblyTypeCheckerService(ICodeScanConfigService codeScanConfigService)
     {
-        _environmentService = environmentService;
-        VerifyIl = true;
-        DisableTypeCheck = false;
-        _httpClient = httpClient;
-        _codeScanConfigService = codeScanConfigService;
-        _config = Task.Run(_codeScanConfigService.LoadConfigAsync);
+        _config = Task.Run(codeScanConfigService.LoadConfigAsync);
     }
 
     /// <summary>
@@ -67,52 +47,39 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
     /// <param name="diskPath"></param>
     /// <param name="managedPath"></param>
     /// <param name="otherAssemblies"></param>
-    /// <param name="info"></param>
-    /// <param name="Errors"></param>
-    /// <param name="assembly">Assembly to load.</param>
+    /// <param name="infoAction"></param>
+    /// <param name="errorsAction"></param>
     /// <returns></returns>
-    public bool CheckAssembly(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies,
-        Action<string> info, Action<string> Errors)
+    public async Task<bool> CheckAssemblyTypesAsync(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies,
+        Action<string> infoAction, Action<string> errorsAction)
     {
-        using FileStream assembly = diskPath.OpenRead();
+        await using FileStream assembly = diskPath.OpenRead();
         Stopwatch fullStopwatch = Stopwatch.StartNew();
 
         Resolver resolver = AssemblyTypeCheckerHelpers.CreateResolver(managedPath);
-        using PEReader peReader = new PEReader(assembly, PEStreamOptions.LeaveOpen);
+        using PEReader peReader = new(assembly, PEStreamOptions.LeaveOpen);
         MetadataReader reader = peReader.GetMetadataReader();
 
         string asmName = reader.GetString(reader.GetAssemblyDefinition().Name);
 
         if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is { Size: not 0 })
         {
-            Errors.Invoke($"Assembly {asmName} contains native code.");
+            errorsAction.Invoke($"Assembly {asmName} contains native code.");
             return false;
         }
 
-        if (VerifyIl)
+        if (DoVerifyIl(asmName, resolver, peReader, reader, infoAction, errorsAction) == false)
         {
-            if (DoVerifyIL(asmName, resolver, peReader, reader, info, Errors) == false)
-            {
-                Errors.Invoke($"Assembly {asmName} Has invalid IL code");
-                return false;
-            }
+            errorsAction.Invoke($"Assembly {asmName} Has invalid IL code");
+            return false;
         }
 
-
-        ConcurrentBag<SandboxError> errors = new ConcurrentBag<SandboxError>();
+        ConcurrentBag<SandboxError> errors = new();
 
         List<MTypeReferenced> types = AssemblyTypeCheckerHelpers.GetReferencedTypes(reader, errors);
         List<MMemberRef> members = AssemblyTypeCheckerHelpers.GetReferencedMembers(reader, errors);
         List<(MType type, MType parent, ArraySegment<MType> interfaceImpls)> inherited = GetExternalInheritedTypes(reader, errors);
-        info.Invoke($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
-
-        if (DisableTypeCheck)
-        {
-            resolver.Dispose();
-            peReader.Dispose();
-            return true;
-        }
-
+        infoAction.Invoke($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
 
         SandboxConfig loadedConfig = _config.Result;
 
@@ -126,40 +93,40 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
         {
             if (IsTypeAccessAllowed(loadedConfig, type, out _) == false)
             {
-                errors.Add(new SandboxError($"Access to type not allowed: {type} asmName {asmName}"));
+                errors.Add(new($"Access to type not allowed: {type} asmName {asmName}"));
             }
         }
 
-        info.Invoke($"Types... {fullStopwatch.ElapsedMilliseconds}ms");
+        infoAction.Invoke($"Types... {fullStopwatch.ElapsedMilliseconds}ms");
 
         CheckInheritance(loadedConfig, inherited, errors);
 
-        info.Invoke($"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms");
+        infoAction.Invoke($"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms");
 
         AssemblyTypeCheckerHelpers.CheckNoUnmanagedMethodDefs(reader, errors);
 
-        info.Invoke($"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms");
+        infoAction.Invoke($"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms");
 
         AssemblyTypeCheckerHelpers.CheckNoTypeAbuse(reader, errors);
 
-        info.Invoke($"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms");
+        infoAction.Invoke($"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms");
 
         CheckMemberReferences(loadedConfig, members, errors);
 
-        errors = new ConcurrentBag<SandboxError>(errors.OrderBy(x => x.Message));
+        errors = new(errors.OrderBy(x => x.Message));
 
         foreach (SandboxError error in errors)
         {
-            Errors.Invoke($"Sandbox violation: {error.Message}");
+            errorsAction.Invoke($"Sandbox violation: {error.Message}");
         }
 
-        info.Invoke($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
+        infoAction.Invoke($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
         resolver.Dispose();
         peReader.Dispose();
         return errors.IsEmpty;
     }
 
-    private bool DoVerifyIL(
+    private bool DoVerifyIl(
         string name,
         IResolver resolver,
         PEReader peReader,
@@ -169,18 +136,15 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
     {
         info.Invoke($"{name}: Verifying IL...");
         Stopwatch sw = Stopwatch.StartNew();
-        ConcurrentBag<VerificationResult> bag = new ConcurrentBag<VerificationResult>();
+        ConcurrentBag<VerificationResult> bag = new();
 
-
-        bool UesParallel = false;
-
-        if (UesParallel)
+        if (_parallelIlScanning)
         {
             OrderablePartitioner<TypeDefinitionHandle> partitioner = Partitioner.Create(reader.TypeDefinitions);
             Parallel.ForEach(partitioner.GetPartitions(Environment.ProcessorCount), handle =>
             {
-                Verifier ver = new Verifier(resolver);
-                ver.SetSystemModuleName(new AssemblyName(AssemblyTypeCheckerHelpers.SystemAssemblyName));
+                Verifier ver = new(resolver);
+                ver.SetSystemModuleName(new(AssemblyNames.SystemAssemblyName));
                 while (handle.MoveNext())
                 {
                     foreach (VerificationResult? result in ver.Verify(peReader, handle.Current, verifyMethods: true))
@@ -192,15 +156,15 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
         }
         else
         {
-            Verifier ver = new Verifier(resolver);
+            Verifier ver = new(resolver);
             //mscorlib
-            ver.SetSystemModuleName(new AssemblyName(AssemblyTypeCheckerHelpers.SystemAssemblyName));
-            foreach (TypeDefinitionHandle Definition in reader.TypeDefinitions)
+            ver.SetSystemModuleName(new(AssemblyNames.SystemAssemblyName));
+            foreach (TypeDefinitionHandle definition in reader.TypeDefinitions)
             {
-                IEnumerable<VerificationResult> Errors = ver.Verify(peReader, Definition, verifyMethods: true);
-                foreach (VerificationResult? Error in Errors)
+                IEnumerable<VerificationResult> errors = ver.Verify(peReader, definition, verifyMethods: true);
+                foreach (VerificationResult? error in errors)
                 {
-                    bag.Add(Error);
+                    bag.Add(error);
                 }
             }
         }
@@ -247,14 +211,9 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
         return true;
     }
 
-    private void CheckMemberReferences(
-        SandboxConfig sandboxConfig,
-        List<MMemberRef> members,
-        ConcurrentBag<SandboxError> errors)
+    private void CheckMemberReferences(SandboxConfig sandboxConfig, List<MMemberRef> members, ConcurrentBag<SandboxError> errors)
     {
-        bool IsParallel = true;
-
-        if (IsParallel)
+        if (_parallelMemberReferencesScanning)
         {
             Parallel.ForEach(members, memberRef =>
             {
@@ -294,7 +253,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
                     // Technically this error isn't necessary since we have an earlier pass
                     // checking all referenced types. That should have caught this
                     // We still need the typeCfg so that's why we're checking. Might as well.
-                    errors.Add(new SandboxError($"Access to type not allowed: {baseTypeReferenced}"));
+                    errors.Add(new($"Access to type not allowed: {baseTypeReferenced}"));
                     return;
                 }
 
@@ -317,7 +276,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
                                 }
                             }
 
-                            errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
+                            errors.Add(new($"Access to field not allowed: {mMemberRefField}"));
                             break;
                         }
                     case MMemberRefMethod mMemberRefMethod:
@@ -349,7 +308,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
                             }
                         }
 
-                        errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
+                        errors.Add(new($"Access to method not allowed: {mMemberRefMethod}"));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(memberRef));
@@ -396,7 +355,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
                     // Technically this error isn't necessary since we have an earlier pass
                     // checking all referenced types. That should have caught this
                     // We still need the typeCfg so that's why we're checking. Might as well.
-                    errors.Add(new SandboxError($"Access to type not allowed: {baseTypeReferenced}"));
+                    errors.Add(new($"Access to type not allowed: {baseTypeReferenced}"));
                     continue;
                 }
 
@@ -419,7 +378,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
                                 }
                             }
 
-                            errors.Add(new SandboxError($"Access to field not allowed: {mMemberRefField}"));
+                            errors.Add(new($"Access to field not allowed: {mMemberRefField}"));
                             break;
                         }
                     case MMemberRefMethod mMemberRefMethod:
@@ -457,7 +416,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
                             continue;
                         }
 
-                        errors.Add(new SandboxError($"Access to method not allowed: {mMemberRefMethod}"));
+                        errors.Add(new($"Access to method not allowed: {mMemberRefMethod}"));
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(memberRef));
@@ -477,14 +436,14 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
         {
             if (CanInherit(baseType) == false)
             {
-                errors.Add(new SandboxError($"Inheriting of type not allowed: {baseType}"));
+                errors.Add(new($"Inheriting of type not allowed: {baseType}"));
             }
 
             foreach (MType @interface in interfaces)
             {
                 if (CanInherit(@interface) == false)
                 {
-                    errors.Add(new SandboxError($"Implementing of interface not allowed: {@interface}"));
+                    errors.Add(new($"Implementing of interface not allowed: {@interface}"));
                 }
             }
 
@@ -581,7 +540,7 @@ public sealed partial class AssemblyTypeCheckerService : IAssemblyTypeCheckerSer
         MetadataReader reader,
         ConcurrentBag<SandboxError> errors)
     {
-        List<(MType, MType, ArraySegment<MType>)> list = new List<(MType, MType, ArraySegment<MType>)>();
+        List<(MType, MType, ArraySegment<MType>)> list = new();
         foreach (TypeDefinitionHandle typeDefHandle in reader.TypeDefinitions)
         {
             TypeDefinition typeDef = reader.GetTypeDefinition(typeDefHandle);

@@ -1,10 +1,10 @@
-
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Reflection.PortableExecutable;
 using ILVerify;
+using Serilog;
 
 namespace UnitystationLauncher.ContentScanning;
 
@@ -13,7 +13,7 @@ public sealed class Resolver : IResolver
     private readonly DirectoryInfo _managedPath;
 
 
-    private readonly Dictionary<string, PEReader> _dictionaryLookup = new Dictionary<string, PEReader>();
+    private readonly Dictionary<string, PEReader> _dictionaryLookup = new();
 
     public Resolver(DirectoryInfo inManagedPath)
     {
@@ -22,9 +22,9 @@ public sealed class Resolver : IResolver
 
     public void Dispose()
     {
-        foreach (KeyValuePair<string, PEReader> Lookup in _dictionaryLookup)
+        foreach (KeyValuePair<string, PEReader> lookup in _dictionaryLookup)
         {
-            Lookup.Value.Dispose();
+            lookup.Value.Dispose();
         }
     }
 
@@ -47,9 +47,9 @@ public sealed class Resolver : IResolver
             string fileName = Path.GetFileNameWithoutExtension(file.Name);
             if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                Log.Information($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
                 _dictionaryLookup[assemblyName.Name] =
-                    new PEReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
+                    new(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
                 return _dictionaryLookup[assemblyName.Name];
             }
         }
@@ -61,9 +61,9 @@ public sealed class Resolver : IResolver
             string fileName = Path.GetFileNameWithoutExtension(file.Name);
             if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                Log.Information($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
                 _dictionaryLookup[assemblyName.Name] =
-                    new PEReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
+                    new(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
                 return _dictionaryLookup[assemblyName.Name];
             }
         }
@@ -75,9 +75,9 @@ public sealed class Resolver : IResolver
             string fileName = Path.GetFileNameWithoutExtension(file.Name);
             if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
             {
-                Console.WriteLine($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                Log.Information($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
                 _dictionaryLookup[assemblyName.Name] =
-                    new PEReader(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
+                    new(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
                 return _dictionaryLookup[assemblyName.Name];
             }
         }

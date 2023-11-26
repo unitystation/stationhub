@@ -1,16 +1,12 @@
-using System;
-using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using ReactiveUI;
 using Serilog;
-using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.ViewModels;
 
 namespace UnitystationLauncher.Views

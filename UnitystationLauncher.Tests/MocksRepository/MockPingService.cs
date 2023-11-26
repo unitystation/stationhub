@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Services.Interface;
 
@@ -9,7 +8,7 @@ public static class MockPingService
     public static IPingService StaticPingTime(int pingTime)
     {
         Mock<IPingService> mock = new();
-        mock.Setup(x => x.GetPing(It.IsAny<Server>()))
+        mock.Setup(x => x.GetPingAsync(It.IsAny<Server>()))
             .ReturnsAsync($"{pingTime}ms");
         return mock.Object;
     }
@@ -17,7 +16,7 @@ public static class MockPingService
     public static IPingService NullPingTime()
     {
         Mock<IPingService> mock = new();
-        mock.Setup(x => x.GetPing(It.IsAny<Server>()))
+        mock.Setup(x => x.GetPingAsync(It.IsAny<Server>()))
             !.ReturnsAsync(null as string);
         return mock.Object;
     }
@@ -25,7 +24,7 @@ public static class MockPingService
     public static IPingService ThrowsException()
     {
         Mock<IPingService> mock = new();
-        mock.Setup(x => x.GetPing(It.IsAny<Server>()))
+        mock.Setup(x => x.GetPingAsync(It.IsAny<Server>()))
             .Throws<Exception>();
         return mock.Object;
     }

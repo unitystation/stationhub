@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Immutable;
 using System.Reflection.Metadata;
@@ -11,7 +10,7 @@ internal sealed class TypeProvider : ISignatureTypeProvider<MType, int>
 {
     public MType GetSZArrayType(MType elementType)
     {
-        return new MTypeSZArray(elementType);
+        return new MTypeSzArray(elementType);
     }
 
     public MType GetArrayType(MType elementType, ArrayShape shape)

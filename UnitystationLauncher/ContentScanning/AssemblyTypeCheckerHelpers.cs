@@ -24,15 +24,11 @@ namespace UnitystationLauncher.ContentScanning;
 /// </summary>
 internal static class AssemblyTypeCheckerHelpers
 {
-    // Used to be in Sandbox.yml, moved out of there to facilitate faster loading.
-    internal const string SystemAssemblyName = "mscorlib"; //TODO check security
-    //UnityEngine.dll
-    //mscorlib
-    //System.Runtime
+    private static readonly bool _parallelReferencedMembersScanning = true;
 
-    internal static Resolver CreateResolver(DirectoryInfo ManagedPath)
+    internal static Resolver CreateResolver(DirectoryInfo managedPath)
     {
-        return new Resolver(ManagedPath);
+        return new(managedPath);
     }
 
     internal static string FormatMethodName(MetadataReader reader, MethodDefinition method)
@@ -57,13 +53,13 @@ internal static class AssemblyTypeCheckerHelpers
                 or MethodImplAttributes.Runtime))
             {
                 string err = $"Method has illegal MethodImplAttributes: {FormatMethodName(reader, methodDef)}";
-                errors.Add(new SandboxError(err));
+                errors.Add(new(err));
             }
 
             if ((attr & (MethodAttributes.PinvokeImpl | MethodAttributes.UnmanagedExport)) != 0)
             {
                 string err = $"Method has illegal MethodAttributes: {FormatMethodName(reader, methodDef)}";
-                errors.Add(new SandboxError(err));
+                errors.Add(new(err));
             }
         }
     }
@@ -83,7 +79,7 @@ internal static class AssemblyTypeCheckerHelpers
                 if (typeDef.GetFields().Count > 0)
                 {
                     string err = $"Explicit layout type {type} may not have fields.";
-                    errors.Add(new SandboxError(err));
+                    errors.Add(new(err));
                 }
             }
         }
@@ -99,7 +95,7 @@ internal static class AssemblyTypeCheckerHelpers
                 }
                 catch (UnsupportedMetadataException e)
                 {
-                    errors.Add(new SandboxError(e));
+                    errors.Add(new(e));
                     return null;
                 }
             })
@@ -109,8 +105,7 @@ internal static class AssemblyTypeCheckerHelpers
 
     internal static List<MMemberRef> GetReferencedMembers(MetadataReader reader, ConcurrentBag<SandboxError> errors)
     {
-        bool Parallel = true;
-        if (Parallel)
+        if (_parallelReferencedMembersScanning)
         {
             return reader.MemberReferences.AsParallel()
                 .Select(memRefHandle =>
@@ -130,7 +125,7 @@ internal static class AssemblyTypeCheckerHelpers
                                 }
                                 catch (UnsupportedMetadataException u)
                                 {
-                                    errors.Add(new SandboxError(u));
+                                    errors.Add(new(u));
                                     return null;
                                 }
 
@@ -144,7 +139,7 @@ internal static class AssemblyTypeCheckerHelpers
                                 }
                                 catch (UnsupportedMetadataException u)
                                 {
-                                    errors.Add(new SandboxError(u));
+                                    errors.Add(new(u));
                                     return null;
                                 }
 
@@ -154,7 +149,7 @@ internal static class AssemblyTypeCheckerHelpers
                             {
                                 TypeSpecification typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)memRef.Parent);
                                 // Generic type reference.
-                                TypeProvider provider = new TypeProvider();
+                                TypeProvider provider = new();
                                 parent = typeSpec.DecodeSignature(provider, 0);
 
                                 if (parent.IsCoreTypeDefined())
@@ -168,18 +163,18 @@ internal static class AssemblyTypeCheckerHelpers
                             }
                         case HandleKind.ModuleReference:
                             {
-                                errors.Add(new SandboxError(
+                                errors.Add(new(
                                     $"Module global variables and methods are unsupported. Name: {memName}"));
                                 return null;
                             }
                         case HandleKind.MethodDefinition:
                             {
-                                errors.Add(new SandboxError($"Vararg calls are unsupported. Name: {memName}"));
+                                errors.Add(new($"Vararg calls are unsupported. Name: {memName}"));
                                 return null;
                             }
                         default:
                             {
-                                errors.Add(new SandboxError(
+                                errors.Add(new(
                                     $"Unsupported member ref parent type: {memRef.Parent.Kind}. Name: {memName}"));
                                 return null;
                             }
@@ -236,7 +231,7 @@ internal static class AssemblyTypeCheckerHelpers
                                 }
                                 catch (UnsupportedMetadataException u)
                                 {
-                                    errors.Add(new SandboxError(u));
+                                    errors.Add(new(u));
                                     return null;
                                 }
 
@@ -250,7 +245,7 @@ internal static class AssemblyTypeCheckerHelpers
                                 }
                                 catch (UnsupportedMetadataException u)
                                 {
-                                    errors.Add(new SandboxError(u));
+                                    errors.Add(new(u));
                                     return null;
                                 }
 
@@ -260,7 +255,7 @@ internal static class AssemblyTypeCheckerHelpers
                             {
                                 TypeSpecification typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)memRef.Parent);
                                 // Generic type reference.
-                                TypeProvider provider = new TypeProvider();
+                                TypeProvider provider = new();
                                 parent = typeSpec.DecodeSignature(provider, 0);
 
                                 if (parent.IsCoreTypeDefined())
@@ -274,18 +269,18 @@ internal static class AssemblyTypeCheckerHelpers
                             }
                         case HandleKind.ModuleReference:
                             {
-                                errors.Add(new SandboxError(
+                                errors.Add(new(
                                     $"Module global variables and methods are unsupported. Name: {memName}"));
                                 return null;
                             }
                         case HandleKind.MethodDefinition:
                             {
-                                errors.Add(new SandboxError($"Vararg calls are unsupported. Name: {memName}"));
+                                errors.Add(new($"Vararg calls are unsupported. Name: {memName}"));
                                 return null;
                             }
                         default:
                             {
-                                errors.Add(new SandboxError(
+                                errors.Add(new(
                                     $"Unsupported member ref parent type: {memRef.Parent.Kind}. Name: {memName}"));
                                 return null;
                             }
@@ -344,14 +339,14 @@ internal static class AssemblyTypeCheckerHelpers
                 }
                 catch (UnsupportedMetadataException u)
                 {
-                    errors.Add(new SandboxError(u));
+                    errors.Add(new(u));
                     return false;
                 }
 
             case HandleKind.TypeSpecification:
                 TypeSpecification typeSpec = reader.GetTypeSpecification((TypeSpecificationHandle)handle);
                 // Generic type reference.
-                TypeProvider provider = new TypeProvider();
+                TypeProvider provider = new();
                 type = typeSpec.DecodeSignature(provider, 0);
 
                 if (type.IsCoreTypeDefined())
@@ -364,7 +359,7 @@ internal static class AssemblyTypeCheckerHelpers
                 break;
 
             default:
-                errors.Add(new SandboxError(
+                errors.Add(new(
                     $"Unsupported BaseType of kind {handle.Kind} on type {ownerType}"));
                 return false;
         }
@@ -421,7 +416,7 @@ internal static class AssemblyTypeCheckerHelpers
                     $"TypeRef to {typeRef.ResolutionScope.Kind} for type {nameSpace}.{name}");
         }
 
-        return new MTypeReferenced(resScope, name, nameSpace);
+        return new(resScope, name, nameSpace);
     }
 
     internal static string? NilNullString(MetadataReader reader, StringHandle handle)
@@ -442,6 +437,6 @@ internal static class AssemblyTypeCheckerHelpers
             enclosing = GetTypeFromDefinition(reader, typeDef.GetDeclaringType());
         }
 
-        return new MTypeDefined(name, ns, enclosing);
+        return new(name, ns, enclosing);
     }
 }
