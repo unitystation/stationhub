@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.Models.ContentScanning.ScanningTypes;
@@ -43,55 +44,19 @@ internal sealed record MTypeReferenced(MResScope ResolutionScope, string Name, s
     {
         if (Namespace == null)
         {
-            if (ResolutionScope is MResScopeType parentType)
+            bool? isAllowed = IsTypeAccessAllowedForTypeWithNoNamespace(sandboxConfig, out TypeConfig? noNamespaceTypeConfig);
+            if (isAllowed.HasValue)
             {
-                if (parentType.Type is MTypeReferenced parentReferencedType)
-                {
-                    if (parentReferencedType.IsTypeAccessAllowed(sandboxConfig, out TypeConfig? parentCfg) == false)
-                    {
-                        cfg = null;
-                        return false;
-                    }
-
-                    if (parentCfg.All)
-                    {
-                        // Enclosing type is namespace-whitelisted so we don't have to check anything else.
-                        cfg = TypeConfig.DefaultAll;
-                        return true;
-                    }
-
-                    // Found enclosing type, checking if we are allowed to access this nested type.
-                    // Also pass it up in case of multiple nested types.
-                    if (parentCfg.NestedTypes != null && parentCfg.NestedTypes.TryGetValue(Name, out cfg))
-                    {
-                        return true;
-                    }
-
-                    cfg = null;
-                    return false;
-                }
-
-                if (ResolutionScope is MResScopeAssembly mResScopeAssembly &&
-                    sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
-                {
-                    cfg = TypeConfig.DefaultAll;
-                    return true;
-                }
-
-                // Types without namespaces or nesting parent are not allowed at all.
-                cfg = null;
-                return false;
+                cfg = isAllowed.Value ? noNamespaceTypeConfig : null;
+                return isAllowed.Value;
             }
         }
 
         // Check if in whitelisted namespaces.
-        foreach (string whNamespace in sandboxConfig.WhitelistedNamespaces)
+        if (sandboxConfig.WhitelistedNamespaces.Any(whNamespace => Namespace?.StartsWith(whNamespace) ?? false))
         {
-            if (Namespace?.StartsWith(whNamespace) ?? false)
-            {
-                cfg = TypeConfig.DefaultAll;
-                return true;
-            }
+            cfg = TypeConfig.DefaultAll;
+            return true;
         }
 
         if (ResolutionScope is MResScopeAssembly resScopeAssembly &&
@@ -109,5 +74,52 @@ internal sealed record MTypeReferenced(MResScope ResolutionScope, string Name, s
         }
 
         return nsDict.TryGetValue(Name, out cfg);
+    }
+
+    private bool? IsTypeAccessAllowedForTypeWithNoNamespace(SandboxConfig sandboxConfig, [NotNullWhen(true)] out TypeConfig? cfg)
+    {
+        if (ResolutionScope is MResScopeType parentType)
+        {
+            if (parentType.Type is MTypeReferenced parentReferencedType)
+            {
+                if (parentReferencedType.IsTypeAccessAllowed(sandboxConfig, out TypeConfig? parentCfg) == false)
+                {
+                    cfg = null;
+                    return false;
+                }
+
+                if (parentCfg.All)
+                {
+                    // Enclosing type is namespace-whitelisted so we don't have to check anything else.
+                    cfg = TypeConfig.DefaultAll;
+                    return true;
+                }
+
+                // Found enclosing type, checking if we are allowed to access this nested type.
+                // Also pass it up in case of multiple nested types.
+                if (parentCfg.NestedTypes != null && parentCfg.NestedTypes.TryGetValue(Name, out cfg))
+                {
+                    return true;
+                }
+
+                cfg = null;
+                return false;
+            }
+
+            if (ResolutionScope is MResScopeAssembly mResScopeAssembly &&
+                sandboxConfig.MultiAssemblyOtherReferences.Contains(mResScopeAssembly.Name))
+            {
+                cfg = TypeConfig.DefaultAll;
+                return true;
+            }
+
+            // Types without namespaces or nesting parent are not allowed at all.
+            cfg = null;
+            return false;
+        }
+
+        // Null means we don't have an explicit yes or no to is it allowed yet, continue checking after this method
+        cfg = TypeConfig.DefaultAll;
+        return null;
     }
 }
