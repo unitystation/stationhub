@@ -55,45 +55,51 @@ internal static class MemberReferenceScanner
                 errors.Add(new($"Access to field not allowed: {mMemberRefField}"));
                 return;
             case MMemberRefMethod mMemberRefMethod:
+                bool safe = IsMMemberRefMethodSafe(mMemberRefMethod, typeCfg);
+                if (!safe)
                 {
-                    foreach (WhitelistMethodDefine parsed in typeCfg.MethodsParsed)
-                    {
-                        bool paramMismatch = false;
-
-                        if (parsed.Name != mMemberRefMethod.Name ||
-                            !mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) ||
-                            mMemberRefMethod.ParameterTypes.Length != parsed.ParameterTypes.Count ||
-                            mMemberRefMethod.GenericParameterCount != parsed.GenericParameterCount)
-                        {
-                            continue;
-                        }
-
-                        for (int i = 0; i < mMemberRefMethod.ParameterTypes.Length; i++)
-                        {
-                            MType a = mMemberRefMethod.ParameterTypes[i];
-                            MType b = parsed.ParameterTypes[i];
-
-                            if (a.WhitelistEquals(b))
-                            {
-                                continue;
-                            }
-
-                            paramMismatch = true;
-                            break;
-                        }
-
-                        if (!paramMismatch)
-                        {
-                            return; // Found
-                        }
-                    }
-
                     errors.Add(new($"Access to method not allowed: {mMemberRefMethod}"));
-                    return;
                 }
+
+                return;
             default:
                 throw new ArgumentException($"Invalid memberRef type: {memberRef.GetType()}", nameof(memberRef));
         }
+    }
+
+    private static bool IsMMemberRefMethodSafe(MMemberRefMethod mMemberRefMethod, TypeConfig typeCfg)
+    {
+        foreach (WhitelistMethodDefine parsed in typeCfg.MethodsParsed)
+        {
+            bool paramMismatch = false;
+            if (parsed.Name != mMemberRefMethod.Name ||
+                !mMemberRefMethod.ReturnType.WhitelistEquals(parsed.ReturnType) ||
+                mMemberRefMethod.ParameterTypes.Length != parsed.ParameterTypes.Count ||
+                mMemberRefMethod.GenericParameterCount != parsed.GenericParameterCount)
+            {
+                continue;
+            }
+
+            for (int i = 0; i < mMemberRefMethod.ParameterTypes.Length; i++)
+            {
+                MType a = mMemberRefMethod.ParameterTypes[i];
+                MType b = parsed.ParameterTypes[i];
+
+                if (a.WhitelistEquals(b))
+                {
+                    continue;
+                }
+
+                paramMismatch = true;
+                break;
+            }
+            if (!paramMismatch)
+            {
+                return true; // Found
+            }
+        }
+
+        return false;
     }
 
 
