@@ -1,5 +1,4 @@
 using UnitystationLauncher.Models.Api;
-using UnitystationLauncher.Tests.MocksRepository;
 using UnitystationLauncher.Tests.MocksRepository.EnvironmentService;
 
 namespace UnitystationLauncher.Tests.Models.Api;

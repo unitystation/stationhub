@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Threading.Tasks;
-using ILVerify;
 using UnitystationLauncher.ContentScanning;
 using UnitystationLauncher.ContentScanning.Scanners;
 using UnitystationLauncher.Infrastructure;

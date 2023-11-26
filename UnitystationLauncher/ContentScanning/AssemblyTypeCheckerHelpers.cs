@@ -1,19 +1,9 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Reflection.Metadata;
-using System.Reflection.PortableExecutable;
-using System.Threading.Tasks;
 using ILVerify;
-using UnitystationLauncher.Constants;
-using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
-using UnitystationLauncher.Models.ContentScanning;
 using UnitystationLauncher.Models.ContentScanning.ScanningTypes;
 
 // psst
