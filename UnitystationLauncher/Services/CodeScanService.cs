@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Constants;
+using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
@@ -55,8 +56,6 @@ public class CodeScanService : ICodeScanService
             {
                 DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Unitystation.app/Contents/Resources/Data/StreamingAssets"));
             }
-
-
 
             DirectoryInfo? stagingManaged = null;
             if (_environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone)
@@ -124,8 +123,6 @@ public class CodeScanService : ICodeScanService
                 return false;
             }
 
-
-
             CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
             if (dataPath.Name != FolderNames.UnitystationData && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
             {
@@ -134,41 +131,16 @@ public class CodeScanService : ICodeScanService
                 Directory.Delete(oldPath, true);
             }
 
-
             switch (_environmentService.GetCurrentEnvironment())
             {
                 case CurrentEnvironment.WindowsStandalone:
-                    FileInfo? exeRename = processingDirectory.GetFiles()
-                        .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
-
-
-                    if (exeRename == null || exeRename.Directory == null)
-                    {
-                        errors.Invoke("no Executable found ");
-                        DeleteContentsOfDirectory(processingDirectory);
-                        DeleteContentsOfDirectory(stagingDirectory);
-                        return false;
-                    }
-                    info.Invoke($"Found exeRename {exeRename}");
-                    exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
+                    LocateWindowsExecutable(processingDirectory, stagingDirectory, dataPath, info, errors);
                     break;
                 case CurrentEnvironment.LinuxFlatpak:
                 case CurrentEnvironment.LinuxStandalone:
-                    FileInfo? executableRename = processingDirectory.GetFiles()
-                        .FirstOrDefault(x => x.Extension == "");
-
-                    if (executableRename == null || executableRename.Directory == null)
-                    {
-                        errors.Invoke("no Executable found ");
-                        DeleteContentsOfDirectory(processingDirectory);
-                        DeleteContentsOfDirectory(stagingDirectory);
-                        return false;
-                    }
-                    info.Invoke($"Found ExecutableRename {executableRename}");
-                    executableRename.MoveTo(Path.Combine(executableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ""));
+                    LocateLinuxExecutable(processingDirectory, stagingDirectory, dataPath, info, errors);
                     break;
             }
-
 
             DirectoryInfo targetDirectoryInfo = new(targetDirectory);
             if (targetDirectoryInfo.Exists)
@@ -189,6 +161,41 @@ public class CodeScanService : ICodeScanService
         }
 
         return true;
+    }
+
+    private static void LocateWindowsExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<string> info, Action<string> errors)
+    {
+        FileInfo? exeRename = processingDirectory.GetFiles()
+            .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
+
+
+        if (exeRename?.Directory == null)
+        {
+            errors.Invoke("no Executable found ");
+            DeleteContentsOfDirectory(processingDirectory);
+            DeleteContentsOfDirectory(stagingDirectory);
+            throw new CodeScanningException("No Windows executable found");
+        }
+
+        info.Invoke($"Found exeRename {exeRename}");
+        exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
+    }
+
+    private static void LocateLinuxExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<string> info, Action<string> errors)
+    {
+        FileInfo? executableRename = processingDirectory.GetFiles()
+            .FirstOrDefault(x => x.Extension == "");
+
+        if (executableRename?.Directory == null)
+        {
+            errors.Invoke("no Executable found ");
+            DeleteContentsOfDirectory(processingDirectory);
+            DeleteContentsOfDirectory(stagingDirectory);
+            throw new CodeScanningException("No Linux executable found");
+        }
+
+        info.Invoke($"Found ExecutableRename {executableRename}");
+        executableRename.MoveTo(Path.Combine(executableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ""));
     }
 
     private string GetManagedOnOS(string goodFiles)

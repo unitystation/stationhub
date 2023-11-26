@@ -31,7 +31,7 @@ public static class TypeExtensions
         {
             TypeDefinition tempTypeDef = metaReader.GetTypeDefinition(typeDefHandle);
             string name = metaReader.GetString(tempTypeDef.Name);
-            string? @namespace = AssemblyTypeCheckerHelpers.NilNullString(metaReader, tempTypeDef.Namespace);
+            string? @namespace = tempTypeDef.Namespace.NilNullString(metaReader);
             if (name == type.Name && @namespace == type.Namespace)
             {
                 typeDef = tempTypeDef;

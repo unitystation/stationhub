@@ -414,8 +414,7 @@ public class InstallationService : IInstallationService
         return arguments;
     }
 
-    public static List<string> InfoList = new();
-    public static List<string> ErrorList = new();
+
     private async Task StartDownloadAsync(Download download)
     {
         Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", download.InstallPath, download.DownloadUrl);
@@ -455,6 +454,9 @@ public class InstallationService : IInstallationService
 
     private async Task ExtractAndScan(Download download, ProgressStream progressStream)
     {
+        // TODO: Display infoList and errorList in the UI.
+        List<string> infoList = new();
+        List<string> errorList = new();
         Log.Information("Extracting...");
         try
         {
@@ -464,13 +466,13 @@ public class InstallationService : IInstallationService
             void Info(string log)
             {
                 Log.Information(log);
-                InfoList.Add(log);
+                infoList.Add(log);
             }
 
             void Errors(string log)
             {
                 Log.Error(log);
-                ErrorList.Add(log);
+                errorList.Add(log);
             }
 
             download.DownloadState = DownloadState.Scanning;
@@ -496,7 +498,7 @@ public class InstallationService : IInstallationService
             }
             else
             {
-                string jsonString = JsonSerializer.Serialize(ErrorList);
+                string jsonString = JsonSerializer.Serialize(errorList);
                 string filePath = Path.Combine(_preferencesService.GetPreferences().InstallationPath, "CodeScanErrors.json");
 
                 await File.WriteAllTextAsync(filePath, jsonString);

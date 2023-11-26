@@ -103,7 +103,7 @@ public class ServerViewModel : ViewModelBase
         this.RaisePropertyChanged(nameof(ShowDownloadFailed));
 
         // Refresh the UI for this server more often while it is downloading.
-        if (ShowDownloadProgress)
+        if (ShowDownloadProgress || ShowScanningProgress)
         {
             RxApp.MainThreadScheduler.Schedule(DateTimeOffset.Now.AddMilliseconds(200), RefreshDownloadingStatus);
         }
@@ -111,6 +111,12 @@ public class ServerViewModel : ViewModelBase
         {
             this.RaisePropertyChanged(nameof(Installation));
             this.RaisePropertyChanged(nameof(ShowStartButton));
+        }
+
+        // Clear out the old Download object once we have an Installation. We won't need it anymore.
+        if (Download != null && Installation != null)
+        {
+            Download = null;
         }
     }
 }

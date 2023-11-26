@@ -1,28 +1,27 @@
 using System;
 
-namespace UnitystationLauncher.Exceptions
+namespace UnitystationLauncher.Exceptions;
+
+public class ContentLengthNullException : Exception
 {
-    public class ContentLengthNullException : Exception
+    public ContentLengthNullException(string url)
     {
-        public ContentLengthNullException(string url)
-        {
-            Url = url;
-        }
-
-        public ContentLengthNullException(string url, string message)
-            : base(message)
-        {
-            Url = url;
-        }
-
-        public ContentLengthNullException(string url, string message, Exception inner)
-            : base(message, inner)
-        {
-            Url = url;
-        }
-
-        public string Url { get; }
-
-        public override String Message => $"{base.Message} Url='{Url}";
+        Url = url;
     }
+
+    public ContentLengthNullException(string url, string message)
+        : base(message)
+    {
+        Url = url;
+    }
+
+    public ContentLengthNullException(string url, string message, Exception inner)
+        : base(message, inner)
+    {
+        Url = url;
+    }
+
+    public string Url { get; }
+
+    public override String Message => $"{base.Message} Url='{Url}";
 }
