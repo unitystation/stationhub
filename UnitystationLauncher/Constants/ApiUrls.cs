@@ -13,7 +13,7 @@ public static class ApiUrls
     public const string LatestBlogPosts = $"{ChangelogBaseUrl}/posts/?format=json";
 
     private const string CdnBaseUrl = "https://unitystationfile.b-cdn.net";
-    public const string GoodFilesBaseUrl = $"{CdnBaseUrl}/GoodFiles/";
+    public const string GoodFilesBaseUrl = $"{CdnBaseUrl}/GoodFiles";
     public const string AllowedGoodFilesUrl = $"{GoodFilesBaseUrl}/AllowGoodFiles.json";
 
     private const string RawGitHubFileBaseUrl = "https://raw.githubusercontent.com/unitystation/unitystation/develop";

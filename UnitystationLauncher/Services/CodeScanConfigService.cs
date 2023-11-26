@@ -52,7 +52,7 @@ public class CodeScanConfigService : ICodeScanConfigService
         if (Directory.Exists(versionPath) == false)
         {
             string zipExtractPath = Path.Combine(pathBase, version);
-            HttpResponseMessage request = await _httpClient.GetAsync(ApiUrls.GoodFilesBaseUrl + version + "/" + folderName + ".zip", HttpCompletionOption.ResponseHeadersRead);
+            HttpResponseMessage request = await _httpClient.GetAsync($"{ApiUrls.GoodFilesBaseUrl}/{version}/{folderName}.zip", HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             ZipArchive archive = new(responseStream);
             archive.ExtractToDirectory(zipExtractPath, true);
