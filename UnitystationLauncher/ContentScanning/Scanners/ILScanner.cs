@@ -10,9 +10,9 @@ using UnitystationLauncher.Models.ConfigFile;
 
 namespace UnitystationLauncher.ContentScanning.Scanners;
 
-internal static class IlScanner
+internal static class ILScanner
 {
-    internal static bool DoVerifyIl(string name, IResolver resolver, PEReader peReader,
+    internal static bool IsILValid(string name, IResolver resolver, PEReader peReader,
         MetadataReader reader, Action<string> info, Action<string> logErrors, SandboxConfig loadedCfg)
     {
         info.Invoke($"{name}: Verifying IL...");

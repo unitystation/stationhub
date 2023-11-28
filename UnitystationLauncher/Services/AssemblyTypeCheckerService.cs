@@ -34,7 +34,7 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
 
     public AssemblyTypeCheckerService(ICodeScanConfigService codeScanConfigService)
     {
-        _config = Task.Run(codeScanConfigService.LoadConfigAsync);
+        _config = codeScanConfigService.LoadConfigAsync();
     }
 
     /// <summary>
@@ -59,13 +59,15 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
 
         string asmName = reader.GetString(reader.GetAssemblyDefinition().Name);
 
+        // Check for native code
         if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is { Size: not 0 })
         {
             errorsAction.Invoke($"Assembly {asmName} contains native code.");
             return false;
         }
 
-        if (IlScanner.DoVerifyIl(asmName, resolver, peReader, reader, infoAction, errorsAction, await _config) == false)
+        // Verify the IL
+        if (ILScanner.IsILValid(asmName, resolver, peReader, reader, infoAction, errorsAction, await _config) == false)
         {
             errorsAction.Invoke($"Assembly {asmName} Has invalid IL code");
             return false;
@@ -73,12 +75,14 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
 
         ConcurrentBag<SandboxError> errors = new();
 
+        // Load all the references
         List<MTypeReferenced> types = reader.GetReferencedTypes(errors);
         List<MMemberRef> members = reader.GetReferencedMembers(errors);
         List<(MType type, MType parent, ArraySegment<MType> interfaceImpls)> inherited = reader.GetExternalInheritedTypes(errors);
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
         infoAction.Invoke($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
 
-        SandboxConfig loadedConfig = _config.Result;
+        SandboxConfig loadedConfig = await _config;
 
         loadedConfig.MultiAssemblyOtherReferences.Clear();
         loadedConfig.MultiAssemblyOtherReferences.AddRange(otherAssemblies);
@@ -86,29 +90,29 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
         // We still do explicit type reference scanning, even though the actual whitelists work with raw members.
         // This is so that we can simplify handling of generic type specifications during member checking:
         // we won't have to check that any types in their type arguments are whitelisted.
-        foreach (MTypeReferenced type in types)
+        foreach (MTypeReferenced type in types.Where(type => type.IsTypeAccessAllowed(loadedConfig, out _) == false))
         {
-            if (type.IsTypeAccessAllowed(loadedConfig, out _) == false)
-            {
-                errors.Add(new($"Access to type not allowed: {type} asmName {asmName}"));
-            }
+            errors.Add(new($"Access to type not allowed: {type} asmName {asmName}"));
         }
 
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
         infoAction.Invoke($"Types... {fullStopwatch.ElapsedMilliseconds}ms");
 
         InheritanceScanner.CheckInheritance(loadedConfig, inherited, errors);
-
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
         infoAction.Invoke($"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms");
 
         UnmanagedMethodScanner.CheckNoUnmanagedMethodDefs(reader, errors);
-
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
         infoAction.Invoke($"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms");
 
         TypeAbuseScanner.CheckNoTypeAbuse(reader, errors);
-
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
         infoAction.Invoke($"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms");
 
         MemberReferenceScanner.CheckMemberReferences(loadedConfig, members, errors);
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
+        infoAction.Invoke($"Member References... {fullStopwatch.ElapsedMilliseconds}ms");
 
         errors = new(errors.OrderBy(x => x.Message));
 
@@ -117,6 +121,7 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
             errorsAction.Invoke($"Sandbox violation: {error.Message}");
         }
 
+        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
         infoAction.Invoke($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
         resolver.Dispose();
         peReader.Dispose();
