@@ -1,5 +1,4 @@
 using System.Reactive;
-using System.Runtime.CompilerServices;
 using ReactiveUI;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Services.Interface;

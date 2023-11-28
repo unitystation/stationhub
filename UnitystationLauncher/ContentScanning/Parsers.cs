@@ -15,114 +15,114 @@ public static class Parsers
 {
     // Contains primary parsing code for method and field declarations in the sandbox whitelist.
 
-    private static readonly Parser<char, PrimitiveTypeCode> VoidTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _voidTypeParser =
         String("void").ThenReturn(PrimitiveTypeCode.Void);
 
-    private static readonly Parser<char, PrimitiveTypeCode> BooleanTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _booleanTypeParser =
         String("bool").ThenReturn(PrimitiveTypeCode.Boolean);
 
-    private static readonly Parser<char, PrimitiveTypeCode> CharTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _charTypeParser =
         String("char").ThenReturn(PrimitiveTypeCode.Char);
 
-    private static readonly Parser<char, PrimitiveTypeCode> SByteTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _sByteTypeParser =
         String("sbyte").ThenReturn(PrimitiveTypeCode.SByte);
 
-    private static readonly Parser<char, PrimitiveTypeCode> ByteTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _byteTypeParser =
         String("byte").ThenReturn(PrimitiveTypeCode.Byte);
 
-    private static readonly Parser<char, PrimitiveTypeCode> Int16TypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _int16TypeParser =
         String("short").ThenReturn(PrimitiveTypeCode.Int16);
 
-    private static readonly Parser<char, PrimitiveTypeCode> UInt16TypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _uInt16TypeParser =
         String("ushort").ThenReturn(PrimitiveTypeCode.UInt16);
 
-    private static readonly Parser<char, PrimitiveTypeCode> Int32TypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _int32TypeParser =
         String("int").ThenReturn(PrimitiveTypeCode.Int32);
 
-    private static readonly Parser<char, PrimitiveTypeCode> UInt32TypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _uInt32TypeParser =
         String("uint").ThenReturn(PrimitiveTypeCode.UInt32);
 
-    private static readonly Parser<char, PrimitiveTypeCode> Int64TypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _int64TypeParser =
         String("long").ThenReturn(PrimitiveTypeCode.Int64);
 
-    private static readonly Parser<char, PrimitiveTypeCode> UInt64TypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _uInt64TypeParser =
         String("ulong").ThenReturn(PrimitiveTypeCode.UInt64);
 
-    private static readonly Parser<char, PrimitiveTypeCode> IntPtrTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _intPtrTypeParser =
         String("nint").ThenReturn(PrimitiveTypeCode.IntPtr);
 
-    private static readonly Parser<char, PrimitiveTypeCode> UIntPtrTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _uIntPtrTypeParser =
         String("nuint").ThenReturn(PrimitiveTypeCode.UIntPtr);
 
-    private static readonly Parser<char, PrimitiveTypeCode> SingleTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _singleTypeParser =
         String("float").ThenReturn(PrimitiveTypeCode.Single);
 
-    private static readonly Parser<char, PrimitiveTypeCode> DoubleTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _doubleTypeParser =
         String("double").ThenReturn(PrimitiveTypeCode.Double);
 
-    private static readonly Parser<char, PrimitiveTypeCode> StringTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _stringTypeParser =
         String("string").ThenReturn(PrimitiveTypeCode.String);
 
-    private static readonly Parser<char, PrimitiveTypeCode> ObjectTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _objectTypeParser =
         String("object").ThenReturn(PrimitiveTypeCode.Object);
 
-    private static readonly Parser<char, PrimitiveTypeCode> TypedReferenceTypeParser =
+    private static readonly Parser<char, PrimitiveTypeCode> _typedReferenceTypeParser =
         String("typedref").ThenReturn(PrimitiveTypeCode.TypedReference);
 
-    private static readonly Parser<char, MType> PrimitiveTypeParser =
+    private static readonly Parser<char, MType> _primitiveTypeParser =
         OneOf(
-                Try(VoidTypeParser),
-                Try(BooleanTypeParser),
-                Try(CharTypeParser),
-                Try(SByteTypeParser),
-                Try(ByteTypeParser),
-                Try(Int16TypeParser),
-                Try(UInt16TypeParser),
-                Try(Int32TypeParser),
-                Try(UInt32TypeParser),
-                Try(Int64TypeParser),
-                Try(UInt64TypeParser),
-                Try(IntPtrTypeParser),
-                Try(UIntPtrTypeParser),
-                Try(SingleTypeParser),
-                Try(DoubleTypeParser),
-                Try(StringTypeParser),
-                Try(ObjectTypeParser),
-                TypedReferenceTypeParser)
+                Try(_voidTypeParser),
+                Try(_booleanTypeParser),
+                Try(_charTypeParser),
+                Try(_sByteTypeParser),
+                Try(_byteTypeParser),
+                Try(_int16TypeParser),
+                Try(_uInt16TypeParser),
+                Try(_int32TypeParser),
+                Try(_uInt32TypeParser),
+                Try(_int64TypeParser),
+                Try(_uInt64TypeParser),
+                Try(_intPtrTypeParser),
+                Try(_uIntPtrTypeParser),
+                Try(_singleTypeParser),
+                Try(_doubleTypeParser),
+                Try(_stringTypeParser),
+                Try(_objectTypeParser),
+                _typedReferenceTypeParser)
             .Select(code => (MType)new MTypePrimitive(code)).Labelled("Primitive type");
 
-    private static readonly Parser<char, string> NamespacedIdentifier =
+    private static readonly Parser<char, string> _namespacedIdentifier =
         Token(c => char.IsLetterOrDigit(c) || c == '.' || c == '_' || c == '`')
             .AtLeastOnceString()
             .Labelled("valid identifier");
 
-    private static readonly Parser<char, IEnumerable<MType>> GenericParametersParser =
-        Rec(() => MaybeArrayTypeParser!)
+    private static readonly Parser<char, IEnumerable<MType>> _genericParametersParser =
+        Rec(() => _maybeArrayTypeParser!)
             .Between(SkipWhitespaces)
             .Separated(Char(','))
             .Between(Char('<'), Char('>'));
 
-    private static readonly Parser<char, MType> GenericMethodPlaceholderParser =
+    private static readonly Parser<char, MType> _genericMethodPlaceholderParser =
         String("!!")
             .Then(Digit.AtLeastOnceString())
             .Select(p => (MType)new MTypeGenericMethodPlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
 
-    private static readonly Parser<char, MType> GenericTypePlaceholderParser =
+    private static readonly Parser<char, MType> _genericTypePlaceholderParser =
         String("!")
             .Then(Digit.AtLeastOnceString())
             .Select(p => (MType)new MTypeGenericTypePlaceHolder(int.Parse(p, CultureInfo.InvariantCulture)));
 
-    private static readonly Parser<char, MType> GenericPlaceholderParser = Try(GenericTypePlaceholderParser)
-        .Or(Try(GenericMethodPlaceholderParser)).Labelled("Generic placeholder");
+    private static readonly Parser<char, MType> _genericPlaceholderParser = Try(_genericTypePlaceholderParser)
+        .Or(Try(_genericMethodPlaceholderParser)).Labelled("Generic placeholder");
 
-    private static readonly Parser<char, MTypeParsed> TypeNameParser =
-        Parser.Map(
-            (a, b) => b.Aggregate(new MTypeParsed(a), (parsed, s) => new MTypeParsed(s, parsed)),
-            NamespacedIdentifier,
-            Char('/').Then(NamespacedIdentifier).Many());
+    private static readonly Parser<char, MTypeParsed> _typeNameParser =
+        Map(
+            (a, b) => b.Aggregate(new MTypeParsed(a), (parsed, s) => new(s, parsed)),
+            _namespacedIdentifier,
+            Char('/').Then(_namespacedIdentifier).Many());
 
-    private static readonly Parser<char, MType> ConstructedObjectTypeParser =
-        Parser.Map((arg1, arg2) =>
+    private static readonly Parser<char, MType> _constructedObjectTypeParser =
+        Map((arg1, arg2) =>
             {
                 MType type = arg1;
                 if (arg2.HasValue)
@@ -132,25 +132,25 @@ public static class Parsers
 
                 return type;
             },
-            TypeNameParser,
-            GenericParametersParser.Optional());
+            _typeNameParser,
+            _genericParametersParser.Optional());
 
-    private static readonly Parser<char, MType> MaybeArrayTypeParser = Parser.Map(
-        (a, b) => b.Aggregate(a, (type, _) => new MTypeSZArray(type)),
-        Try(GenericPlaceholderParser).Or(Try(PrimitiveTypeParser)).Or(ConstructedObjectTypeParser),
+    private static readonly Parser<char, MType> _maybeArrayTypeParser = Map(
+        (a, b) => b.Aggregate(a, (type, _) => new MTypeSzArray(type)),
+        Try(_genericPlaceholderParser).Or(Try(_primitiveTypeParser)).Or(_constructedObjectTypeParser),
         String("[]").Many());
 
-    private static readonly Parser<char, MType> ByRefTypeParser =
+    private static readonly Parser<char, MType> _byRefTypeParser =
         String("ref")
             .Then(SkipWhitespaces)
-            .Then(MaybeArrayTypeParser)
+            .Then(_maybeArrayTypeParser)
             .Select(t => (MType)new MTypeByRef(t))
             .Labelled("ByRef type");
 
-    private static readonly Parser<char, MType> TypeParser = Try(ByRefTypeParser).Or(MaybeArrayTypeParser);
+    private static readonly Parser<char, MType> _typeParser = Try(_byRefTypeParser).Or(_maybeArrayTypeParser);
 
-    private static readonly Parser<char, ImmutableArray<MType>> MethodParamsParser =
-        TypeParser
+    private static readonly Parser<char, ImmutableArray<MType>> _methodParamsParser =
+        _typeParser
             .Between(SkipWhitespaces)
             .Separated(Char(','))
             .Between(Char('('), Char(')'))
@@ -160,15 +160,15 @@ public static class Parsers
         Try(Char(',').Many().Select(p => p.Count() + 1).Between(Char('<'), Char('>'))).Or(Return(0));
 
     internal static readonly Parser<char, WhitelistMethodDefine> MethodParser =
-        Parser.Map(
+        Map(
             (a, b, d, c) => new WhitelistMethodDefine(b, a, c.ToList(), d),
-            SkipWhitespaces.Then(TypeParser),
-            SkipWhitespaces.Then(NamespacedIdentifier),
+            SkipWhitespaces.Then(_typeParser),
+            SkipWhitespaces.Then(_namespacedIdentifier),
             MethodGenericParameterCountParser,
-            SkipWhitespaces.Then(MethodParamsParser));
+            SkipWhitespaces.Then(_methodParamsParser));
 
-    internal static readonly Parser<char, WhitelistFieldDefine> FieldParser = Parser.Map(
+    internal static readonly Parser<char, WhitelistFieldDefine> FieldParser = Map(
         (a, b) => new WhitelistFieldDefine(b, a),
-        MaybeArrayTypeParser.Between(SkipWhitespaces),
-        NamespacedIdentifier);
+        _maybeArrayTypeParser.Between(SkipWhitespaces),
+        _namespacedIdentifier);
 }

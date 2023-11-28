@@ -19,15 +19,15 @@ public class PipeHubBuildCommunication : IDisposable
 
     public PipeHubBuildCommunication()
     {
-        _serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+        _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
     }
 
     public async Task StartServerPipe()
     {
         await _serverPipe.WaitForConnectionAsync();
-        _reader = new StreamReader(_serverPipe);
-        _writer = new StreamWriter(_serverPipe);
+        _reader = new(_serverPipe);
+        _writer = new(_serverPipe);
 
         while (true)
         {
@@ -42,14 +42,14 @@ public class PipeHubBuildCommunication : IDisposable
                 {
                     Log.Error(e.ToString());
                     _serverPipe.Close();
-                    _serverPipe = new NamedPipeServerStream("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
+                    _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
                         1,
                         PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                     await _serverPipe.WaitForConnectionAsync();
                 }
 
-                _reader = new StreamReader(_serverPipe);
-                _writer = new StreamWriter(_serverPipe);
+                _reader = new(_serverPipe);
+                _writer = new(_serverPipe);
                 continue;
             }
 

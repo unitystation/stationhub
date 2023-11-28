@@ -1,7 +1,7 @@
 namespace UnitystationLauncher.Models.ContentScanning.ScanningTypes;
 
 // Normal single dimensional array with zero lower bound.
-internal sealed record MTypeSZArray(MType ElementType) : MType
+internal sealed record MTypeSzArray(MType ElementType) : MType
 {
     public override string ToString()
     {
@@ -15,6 +15,6 @@ internal sealed record MTypeSZArray(MType ElementType) : MType
 
     public override bool WhitelistEquals(MType other)
     {
-        return other is MTypeSZArray arr && ElementType.WhitelistEquals(arr.ElementType);
+        return other is MTypeSzArray arr && ElementType.WhitelistEquals(arr.ElementType);
     }
 }

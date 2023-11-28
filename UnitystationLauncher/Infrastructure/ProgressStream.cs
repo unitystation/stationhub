@@ -13,7 +13,7 @@ namespace UnitystationLauncher.Infrastructure
 
         public Stream Inner { get; set; }
         public IObservable<long> Progress => _progress;
-        private readonly Subject<long> _progress = new Subject<long>();
+        private readonly Subject<long> _progress = new();
         private long _position;
 
         public override bool CanRead => Inner.CanRead;
@@ -33,7 +33,7 @@ namespace UnitystationLauncher.Infrastructure
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            var r = Inner.Read(buffer, offset, count);
+            int r = Inner.Read(buffer, offset, count);
             _position += r;
             _progress.OnNext(_position);
             return r;

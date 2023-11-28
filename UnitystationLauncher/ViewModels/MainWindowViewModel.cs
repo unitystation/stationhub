@@ -1,13 +1,8 @@
 using System;
 using ReactiveUI;
 using System.Reactive.Linq;
-using Serilog;
 using System.Threading;
-using System.Reactive;
-using System.Reactive.Concurrency;
-using System.Threading.Tasks;
 using Avalonia.Media;
-using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {

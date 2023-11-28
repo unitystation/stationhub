@@ -2,8 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="100"
-             x:Class="UnitystationLauncher.Views.ServerView" FontSize="17">
+             x:Class="UnitystationLauncher.Views.ServerView" FontSize="17"
+             x:DataType="viewModels:ServerViewModel">
+    <Design.DataContext>
+        <viewModels:ServerViewModel/>
+    </Design.DataContext>
+    
     <DockPanel Margin="5" Background="{StaticResource PrimaryTransparent3}">
         <DockPanel.Styles>
             <Style Selector="TextBlock">
@@ -26,12 +32,20 @@
             
             <!-- Download Progress -->
             <StackPanel IsVisible="{Binding ShowDownloadProgress}" VerticalAlignment="Center">
-                <ProgressBar Value="{Binding Download.Progress}" MinWidth="0" MinHeight="0" Height="10"/>
+                <ProgressBar Value="{Binding Download.Progress,FallbackValue=0}" MinWidth="0" MinHeight="0" Height="10"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <TextBlock Text="{Binding DownloadedAmount}"/>
                     <TextBlock> / </TextBlock>
                     <TextBlock Text="{Binding DownloadSize}"/></StackPanel>
             </StackPanel>
+            
+            <!-- Scanning -->
+            <Button Content="Scanning..." Background="{StaticResource PrimaryTransparent4}"
+                    BorderThickness="0" Height="40" IsVisible="{Binding ShowScanningProgress}" />
+            
+            <!-- Download/Scan Failed -->
+            <Button Content="Failed" Background="#AA4444"
+                    BorderThickness="0" Height="40" IsVisible="{Binding ShowDownloadFailed}" />
         </Panel>
         <Grid ColumnDefinitions="*, auto, auto" RowDefinitions="*, *" VerticalAlignment="Center">
             <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Server.ServerName}" />

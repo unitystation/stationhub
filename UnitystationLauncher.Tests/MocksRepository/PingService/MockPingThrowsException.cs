@@ -6,7 +6,7 @@ namespace UnitystationLauncher.Tests.MocksRepository.PingService;
 
 public class MockPingThrowsException : IPingService
 {
-    public Task<string> GetPing(Server server)
+    public Task<string> GetPingAsync(Server server)
     {
         throw new();
     }

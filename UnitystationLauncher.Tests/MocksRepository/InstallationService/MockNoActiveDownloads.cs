@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Services.Interface;
@@ -22,7 +23,7 @@ public class MockNoActiveDownloads : IInstallationService
         return null;
     }
 
-    public (Download?, string) DownloadInstallation(Server server)
+    public Task<(Download?, string)> DownloadInstallationAsync(Server server)
     {
         throw new NotImplementedException();
     }

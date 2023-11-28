@@ -14,8 +14,8 @@ namespace UnitystationLauncher
 
         public IControl Build(object data)
         {
-            var viewName = data.GetType().FullName!.Replace("ViewModel", "View");
-            var type = Type.GetType(viewName);
+            string viewName = data.GetType().FullName!.Replace("ViewModel", "View");
+            Type? type = Type.GetType(viewName);
 
             if (type != null)
             {

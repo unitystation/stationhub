@@ -2,8 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="UnitystationLauncher.Views.NewsPanelView">
+             x:Class="UnitystationLauncher.Views.NewsPanelView"
+             x:DataType="viewModels:NewsPanelViewModel">
+    <Design.DataContext>
+        <viewModels:NewsPanelViewModel/>
+    </Design.DataContext>
     <Grid Margin="0 0 0 5">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.3*" />

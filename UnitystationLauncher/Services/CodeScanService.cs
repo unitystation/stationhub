@@ -5,6 +5,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Serilog;
+using UnitystationLauncher.Constants;
+using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
@@ -12,32 +14,26 @@ namespace UnitystationLauncher.Services;
 
 public class CodeScanService : ICodeScanService
 {
-    private readonly IAssemblyTypeCheckerService _IAssemblyChecker;
+    private readonly IAssemblyTypeCheckerService _assemblyTypeCheckerService;
     private readonly IEnvironmentService _environmentService;
-    private readonly ICodeScanConfigService _iGoodFileService;
+    private readonly ICodeScanConfigService _codeScanConfigService;
     private readonly IPreferencesService _preferencesService;
 
-    private const string Managed = "Managed";
-    private const string Plugins = "Plugins";
-    private const string Unitystation_Data = "Unitystation_Data";
 
-    public CodeScanService(IAssemblyTypeCheckerService assemblyChecker, IEnvironmentService environmentService, ICodeScanConfigService iGoodFileService,
-        IPreferencesService ipreferencesService)
+
+    public CodeScanService(IAssemblyTypeCheckerService assemblyTypeCheckerService, IEnvironmentService environmentService, ICodeScanConfigService codeScanConfigService,
+        IPreferencesService preferencesService)
     {
-        _IAssemblyChecker = assemblyChecker;
+        _assemblyTypeCheckerService = assemblyTypeCheckerService;
         _environmentService = environmentService;
-        _iGoodFileService = iGoodFileService;
-        _preferencesService = ipreferencesService;
+        _codeScanConfigService = codeScanConfigService;
+        _preferencesService = preferencesService;
     }
 
-
-
-
-
-    public async Task<bool> OnScan(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
+    public async Task<bool> OnScanAsync(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
     {
         // TODO: Enable extraction cancelling
-        DirectoryInfo root = new DirectoryInfo(_preferencesService.GetPreferences().InstallationPath);
+        DirectoryInfo root = new(_preferencesService.GetPreferences().InstallationPath);
 
         DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory");
         DirectoryInfo processingDirectory = root.CreateSubdirectory("UnsafeBuildProcessing");
@@ -60,8 +56,6 @@ public class CodeScanService : ICodeScanService
             {
                 DeleteFilesWithExtension(processingDirectory.ToString(), ".bundle", exceptionDirectory: Path.Combine(processingDirectory.ToString(), @"Unitystation.app/Contents/Resources/Data/StreamingAssets"));
             }
-
-
 
             DirectoryInfo? stagingManaged = null;
             if (_environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone)
@@ -88,22 +82,22 @@ public class CodeScanService : ICodeScanService
                     errors.Invoke("oh God NO Datapath Exiting!!!");
                     return false;
                 }
-                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, Managed));
+                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, FolderNames.Managed));
             }
             else
             {
                 //MAC
-                dataPath = new DirectoryInfo(Path.Combine(processingDirectory.ToString(), @"Unitystation.app/Contents/Resources/Data"));
-                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Unitystation.app/Contents/Resources/Data", Managed));
+                dataPath = new(Path.Combine(processingDirectory.ToString(), @"Unitystation.app/Contents/Resources/Data"));
+                stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(@"Unitystation.app/Contents/Resources/Data", FolderNames.Managed));
             }
 
 
 
-            DirectoryInfo dllDirectory = dataPath.CreateSubdirectory(Managed);
+            DirectoryInfo dllDirectory = dataPath.CreateSubdirectory(FolderNames.Managed);
 
             CopyFilesRecursively(stagingManaged.ToString(), dllDirectory.ToString());
 
-            (string goodFilePath, bool booly) = await _iGoodFileService.GetGoodFileVersion(goodFileVersion);
+            (string goodFilePath, bool booly) = await _codeScanConfigService.GetGoodFileVersionAsync(goodFileVersion);
 
             if (booly == false)
             {
@@ -112,10 +106,10 @@ public class CodeScanService : ICodeScanService
                 return false;
             }
 
-            DirectoryInfo goodFileCopy = new DirectoryInfo(GetManagedOnOS(goodFilePath));
+            DirectoryInfo goodFileCopy = new(GetManagedOnOS(goodFilePath));
 
             info.Invoke("Proceeding to scan folder");
-            if (ScanFolder(dllDirectory, goodFileCopy, info, errors) == false)
+            if (await ScanFolderAsync(dllDirectory, goodFileCopy, info, errors) == false)
             {
                 try
                 {
@@ -129,56 +123,29 @@ public class CodeScanService : ICodeScanService
                 return false;
             }
 
-
-
             CopyFilesRecursively(goodFilePath, processingDirectory.ToString());
-            if (dataPath.Name != Unitystation_Data && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
+            if (dataPath.Name != FolderNames.UnitystationData && _environmentService.GetCurrentEnvironment() != CurrentEnvironment.MacOsStandalone) //I know Cases and to file systems but F  
             {
-                string oldPath = Path.Combine(processingDirectory.ToString(), Unitystation_Data);
+                string oldPath = Path.Combine(processingDirectory.ToString(), FolderNames.UnitystationData);
                 CopyFilesRecursively(oldPath, dataPath.ToString());
                 Directory.Delete(oldPath, true);
             }
 
-
             switch (_environmentService.GetCurrentEnvironment())
             {
                 case CurrentEnvironment.WindowsStandalone:
-                    FileInfo? exeRename = processingDirectory.GetFiles()
-                        .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
-
-
-                    if (exeRename == null || exeRename.Directory == null)
-                    {
-                        errors.Invoke("no Executable found ");
-                        DeleteContentsOfDirectory(processingDirectory);
-                        DeleteContentsOfDirectory(stagingDirectory);
-                        return false;
-                    }
-                    info.Invoke($"Found exeRename {exeRename}");
-                    exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
+                    LocateWindowsExecutable(processingDirectory, stagingDirectory, dataPath, info, errors);
                     break;
                 case CurrentEnvironment.LinuxFlatpak:
                 case CurrentEnvironment.LinuxStandalone:
-                    FileInfo? ExecutableRename = processingDirectory.GetFiles()
-                        .FirstOrDefault(x => x.Extension == "");
-
-                    if (ExecutableRename == null || ExecutableRename.Directory == null)
-                    {
-                        errors.Invoke("no Executable found ");
-                        DeleteContentsOfDirectory(processingDirectory);
-                        DeleteContentsOfDirectory(stagingDirectory);
-                        return false;
-                    }
-                    info.Invoke($"Found ExecutableRename {ExecutableRename}");
-                    ExecutableRename.MoveTo(Path.Combine(ExecutableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ""));
+                    LocateLinuxExecutable(processingDirectory, stagingDirectory, dataPath, info, errors);
                     break;
             }
 
-
-            DirectoryInfo targetDirectoryinfo = new DirectoryInfo(targetDirectory);
-            if (targetDirectoryinfo.Exists)
+            DirectoryInfo targetDirectoryInfo = new(targetDirectory);
+            if (targetDirectoryInfo.Exists)
             {
-                DeleteContentsOfDirectory(targetDirectoryinfo);
+                DeleteContentsOfDirectory(targetDirectoryInfo);
             }
 
             CopyFilesRecursively(processingDirectory.ToString(), targetDirectory.ToString());
@@ -196,26 +163,61 @@ public class CodeScanService : ICodeScanService
         return true;
     }
 
-    public string GetManagedOnOS(string GoodFiles)
+    private static void LocateWindowsExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<string> info, Action<string> errors)
     {
-        CurrentEnvironment OS = _environmentService.GetCurrentEnvironment();
-        switch (OS)
+        FileInfo? exeRename = processingDirectory.GetFiles()
+            .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
+
+
+        if (exeRename?.Directory == null)
+        {
+            errors.Invoke("no Executable found ");
+            DeleteContentsOfDirectory(processingDirectory);
+            DeleteContentsOfDirectory(stagingDirectory);
+            throw new CodeScanningException("No Windows executable found");
+        }
+
+        info.Invoke($"Found exeRename {exeRename}");
+        exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
+    }
+
+    private static void LocateLinuxExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<string> info, Action<string> errors)
+    {
+        FileInfo? executableRename = processingDirectory.GetFiles()
+            .FirstOrDefault(x => x.Extension == "");
+
+        if (executableRename?.Directory == null)
+        {
+            errors.Invoke("no Executable found ");
+            DeleteContentsOfDirectory(processingDirectory);
+            DeleteContentsOfDirectory(stagingDirectory);
+            throw new CodeScanningException("No Linux executable found");
+        }
+
+        info.Invoke($"Found ExecutableRename {executableRename}");
+        executableRename.MoveTo(Path.Combine(executableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ""));
+    }
+
+    private string GetManagedOnOS(string goodFiles)
+    {
+        CurrentEnvironment os = _environmentService.GetCurrentEnvironment();
+        switch (os)
         {
             case CurrentEnvironment.WindowsStandalone:
-                return Path.Combine(GoodFiles, Unitystation_Data, Managed);
+                return Path.Combine(goodFiles, FolderNames.UnitystationData, FolderNames.Managed);
             case CurrentEnvironment.LinuxFlatpak:
             case CurrentEnvironment.LinuxStandalone:
-                return Path.Combine(GoodFiles, Unitystation_Data, Managed);
+                return Path.Combine(goodFiles, FolderNames.UnitystationData, FolderNames.Managed);
             case CurrentEnvironment.MacOsStandalone:
-                return Path.Combine(GoodFiles, @"Unitystation.app/Contents/Resources/Data", Managed);
+                return Path.Combine(goodFiles, @"Unitystation.app/Contents/Resources/Data", FolderNames.Managed);
             default:
-                throw new Exception($"Unable to determine OS Version {OS}");
+                throw new($"Unable to determine OS Version {os}");
         }
     }
 
 
 
-    public bool ScanFolder(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
+    private async Task<bool> ScanFolderAsync(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
     {
         List<string> goodFiles = saveFiles.GetFiles().Select(x => x.Name).ToList();
 
@@ -226,7 +228,7 @@ public class CodeScanService : ICodeScanService
         FileInfo[] files = @unsafe.GetFiles();
 
 
-        List<string> multiAssemblyReference = new List<string>();
+        List<string> multiAssemblyReference = new();
 
         foreach (FileInfo file in files)
         {
@@ -245,7 +247,7 @@ public class CodeScanService : ICodeScanService
             {
                 List<string> listy = multiAssemblyReference.ToList();
                 listy.Remove(Path.GetFileNameWithoutExtension(file.Name));
-                if (_IAssemblyChecker.CheckAssembly(file, @unsafe, listy, info, errors) == false)
+                if (await _assemblyTypeCheckerService.CheckAssemblyTypesAsync(file, @unsafe, listy, info, errors) == false)
                 {
                     errors.Invoke($"{file.Name} Failed scanning Cancelling");
                     return false;
@@ -284,12 +286,12 @@ public class CodeScanService : ICodeScanService
 
     static void DeleteFilesWithExtension(string directoryPath, string fileExtension, bool recursive = true, string? exceptionDirectory = null)
     {
-        DirectoryInfo directory = new DirectoryInfo(directoryPath);
+        DirectoryInfo directory = new(directoryPath);
 
         // Check if the directory exists
         if (!directory.Exists)
         {
-            Console.WriteLine("Directory not found: " + directoryPath);
+            Log.Error("Directory not found: " + directoryPath);
             return;
         }
 
@@ -306,7 +308,7 @@ public class CodeScanService : ICodeScanService
             }
             // Delete the file
             file.Delete();
-            Console.WriteLine("Deleted file: " + file.FullName);
+            Log.Debug("Deleted file: " + file.FullName);
         }
 
         if (recursive)
@@ -327,7 +329,7 @@ public class CodeScanService : ICodeScanService
             // Create the destination directory if it doesn't exist
             Directory.CreateDirectory(destinationDirectory);
 
-            DirectoryInfo source = new DirectoryInfo(sourceDirectory);
+            DirectoryInfo source = new(sourceDirectory);
 
             // Get the files from the source directory
             FileInfo[] files = source.GetFiles();

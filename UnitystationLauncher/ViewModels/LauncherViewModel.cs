@@ -61,7 +61,7 @@ namespace UnitystationLauncher.ViewModels
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
 
-            _panels = LauncherViewModel.GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
+            _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
 

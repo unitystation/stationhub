@@ -31,7 +31,7 @@ public class InstallationService : IInstallationService
     private readonly IServerService _serverService;
 
     private readonly ICodeScanService _codeScanService;
-    private readonly ICodeScanConfigService _iGoodFileService;
+    private readonly ICodeScanConfigService _codeScanConfigService;
 
     private readonly List<Download> _downloads;
     private List<Installation> _installations = new();
@@ -39,14 +39,14 @@ public class InstallationService : IInstallationService
 
     public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
-        ICodeScanConfigService iGoodFileService)
+        ICodeScanConfigService codeScanConfigService)
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
         _environmentService = environmentService;
         _serverService = serverService;
         _codeScanService = codeScanService;
-        _iGoodFileService = iGoodFileService;
+        _codeScanConfigService = codeScanConfigService;
 
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
@@ -78,7 +78,7 @@ public class InstallationService : IInstallationService
             && d.BuildVersion == buildVersion);
     }
 
-    public async Task<(Download?, string)> DownloadInstallation(Server server)
+    public async Task<(Download?, string)> DownloadInstallationAsync(Server server)
     {
         string? downloadUrl = server.GetDownloadUrl(_environmentService);
         if (string.IsNullOrWhiteSpace(downloadUrl))
@@ -90,7 +90,7 @@ public class InstallationService : IInstallationService
 
         server.ServerGoodFileVersion = "1.0.0"; //TODO
 
-        bool result = await _iGoodFileService.ValidGoodFilesVersion(server.ServerGoodFileVersion);
+        bool result = await _codeScanConfigService.ValidGoodFilesVersionAsync(server.ServerGoodFileVersion);
 
         if (result == false)
         {
@@ -110,11 +110,11 @@ public class InstallationService : IInstallationService
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         // should be something like {basePath}/{forkName}/{version}
-        string installationPath = Path.Combine(installationBasePath, _iGoodFileService.SanitiseStringPath(server.ForkName), _iGoodFileService.SanitiseStringPath(server.ServerGoodFileVersion), server.BuildVersion.ToString());
+        string installationPath = Path.Combine(installationBasePath, server.ForkName.SanitiseStringPath(), server.ServerGoodFileVersion.SanitiseStringPath(), server.BuildVersion.ToString());
 
         download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.ServerGoodFileVersion);
 
-        (bool canStartDownload, string cantDownloadReason) = InstallationService.CanStartDownload(download);
+        (bool canStartDownload, string cantDownloadReason) = CanStartDownload(download);
 
         if (!canStartDownload)
         {
@@ -128,14 +128,9 @@ public class InstallationService : IInstallationService
         }
 
         _downloads.Add(download);
-        download.Active = true;
-
         RxApp.MainThreadScheduler.ScheduleAsync((_, _) => StartDownloadAsync(download));
         return (download, string.Empty);
     }
-
-
-
 
     public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
@@ -157,7 +152,7 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        string arguments = InstallationService.GetArguments(server, port);
+        string arguments = GetArguments(server, port);
         ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
@@ -269,7 +264,7 @@ public class InstallationService : IInstallationService
                     continue;
                 }
 
-                InstallationService.CreateParentDirectory(newPath);
+                CreateParentDirectory(newPath);
 
                 if (Directory.Exists(newPath))
                 {
@@ -419,14 +414,16 @@ public class InstallationService : IInstallationService
         return arguments;
     }
 
-    public static List<string> InfoList = new List<string>();
-    public static List<string> ErrorList = new List<string>();
+
     private async Task StartDownloadAsync(Download download)
     {
         Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", download.InstallPath, download.DownloadUrl);
         try
         {
             Log.Information("Download started...");
+            download.Active = true;
+            download.DownloadState = DownloadState.InProgress;
+
             HttpResponseMessage request = await _httpClient.GetAsync(download.DownloadUrl, HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             Log.Information("Download connection established");
@@ -434,75 +431,87 @@ public class InstallationService : IInstallationService
             download.Size = request.Content.Headers.ContentLength ??
                             throw new ContentLengthNullException(download.DownloadUrl);
 
-            using IDisposable logProgressDisposable = InstallationService.LogProgress(progressStream, download);
+            using IDisposable logProgressDisposable = LogProgress(progressStream, download);
 
             using IDisposable progressDisposable = progressStream.Progress
                 .Subscribe(p => { download.Downloaded = p; });
 
-            await Task.Run(() =>
-            {
-                Log.Information("Extracting...");
-                try
-                {
-                    ZipArchive archive = new(progressStream);
-
-
-                    //TODO UI
-                    Action<string> info = new Action<string>((string log) =>
-                    {
-                        Console.WriteLine($"info {log}");
-                        InfoList.Add(log);
-                    });
-                    Action<string> errors = new Action<string>((string log) =>
-                    {
-                        Console.WriteLine($"error {log}");
-                        ErrorList.Add(log);
-                    });
-                    Task<bool> scanTask = _codeScanService.OnScan(archive, download.InstallPath, download.GoodFileVersion,
-                        info, errors);
-                    scanTask.Wait();
-                    if (scanTask.Result)
-                    {
-                        Log.Information("Download completed");
-
-                        _installations.Add(new()
-                        {
-                            BuildVersion = download.BuildVersion,
-                            ForkName = download.ForkName,
-                            InstallationId = Guid.NewGuid(),
-                            InstallationPath = download.InstallPath,
-                            LastPlayedDate = DateTime.Now
-                        });
-
-                        WriteInstallations();
-                        EnsureExecutableFlagOnUnixSystems(download.InstallPath);
-                    }
-                    else
-                    {
-                        string jsonString = System.Text.Json.JsonSerializer.Serialize(ErrorList);
-
-                        string filePath = Path.Combine(_preferencesService.GetPreferences().InstallationPath, "CodeScanErrors.json");
-
-                        File.WriteAllText(filePath, jsonString);
-
-                        //TODO UI
-                        Log.Information($"Scan Failed saved to filePath {filePath}");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.Information($"Extracting stopped with {e.ToString()}");
-                }
-            });
+            // ExtractAndScan() must be run in a separate thread, but we want this one to wait for that one to finish
+            // Without this download progress will not work properly
+            await Task.Run(() => ExtractAndScan(download, progressStream));
         }
         catch (Exception e)
         {
             Log.Error(e, "Failed to download Url '{Url}'", download.DownloadUrl);
+            download.DownloadState = DownloadState.Failed;
         }
         finally
         {
             download.Active = false;
             WriteInstallations();
+        }
+    }
+
+    private async Task ExtractAndScan(Download download, ProgressStream progressStream)
+    {
+        // TODO: Display infoList and errorList in the UI.
+        List<string> infoList = new();
+        List<string> errorList = new();
+        Log.Information("Extracting...");
+        try
+        {
+            ZipArchive archive = new(progressStream);
+
+            //TODO UI
+            void Info(string log)
+            {
+                Log.Information(log);
+                infoList.Add(log);
+            }
+
+            void Errors(string log)
+            {
+                Log.Error(log);
+                errorList.Add(log);
+            }
+
+            download.DownloadState = DownloadState.Scanning;
+            bool scanTask = await _codeScanService.OnScanAsync(archive, download.InstallPath, download.GoodFileVersion,
+                Info, Errors);
+
+            if (scanTask)
+            {
+                Log.Information("Download completed");
+
+                _installations.Add(new()
+                {
+                    BuildVersion = download.BuildVersion,
+                    ForkName = download.ForkName,
+                    InstallationId = Guid.NewGuid(),
+                    InstallationPath = download.InstallPath,
+                    LastPlayedDate = DateTime.Now
+                });
+
+                WriteInstallations();
+                EnsureExecutableFlagOnUnixSystems(download.InstallPath);
+                download.DownloadState = DownloadState.Installed;
+            }
+            else
+            {
+                string jsonString = JsonSerializer.Serialize(errorList);
+                string filePath = Path.Combine(_preferencesService.GetPreferences().InstallationPath, "CodeScanErrors.json");
+
+                await File.WriteAllTextAsync(filePath, jsonString);
+
+                //TODO UI
+                Log.Error($"Scan failed, saved log to file: {filePath}");
+                download.DownloadState = DownloadState.Failed;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Information($"Extracting stopped with {e}");
+            download.DownloadState = DownloadState.Failed;
         }
     }
 

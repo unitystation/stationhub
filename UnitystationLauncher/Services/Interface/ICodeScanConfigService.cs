@@ -5,11 +5,9 @@ namespace UnitystationLauncher.Services.Interface;
 
 public interface ICodeScanConfigService
 {
-    public Task<(string, bool)> GetGoodFileVersion(string version);
+    public Task<(string, bool)> GetGoodFileVersionAsync(string version);
 
-    public Task<bool> ValidGoodFilesVersion(string goodFileVersion);
-
-    public string SanitiseStringPath(string inString);
+    public Task<bool> ValidGoodFilesVersionAsync(string goodFileVersion);
 
     public Task<SandboxConfig> LoadConfigAsync();
 }

@@ -3,8 +3,14 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:asyncImageLoader="clr-namespace:AsyncImageLoader;assembly=AsyncImageLoader.Avalonia"
+             xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="UnitystationLauncher.Views.BlogPostView">
+             x:Class="UnitystationLauncher.Views.BlogPostView"
+             x:DataType="viewModels:BlogPostViewModel">
+    <Design.DataContext>
+        <viewModels:BlogPostViewModel/>
+    </Design.DataContext>
+    
     <Button Command="{Binding OpenLink}" Background="{StaticResource Primary3}" PointerEnter="InputElement_OnPointerEnter" PointerLeave="InputElement_OnPointerLeave">
         <Panel>
             <Image asyncImageLoader:ImageLoader.Source="{Binding PostImage}" Stretch="UniformToFill" Opacity="0.459" />

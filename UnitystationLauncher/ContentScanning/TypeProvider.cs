@@ -1,7 +1,7 @@
-
 using System;
 using System.Collections.Immutable;
 using System.Reflection.Metadata;
+using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ContentScanning;
 using UnitystationLauncher.Models.ContentScanning.ScanningTypes;
 
@@ -11,7 +11,7 @@ internal sealed class TypeProvider : ISignatureTypeProvider<MType, int>
 {
     public MType GetSZArrayType(MType elementType)
     {
-        return new MTypeSZArray(elementType);
+        return new MTypeSzArray(elementType);
     }
 
     public MType GetArrayType(MType elementType, ArrayShape shape)
@@ -41,12 +41,12 @@ internal sealed class TypeProvider : ISignatureTypeProvider<MType, int>
 
     public MType GetTypeFromDefinition(MetadataReader reader, TypeDefinitionHandle handle, byte rawTypeKind)
     {
-        return AssemblyTypeCheckerHelpers.GetTypeFromDefinition(reader, handle);
+        return reader.GetTypeFromDefinition(handle);
     }
 
     public MType GetTypeFromReference(MetadataReader inReader, TypeReferenceHandle inHandle, byte inRawTypeKind)
     {
-        return AssemblyTypeCheckerHelpers.ParseTypeReference(inReader, inHandle);
+        return inReader.ParseTypeReference(inHandle);
     }
 
     public MType GetFunctionPointerType(MethodSignature<MType> signature)

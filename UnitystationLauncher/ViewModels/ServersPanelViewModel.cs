@@ -117,7 +117,7 @@ public class ServersPanelViewModel : PanelBase
 
     private async Task DownloadServer(Server server)
     {
-        (Download? download, string downloadFailReason) = await _installationService.DownloadInstallation(server);
+        (Download? download, string downloadFailReason) = await _installationService.DownloadInstallationAsync(server);
 
         if (download == null)
         {

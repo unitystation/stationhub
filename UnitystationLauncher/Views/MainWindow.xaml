@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
         ExtendClientAreaChromeHints="NoChrome"
         ExtendClientAreaToDecorationsHint="True"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="555"
@@ -12,105 +13,110 @@
         WindowStartupLocation="CenterScreen"
         Width="800"
         Height="555"
-        Background="#19212c">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30.5" />
-                <RowDefinition />
-            </Grid.RowDefinitions>
-            <DockPanel Background="#05131e" x:Name="TitleBar" Grid.Row="0">
-                <Border BorderThickness="0.4" BorderBrush="#ffffff">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.8*" />
-                            <ColumnDefinition Width="0.2*" />
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"
-                                    Orientation="Horizontal">
-                            <Image Source="/Assets/Ian64.png" Width="26" Height="26" Stretch="UniformToFill" />
-                            <TextBlock Name="TitleName" FontFamily="InterBold" FontWeight="Bold" TextAlignment="Center"
-                                       VerticalAlignment="Center" FontSize="19">
-                                STATION HUB
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                            <Button Width="40" Name="MinimizeButton" ToolTip.Tip="Minimize">
-                                <Button.Styles>
-                                    <Style Selector="Button">
-                                        <Setter Property="BorderThickness" Value="0" />
-                                    </Style>
-                                    <Style
-                                        Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                        <Setter Property="Background" Value="#44AAAAAA" />
-                                    </Style>
-                                    <Style
-                                        Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-                                        <Setter Property="Background" Value="Transparent" />
-                                    </Style>
-                                </Button.Styles>
-                                <Path Margin="10,0,10,0"
-                                      Stretch="Uniform"
-                                      Fill="White"
-                                      Data="M2048 1229v-205h-2048v205h2048z" />
-                            </Button>
-                            <Button Width="40" Name="MaximizeButton">
-                                <ToolTip.Tip>
-                                    <ToolTip Content="{Binding MaximizeToolTip}" />
-                                </ToolTip.Tip>
-                                <Button.Styles>
-                                    <Style Selector="Button">
-                                        <Setter Property="BorderThickness" Value="0" />
-                                    </Style>
-                                    <Style
-                                        Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                        <Setter Property="Background" Value="#44AAAAAA" />
-                                    </Style>
-                                    <Style
-                                        Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-                                        <Setter Property="Background" Value="Transparent" />
-                                    </Style>
-                                </Button.Styles>
-                                <Path Margin="10,0,10,0"
-                                      Stretch="Uniform"
-                                      Fill="#dedede"
-                                      Data="{Binding MaximizeIcon}" />
-                            </Button>
-                            <Button Width="40" Name="CloseButton" ToolTip.Tip="Close">
-                                <Button.Styles>
-                                    <Style Selector="Button">
-                                        <Setter Property="BorderThickness" Value="0" />
-                                    </Style>
-                                    <Style
-                                        Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-                                        <Setter Property="Background" Value="#99810a0f" />
-                                    </Style>
-                                    <Style
-                                        Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
-                                        <Setter Property="Background" Value="Transparent" />
-                                    </Style>
-                                    <Style Selector="Button:pointerover > Path">
-                                        <Setter Property="Fill" Value="White" />
-                                    </Style>
-                                    <Style Selector="Button:not(:pointerover) > Path">
-                                        <Setter Property="Fill"
-                                                Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                                    </Style>
-                                </Button.Styles>
-                                <Path Margin="10,0,10,0"
-                                      Stretch="Uniform"
-                                      Fill="#dedede"
-                                      Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z" />
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </DockPanel>
-            <Border Name="ContentControl" BorderThickness="0.4 0 0.4 0.4" Margin="0 0.4 0 0" BorderBrush="#ffffff"
-                    Grid.Row="1">
-                <Border.Background>
-                    <ImageBrush Source="/Assets/bg.jpg" Stretch="UniformToFill" />
-                </Border.Background>
-                <ContentControl Margin="0.6 0 0.6 0" Content="{Binding Content}" />
+        Background="#19212c"
+        x:DataType="viewModels:MainWindowViewModel">
+    
+    <Design.DataContext>
+        <viewModels:MainWindowViewModel/>
+    </Design.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30.5" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <DockPanel Background="#05131e" x:Name="TitleBar" Grid.Row="0">
+            <Border BorderThickness="0.4" BorderBrush="#ffffff">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.8*" />
+                        <ColumnDefinition Width="0.2*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                        <Image Source="/Assets/Ian64.png" Width="26" Height="26" Stretch="UniformToFill" />
+                        <TextBlock Name="TitleName" FontFamily="InterBold" FontWeight="Bold" TextAlignment="Center"
+                                   VerticalAlignment="Center" FontSize="19">
+                            STATION HUB
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Width="40" Name="MinimizeButton" ToolTip.Tip="Minimize">
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="BorderThickness" Value="0" />
+                                </Style>
+                                <Style
+                                    Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#44AAAAAA" />
+                                </Style>
+                                <Style
+                                    Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Style>
+                            </Button.Styles>
+                            <Path Margin="10,0,10,0"
+                                  Stretch="Uniform"
+                                  Fill="White"
+                                  Data="M2048 1229v-205h-2048v205h2048z" />
+                        </Button>
+                        <Button Width="40" Name="MaximizeButton">
+                            <ToolTip.Tip>
+                                <ToolTip Content="{Binding MaximizeToolTip}" />
+                            </ToolTip.Tip>
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="BorderThickness" Value="0" />
+                                </Style>
+                                <Style
+                                    Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#44AAAAAA" />
+                                </Style>
+                                <Style
+                                    Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Style>
+                            </Button.Styles>
+                            <Path Margin="10,0,10,0"
+                                  Stretch="Uniform"
+                                  Fill="#dedede"
+                                  Data="{Binding MaximizeIcon}" />
+                        </Button>
+                        <Button Width="40" Name="CloseButton" ToolTip.Tip="Close">
+                            <Button.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="BorderThickness" Value="0" />
+                                </Style>
+                                <Style
+                                    Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="#99810a0f" />
+                                </Style>
+                                <Style
+                                    Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Style>
+                                <Style Selector="Button:pointerover > Path">
+                                    <Setter Property="Fill" Value="White" />
+                                </Style>
+                                <Style Selector="Button:not(:pointerover) > Path">
+                                    <Setter Property="Fill"
+                                            Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                                </Style>
+                            </Button.Styles>
+                            <Path Margin="10,0,10,0"
+                                  Stretch="Uniform"
+                                  Fill="#dedede"
+                                  Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
             </Border>
-        </Grid>
+        </DockPanel>
+        <Border Name="ContentControl" BorderThickness="0.4 0 0.4 0.4" Margin="0 0.4 0 0" BorderBrush="#ffffff"
+                Grid.Row="1">
+            <Border.Background>
+                <ImageBrush Source="/Assets/bg.jpg" Stretch="UniformToFill" />
+            </Border.Background>
+            <ContentControl Margin="0.6 0 0.6 0" Content="{Binding Content}" />
+        </Border>
+    </Grid>
 </Window>

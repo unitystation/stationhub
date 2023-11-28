@@ -1,5 +1,6 @@
 ﻿using System;
 using ReactiveUI;
+using UnitystationLauncher.Models.Enums;
 
 namespace UnitystationLauncher.Models
 {
@@ -43,13 +44,24 @@ namespace UnitystationLauncher.Models
 
         public int Progress => (int)(Downloaded * 100 / Math.Max(1, Size));
 
-        public Download(string url, string installationPath, string forkName, int buildVersion, string inGoodFileVersion)
+        private DownloadState _downloadState;
+        public DownloadState DownloadState
+        {
+            get => _downloadState;
+            set => this.RaiseAndSetIfChanged(ref _downloadState, value);
+        }
+
+        public Download(string url, string installationPath, string forkName, int buildVersion, string inGoodFileVersion, DownloadState? downloadState = null)
         {
             DownloadUrl = url;
             InstallPath = installationPath;
             ForkName = forkName;
             BuildVersion = buildVersion;
             GoodFileVersion = inGoodFileVersion;
+            if (downloadState != null)
+            {
+                DownloadState = downloadState.Value;
+            }
         }
     }
 }

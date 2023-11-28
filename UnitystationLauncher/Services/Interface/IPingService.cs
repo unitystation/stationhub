@@ -5,5 +5,5 @@ namespace UnitystationLauncher.Services.Interface;
 
 public interface IPingService
 {
-    public Task<string> GetPing(Server server);
+    public Task<string> GetPingAsync(Server server);
 }
