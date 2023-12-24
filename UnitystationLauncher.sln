@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitystationLauncher", "UnitystationLauncher\UnitystationLauncher.csproj", "{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitystationLauncher", "UnitystationLauncher\UnitystationLauncher.csproj", "{B7F5B4B3-BD06-46DF-AD15-634B00004CDB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitystationLauncher.Tests", "UnitystationLauncher.Tests\UnitystationLauncher.Tests.csproj", "{FC971561-155A-4B54-9977-203EA22663CB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitystationLauncher.Tests", "UnitystationLauncher.Tests\UnitystationLauncher.Tests.csproj", "{FC971561-155A-4B54-9977-203EA22663CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
