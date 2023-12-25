@@ -32,7 +32,6 @@ public static class Program
             {
                 ShowInDock = true
             })
-            .With(new MacOSPlatformOptions { ShowInDock = true })
             // Linux Specific
             .With(new X11PlatformOptions
             {
