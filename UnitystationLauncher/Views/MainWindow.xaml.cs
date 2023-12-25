@@ -1,114 +1,112 @@
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using System.Runtime.InteropServices;
 using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
-namespace UnitystationLauncher.Views
+namespace UnitystationLauncher.Views;
+
+public class MainWindow : Window
 {
-    public class MainWindow : Window
+    /// <summary>
+    /// This is used for moving the window when the titlebar is grabbed, also for disabling on non-windows OSs.
+    /// </summary>
+    private readonly DockPanel _titleBar;
+    /// <summary>
+    /// If user don't use Windows OS then Grid.Row update and Grid.RowSpan
+    /// </summary>
+    private readonly Border _contentControl;
+
+    public MainWindow()
     {
-        /// <summary>
-        /// This is used for moving the window when the titlebar is grabbed, also for disabling on non-windows OSs.
-        /// </summary>
-        private readonly DockPanel _titleBar;
-        /// <summary>
-        /// If user don't use Windows OS then Grid.Row update and Grid.RowSpan
-        /// </summary>
-        private readonly Border _contentControl;
+        InitializeComponent();
 
-        public MainWindow()
+        // TODO: Proper exception for these
+        _titleBar = this.FindControl<DockPanel>("TitleBar") ?? throw new Exception();
+        _contentControl = this.FindControl<Border>("ContentControl") ?? throw new Exception();
+
+        SetupTitleBar();
+    }
+    
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+    
+
+    private void SetupTitleBar()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
         {
+            ExtendClientAreaToDecorationsHint = false;
+            ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.SystemChrome;
 
-            InitializeComponent();
-#if DEBUG
-            this.AttachDevTools();
-#endif
+            Width = 800;
+            Height = 555;
 
-            _titleBar = this.FindControl<DockPanel>("TitleBar");
-            _contentControl = this.FindControl<Border>("ContentControl");
-
-            SetupTitleBar();
+            _titleBar.IsVisible = false;
+            Grid.SetRow(_contentControl, 0);
+            Grid.SetRowSpan(_contentControl, 2);
+            _contentControl.BorderThickness = new();
         }
-
-        private void InitializeComponent()
+        else
         {
-            AvaloniaXamlLoader.Load(this);
+            // TODO: Proper exception for these
+            Button minimizeButton = this.FindControl<Button>("MinimizeButton") ?? throw new Exception();
+            Button maximizeButton = this.FindControl<Button>("MaximizeButton") ?? throw new Exception();
+            Button closeButton = this.FindControl<Button>("CloseButton") ?? throw new Exception();
+
+            minimizeButton.Click += MinimizeWindow;
+            maximizeButton.Click += ToggleMaximizeWindowState;
+            closeButton.Click += CloseWindow;
         }
+    }
 
-        private void SetupTitleBar()
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        if (_titleBar.IsPointerOver)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
-
-                ExtendClientAreaToDecorationsHint = false;
-                ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.SystemChrome;
-
-                Width = 800;
-                Height = 555;
-
-                _titleBar.IsVisible = false;
-                Grid.SetRow(_contentControl, 0);
-                Grid.SetRowSpan(_contentControl, 2);
-                _contentControl.BorderThickness = new();
-            }
-            else
-            {
-                Button minimizeButton = this.FindControl<Button>("MinimizeButton");
-                Button maximizeButton = this.FindControl<Button>("MaximizeButton");
-                Button closeButton = this.FindControl<Button>("CloseButton");
-
-                minimizeButton.Click += MinimizeWindow;
-                maximizeButton.Click += ToggleMaximizeWindowState;
-                closeButton.Click += CloseWindow;
+                BeginMoveDrag(e);
             }
         }
+        base.OnPointerPressed(e);
+    }
 
-        protected override void OnPointerPressed(PointerPressedEventArgs e)
+    private void MinimizeWindow(object? sender, RoutedEventArgs eventArgs)
+    {
+        WindowState = WindowState.Minimized;
+    }
+
+    private void ToggleMaximizeWindowState(object? sender, RoutedEventArgs eventArgs)
+    {
+        if (WindowState == WindowState.Maximized)
         {
-            if (_titleBar.IsPointerOver)
-            {
-                if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-                {
-                    BeginMoveDrag(e);
-                }
-            }
-            base.OnPointerPressed(e);
+            WindowState = WindowState.Normal;
+            _contentControl.BorderThickness = new(0.4, 0, 0.4, 0.4);
         }
-
-        private void MinimizeWindow(object? sender, RoutedEventArgs eventArgs)
+        else if (WindowState == WindowState.Normal)
         {
-            WindowState = WindowState.Minimized;
+            WindowState = WindowState.Maximized;
+            _contentControl.BorderThickness = new();
         }
+    }
 
-        private void ToggleMaximizeWindowState(object? sender, RoutedEventArgs eventArgs)
+    private void CloseWindow(object? sender, RoutedEventArgs eventArgs)
+    {
+        Close();
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+
+        if (change.Property == WindowStateProperty && change.NewValue is WindowState windowState)
         {
-            if (WindowState == WindowState.Maximized)
-            {
-                WindowState = WindowState.Normal;
-                _contentControl.BorderThickness = new(0.4, 0, 0.4, 0.4);
-            }
-            else if (WindowState == WindowState.Normal)
-            {
-                WindowState = WindowState.Maximized;
-                _contentControl.BorderThickness = new();
-            }
-        }
-
-        private void CloseWindow(object? sender, RoutedEventArgs eventArgs)
-        {
-            Close();
-        }
-
-        protected override void OnPropertyChanged<T>(AvaloniaPropertyChangedEventArgs<T> change)
-        {
-            base.OnPropertyChanged(change);
-
-            if (change.Property == WindowStateProperty)
-            {
-                PseudoClasses.Set(":maximised", change.NewValue.HasValue && change.NewValue.GetValueOrDefault<WindowState>() == WindowState.Maximized);
-            }
+            PseudoClasses.Set(":maximised", windowState == WindowState.Maximized);
         }
     }
 }

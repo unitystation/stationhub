@@ -11,7 +11,7 @@
         <viewModels:BlogPostViewModel/>
     </Design.DataContext>
     
-    <Button Command="{Binding OpenLink}" Background="{StaticResource Primary3}" PointerEnter="InputElement_OnPointerEnter" PointerLeave="InputElement_OnPointerLeave">
+    <Button Command="{Binding OpenLink}" Background="{StaticResource Primary3}" PointerEntered="InputElement_OnPointerEnter" PointerExited="InputElement_OnPointerLeave" IsEnabled="True">
         <Panel>
             <Image asyncImageLoader:ImageLoader.Source="{Binding PostImage}" Stretch="UniformToFill" Opacity="0.459" />
             <Panel Name="TitlePanel">

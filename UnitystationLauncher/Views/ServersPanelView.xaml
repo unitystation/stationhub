@@ -13,7 +13,7 @@
     <DockPanel>
         <ScrollViewer Margin="0 1 0 0">
             <StackPanel>
-                <ItemsControl Items="{Binding ServerViews}" IsVisible="{Binding ServersFound}" />
+                <ItemsControl ItemsSource="{Binding ServerViews}" IsVisible="{Binding ServersFound}" />
                 <TextBlock Text="No Servers were found." FontSize="16" TextAlignment="Center" Margin="0 10 0 0"
                            IsVisible="{Binding !ServersFound}" />
             </StackPanel>

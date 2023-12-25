@@ -6,7 +6,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              FontSize="12"
              x:Class="UnitystationLauncher.Views.InstallationsPanelView"
-             x:DataType="viewModels:InstallationsPanelViewModel">
+             x:DataType="viewModels:InstallationsPanelViewModel"> 
     
     <Design.DataContext>
         <viewModels:InstallationsPanelViewModel/>
@@ -21,7 +21,7 @@
         </DockPanel>
         <ScrollViewer>
             <StackPanel>
-                <ItemsControl Items="{Binding InstallationViews}" />
+                <ItemsControl ItemsSource="{Binding InstallationViews}" />
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

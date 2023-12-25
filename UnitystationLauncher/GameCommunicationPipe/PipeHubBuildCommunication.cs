@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Pipes;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
-using MessageBox.Avalonia.BaseWindows.Base;
+using MsBox.Avalonia.Base;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Infrastructure;
@@ -60,14 +60,14 @@ public class PipeHubBuildCommunication : IDisposable
             {
                 RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
                 {
-                    IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                    IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
                         $"would you like to add this Domain to The allowed domains to be opened In your browser, {requests[1]} " +
                         @"
 Justification given by the Fork : " + requests[2]);
 
-                    string response = await msgBox.Show();
+                    string response = await msgBox.ShowAsync();
                     Log.Information($"response {response}");
                     await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                     await _writer.FlushAsync();
@@ -78,7 +78,7 @@ Justification given by the Fork : " + requests[2]);
             {
                 RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
                 {
-                    IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                    IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
                         $"The build would like to send an API request to, {requests[1]} " + @"
@@ -86,7 +86,7 @@ do you allow this fork to now on access this domain
 Justification given by the Fork : " + requests[2]);
 
 
-                    string response = await msgBox.Show();
+                    string response = await msgBox.ShowAsync();
                     Log.Information($"response {response}");
                     await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                     await _writer.FlushAsync();
@@ -97,7 +97,7 @@ Justification given by the Fork : " + requests[2]);
             {
                 RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
                 {
-                    IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                    IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                         MessageBoxButtons.YesNo,
                         string.Empty,
                         @" Trusted mode automatically allows every API and open URL action to happen without prompt, this also enables the 
@@ -106,7 +106,7 @@ Variable viewer ( Application that can modify the games Data ) that Could potent
 What follows is given by the build, we do not control what is written in the Following text So treat with caution and use your brain
   Justification : " + requests[1]); //TODO Add text
 
-                    string response = await msgBox.Show();
+                    string response = await msgBox.ShowAsync();
                     Log.Information($"response {response}");
                     await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
                     await _writer.FlushAsync();

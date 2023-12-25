@@ -10,7 +10,7 @@ public class BlogPostView : UserControl
     {
         InitializeComponent();
     }
-
+    
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

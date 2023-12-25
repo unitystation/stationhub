@@ -9,5 +9,5 @@
     <Design.DataContext>
         <viewModels:ChangelogViewModel/>
     </Design.DataContext>
-    <ItemsControl Items="{Binding Versions}" FontSize="12"/>
+    <ItemsControl ItemsSource="{Binding Versions}" FontSize="12"/>
 </UserControl>

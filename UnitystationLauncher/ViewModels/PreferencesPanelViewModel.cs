@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using MessageBox.Avalonia.BaseWindows.Base;
+using MsBox.Avalonia.Base;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Constants;
@@ -38,13 +38,13 @@ namespace UnitystationLauncher.ViewModels
             (bool isValidPath, string invalidReason) = _installationService.IsValidInstallationBasePath(path);
             if (isValidPath)
             {
-                IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                     MessageBoxButtons.YesNo,
                     string.Empty,
                     $"Would you like to move your old installations to the new location?\n "
                      + $"New installation path: {path}");
 
-                string response = await msgBox.Show();
+                string response = await msgBox.ShowAsync();
                 Log.Information($"Move installations? {response}");
                 if (response.Equals(MessageBoxResults.Yes))
                 {
@@ -52,7 +52,7 @@ namespace UnitystationLauncher.ViewModels
                     if (!success)
                     {
                         await MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Error moving installation",
-                            "Could not move existing install.").Show();
+                            "Could not move existing install.").ShowAsync();
 
                         return;
                     }
@@ -64,7 +64,7 @@ namespace UnitystationLauncher.ViewModels
             else
             {
                 Log.Warning($"Invalid directory as installation path, ignoring change: {path}");
-                await MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Invalid installation path", invalidReason).Show();
+                await MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Invalid installation path", invalidReason).ShowAsync();
             }
         }
 

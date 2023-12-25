@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="200"
-             TextBlock.FontSize="18"
+             FontSize="18"
              VerticalAlignment="Center"
              x:Class="UnitystationLauncher.Views.HubUpdateView"
              x:DataType="viewModels:HubUpdateViewModel">

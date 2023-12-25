@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using MessageBox.Avalonia;
-using MessageBox.Avalonia.BaseWindows.Base;
-using MessageBox.Avalonia.DTO;
-using MessageBox.Avalonia.Models;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Base;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Models;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.Enums;
 
@@ -10,9 +10,9 @@ namespace UnitystationLauncher.Infrastructure;
 
 public static class MessageBoxBuilder
 {
-    public static IMsBoxWindow<string> CreateMessageBox(MessageBoxButtons buttonLayout, string header, string message)
+    public static IMsBox<string> CreateMessageBox(MessageBoxButtons buttonLayout, string header, string message)
     {
-        IMsBoxWindow<string> msgBox = MessageBoxManager.GetMessageBoxCustomWindow(new MessageBoxCustomParams
+        IMsBox<string> msgBox = MessageBoxManager.GetMessageBoxCustom(new MessageBoxCustomParams
         {
             SystemDecorations = Avalonia.Controls.SystemDecorations.BorderOnly,
             WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen,
