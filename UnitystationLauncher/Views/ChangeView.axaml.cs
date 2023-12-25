@@ -9,7 +9,7 @@ public class ChangeView : UserControl
     {
         InitializeComponent();
     }
-    
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

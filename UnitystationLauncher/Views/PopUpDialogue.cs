@@ -8,12 +8,12 @@ namespace UnitystationLauncher.Views;
 public class PopUpDialogue : Window
 {
     public event EventHandler<bool>? DialogResult;
-    
+
     public PopUpDialogue()
     {
         InitializeComponent();
     }
-    
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

@@ -16,7 +16,7 @@ namespace UnitystationLauncher
             {
                 throw new ArgumentNullException(nameof(data), "data is null");
             }
-            
+
             string viewName = data.GetType().FullName!.Replace("ViewModel", "View");
             Type? type = Type.GetType(viewName);
 

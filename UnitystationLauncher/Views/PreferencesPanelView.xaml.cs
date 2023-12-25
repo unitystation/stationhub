@@ -19,7 +19,7 @@ public class PreferencesPanelView : UserControl
     {
         InitializeComponent();
     }
-    
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
@@ -45,7 +45,7 @@ public class PreferencesPanelView : UserControl
                 AllowMultiple = false,
                 SuggestedStartLocation = await topLevel.StorageProvider.TryGetFolderFromPathAsync(viewModel.InstallationPath)
             });
-            
+
             if (selectedFolder.Count > 0)
             {
                 string? result = selectedFolder[0].TryGetLocalPath();

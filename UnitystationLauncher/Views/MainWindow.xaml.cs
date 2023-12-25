@@ -29,12 +29,12 @@ public class MainWindow : Window
 
         SetupTitleBar();
     }
-    
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
     }
-    
+
 
     private void SetupTitleBar()
     {
