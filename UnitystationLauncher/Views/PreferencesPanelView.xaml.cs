@@ -39,7 +39,7 @@ public class PreferencesPanelView : UserControl
             && TopLevel.GetTopLevel(this) is TopLevel topLevel)
         {
             // Start async operation to open the dialog.
-            IReadOnlyList<IStorageFolder> selectedFolder = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
+            IReadOnlyList<IStorageFolder> selectedFolder = await topLevel.StorageProvider.OpenFolderPickerAsync(new()
             {
                 Title = "Select Folder",
                 AllowMultiple = false,

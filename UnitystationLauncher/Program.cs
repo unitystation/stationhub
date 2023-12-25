@@ -14,7 +14,7 @@ public static class Program
             // Windows Specific
             .With(new Win32PlatformOptions
             {
-                RenderingMode = new List<Win32RenderingMode>()
+                RenderingMode = new List<Win32RenderingMode>
                 {
                     Win32RenderingMode.Wgl
                 }
@@ -23,7 +23,7 @@ public static class Program
             // and MacOSPlatformOptions is "OSX front-end options", no idea why they decided to do it that way.
             .With(new AvaloniaNativePlatformOptions
             {
-                RenderingMode = new List<AvaloniaNativeRenderingMode>()
+                RenderingMode = new List<AvaloniaNativeRenderingMode>
                 {
                     AvaloniaNativeRenderingMode.OpenGl
                 }
@@ -36,7 +36,7 @@ public static class Program
             // Linux Specific
             .With(new X11PlatformOptions
             {
-                RenderingMode = new List<X11RenderingMode>()
+                RenderingMode = new List<X11RenderingMode>
                 {
                     X11RenderingMode.Egl
                 }
