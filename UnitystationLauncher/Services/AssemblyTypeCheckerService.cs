@@ -44,11 +44,9 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
     /// <param name="diskPath"></param>
     /// <param name="managedPath"></param>
     /// <param name="otherAssemblies"></param>
-    /// <param name="infoAction"></param>
-    /// <param name="errorsAction"></param>
+    /// <param name="scanLog"></param>
     /// <returns></returns>
-    public async Task<bool> CheckAssemblyTypesAsync(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies,
-        Action<string> infoAction, Action<string> errorsAction)
+    public async Task<bool> CheckAssemblyTypesAsync(FileInfo diskPath, DirectoryInfo managedPath, List<string> otherAssemblies, Action<ScanLog> scanLog)
     {
         await using FileStream assembly = diskPath.OpenRead();
         Stopwatch fullStopwatch = Stopwatch.StartNew();
@@ -62,14 +60,24 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
         // Check for native code
         if (peReader.PEHeaders.CorHeader?.ManagedNativeHeaderDirectory is { Size: not 0 })
         {
-            errorsAction.Invoke($"Assembly {asmName} contains native code.");
+            scanLog.Invoke(new()
+            {
+                Type = ScanLog.LogType.Error,
+                LogMessage = $"Assembly {asmName} contains native code."
+            });
+
             return false;
         }
 
         // Verify the IL
-        if (ILScanner.IsILValid(asmName, resolver, peReader, reader, infoAction, errorsAction, await _config) == false)
+        if (ILScanner.IsILValid(asmName, resolver, peReader, reader, scanLog, await _config) == false)
         {
-            errorsAction.Invoke($"Assembly {asmName} Has invalid IL code");
+            scanLog.Invoke(new()
+            {
+                Type = ScanLog.LogType.Error,
+                LogMessage = $"Assembly {asmName} Has invalid IL code"
+            });
+
             return false;
         }
 
@@ -79,8 +87,15 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
         List<MTypeReferenced> types = reader.GetReferencedTypes(errors);
         List<MMemberRef> members = reader.GetReferencedMembers(errors);
         List<(MType type, MType parent, ArraySegment<MType> interfaceImpls)> inherited = reader.GetExternalInheritedTypes(errors);
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"References loaded... {fullStopwatch.ElapsedMilliseconds}ms");
+
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"References loaded... {fullStopwatch.ElapsedMilliseconds}ms"
+        });
 
         SandboxConfig loadedConfig = await _config;
 
@@ -95,36 +110,76 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
             errors.Add(new($"Access to type not allowed: {type} asmName {asmName}"));
         }
 
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"Types... {fullStopwatch.ElapsedMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Types... {fullStopwatch.ElapsedMilliseconds}ms"
+        });
 
         InheritanceScanner.CheckInheritance(loadedConfig, inherited, errors);
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Inheritance... {fullStopwatch.ElapsedMilliseconds}ms"
+        });
 
         UnmanagedMethodScanner.CheckNoUnmanagedMethodDefs(reader, errors);
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Unmanaged methods... {fullStopwatch.ElapsedMilliseconds}ms"
+        });
 
         TypeAbuseScanner.CheckNoTypeAbuse(reader, errors);
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms"
+        });
 
         MemberReferenceScanner.CheckMemberReferences(loadedConfig, members, errors);
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"Member References... {fullStopwatch.ElapsedMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Member References... {fullStopwatch.ElapsedMilliseconds}ms"
+        });
 
         errors = new(errors.OrderBy(x => x.Message));
 
         foreach (SandboxError error in errors)
         {
-            errorsAction.Invoke($"Sandbox violation: {error.Message}");
+            scanLog.Invoke(new()
+            {
+                Type = ScanLog.LogType.Error,
+                LogMessage = $"Sandbox violation: {error.Message}"
+            });
         }
 
-        infoAction.Invoke(errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}");
-        infoAction.Invoke($"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
+        });
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Checked assembly in {fullStopwatch.ElapsedMilliseconds}ms"
+        });
+
         resolver.Dispose();
-        peReader.Dispose();
         return errors.IsEmpty;
     }
 }

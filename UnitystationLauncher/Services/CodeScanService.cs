@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Exceptions;
+using UnitystationLauncher.Models.ContentScanning;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
@@ -30,7 +31,7 @@ public class CodeScanService : ICodeScanService
         _preferencesService = preferencesService;
     }
 
-    public async Task<bool> OnScanAsync(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<string> info, Action<string> errors)
+    public async Task<bool> OnScanAsync(ZipArchive archive, string targetDirectory, string goodFileVersion, Action<ScanLog> scanLog)
     {
         // TODO: Enable extraction cancelling
         DirectoryInfo root = new(_preferencesService.GetPreferences().InstallationPath);
@@ -42,10 +43,18 @@ public class CodeScanService : ICodeScanService
         try
         {
             DeleteContentsOfDirectory(processingDirectory);
-            info.Invoke("Copying files");
+
+            scanLog.Invoke(new()
+            {
+                LogMessage = "Copying files"
+            });
+
             CopyFilesRecursively(stagingDirectory.ToString(), processingDirectory.ToString());
 
-            info.Invoke("Cleaning out Dlls and Executables");
+            scanLog.Invoke(new()
+            {
+                LogMessage = "Cleaning out Dlls and Executables"
+            });
             DeleteFilesWithExtension(processingDirectory.ToString(), ".exe");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".dll");
             DeleteFilesWithExtension(processingDirectory.ToString(), ".so");
@@ -69,7 +78,11 @@ public class CodeScanService : ICodeScanService
                     {
                         if (dataPath != null)
                         {
-                            errors.Invoke("oh God 2 Datapaths Exiting!!!");
+                            scanLog.Invoke(new()
+                            {
+                                Type = ScanLog.LogType.Error,
+                                LogMessage = "oh God 2 Datapaths Exiting!!!"
+                            });
                             return false;
                         }
 
@@ -79,7 +92,11 @@ public class CodeScanService : ICodeScanService
 
                 if (dataPath == null)
                 {
-                    errors.Invoke("oh God NO Datapath Exiting!!!");
+                    scanLog.Invoke(new()
+                    {
+                        Type = ScanLog.LogType.Error,
+                        LogMessage = "oh God NO Datapath Exiting!!!"
+                    });
                     return false;
                 }
                 stagingManaged = stagingDirectory.CreateSubdirectory(Path.Combine(dataPath.Name, FolderNames.Managed));
@@ -108,8 +125,11 @@ public class CodeScanService : ICodeScanService
 
             DirectoryInfo goodFileCopy = new(GetManagedOnOS(goodFilePath));
 
-            info.Invoke("Proceeding to scan folder");
-            if (await ScanFolderAsync(dllDirectory, goodFileCopy, info, errors) == false)
+            scanLog.Invoke(new()
+            {
+                LogMessage = "Proceeding to scan folder"
+            });
+            if (await ScanFolderAsync(dllDirectory, goodFileCopy, scanLog) == false)
             {
                 try
                 {
@@ -134,11 +154,11 @@ public class CodeScanService : ICodeScanService
             switch (_environmentService.GetCurrentEnvironment())
             {
                 case CurrentEnvironment.WindowsStandalone:
-                    LocateWindowsExecutable(processingDirectory, stagingDirectory, dataPath, info, errors);
+                    LocateWindowsExecutable(processingDirectory, stagingDirectory, dataPath, scanLog);
                     break;
                 case CurrentEnvironment.LinuxFlatpak:
                 case CurrentEnvironment.LinuxStandalone:
-                    LocateLinuxExecutable(processingDirectory, stagingDirectory, dataPath, info, errors);
+                    LocateLinuxExecutable(processingDirectory, stagingDirectory, dataPath, scanLog);
                     break;
             }
 
@@ -154,7 +174,11 @@ public class CodeScanService : ICodeScanService
         }
         catch (Exception e)
         {
-            errors.Invoke(" an Error happened > " + e);
+            scanLog.Invoke(new()
+            {
+                Type = ScanLog.LogType.Error,
+                LogMessage = " an Error happened > " + e
+            });
             DeleteContentsOfDirectory(processingDirectory);
             DeleteContentsOfDirectory(stagingDirectory);
             return false;
@@ -163,7 +187,7 @@ public class CodeScanService : ICodeScanService
         return true;
     }
 
-    private static void LocateWindowsExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<string> info, Action<string> errors)
+    private static void LocateWindowsExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<ScanLog> scanLog)
     {
         FileInfo? exeRename = processingDirectory.GetFiles()
             .FirstOrDefault(x => x.Extension == ".exe" && x.Name != "UnityCrashHandler64.exe"); //TODO OS
@@ -171,30 +195,46 @@ public class CodeScanService : ICodeScanService
 
         if (exeRename?.Directory == null)
         {
-            errors.Invoke("no Executable found ");
+            scanLog.Invoke(new()
+            {
+                Type = ScanLog.LogType.Error,
+                LogMessage = "no Executable found "
+            });
+
             DeleteContentsOfDirectory(processingDirectory);
             DeleteContentsOfDirectory(stagingDirectory);
             throw new CodeScanningException("No Windows executable found");
         }
 
-        info.Invoke($"Found exeRename {exeRename}");
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Found exeRename {exeRename}"
+        });
         exeRename.MoveTo(Path.Combine(exeRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ".exe"));
     }
 
-    private static void LocateLinuxExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<string> info, Action<string> errors)
+    private static void LocateLinuxExecutable(DirectoryInfo processingDirectory, DirectoryInfo stagingDirectory, DirectoryInfo dataPath, Action<ScanLog> scanLog)
     {
         FileInfo? executableRename = processingDirectory.GetFiles()
             .FirstOrDefault(x => x.Extension == "");
 
         if (executableRename?.Directory == null)
         {
-            errors.Invoke("no Executable found ");
+            scanLog.Invoke(new()
+            {
+                Type = ScanLog.LogType.Error,
+                LogMessage = "no Executable found "
+            });
+
             DeleteContentsOfDirectory(processingDirectory);
             DeleteContentsOfDirectory(stagingDirectory);
             throw new CodeScanningException("No Linux executable found");
         }
 
-        info.Invoke($"Found ExecutableRename {executableRename}");
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"Found ExecutableRename {executableRename}"
+        });
         executableRename.MoveTo(Path.Combine(executableRename.Directory.ToString(), dataPath.Name.Replace("_Data", "") + ""));
     }
 
@@ -217,12 +257,14 @@ public class CodeScanService : ICodeScanService
 
 
 
-    private async Task<bool> ScanFolderAsync(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<string> info, Action<string> errors)
+    private async Task<bool> ScanFolderAsync(DirectoryInfo @unsafe, DirectoryInfo saveFiles, Action<ScanLog> scanLog)
     {
         List<string> goodFiles = saveFiles.GetFiles().Select(x => x.Name).ToList();
 
-        info.Invoke("Provided files " + string.Join(",", goodFiles));
-
+        scanLog.Invoke(new()
+        {
+            LogMessage = "Provided files " + string.Join(",", goodFiles)
+        });
         CopyFilesRecursively(saveFiles.ToString(), @unsafe.ToString());
 
         FileInfo[] files = @unsafe.GetFiles();
@@ -241,21 +283,32 @@ public class CodeScanService : ICodeScanService
         {
             if (goodFiles.Contains(file.Name)) continue;
 
-            info.Invoke("Scanning " + file.Name);
+            scanLog.Invoke(new()
+            {
+                LogMessage = "Scanning " + file.Name
+            });
 
             try
             {
                 List<string> listy = multiAssemblyReference.ToList();
                 listy.Remove(Path.GetFileNameWithoutExtension(file.Name));
-                if (await _assemblyTypeCheckerService.CheckAssemblyTypesAsync(file, @unsafe, listy, info, errors) == false)
+                if (await _assemblyTypeCheckerService.CheckAssemblyTypesAsync(file, @unsafe, listy, scanLog) == false)
                 {
-                    errors.Invoke($"{file.Name} Failed scanning Cancelling");
+                    scanLog.Invoke(new()
+                    {
+                        Type = ScanLog.LogType.Error,
+                        LogMessage = $"{file.Name} Failed scanning Cancelling"
+                    });
                     return false;
                 }
             }
             catch (Exception e)
             {
-                errors.Invoke(" Failed scan due to error of " + e);
+                scanLog.Invoke(new()
+                {
+                    Type = ScanLog.LogType.Error,
+                    LogMessage = " Failed scan due to error of " + e
+                });
                 return false;
             }
         }

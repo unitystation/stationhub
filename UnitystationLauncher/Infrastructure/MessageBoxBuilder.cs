@@ -40,6 +40,11 @@ public static class MessageBoxBuilder
                     new() { Name = MessageBoxResults.No },
                     new() { Name = MessageBoxResults.Cancel }
                 },
+                MessageBoxButtons.OpenLogFolderOk => new()
+                {
+                    new() { Name = MessageBoxResults.OpenLogFolder },
+                    new() { Name = MessageBoxResults.Ok }
+                },
                 _ => new List<ButtonDefinition>()
             }
         });
