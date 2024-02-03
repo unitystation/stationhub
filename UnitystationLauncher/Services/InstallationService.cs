@@ -504,7 +504,7 @@ public class InstallationService : IInstallationService
             }
             else
             {
-                string jsonString = JsonSerializer.Serialize(scanLogs, new JsonSerializerOptions()
+                string jsonString = JsonSerializer.Serialize(scanLogs, new JsonSerializerOptions
                 {
                     Converters =
                     {
@@ -545,19 +545,16 @@ public class InstallationService : IInstallationService
 
         string result = await msgBox.ShowAsync(); // Doesn't need to be awaited
 
-        if (result == MessageBoxResults.OpenLogFolder)
+        if (result == MessageBoxResults.OpenLogFolder && Directory.Exists(logFolder))
         {
-            if (Directory.Exists(logFolder))
+            ProcessStartInfo psi = new()
             {
-                ProcessStartInfo psi = new()
-                {
-                    FileName = logFolder,
-                    UseShellExecute = true,
-                    Verb = "open"
-                };
+                FileName = logFolder,
+                UseShellExecute = true,
+                Verb = "open"
+            };
 
-                Process.Start(psi);
-            }
+            Process.Start(psi);
         }
     }
 
