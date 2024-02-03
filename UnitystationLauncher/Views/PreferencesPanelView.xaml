@@ -44,8 +44,8 @@
                     <Border Background="#1d3b50" Grid.Column="0" BorderBrush="#ffffff" BorderThickness="0.4" Margin="0 0 5 0">
                         <TextBlock FontSize="16" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="{Binding InstallationPath}"/>
                     </Border>
-                    <Button Grid.Column="1" Click="ChangeInstallationFolder_OnClick">
-                        <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="Change" />    
+                    <Button Grid.Column="1" Click="ChangeInstallationFolder_OnClick" HorizontalAlignment="Stretch">
+                        <TextBlock FontSize="18" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="Change" />    
                     </Button>
                 </Grid>
                 <!--Grid Grid.Row="2" Margin="0 5 0 5">

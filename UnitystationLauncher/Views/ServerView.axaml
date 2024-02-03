@@ -18,17 +18,27 @@
         </DockPanel.Styles>
         <Image DockPanel.Dock="Left" Source="/Assets/unityico.png" Margin="5" Width="65" Height="65" Stretch="Uniform" />
         <Panel DockPanel.Dock="Right" Margin="5" MinWidth="180" >
+            <Panel.Styles>
+                <Style Selector="Button">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                    <Setter Property="VerticalContentAlignment" Value="Center" />
+                    <Setter Property="Height" Value="40" />
+                    <Setter Property="BorderThickness" Value="0" />
+                </Style>
+            </Panel.Styles>
             <!-- Download Button -->
             <Button Command="{Binding Path=$parent[UserControl;1].DataContext.DownloadCommand}" 
                     CommandParameter="{Binding}" 
                     Content="Download"
-                    Height="40" IsVisible="{Binding ShowDownloadButton}"
-                    Background="{StaticResource PrimaryTransparent4}"
-                    BorderThickness="0" />
+                    IsVisible="{Binding ShowDownloadButton}"
+                    Background="{StaticResource PrimaryTransparent4}" />
             
             <!-- Start Button -->
-            <Button Command="{Binding LaunchGame}" Content="Start" Background="{StaticResource PrimaryTransparent4}"
-                    BorderThickness="0" Height="40" IsVisible="{Binding ShowStartButton}" />
+            <Button Command="{Binding LaunchGame}" 
+                    Content="Start" 
+                    IsVisible="{Binding ShowStartButton}"
+                    Background="{StaticResource PrimaryTransparent4}" />
             
             <!-- Download Progress -->
             <StackPanel IsVisible="{Binding ShowDownloadProgress}" VerticalAlignment="Center">
@@ -40,12 +50,14 @@
             </StackPanel>
             
             <!-- Scanning -->
-            <Button Content="Scanning..." Background="{StaticResource PrimaryTransparent4}"
-                    BorderThickness="0" Height="40" IsVisible="{Binding ShowScanningProgress}" />
+            <Button Content="Scanning..." 
+                    IsVisible="{Binding ShowScanningProgress}"
+                    Background="{StaticResource PrimaryTransparent4}" />
             
             <!-- Download/Scan Failed -->
-            <Button Content="Failed" Background="#AA4444"
-                    BorderThickness="0" Height="40" IsVisible="{Binding ShowDownloadFailed}" />
+            <Button Content="Failed" 
+                    IsVisible="{Binding ShowDownloadFailed}"
+                    Background="#AA4444"/>
         </Panel>
         <Grid ColumnDefinitions="*, auto, auto" RowDefinitions="*, *" VerticalAlignment="Center">
             <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Server.ServerName}" />
