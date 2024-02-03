@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Humanizer;
 using Humanizer.Bytes;
@@ -503,7 +504,13 @@ public class InstallationService : IInstallationService
             }
             else
             {
-                string jsonString = JsonSerializer.Serialize(scanLogs);
+                string jsonString = JsonSerializer.Serialize(scanLogs, new JsonSerializerOptions()
+                {
+                    Converters =
+                    {
+                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                    }
+                });
                 string logFolder = _preferencesService.GetPreferences().InstallationPath;
                 string filePath = Path.Combine(logFolder, "CodeScanErrors.json");
 
