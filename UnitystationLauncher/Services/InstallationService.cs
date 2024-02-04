@@ -518,7 +518,7 @@ public class InstallationService : IInstallationService
 
                 StringBuilder sb = new();
                 sb.AppendLine($"Security scan failed for: {download.ForkName} {download.BuildVersion}");
-                sb.AppendLine(scanLogs.Last(l => l.LogMessage.Contains("Total violations")).LogMessage);
+                sb.AppendLine(scanLogs.LastOrDefault(l => l.LogMessage.Contains("Total violations"))?.LogMessage ?? string.Empty);
                 sb.AppendLine($"Scan log written to: {filePath}");
                 sb.AppendLine("Please report this issue to the fork developers.");
 
