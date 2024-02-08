@@ -5,7 +5,7 @@
              xmlns:viewModels="clr-namespace:UnitystationLauncher.ViewModels"
              xmlns:vm="clr-namespace:UnitystationLauncher.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             TextBlock.FontSize="18"
+             FontSize="18"
              Background="Transparent"
              x:Class="UnitystationLauncher.Views.LauncherView"
              x:DataType="viewModels:LauncherViewModel">
@@ -13,12 +13,12 @@
         <viewModels:LauncherViewModel/>
     </Design.DataContext>
     <Grid RowDefinitions="54,*">
-        <Grid Background="#1d3b50" Grid.Row="0" ColumnDefinitions="54,*,130">
+        <Grid Background="#1d3b50" Grid.Row="0" ColumnDefinitions="54,*,150">
             <Border Margin="5 5 0 6" Grid.Column="0">
                 <Image Source="avares://StationHub/Assets/unityico.png" Margin="0 2 1 2" />
             </Border>
 
-            <ListBox Items="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
+            <ListBox ItemsSource="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent"
                      HorizontalAlignment="Left" Grid.Column="1">
                 <ListBox.ItemsPanel>

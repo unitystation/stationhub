@@ -6,18 +6,23 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Reactive.Concurrency;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Humanizer;
 using Humanizer.Bytes;
 using Mono.Unix;
+using MsBox.Avalonia.Base;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Exceptions;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.ContentScanning;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
@@ -454,30 +459,31 @@ public class InstallationService : IInstallationService
 
     private async Task ExtractAndScan(Download download, ProgressStream progressStream)
     {
-        // TODO: Display infoList and errorList in the UI.
-        List<string> infoList = new();
-        List<string> errorList = new();
+        List<ScanLog> scanLogs = [];
         Log.Information("Extracting...");
         try
         {
             ZipArchive archive = new(progressStream);
 
-            //TODO UI
-            void Info(string log)
+            void ScanLogs(ScanLog log)
             {
-                Log.Information(log);
-                infoList.Add(log);
-            }
+                switch (log.Type)
+                {
+                    case ScanLog.LogType.Info:
+                        Log.Information(log.LogMessage);
+                        break;
+                    case ScanLog.LogType.Error:
+                        Log.Error(log.LogMessage);
+                        break;
+                    default: // should never happen, Rider complains if we don't cover it though
+                        return;
+                }
 
-            void Errors(string log)
-            {
-                Log.Error(log);
-                errorList.Add(log);
+                scanLogs.Add(log);
             }
 
             download.DownloadState = DownloadState.Scanning;
-            bool scanTask = await _codeScanService.OnScanAsync(archive, download.InstallPath, download.GoodFileVersion,
-                Info, Errors);
+            bool scanTask = await _codeScanService.OnScanAsync(archive, download.InstallPath, download.GoodFileVersion, ScanLogs);
 
             if (scanTask)
             {
@@ -498,12 +504,27 @@ public class InstallationService : IInstallationService
             }
             else
             {
-                string jsonString = JsonSerializer.Serialize(errorList);
-                string filePath = Path.Combine(_preferencesService.GetPreferences().InstallationPath, "CodeScanErrors.json");
+                string jsonString = JsonSerializer.Serialize(scanLogs, new JsonSerializerOptions
+                {
+                    Converters =
+                    {
+                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                    }
+                });
+                string logFolder = _preferencesService.GetPreferences().InstallationPath;
+                string filePath = Path.Combine(logFolder, "CodeScanErrors.json");
 
                 await File.WriteAllTextAsync(filePath, jsonString);
 
-                //TODO UI
+                StringBuilder sb = new();
+                sb.AppendLine($"Security scan failed for: {download.ForkName} {download.BuildVersion}");
+                sb.AppendLine(scanLogs.LastOrDefault(l => l.LogMessage.Contains("Total violations"))?.LogMessage ?? string.Empty);
+                sb.AppendLine($"Scan log written to: {filePath}");
+                sb.AppendLine("Please report this issue to the fork developers.");
+
+                // needs to be run in the main thread or it will fail
+                RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ShowScanFailPopUp(sb.ToString(), logFolder));
+
                 Log.Error($"Scan failed, saved log to file: {filePath}");
                 download.DownloadState = DownloadState.Failed;
             }
@@ -512,6 +533,28 @@ public class InstallationService : IInstallationService
         {
             Log.Information($"Extracting stopped with {e}");
             download.DownloadState = DownloadState.Failed;
+        }
+    }
+
+    private static async Task ShowScanFailPopUp(string message, string logFolder)
+    {
+        IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+            MessageBoxButtons.OpenLogFolderOk,
+            string.Empty,
+            message);
+
+        string result = await msgBox.ShowAsync(); // Doesn't need to be awaited
+
+        if (result == MessageBoxResults.OpenLogFolder && Directory.Exists(logFolder))
+        {
+            ProcessStartInfo psi = new()
+            {
+                FileName = logFolder,
+                UseShellExecute = true,
+                Verb = "open"
+            };
+
+            Process.Start(psi);
         }
     }
 

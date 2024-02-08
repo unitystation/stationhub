@@ -7,15 +7,19 @@ using System.Reflection.PortableExecutable;
 using ILVerify;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.ContentScanning;
 
 namespace UnitystationLauncher.ContentScanning.Scanners;
 
 internal static class ILScanner
 {
     internal static bool IsILValid(string name, IResolver resolver, PEReader peReader,
-        MetadataReader reader, Action<string> info, Action<string> logErrors, SandboxConfig loadedCfg)
+        MetadataReader reader, Action<ScanLog> scanLog, SandboxConfig loadedCfg)
     {
-        info.Invoke($"{name}: Verifying IL...");
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"{name}: Verifying IL..."
+        });
         Stopwatch sw = Stopwatch.StartNew();
         ConcurrentBag<VerificationResult> bag = new();
 
@@ -24,14 +28,17 @@ internal static class ILScanner
         bool verifyErrors = false;
         foreach (VerificationResult res in bag)
         {
-            bool error = AssemblyTypeCheckerHelpers.CheckVerificationResult(loadedCfg, res, name, reader, logErrors);
+            bool error = AssemblyTypeCheckerHelpers.CheckVerificationResult(loadedCfg, res, name, reader, scanLog);
             if (error)
             {
                 verifyErrors = true;
             }
         }
 
-        info.Invoke($"{name}: Verified IL in {sw.Elapsed.TotalMilliseconds}ms");
+        scanLog.Invoke(new()
+        {
+            LogMessage = $"{name}: Verified IL in {sw.Elapsed.TotalMilliseconds}ms"
+        });
 
         if (verifyErrors)
         {

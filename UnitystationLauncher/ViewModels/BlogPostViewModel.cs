@@ -57,11 +57,11 @@ public class BlogPostViewModel : ViewModelBase
         }
     }
 
-    private void OpenLink()
+    public bool OpenLink()
     {
         if (string.IsNullOrWhiteSpace(PostLink))
         {
-            return;
+            return false;
         }
 
         ProcessStartInfo psi = new()
@@ -70,6 +70,8 @@ public class BlogPostViewModel : ViewModelBase
             UseShellExecute = true
         };
         Process.Start(psi);
+
+        return true;
     }
 
     public override void Refresh()

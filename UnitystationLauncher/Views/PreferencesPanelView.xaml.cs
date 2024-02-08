@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Avalonia;
@@ -5,38 +6,49 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.ViewModels;
 
-namespace UnitystationLauncher.Views
+namespace UnitystationLauncher.Views;
+
+public class PreferencesPanelView : UserControl
 {
-    public class PreferencesPanelView : UserControl
+    public PreferencesPanelView()
     {
-        public PreferencesPanelView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        private void ChangeInstallationFolder_OnClick(object? sender, RoutedEventArgs eventArgs)
-        {
-            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ChangeInstallationFolder());
-        }
+    private void ChangeInstallationFolder_OnClick(object? sender, RoutedEventArgs eventArgs)
+    {
+        RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ChangeInstallationFolder());
+    }
 
-        private async Task ChangeInstallationFolder()
+    // This dialog needs to be in the View, not in the ViewModel.
+    private async Task ChangeInstallationFolder()
+    {
+        if (Application.Current != null
+            && Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime applicationLifetime
+            && DataContext is PreferencesPanelViewModel viewModel
+            && TopLevel.GetTopLevel(this) is TopLevel topLevel)
         {
-            if (Application.Current != null
-                && Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime applicationLifetime
-                && DataContext is PreferencesPanelViewModel viewModel)
+            // Start async operation to open the dialog.
+            IReadOnlyList<IStorageFolder> selectedFolder = await topLevel.StorageProvider.OpenFolderPickerAsync(new()
             {
-                // This dialog needs to be in the View, not in the ViewModel.
-                OpenFolderDialog dialog = new();
-                string? result = await dialog.ShowAsync(applicationLifetime.MainWindow);
+                Title = "Select Folder",
+                AllowMultiple = false,
+                SuggestedStartLocation = await topLevel.StorageProvider.TryGetFolderFromPathAsync(viewModel.InstallationPath)
+            });
+
+            if (selectedFolder.Count > 0)
+            {
+                string? result = selectedFolder[0].TryGetLocalPath();
 
                 if (!string.IsNullOrWhiteSpace(result))
                 {

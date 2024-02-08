@@ -7,12 +7,12 @@
         ExtendClientAreaToDecorationsHint="True"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="555"
         x:Class="UnitystationLauncher.Views.MainWindow"
-        CanResize="False"
+        CanResize="True"
         Icon="/Assets/Ian512.png"
-        Title="Station Hub"
+        Title="StationHub"
         WindowStartupLocation="CenterScreen"
-        Width="800"
-        Height="555"
+        MinWidth="800"
+        MinHeight="555"
         Background="#19212c"
         x:DataType="viewModels:MainWindowViewModel">
     

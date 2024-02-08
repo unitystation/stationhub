@@ -5,10 +5,10 @@ namespace UnitystationLauncher.ViewModels;
 
 public class ChangeViewModel : ViewModelBase
 {
-    private string Type { get; }
-    private string Description { get; }
-    private string AuthorAndPr { get; }
-    private string? PrUrl { get; }
+    public string Type { get; }
+    public string Description { get; }
+    public string AuthorAndPr { get; }
+    public string? PrUrl { get; }
 
     public ChangeViewModel(Change change)
     {
@@ -18,7 +18,7 @@ public class ChangeViewModel : ViewModelBase
         PrUrl = change.PrUrl;
     }
 
-    private void OnClick()
+    public bool OnClick()
     {
         if (PrUrl != null)
         {
@@ -29,7 +29,10 @@ public class ChangeViewModel : ViewModelBase
             };
 
             Process.Start(psi);
+            return true;
         }
+
+        return false;
     }
 
     public override void Refresh()

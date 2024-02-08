@@ -5,5 +5,6 @@ public enum MessageBoxButtons
     Ok,
     OkCancel,
     YesNo,
-    YesNoCancel
+    YesNoCancel,
+    OpenLogFolderOk
 }

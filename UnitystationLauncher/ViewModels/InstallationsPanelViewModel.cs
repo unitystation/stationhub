@@ -6,7 +6,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using MessageBox.Avalonia.BaseWindows.Base;
+using MsBox.Avalonia.Base;
 using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Infrastructure;
@@ -68,10 +68,10 @@ namespace UnitystationLauncher.ViewModels
         {
             if (AutoRemove)
             {
-                IMsBoxWindow<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
+                IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
                     "Are you sure?", "This will remove older installations from disk. Proceed?");
 
-                string response = await msgBox.Show();
+                string response = await msgBox.ShowAsync();
                 if (response.Equals(MessageBoxResults.Yes))
                 {
                     SaveChoice();

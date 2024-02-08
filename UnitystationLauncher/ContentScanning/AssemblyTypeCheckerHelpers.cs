@@ -4,6 +4,7 @@ using System.Reflection.Metadata;
 using ILVerify;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.ContentScanning;
 using UnitystationLauncher.Models.ContentScanning.ScanningTypes;
 
 // psst
@@ -25,7 +26,7 @@ internal static class AssemblyTypeCheckerHelpers
         return new(managedPath);
     }
 
-    internal static bool CheckVerificationResult(SandboxConfig loadedCfg, VerificationResult res, string name, MetadataReader reader, Action<string> logErrors)
+    internal static bool CheckVerificationResult(SandboxConfig loadedCfg, VerificationResult res, string name, MetadataReader reader, Action<ScanLog> scanLog)
     {
         if (loadedCfg.AllowedVerifierErrors.Contains(res.Code))
         {
@@ -49,7 +50,11 @@ internal static class AssemblyTypeCheckerHelpers
             msg = $"{msg}, type: {type}";
         }
 
-        logErrors.Invoke(msg);
+        scanLog.Invoke(new()
+        {
+            Type = ScanLog.LogType.Error,
+            LogMessage = msg
+        });
         return true;
     }
 
