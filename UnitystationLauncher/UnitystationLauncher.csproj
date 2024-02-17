@@ -111,7 +111,6 @@
     <PackageReference Include="runtime.any.System.Threading.Timer" Version="4.3.0" />
     <PackageReference Include="runtime.unix.System.Private.Uri" Version="4.3.2" />
     <PackageReference Include="Dotnet.Bundle" Version="0.9.13" />
-    <PackageReference Include="Microsoft.ILVerification" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="CodeScanList.json" />
