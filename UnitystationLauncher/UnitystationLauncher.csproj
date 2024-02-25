@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
     <Nullable>enable</Nullable>
@@ -24,14 +24,16 @@
     <DisablePatch>False</DisablePatch>
     <!-- valid values: Error|Detail|Info -->
     <BeautyLogLevel>Error</BeautyLogLevel>
-    <CFBundleName>StationHub</CFBundleName> <!-- Also defines .app file name -->
+    <CFBundleName>StationHub</CFBundleName>
+    <!-- Also defines .app file name -->
     <CFBundleIdentifier>org.unitystation.hub</CFBundleIdentifier>
     <CFBundleVersion>1.0.0</CFBundleVersion>
     <CFBundleShortVersionString>1.0.0</CFBundleShortVersionString>
     <CFBundlePackageType>APPL</CFBundlePackageType>
     <CFBundleSignature>????</CFBundleSignature>
     <CFBundleExecutable>StationHub</CFBundleExecutable>
-    <CFBundleIconFile>ian.icns</CFBundleIconFile> <!-- Will be copied from output directory -->
+    <CFBundleIconFile>ian.icns</CFBundleIconFile>
+    <!-- Will be copied from output directory -->
     <NSPrincipalClass>NSApplication</NSPrincipalClass>
     <NSHighResolutionCapable>true</NSHighResolutionCapable>
   </PropertyGroup>

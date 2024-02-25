@@ -9,7 +9,7 @@ on:
       - "*"
 
 env:
-  DOTNET_VERSION: '7.0.x'
+  DOTNET_VERSION: '8.0.x'
 
 jobs:
   test:
@@ -115,4 +115,4 @@ jobs:
       # Build
       - name: Test Flatpak Build
         run: |
-          dotnet publish --framework net7.0 --runtime linux-x64 --configuration Release --self-contained true /p:DefineConstants="FLATPAK" /p:DisableBeauty=true
+          dotnet publish --framework net8.0 --runtime linux-x64 --configuration Release --self-contained true /p:DefineConstants="FLATPAK" /p:DisableBeauty=true
