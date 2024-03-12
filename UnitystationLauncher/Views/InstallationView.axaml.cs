@@ -22,7 +22,10 @@ public class InstallationView : UserControl
     private void HandlePathClick(object sender, PointerPressedEventArgs e)
     {
         TextBlock? block = sender as TextBlock;
-        if (block?.Text == null) return;
+        if (block?.Text == null)
+        {
+            return;
+        }
         string path = Path.GetFullPath(block.Text);
         string protcol = GetManagerProtocl();
         Process.Start(protcol, new Uri(RemoveLastPart(path)).ToString());
