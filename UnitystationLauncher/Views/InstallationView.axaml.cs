@@ -18,7 +18,6 @@ public class InstallationView : UserControl
     {
         AvaloniaXamlLoader.Load(this);
     }
-    
     private void HandlePathClick(object sender, PointerPressedEventArgs e)
     {
         TextBlock? block = sender as TextBlock;
