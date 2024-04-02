@@ -113,6 +113,25 @@ What follows is given by the build, we do not control what is written in the Fol
                     return Task.CompletedTask;
                 });
             }
+            else if (ClientRequest.Microphone_Access.ToString() == requests[0])
+            {
+                RxApp.MainThreadScheduler.ScheduleAsync(async (_, _) =>
+                {
+                    IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                        MessageBoxButtons.YesNo,
+                        string.Empty,
+                        $"The build would like to Access your microphone" + @"
+Do you allow this application to access your microphone for while it is open
+Justification given by the Fork : " + requests[1]);
+
+
+                    string response = await msgBox.ShowAsync();
+                    Log.Information($"response {response}");
+                    await _writer.WriteLineAsync(response == "No" ? false.ToString() : true.ToString());
+                    await _writer.FlushAsync();
+                    return Task.CompletedTask;
+                });
+            }
         }
     }
 
