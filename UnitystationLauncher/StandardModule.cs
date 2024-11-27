@@ -21,6 +21,7 @@ namespace UnitystationLauncher
             builder.RegisterType<PingService>().As<IPingService>().SingleInstance();
             builder.RegisterType<AssemblyTypeCheckerService>().As<IAssemblyTypeCheckerService>().SingleInstance();
             builder.RegisterType<CodeScanService>().As<ICodeScanService>().SingleInstance();
+            builder.RegisterType<TTSService>().As<ITTSService>().SingleInstance();
             builder.RegisterType<CodeScanConfigService>().As<ICodeScanConfigService>().SingleInstance();
             builder.RegisterType<GameCommunicationPipeService>().As<IGameCommunicationPipeService>().SingleInstance();
 

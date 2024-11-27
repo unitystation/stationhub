@@ -41,10 +41,11 @@ public class InstallationService : IInstallationService
     private readonly List<Download> _downloads;
     private List<Installation> _installations = new();
     private readonly string _installationsJsonFilePath;
+    private readonly ITTSService _TTSVersionService;
 
     public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
-        ICodeScanConfigService codeScanConfigService)
+        ICodeScanConfigService codeScanConfigService, ITTSService ITTSVersionService)
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
@@ -52,6 +53,7 @@ public class InstallationService : IInstallationService
         _serverService = serverService;
         _codeScanService = codeScanService;
         _codeScanConfigService = codeScanConfigService;
+        _TTSVersionService = ITTSVersionService;
 
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
@@ -85,6 +87,10 @@ public class InstallationService : IInstallationService
 
     public async Task<(Download?, string)> DownloadInstallationAsync(Server server)
     {
+        
+     
+        
+        
         string? downloadUrl = server.GetDownloadUrl(_environmentService);
         if (string.IsNullOrWhiteSpace(downloadUrl))
         {
@@ -133,12 +139,17 @@ public class InstallationService : IInstallationService
         }
 
         _downloads.Add(download);
+        
+     
+        
         RxApp.MainThreadScheduler.ScheduleAsync((_, _) => StartDownloadAsync(download));
         return (download, string.Empty);
     }
 
     public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
+        _TTSVersionService.StartTTS();
+        
         Installation? installation = GetInstallationById(installationId);
         if (installation == null)
         {
@@ -422,6 +433,9 @@ public class InstallationService : IInstallationService
 
     private async Task StartDownloadAsync(Download download)
     {
+        //Update TTS if it's needed
+        await _TTSVersionService.CheckAndDownloadLatestVersion(download);
+        
         Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", download.InstallPath, download.DownloadUrl);
         try
         {
@@ -433,13 +447,11 @@ public class InstallationService : IInstallationService
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             Log.Information("Download connection established");
             await using ProgressStream progressStream = new(responseStream);
-            download.Size = request.Content.Headers.ContentLength ??
-                            throw new ContentLengthNullException(download.DownloadUrl);
+            download.Size = request.Content.Headers.ContentLength ?? throw new ContentLengthNullException(download.DownloadUrl);
 
             using IDisposable logProgressDisposable = LogProgress(progressStream, download);
 
-            using IDisposable progressDisposable = progressStream.Progress
-                .Subscribe(p => { download.Downloaded = p; });
+            using IDisposable progressDisposable = progressStream.Progress.Subscribe(p => { download.Downloaded = p; });
 
             // ExtractAndScan() must be run in a separate thread, but we want this one to wait for that one to finish
             // Without this download progress will not work properly
@@ -558,7 +570,7 @@ public class InstallationService : IInstallationService
         }
     }
 
-    private static IDisposable LogProgress(ProgressStream progressStream, Download download)
+    public static IDisposable LogProgress(ProgressStream progressStream, Download download)
     {
         long lastPosition = 0L;
         DateTime lastTime = DateTime.Now;

@@ -3,6 +3,7 @@ using UnitystationLauncher.Tests.MocksRepository.InstallationService;
 using UnitystationLauncher.Tests.MocksRepository.PingService;
 using UnitystationLauncher.Tests.MocksRepository.ServerService;
 using UnitystationLauncher.ViewModels;
+using Xunit.Sdk;
 
 namespace UnitystationLauncher.Tests.ViewModels;
 
@@ -16,7 +17,7 @@ public static class ServersPanelViewModelTests
         IPingService mockPingService = new MockPingStaticPingTime(5);
         IServerService mockServerService = new MockRandomServers(1, 20);
 
-        ServersPanelViewModel serversPanelViewModel = new(mockInstallationService, mockPingService, mockServerService);
+        ServersPanelViewModel serversPanelViewModel = new(mockInstallationService, mockPingService, mockServerService, null, null);
         serversPanelViewModel.ServerViews.Should().NotBeEmpty();
     }
 
@@ -27,7 +28,7 @@ public static class ServersPanelViewModelTests
         IPingService mockPingService = new MockPingStaticPingTime(5);
         IServerService mockServerService = new MockServersThrowsException();
 
-        Func<ServersPanelViewModel> act = () => new(mockInstallationService, mockPingService, mockServerService);
+        Func<ServersPanelViewModel> act = () => new(mockInstallationService, mockPingService, mockServerService, null, null);
         act.Should().NotThrow();
         act.Invoke().ServerViews.Should().NotBeNull().And.BeEmpty();
     }

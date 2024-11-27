@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Base;
 using MsBox.Avalonia.Dto;
@@ -14,6 +16,7 @@ public static class MessageBoxBuilder
     {
         IMsBox<string> msgBox = MessageBoxManager.GetMessageBoxCustom(new MessageBoxCustomParams
         {
+            Topmost = true,
             SystemDecorations = Avalonia.Controls.SystemDecorations.BorderOnly,
             WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen,
             ContentHeader = header,

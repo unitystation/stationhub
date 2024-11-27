@@ -10,5 +10,6 @@ public enum DownloadState
     InProgress,
     Scanning,
     Installed,
-    Failed
+    Failed,
+    Extracting
 }
