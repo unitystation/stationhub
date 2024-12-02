@@ -169,6 +169,8 @@ public class TTSService : ITTSService
                     ExtractTar(decompressedStream, LocalVersion);
                     break;
                 }
+            default:
+                throw new Exception("Unsupported OS");
         }
 
         Download.Active = false;
