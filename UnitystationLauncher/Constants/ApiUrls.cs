@@ -20,5 +20,5 @@ public static class ApiUrls
     public static string CodeScanListUrl => $"{RawGitHubFileBaseUrl}/CodeScanList.json";
     public static string TTSFiles => $"{CdnBaseUrl}/STTBundleTTS/TTS";
     public static string TTSVersionFile => $"{TTSFiles}/version.txt";
- 
+
 }

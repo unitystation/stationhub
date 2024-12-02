@@ -24,7 +24,7 @@ namespace UnitystationLauncher.ViewModels
         private readonly IEnvironmentService _environmentService;
 
         private readonly ITTSService _ITTSService;
-        
+
         public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
         public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
         public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
@@ -74,7 +74,7 @@ namespace UnitystationLauncher.ViewModels
 
             RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync());
             RxApp.MainThreadScheduler.ScheduleAsync((_, _) => StartTTSIfInstalled());
-            
+
         }
 
         private static PanelBase[] GetEnabledPanels(
@@ -109,13 +109,13 @@ namespace UnitystationLauncher.ViewModels
         }
 
         private async Task StartTTSIfInstalled()
-        { 
+        {
             _ITTSService.StartTTS();
         }
-        
+
         private async Task ValidateClientVersionAsync()
         {
-            
+
             HubClientConfig? hubClientConfig = await _hubService.GetServerHubClientConfigAsync();
 
             if (hubClientConfig == null)
@@ -164,6 +164,6 @@ namespace UnitystationLauncher.ViewModels
         {
             // Do nothing
         }
-        
+
     }
 }

@@ -42,6 +42,6 @@ namespace UnitystationLauncher.ViewModels
         {
             // Do nothing
         }
-        
+
     }
 }

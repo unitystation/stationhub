@@ -87,10 +87,10 @@ public class InstallationService : IInstallationService
 
     public async Task<(Download?, string)> DownloadInstallationAsync(Server server)
     {
-        
-     
-        
-        
+
+
+
+
         string? downloadUrl = server.GetDownloadUrl(_environmentService);
         if (string.IsNullOrWhiteSpace(downloadUrl))
         {
@@ -139,9 +139,9 @@ public class InstallationService : IInstallationService
         }
 
         _downloads.Add(download);
-        
-     
-        
+
+
+
         RxApp.MainThreadScheduler.ScheduleAsync((_, _) => StartDownloadAsync(download));
         return (download, string.Empty);
     }
@@ -149,7 +149,7 @@ public class InstallationService : IInstallationService
     public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
         _TTSVersionService.StartTTS();
-        
+
         Installation? installation = GetInstallationById(installationId);
         if (installation == null)
         {
@@ -435,7 +435,7 @@ public class InstallationService : IInstallationService
     {
         //Update TTS if it's needed
         await _TTSVersionService.CheckAndDownloadLatestVersion(download);
-        
+
         Log.Information("Download requested, Installation Path '{Path}', Url '{Url}'", download.InstallPath, download.DownloadUrl);
         try
         {

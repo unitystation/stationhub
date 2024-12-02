@@ -34,7 +34,7 @@ public class TTSService : ITTSService
     private readonly IEnvironmentService _environmentService;
 
     private static Process? process;
-    
+
     public TTSService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService)
     {
@@ -46,7 +46,7 @@ public class TTSService : ITTSService
     public async Task CheckAndDownloadLatestVersion(Download Download)
     {
         if ((_preferencesService.GetPreferences().TTSEnabled is true) == false) return;
-        
+
         if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
         {
             Log.Error(
@@ -158,17 +158,17 @@ public class TTSService : ITTSService
         switch (_environmentService.GetCurrentEnvironment())
         {
             case CurrentEnvironment.WindowsStandalone:
-            {
-                ZipArchive archive = new(progressStream);
-                archive.ExtractToDirectory(LocalVersion, true);
-                break;
-            }
+                {
+                    ZipArchive archive = new(progressStream);
+                    archive.ExtractToDirectory(LocalVersion, true);
+                    break;
+                }
             case CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak:
-            {
-                using var decompressedStream = DecompressXz(progressStream); // Decompress XZ stream to get .tar
-                ExtractTar(decompressedStream, LocalVersion);
-                break;
-            }
+                {
+                    using var decompressedStream = DecompressXz(progressStream); // Decompress XZ stream to get .tar
+                    ExtractTar(decompressedStream, LocalVersion);
+                    break;
+                }
         }
 
         Download.Active = false;
@@ -204,7 +204,7 @@ public class TTSService : ITTSService
         }
     }
 
-    private (string? ,string?)  FindExecutable()
+    private (string?, string?) FindExecutable()
     {
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         if (string.IsNullOrWhiteSpace(installationBasePath) || !Directory.Exists(installationBasePath))
@@ -237,19 +237,19 @@ public class TTSService : ITTSService
     {
         var Preference = _preferencesService.GetPreferences();
         if ((Preference.TTSEnabled is true) == false) return;
-        
+
         if (process != null && process.HasExited == false)
         {
             return;
         }
-        
+
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         var LocalVersion = System.IO.Path.Combine(installationBasePath, "tts");
         if (System.IO.Directory.Exists(LocalVersion) == false)
         {
             return; //Not installed
         }
-        
+
         (string?, string?) executable = FindExecutable();
         if (string.IsNullOrWhiteSpace(executable.Item1))
         {

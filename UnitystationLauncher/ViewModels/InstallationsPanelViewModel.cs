@@ -38,7 +38,7 @@ namespace UnitystationLauncher.ViewModels
         }
 
         private bool? _TTSEnabled;
-        
+
         public bool? TTSEnabled
         {
             get => _TTSEnabled;
@@ -52,9 +52,9 @@ namespace UnitystationLauncher.ViewModels
         private readonly IInstallationService _installationService;
         private readonly IEnvironmentService _environmentService;
         private readonly ITTSService _ttsService;
-        
+
         public InstallationsPanelViewModel(IInstallationService installationService,
-            IPreferencesService preferencesService, 
+            IPreferencesService preferencesService,
             IEnvironmentService environmentService,
             ITTSService ttsService
             )
@@ -64,11 +64,11 @@ namespace UnitystationLauncher.ViewModels
             _environmentService = environmentService;
 
             _ttsService = ttsService;
-            
+
             BuildNum = $"Hub Build Num: {AppInfo.CurrentBuild}";
 
             UpdateFromPreferences();
-            
+
             this.WhenAnyValue(p => p.AutoRemove)
                 .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
                 .Concat()
@@ -78,8 +78,8 @@ namespace UnitystationLauncher.ViewModels
                 .Select(_ => Observable.FromAsync(OnTTSChange))
                 .Concat()
                 .Subscribe();
-            
-         
+
+
             InitializeInstallationsList();
         }
 
@@ -92,8 +92,8 @@ namespace UnitystationLauncher.ViewModels
 
         private async Task OnAutoRemoveChangedAsync()
         {
-         
-            
+
+
             if (AutoRemove)
             {
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
@@ -114,7 +114,7 @@ namespace UnitystationLauncher.ViewModels
                 SaveChoice();
             }
         }
-        
+
         private async Task OnTTSChange()
         {
             if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
@@ -126,7 +126,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            
+
             if (TTSEnabled is false)
             {
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
@@ -223,9 +223,9 @@ namespace UnitystationLauncher.ViewModels
                     System.IO.Directory.Delete(LocalVersion, true);
                 }
             }
-            
+
         }
-        
+
         public override void Refresh()
         {
             this.RaisePropertyChanged(nameof(InstallationViews));

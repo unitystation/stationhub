@@ -38,7 +38,7 @@ public class ServersPanelViewModel : PanelBase
     private readonly IEnvironmentService? _environmentService;
 
     public ServersPanelViewModel(IInstallationService installationService, IPingService pingService,
-        IServerService serverService, IPreferencesService? preferencesService,IEnvironmentService? environmentService   )
+        IServerService serverService, IPreferencesService? preferencesService, IEnvironmentService? environmentService)
     {
         _installationService = installationService;
         _pingService = pingService;
@@ -54,18 +54,18 @@ public class ServersPanelViewModel : PanelBase
         });
 
         InitializeServersList();
-      
+
     }
 
     public async Task CheckNewUser()
     {
         if (_environmentService == null || _preferencesService == null) return; //is Tests
-        
+
         if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
         {
             return;
-        } 
-        
+        }
+
         if (_preferencesService.GetPreferences().TTSEnabled == null)
         {
             IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
@@ -82,14 +82,14 @@ public class ServersPanelViewModel : PanelBase
             }
         }
     }
-        
+
     private void SaveChoiceTTS(bool? val)
     {
         if (_environmentService == null || _preferencesService == null) return; //is Tests
         Preferences prefs = _preferencesService.GetPreferences();
         prefs.TTSEnabled = val;
     }
-    
+
     private void InitializeServersList()
     {
         Log.Information("Initializing servers list...");
