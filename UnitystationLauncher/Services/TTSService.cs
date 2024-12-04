@@ -120,8 +120,8 @@ public class TTSService : ITTSService
                 var zip = _environmentService.GetCurrentEnvironment() switch
                 {
                     CurrentEnvironment.WindowsStandalone => "win.zip",
-                    CurrentEnvironment.MacOsStandalone => "mac.zip",
-                    CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak => "lnx.zip",
+                    //CurrentEnvironment.MacOsStandalone => "mac.zip",
+                    CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak => "lnx.tar.xz",
                     _ => null
                 };
 
