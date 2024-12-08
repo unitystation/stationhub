@@ -87,10 +87,6 @@ public class InstallationService : IInstallationService
 
     public async Task<(Download?, string)> DownloadInstallationAsync(Server server)
     {
-
-
-
-
         string? downloadUrl = server.GetDownloadUrl(_environmentService);
         if (string.IsNullOrWhiteSpace(downloadUrl))
         {
@@ -99,14 +95,12 @@ public class InstallationService : IInstallationService
             return (null!, failureReason);
         }
 
-        server.ServerGoodFileVersion = "1.0.0"; //TODO
-
-        bool result = await _codeScanConfigService.ValidGoodFilesVersionAsync(server.ServerGoodFileVersion);
+        bool result = await _codeScanConfigService.ValidGoodFilesVersionAsync(server.GoodFileVersion);
 
         if (result == false)
         {
             const string failureReason = "server does not have a valid ServerGoodFileVersion ";
-            Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.ServerGoodFileVersion}");
+            Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.GoodFileVersion}");
             return (null!, failureReason);
         }
 
@@ -121,9 +115,9 @@ public class InstallationService : IInstallationService
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         // should be something like {basePath}/{forkName}/{version}
-        string installationPath = Path.Combine(installationBasePath, server.ForkName.SanitiseStringPath(), server.ServerGoodFileVersion.SanitiseStringPath(), server.BuildVersion.ToString());
+        string installationPath = Path.Combine(installationBasePath, server.ForkName.SanitiseStringPath(), server.GoodFileVersion.SanitiseStringPath(), server.BuildVersion.ToString());
 
-        download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.ServerGoodFileVersion);
+        download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.GoodFileVersion);
 
         (bool canStartDownload, string cantDownloadReason) = CanStartDownload(download);
 
