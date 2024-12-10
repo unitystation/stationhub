@@ -115,6 +115,17 @@ public class InstallationService : IInstallationService
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         // should be something like {basePath}/{forkName}/{version}
+        if (server.ForkName.SanitiseStringPath() == "nonbuild")
+        {
+            throw new Exception($" bad server.ForkName {server.ForkName.SanitiseStringPath()}  Not allowed as save location (nonbuild)");
+        }
+
+        if (server.ForkName.SanitiseStringPath() == "tts")
+        {
+            throw new Exception($" bad server.ForkName {server.ForkName.SanitiseStringPath()}  Not allowed as save location (tts) ");
+        }
+
+
         string installationPath = Path.Combine(installationBasePath, server.ForkName.SanitiseStringPath(), server.GoodFileVersion.SanitiseStringPath(), server.BuildVersion.ToString());
 
         download = new(downloadUrl, installationPath, server.ForkName, server.BuildVersion, server.GoodFileVersion);

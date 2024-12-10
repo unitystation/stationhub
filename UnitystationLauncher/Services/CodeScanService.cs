@@ -36,8 +36,10 @@ public class CodeScanService : ICodeScanService
         // TODO: Enable extraction cancelling
         DirectoryInfo root = new(_preferencesService.GetPreferences().InstallationPath);
 
-        DirectoryInfo stagingDirectory = root.CreateSubdirectory("UnsafeBuildZipDirectory");
-        DirectoryInfo processingDirectory = root.CreateSubdirectory("UnsafeBuildProcessing");
+        var nonbuild = root.CreateSubdirectory("nonbuild");
+
+        DirectoryInfo stagingDirectory = nonbuild.CreateSubdirectory("UnsafeBuildZipDirectory");
+        DirectoryInfo processingDirectory = nonbuild.CreateSubdirectory("UnsafeBuildProcessing");
         DirectoryInfo? dataPath = null;
         archive.ExtractToDirectory(stagingDirectory.ToString(), true);
         try
