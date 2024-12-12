@@ -69,7 +69,7 @@
 		<description>
 			<p>New:</p>
 			<ul>
-				<li>support for code scanning.</li>
+				<li>Added support for code scanning. Forks will be audited to make sure they are not using any potentially dangerous function outside of our whitelist.</li>
 				<li>TTS download and handling.</li>
 			</ul>
 		</description>
