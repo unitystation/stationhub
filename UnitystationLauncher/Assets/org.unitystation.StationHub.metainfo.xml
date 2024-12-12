@@ -70,7 +70,7 @@
 			<p>New:</p>
 			<ul>
 				<li>Added support for code scanning. Forks will be audited to make sure they are not using any potentially dangerous function outside of our whitelist.</li>
-				<li>TTS download and handling.</li>
+				<li>Added a  new TTS functionality. StationHub will download and handle the TTS server that will communicate with the game for charcter voices.</li>
 			</ul>
 		</description>
 	</release>
