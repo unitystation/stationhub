@@ -5,11 +5,14 @@ using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
+using MsBox.Avalonia.Base;
 using ReactiveUI;
 using Serilog;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
+using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
@@ -31,13 +34,18 @@ public class ServersPanelViewModel : PanelBase
     private readonly IInstallationService _installationService;
     private readonly IPingService _pingService;
     private readonly IServerService _serverService;
+    private readonly IPreferencesService? _preferencesService;
+    private readonly IEnvironmentService? _environmentService;
 
     public ServersPanelViewModel(IInstallationService installationService, IPingService pingService,
-        IServerService serverService)
+        IServerService serverService, IPreferencesService? preferencesService, IEnvironmentService? environmentService)
     {
         _installationService = installationService;
         _pingService = pingService;
         _serverService = serverService;
+        _preferencesService = preferencesService;
+        _environmentService = environmentService;
+
 
         DownloadCommand = ReactiveCommand.Create<ServerViewModel, Unit>(server =>
         {
@@ -46,6 +54,40 @@ public class ServersPanelViewModel : PanelBase
         });
 
         InitializeServersList();
+
+    }
+
+    public async Task CheckNewUser()
+    {
+        if (_environmentService == null || _preferencesService == null) return; //is Tests
+
+        if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
+        {
+            return;
+        }
+
+        if (_preferencesService.GetPreferences().TTSEnabled == null)
+        {
+            IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
+                "Local TTS?", " would you like local TTS ( Character voices from other players Will not be present if you say no ) To be installed on your computer (2Gb Storage space and 500mb download)? It will download the first time you download a build It may take awhile to extract  ");
+
+            string response = await msgBox.ShowAsync();
+            if (response.Equals(MessageBoxResults.Yes))
+            {
+                SaveChoiceTTS(true);
+            }
+            else
+            {
+                SaveChoiceTTS(false);
+            }
+        }
+    }
+
+    private void SaveChoiceTTS(bool? val)
+    {
+        if (_environmentService == null || _preferencesService == null) return; //is Tests
+        Preferences prefs = _preferencesService.GetPreferences();
+        prefs.TTSEnabled = val;
     }
 
     private void InitializeServersList()
@@ -54,7 +96,7 @@ public class ServersPanelViewModel : PanelBase
         RxApp.MainThreadScheduler.ScheduleAsync((_, _) => RefreshServersList());
 
         Log.Information("Scheduling periodic refresh for servers list...");
-
+        RxApp.MainThreadScheduler.ScheduleAsync((_, _) => CheckNewUser());
         // Why can you not just run async methods with this?? Instead we have to do this ugly thing
         RxApp.TaskpoolScheduler.SchedulePeriodic(_refreshInterval,
             () => { RxApp.MainThreadScheduler.ScheduleAsync((_, _) => RefreshServersList()); });

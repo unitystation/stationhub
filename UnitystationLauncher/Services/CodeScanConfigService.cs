@@ -47,11 +47,11 @@ public class CodeScanConfigService : ICodeScanConfigService
 
         string pathBase = _preferencesService.GetPreferences().InstallationPath;
         string folderName = GetFolderName(version);
-        string versionPath = Path.Combine(pathBase, version, folderName);
+        string versionPath = Path.Combine(pathBase, "nonbuild", version, folderName);
 
         if (Directory.Exists(versionPath) == false)
         {
-            string zipExtractPath = Path.Combine(pathBase, version);
+            string zipExtractPath = Path.Combine(pathBase, "nonbuild", version);
             HttpResponseMessage request = await _httpClient.GetAsync($"{ApiUrls.GoodFilesBaseUrl}/{version}/{folderName}.zip", HttpCompletionOption.ResponseHeadersRead);
             await using Stream responseStream = await request.Content.ReadAsStreamAsync();
             ZipArchive archive = new(responseStream);
@@ -183,12 +183,12 @@ public class CodeScanConfigService : ICodeScanConfigService
         switch (os)
         {
             case CurrentEnvironment.WindowsStandalone:
-                return "Windows";
+                return "StandaloneWindows64";
             case CurrentEnvironment.LinuxFlatpak:
             case CurrentEnvironment.LinuxStandalone:
-                return "Linux";
+                return "StandaloneLinux64";
             case CurrentEnvironment.MacOsStandalone:
-                return "Mac";
+                return "StandaloneOSX";
             default:
                 throw new UnsupportedPlatformException($"Unable to determine OS Version {os}");
         }

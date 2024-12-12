@@ -7,8 +7,11 @@ using System.Reactive.Concurrency;
 using Serilog;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using MsBox.Avalonia.Base;
 using UnitystationLauncher.Constants;
+using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Models.Enums;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
@@ -19,6 +22,8 @@ namespace UnitystationLauncher.ViewModels
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
         private readonly IEnvironmentService _environmentService;
+
+        private readonly ITTSService _ITTSService;
 
         public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
         public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
@@ -49,12 +54,14 @@ namespace UnitystationLauncher.ViewModels
             IHubService hubService,
             IPreferencesService preferencesService,
             IEnvironmentService environmentService,
-            IGameCommunicationPipeService gameCommunicationPipeService)
+            IGameCommunicationPipeService gameCommunicationPipeService,
+            ITTSService ITTSService)
         {
             _hubUpdateVm = hubUpdateVm;
             _hubService = hubService;
             _preferencesService = preferencesService;
             _environmentService = environmentService;
+            _ITTSService = ITTSService;
             gameCommunicationPipeService.Init();
 
             OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
@@ -66,6 +73,8 @@ namespace UnitystationLauncher.ViewModels
             SelectedPanel = serversPanel;
 
             RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync());
+            RxApp.MainThreadScheduler.Schedule((_) => StartTTSIfInstalled());
+
         }
 
         private static PanelBase[] GetEnabledPanels(
@@ -99,8 +108,14 @@ namespace UnitystationLauncher.ViewModels
             return panelBases.ToArray();
         }
 
+        private void StartTTSIfInstalled()
+        {
+            _ITTSService.StartTTS();
+        }
+
         private async Task ValidateClientVersionAsync()
         {
+
             HubClientConfig? hubClientConfig = await _hubService.GetServerHubClientConfigAsync();
 
             if (hubClientConfig == null)
@@ -149,5 +164,6 @@ namespace UnitystationLauncher.ViewModels
         {
             // Do nothing
         }
+
     }
 }
