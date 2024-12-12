@@ -117,12 +117,12 @@ public class InstallationService : IInstallationService
         // should be something like {basePath}/{forkName}/{version}
         if (server.ForkName.SanitiseStringPath() == "nonbuild")
         {
-            throw new Exception($" bad server.ForkName {server.ForkName.SanitiseStringPath()}  Not allowed as save location (nonbuild)");
+            throw new Exception($" bad server ForkName {server.ForkName.SanitiseStringPath()}  Not allowed as save location (nonbuild)");
         }
 
         if (server.ForkName.SanitiseStringPath() == "tts")
         {
-            throw new Exception($" bad server.ForkName {server.ForkName.SanitiseStringPath()}  Not allowed as save location (tts) ");
+            throw new Exception($" bad server ForkName {server.ForkName.SanitiseStringPath()}  Not allowed as save location (tts) ");
         }
 
 

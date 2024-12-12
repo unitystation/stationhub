@@ -45,7 +45,10 @@ public class TTSService : ITTSService
 
     public async Task CheckAndDownloadLatestVersion(Download Download)
     {
-        if ((_preferencesService.GetPreferences().TTSEnabled is true) == false) return;
+        if ((_preferencesService.GetPreferences().TTSEnabled is true) == false)
+        {
+            return;
+        }
 
         if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
         {
@@ -308,6 +311,7 @@ public class TTSService : ITTSService
             Log.Error($"Error starting process: {ex.Message}");
         }
     }
+
 
     public void StopTTS()
     {
