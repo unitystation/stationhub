@@ -73,7 +73,7 @@ namespace UnitystationLauncher.ViewModels
             SelectedPanel = serversPanel;
 
             RxApp.MainThreadScheduler.ScheduleAsync((_, _) => ValidateClientVersionAsync());
-            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => StartTTSIfInstalled());
+            RxApp.MainThreadScheduler.Schedule((_) => StartTTSIfInstalled());
 
         }
 
@@ -108,7 +108,7 @@ namespace UnitystationLauncher.ViewModels
             return panelBases.ToArray();
         }
 
-        private async Task StartTTSIfInstalled()
+        private void StartTTSIfInstalled()
         {
             _ITTSService.StartTTS();
         }
