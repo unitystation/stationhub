@@ -1,6 +1,9 @@
-﻿namespace UnitystationLauncher.Models.Api;
+﻿using System.Text.Json.Serialization;
+
+namespace UnitystationLauncher.Models.Api;
 
 public class VersionModel
 {
-    public string version { get; set; }
+    [JsonPropertyName("version")]
+    public required string Version { get; set; }
 }

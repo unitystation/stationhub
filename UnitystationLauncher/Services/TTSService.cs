@@ -111,7 +111,7 @@ public class TTSService : ITTSService
 
         try
         {
-            if (localVersionModel == null || localVersionModel.version != CurrentVersion.version)
+            if (localVersionModel == null || localVersionModel.Version != CurrentVersion.Version)
             {
                 var LocalVersion = System.IO.Path.Combine(installationBasePath, "tts");
                 if (System.IO.Directory.Exists(LocalVersion))
