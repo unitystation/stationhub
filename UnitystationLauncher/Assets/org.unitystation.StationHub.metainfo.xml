@@ -65,6 +65,15 @@
 </screenshots>
 
 <releases>
+	<release version="934" date="2024-12-12">
+		<description>
+			<p>New:</p>
+			<ul>
+				<li>Added support for code scanning. Forks will be audited to make sure they are not using any potentially dangerous function outside of our whitelist.</li>
+				<li>Added a  new TTS functionality. StationHub will download and handle the TTS server that will communicate with the game for charcter voices.</li>
+			</ul>
+		</description>
+	</release>
 	<release version="933" date="2023-08-10">
 		<description>
 			<p>Bug Fixes:</p>
