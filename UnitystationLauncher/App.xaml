@@ -6,9 +6,11 @@
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
-
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="/Styles.axaml" />
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="White" />
+        </Style>
     </Application.Styles>
 </Application>
