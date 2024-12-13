@@ -44,7 +44,7 @@ namespace UnitystationLauncher.ViewModels
             _preferencesService = preferencesService;
 
             // Initialize ReactiveCommands
-            Update = ReactiveCommand.Create(PerformUpdate); // Bind Update method here
+            Update = ReactiveCommand.Create(PerformUpdate);
             Ignore = ReactiveCommand.Create(IgnoreUpdate);
             Skip = ReactiveCommand.Create(SkipUpdate);
 
