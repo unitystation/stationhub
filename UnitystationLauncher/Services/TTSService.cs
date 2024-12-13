@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Reactive.Concurrency;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls.Shapes;
 using Mono.Unix;
+using ReactiveUI;
 using Serilog;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Tar;
@@ -130,18 +132,19 @@ public class TTSService : ITTSService
 
                 Download.Active = true;
                 Download.DownloadState = DownloadState.InProgress;
+
                 HttpResponseMessage request = await _httpClient.GetAsync(ApiUrls.TTSFiles + "/" + zip,
                     HttpCompletionOption.ResponseHeadersRead);
 
-                Download.Size = request.Content.Headers.ContentLength ??
-                                throw new ContentLengthNullException(ApiUrls.TTSFiles + "/" + zip);
                 using Stream responseStream = await request.Content.ReadAsStreamAsync();
                 Log.Information("Download connection established");
                 await using ProgressStream progressStream = new(responseStream);
                 using IDisposable logProgressDisposable = InstallationService.LogProgress(progressStream, Download);
 
-                using IDisposable progressDisposable =
-                    progressStream.Progress.Subscribe(p => { Download.Downloaded = p; });
+                Download.Size = request.Content.Headers.ContentLength ??
+                                throw new ContentLengthNullException(ApiUrls.TTSFiles + "/" + zip);
+
+                using IDisposable progressDisposable = progressStream.Progress.Subscribe(p => { Download.Downloaded = p; });
 
                 await Task.Run(() => ExtractTo(progressStream, LocalVersion, Download));
             }
@@ -157,18 +160,20 @@ public class TTSService : ITTSService
 
     private void ExtractTo(Stream progressStream, string LocalVersion, Download Download)
     {
-        Download.DownloadState = DownloadState.Extracting;
+
         switch (_environmentService.GetCurrentEnvironment())
         {
             case CurrentEnvironment.WindowsStandalone:
                 {
                     ZipArchive archive = new(progressStream);
+                    Download.DownloadState = DownloadState.Extracting;
                     archive.ExtractToDirectory(LocalVersion, true);
                     break;
                 }
             case CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak:
                 {
                     using var decompressedStream = DecompressXz(progressStream); // Decompress XZ stream to get .tar
+
                     ExtractTar(decompressedStream, LocalVersion);
                     break;
                 }
@@ -220,11 +225,13 @@ public class TTSService : ITTSService
         return _environmentService.GetCurrentEnvironment() switch
         {
             CurrentEnvironment.WindowsStandalone
-                => (Path.Combine(installationBasePath, "tts", "python-3.10.11.amd64", "python.exe"), Path.Combine(installationBasePath, "tts", "scripts")),
+                => (Path.Combine(installationBasePath, "tts", "python-3.10.11.amd64", "python.exe"),
+                    Path.Combine(installationBasePath, "tts", "scripts")),
             CurrentEnvironment.MacOsStandalone
                 => throw new NotImplementedException("tts Mac Support not implemented"),
             CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak
-                => (Path.Combine(installationBasePath, "tts", "bin", "python"), Path.Combine(installationBasePath, "tts", "bin")),
+                => (Path.Combine(installationBasePath, "tts", "bin", "python"),
+                    Path.Combine(installationBasePath, "tts", "bin")),
             _ => (null, null)
         };
     }
