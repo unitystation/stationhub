@@ -65,6 +65,14 @@
 </screenshots>
 
 <releases>
+	<release version="937" date="2024-12-13">
+		<description>
+			<p>Fix:</p>
+			<ul>
+				<li>Fixed TTS update not working and resulting in build update not working</li>
+			</ul>
+		</description>
+	</release>
 	<release version="936" date="2024-12-13">
 		<description>
 			<p>Fix:</p>

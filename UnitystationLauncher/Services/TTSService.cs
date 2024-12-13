@@ -115,6 +115,7 @@ public class TTSService : ITTSService
         {
             if (localVersionModel == null || localVersionModel.Version != CurrentVersion.Version)
             {
+                StopTTS();
                 var LocalVersion = System.IO.Path.Combine(installationBasePath, "tts");
                 if (System.IO.Directory.Exists(LocalVersion))
                 {
