@@ -24,7 +24,7 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _updateMessage, value);
         }
 
-        public ReactiveCommand<Unit, Unit> Update { get; } // Add this
+        public ReactiveCommand<Unit, Unit> Update { get; }
         public ReactiveCommand<Unit, LauncherViewModel> Skip { get; }
         public ReactiveCommand<Unit, LauncherViewModel> Ignore { get; }
 
