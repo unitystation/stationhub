@@ -65,7 +65,15 @@
 </screenshots>
 
 <releases>
-	<release version="935" date="2024-12-14">
+	<release version="936" date="2024-12-13">
+		<description>
+			<p>Fix:</p>
+			<ul>
+				<li>Fixed the update button being greyed out</li>
+			</ul>
+		</description>
+	</release>
+	<release version="935" date="2024-12-13">
 		<description>
 			<p>Fix:</p>
 			<ul>
