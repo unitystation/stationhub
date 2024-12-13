@@ -14,10 +14,11 @@
         MinWidth="800"
         MinHeight="555"
         Background="#19212c"
-        x:DataType="viewModels:MainWindowViewModel">
-    
+        x:DataType="viewModels:MainWindowViewModel"
+        SystemDecorations="None">
+
     <Design.DataContext>
-        <viewModels:MainWindowViewModel/>
+        <viewModels:MainWindowViewModel />
     </Design.DataContext>
     <Grid>
         <Grid.RowDefinitions>
@@ -40,13 +41,13 @@
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Width="40" Name="MinimizeButton" ToolTip.Tip="Minimize">
+                        <!-- Minimize Button -->
+                        <Button Width="50" Height="30" Name="MinimizeButton" ToolTip.Tip="Minimize">
                             <Button.Styles>
                                 <Style Selector="Button">
                                     <Setter Property="BorderThickness" Value="0" />
                                 </Style>
-                                <Style
-                                    Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                                     <Setter Property="Background" Value="#44AAAAAA" />
                                 </Style>
                                 <Style
@@ -59,16 +60,14 @@
                                   Fill="White"
                                   Data="M2048 1229v-205h-2048v205h2048z" />
                         </Button>
-                        <Button Width="40" Name="MaximizeButton">
-                            <ToolTip.Tip>
-                                <ToolTip Content="{Binding MaximizeToolTip}" />
-                            </ToolTip.Tip>
+
+                        <!-- Maximize/Restore Button -->
+                        <Button Width="50" Height="30" Name="MaximizeButton" ToolTip.Tip="Maximize">
                             <Button.Styles>
                                 <Style Selector="Button">
                                     <Setter Property="BorderThickness" Value="0" />
                                 </Style>
-                                <Style
-                                    Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                                     <Setter Property="Background" Value="#44AAAAAA" />
                                 </Style>
                                 <Style
@@ -81,13 +80,14 @@
                                   Fill="#dedede"
                                   Data="{Binding MaximizeIcon}" />
                         </Button>
-                        <Button Width="40" Name="CloseButton" ToolTip.Tip="Close">
+
+                        <!-- Close Button -->
+                        <Button Width="50" Height="30" Name="CloseButton" ToolTip.Tip="Close">
                             <Button.Styles>
                                 <Style Selector="Button">
                                     <Setter Property="BorderThickness" Value="0" />
                                 </Style>
-                                <Style
-                                    Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                                <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
                                     <Setter Property="Background" Value="#99810a0f" />
                                 </Style>
                                 <Style
