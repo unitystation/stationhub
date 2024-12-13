@@ -24,6 +24,7 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _updateMessage, value);
         }
 
+        public ReactiveCommand<Unit, Unit> Update { get; }
         public ReactiveCommand<Unit, LauncherViewModel> Skip { get; }
         public ReactiveCommand<Unit, LauncherViewModel> Ignore { get; }
 
@@ -35,11 +36,15 @@ namespace UnitystationLauncher.ViewModels
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
 
-        public HubUpdateViewModel(Lazy<LauncherViewModel> launcherVm, IHubService hubService, IPreferencesService preferencesService)
+        public HubUpdateViewModel(Lazy<LauncherViewModel> launcherVm, IHubService hubService,
+            IPreferencesService preferencesService)
         {
             _launcherVm = launcherVm;
             _hubService = hubService;
             _preferencesService = preferencesService;
+
+            // Initialize ReactiveCommands
+            Update = ReactiveCommand.Create(PerformUpdate);
             Ignore = ReactiveCommand.Create(IgnoreUpdate);
             Skip = ReactiveCommand.Create(SkipUpdate);
 
@@ -58,7 +63,7 @@ namespace UnitystationLauncher.ViewModels
             return hubClientConfig?.BuildNumber ?? 0;
         }
 
-        private void Update()
+        private void PerformUpdate()
         {
             ProcessStartInfo psi = new()
             {
