@@ -115,12 +115,24 @@ public class TTSService : ITTSService
         {
             if (localVersionModel == null || localVersionModel.Version != CurrentVersion.Version)
             {
+                Download.Active = true;
+                Download.DownloadState = DownloadState.InProgress;
+                StopTTS();
+                await Task.Delay(2 * 1000); //to give it some grace period to shutdown
+
                 var LocalVersion = System.IO.Path.Combine(installationBasePath, "tts");
                 if (System.IO.Directory.Exists(LocalVersion))
                 {
-                    System.IO.Directory.Delete(LocalVersion, true);
-                }
+                    foreach (var file in System.IO.Directory.GetFiles(LocalVersion))
+                    {
+                        System.IO.File.Delete(file);
+                    }
 
+                    foreach (var directory in System.IO.Directory.GetDirectories(LocalVersion))
+                    {
+                        System.IO.Directory.Delete(directory, true);
+                    }
+                }
 
                 var zip = _environmentService.GetCurrentEnvironment() switch
                 {
@@ -130,8 +142,7 @@ public class TTSService : ITTSService
                     _ => null
                 };
 
-                Download.Active = true;
-                Download.DownloadState = DownloadState.InProgress;
+
 
                 HttpResponseMessage request = await _httpClient.GetAsync(ApiUrls.TTSFiles + "/" + zip,
                     HttpCompletionOption.ResponseHeadersRead);
@@ -166,14 +177,12 @@ public class TTSService : ITTSService
             case CurrentEnvironment.WindowsStandalone:
                 {
                     ZipArchive archive = new(progressStream);
-                    Download.DownloadState = DownloadState.Extracting;
                     archive.ExtractToDirectory(LocalVersion, true);
                     break;
                 }
             case CurrentEnvironment.LinuxStandalone or CurrentEnvironment.LinuxFlatpak:
                 {
                     using var decompressedStream = DecompressXz(progressStream); // Decompress XZ stream to get .tar
-
                     ExtractTar(decompressedStream, LocalVersion);
                     break;
                 }
@@ -183,6 +192,7 @@ public class TTSService : ITTSService
 
         Download.Active = false;
         Download.DownloadState = DownloadState.InProgress;
+        StartTTS();
     }
 
     private static Stream DecompressXz(Stream compressedStream)
@@ -250,10 +260,18 @@ public class TTSService : ITTSService
         var Preference = _preferencesService.GetPreferences();
         if ((Preference.TTSEnabled is true) == false) return;
 
-        if (process != null && process.HasExited == false)
+        try
         {
-            return;
+            if (process != null && process.HasExited == false)
+            {
+                return;
+            }
         }
+        catch (Exception e)
+        {
+            Log.Error(e.ToString());
+        }
+
 
         string installationBasePath = _preferencesService.GetPreferences().InstallationPath;
         var LocalVersion = System.IO.Path.Combine(installationBasePath, "tts");
@@ -303,10 +321,14 @@ public class TTSService : ITTSService
         // Ensure subprocess ends when the main application exits
         AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
         {
-            if (process.HasExited == false)
+            if (process != null)
             {
-                process.Kill();
+                if (process.HasExited == false)
+                {
+                    process.Kill();
+                }
             }
+
         };
 
         try
@@ -324,10 +346,18 @@ public class TTSService : ITTSService
     {
         if (process != null)
         {
-            if (process.HasExited == false)
+            try
             {
-                process.Kill();
+                if (process.HasExited == false)
+                {
+                    process.Kill();
+                }
             }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+
         }
     }
 }
