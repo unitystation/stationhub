@@ -69,7 +69,7 @@
 		<description>
 			<p>Fix:</p>
 			<ul>
-				<li>Fixed an issue where TTS errors would crush the entire TTS system</li>
+				<li>Fixed an issue where TTS errors would crash the entire TTS system</li>
 			</ul>
 		</description>
 	</release>
