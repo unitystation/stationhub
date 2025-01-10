@@ -65,6 +65,14 @@
 </screenshots>
 
 <releases>
+	<release version="938" date="2024-12-13">
+		<description>
+			<p>Fix:</p>
+			<ul>
+				<li>Fixed an issue where TTS errors would crash the entire TTS system</li>
+			</ul>
+		</description>
+	</release>
 	<release version="937" date="2024-12-13">
 		<description>
 			<p>Fix:</p>

@@ -298,8 +298,6 @@ public class TTSService : ITTSService
             ArgumentList = { arguments },
             UseShellExecute = false, // Don't use the shell
             CreateNoWindow = true, // Run without creating a window
-            RedirectStandardOutput = true, // Optional: Redirect output for logging
-            RedirectStandardError = true, // Optional: Redirect error output
         };
 
         if (startInfo == null)
