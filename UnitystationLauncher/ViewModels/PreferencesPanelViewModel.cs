@@ -31,7 +31,7 @@ namespace UnitystationLauncher.ViewModels
             get => _autoRemove;
             set => this.RaiseAndSetIfChanged(ref _autoRemove, value);
         }
-		// for a future overhaul of TTS
+        // for a future overhaul of TTS
         // private string TTSPath;
         // public string TTSText
         // { // exp ? true : false
@@ -51,25 +51,25 @@ namespace UnitystationLauncher.ViewModels
 
         private readonly IPreferencesService _preferencesService;
         private readonly IInstallationService _installationService;
-		private readonly IEnvironmentService _environmentService;
-		private readonly ITTSService _ttsService;
+        private readonly IEnvironmentService _environmentService;
+        private readonly ITTSService _ttsService;
 
         public PreferencesPanelViewModel(
-			IPreferencesService preferencesService, 
-			IInstallationService installationService,
-			IEnvironmentService environmentService,
-			ITTSService ttsService)
+            IPreferencesService preferencesService,
+            IInstallationService installationService,
+            IEnvironmentService environmentService,
+            ITTSService ttsService)
         {
             _preferencesService = preferencesService;
             _installationService = installationService;
-			_environmentService = environmentService;
-			_ttsService = ttsService;
+            _environmentService = environmentService;
+            _ttsService = ttsService;
 
-			Preferences preferences = _preferencesService.GetPreferences();
+            Preferences preferences = _preferencesService.GetPreferences();
             _installationPath = preferences.InstallationPath;
-			_autoRemove = preferences.AutoRemove;
-			_TTSEnabled = preferences.TTSEnabled;
-			this.WhenAnyValue(p => p.AutoRemove)
+            _autoRemove = preferences.AutoRemove;
+            _TTSEnabled = preferences.TTSEnabled;
+            this.WhenAnyValue(p => p.AutoRemove)
                 .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
                 .Concat()
                 .Subscribe();
@@ -80,20 +80,22 @@ namespace UnitystationLauncher.ViewModels
                 .Subscribe();
         }
 
-		public async Task OnAutoRemoveChangedAsync() {
-			if (AutoRemove)
+        public async Task OnAutoRemoveChangedAsync()
+        {
+            if (AutoRemove)
             {
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
                     "Are you sure?", "This will remove older installations from disk. Proceed?");
 
                 string response = await msgBox.ShowAsync();
-				AutoRemove = response.Equals(MessageBoxResults.Yes);
+                AutoRemove = response.Equals(MessageBoxResults.Yes);
             }
-			_preferencesService.GetPreferences().AutoRemove = AutoRemove;
-		}
+            _preferencesService.GetPreferences().AutoRemove = AutoRemove;
+        }
 
-		public async Task OnTTSChangedAsync() {
-			if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
+        public async Task OnTTSChangedAsync()
+        {
+            if (_environmentService.GetCurrentEnvironment() == CurrentEnvironment.MacOsStandalone)
             {
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok,
                     " MacOS is unsupported ",
@@ -108,9 +110,9 @@ namespace UnitystationLauncher.ViewModels
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.YesNo,
                     "Are you sure?", "This will disable Character voices and delete the TTS System. This may take a While.");
                 string response = await msgBox.ShowAsync();
-				TTSEnabled = response.Equals(MessageBoxResults.No);
+                TTSEnabled = response.Equals(MessageBoxResults.No);
             }
-        	_preferencesService.GetPreferences().TTSEnabled = TTSEnabled;
+            _preferencesService.GetPreferences().TTSEnabled = TTSEnabled;
 
             if (TTSEnabled == false)
             {
@@ -122,7 +124,7 @@ namespace UnitystationLauncher.ViewModels
                     System.IO.Directory.Delete(LocalVersion, true);
                 }
             }
-		}
+        }
 
         public async Task SetInstallationPathAsync(string path)
         {
