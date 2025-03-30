@@ -23,7 +23,7 @@ namespace UnitystationLauncher.Models.Api
         public string? GameMode { get; set; }
         public string? InGameTime { get; set; }
         public int? PlayerCount { get; set; }
-        public int PlayerCountMax {get; set;}
+        public int PlayerCountMax { get; set; }
         public string ServerIp { get; }
         public int ServerPort { get; }
         public string? WinDownload { get; set; }
