@@ -65,8 +65,10 @@
                        Text="{Binding Server.Description}" /-->
             <StackPanel Grid.Column="1" Grid.Row="0" Margin="5" Orientation="Horizontal" MinWidth="100"
                         VerticalAlignment="Center">
-                <TextBlock Margin="0" Text="{Binding Server.PlayerCount}" />
-                <TextBlock Margin="5, 0, 0, 0">Players</TextBlock>
+                <TextBlock Margin="0, 5, 0, 0" Text="{Binding Server.PlayerCount}" />
+				<TextBlock Margin="5, 5, 5, 0">/</TextBlock>
+				<TextBlock Margin="0, 5, 0, 0" Text="{Binding Server.PlayerCountMax}" />
+                <TextBlock Margin="5, 5, 0, 0">Players</TextBlock>
             </StackPanel>
             <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding Ping}" MinWidth="75"
                        TextAlignment="Right" VerticalAlignment="Center" />
