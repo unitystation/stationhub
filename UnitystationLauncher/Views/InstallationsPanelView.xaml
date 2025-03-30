@@ -13,15 +13,6 @@
     </Design.DataContext>
     
     <DockPanel>
-        <DockPanel DockPanel.Dock="Top" Background="#1d3b50">
-            <TextBlock DockPanel.Dock="Left" Margin="5" Text="{Binding BuildNum}" />
-            <CheckBox DockPanel.Dock="Right" Margin="5" IsChecked="{Binding AutoRemove}" HorizontalAlignment="Right">
-                <TextBlock Text=" Automatically Remove Old Versions" />
-            </CheckBox>
-            <CheckBox DockPanel.Dock="Right" Margin="5" IsChecked="{Binding TTSEnabled}" HorizontalAlignment="Right">
-                <TextBlock Text=" Run and download TTS(Voice generation) local server" />
-            </CheckBox>
-        </DockPanel>
         <ScrollViewer>
             <StackPanel>
                 <ItemsControl ItemsSource="{Binding InstallationViews}" />

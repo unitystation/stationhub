@@ -16,7 +16,6 @@ namespace UnitystationLauncher.ViewModels
     {
         public override string Name => "Installations";
         public override bool IsEnabled => true;
-        public static string? BuildNum => $"Hub Build Number: {AppInfo.CurrentBuild}";
         public ObservableCollection<InstallationViewModel> InstallationViews { get; init; } = new();
 
         private readonly TimeSpan _refreshInterval = TimeSpan.FromSeconds(2);
