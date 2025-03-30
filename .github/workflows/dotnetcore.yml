@@ -47,7 +47,7 @@ jobs:
 
       # Upload
       - name: Upload Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: StationHub-win-x64
           path: D:\a\stationhub\stationhub\UnitystationLauncher\publish\
@@ -73,7 +73,7 @@ jobs:
 
       # Upload
       - name: Upload Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: StationHub-osx-x64
           path: ~/publish/StationHub.tar
@@ -96,7 +96,7 @@ jobs:
 
       # Upload
       - name: Upload Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: StationHub-linux-x64
           path: ~/publish
