@@ -27,7 +27,8 @@
                     <RowDefinition Height="0.13*" />
                     <RowDefinition Height="0.13*" />
                     <RowDefinition Height="0.13*" />
-                    <RowDefinition Height="0.2*" />
+                    <RowDefinition Height="0.13*" />
+					<!-- not needed anymore? -->
                     <RowDefinition Height="0.2*" />
                     <RowDefinition Height="0.21*" />
                 </Grid.RowDefinitions>
@@ -48,67 +49,26 @@
                         <TextBlock FontSize="18" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" Text="Change" />    
                     </Button>
                 </Grid>
-                <!--Grid Grid.Row="2" Margin="0 5 0 5">
-                    <TextBlock Grid.Column="0" FontSize="12" IsVisible="{Binding InvalidInstallationPath}" Text="Invalid installation path selected, please choose an empty directory with only ASCII characters in the path."/>
-                    <TextBlock Grid.Column="0" FontSize="12" IsVisible="{Binding RestartClientPrompt}" Text="Your installation path has been set, please restart StationHub for this change to take effect."/>
-                </Grid-->
-                    <!--Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.8*" />
-                        <ColumnDefinition Width="0.2*" />
-                    </Grid.ColumnDefinitions>
-                    <Border Background="#1d3b50" Grid.Column="0" BorderBrush="#ffffff" BorderThickness="0.4"
-                            Margin="0 0 5 0">
-                        <TextBlock FontSize="20" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold">Screen mode</TextBlock>
-                    </Border>
-                    <ComboBox Grid.Column="1" Margin="5 0 0 0" Background="#1d3b50" />
-                </Grid-->
-                <!--Grid Grid.Row="3" Margin="0 5 0 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.1*" />
-                        <ColumnDefinition Width="0.35*" />
-                        <ColumnDefinition Width="0.55*" />
-                    </Grid.ColumnDefinitions>
-                    <Viewbox Grid.Column="0" Margin="0 5 0 0" HorizontalAlignment="Left">
-                        <CheckBox Background="#1d3b50" BorderThickness="0" />
-                    </Viewbox>
-                    <StackPanel Grid.Column="1">
-                        <TextBlock FontSize="20" FontWeight="Bold" TextAlignment="Left">Allow auto updates</TextBlock>
-                        <TextBlock TextWrapping="Wrap" FontSize="12" FontWeight="Bold" TextAlignment="Left">The game and hub will automatically update</TextBlock>
-                    </StackPanel>
-                </Grid-->
-                <!--Grid Grid.Row="4" Margin="0 5 0 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.1*" />
-                        <ColumnDefinition Width="0.35*" />
-                        <ColumnDefinition Width="0.55*" />
-                    </Grid.ColumnDefinitions>
-                    <Viewbox Grid.Column="0" Margin="0 5 0 0" HorizontalAlignment="Left">
-                        <CheckBox Background="#1d3b50" BorderThickness="0" />
-                    </Viewbox>
-                    <StackPanel Grid.Column="1">
-                        <TextBlock FontSize="20" FontWeight="Bold" TextAlignment="Left">Clear cache</TextBlock>
-                        <TextBlock TextWrapping="Wrap" FontSize="12" FontWeight="Bold" TextAlignment="Left">Clear cache the next time client starts</TextBlock>
-                    </StackPanel>
-                </Grid-->
-                <!--Grid Grid.Row="5" Margin="0 10 0 0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                        <ColumnDefinition />
-                    </Grid.ColumnDefinitions>
-                    <Button Margin="10 10 5 10" Grid.Column="0" BorderThickness="0.5" Background="#1d3b50"
-                            BorderBrush="#fcfcfd">
-                        <TextBlock FontSize="18" FontWeight="Bold" TextAlignment="Center">
-                            Accept
-                        </TextBlock>
-                    </Button>
-                    <Button Margin="5 10 10 10" Grid.Column="1" BorderThickness="0.5" Background="#1d3b50"
-                            BorderBrush="#fcfcfd">
-                        <TextBlock FontSize="18" FontWeight="Bold" TextAlignment="Center">
-                            Cancel
-                        </TextBlock>
-                    </Button>
-                </Grid-->
+                <Grid Grid.Row="2">
+                    <CheckBox DockPanel.Dock="Right" Margin="5" IsChecked="{Binding AutoRemove}" HorizontalAlignment="Left">
+                        <TextBlock VerticalAlignment="Center" FontSize="16" Text=" Automatically Remove Old Installations" />
+                    </CheckBox>
+                </Grid>
+				<!-- For a future overhaul of TTS... soonly.... -->
+				<!-- <Grid Grid.Row="3">
+					<StackPanel Margin="5" Orientation="Horizontal" VerticalAlignment="Center">
+						<TextBlock Text="TTS is: "/>
+						<TextBlock Text="{Binding TTSText}"/>
+						<Button VerticalAlignment="Top" Margin = "5, 0, 0, 0">
+							<TextBlock Text="{Binding TTSButtonText}"/>
+						</Button>
+					</StackPanel>
+				</Grid> -->
+                <Grid Grid.Row="3">
+                    <CheckBox DockPanel.Dock="Right" Margin="5" IsChecked="{Binding TTSEnabled}" HorizontalAlignment="Left">
+                        <TextBlock FontSize="16" VerticalAlignment="Center"> Enable the Text-To-Speech System </TextBlock>
+                    </CheckBox>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
