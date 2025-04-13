@@ -12,7 +12,11 @@ namespace UnitystationLauncher.ContentScanning.Scanners;
 internal static class MemberReferenceScanner
 {
     // Using the Parallel implementation of this
-    internal static void CheckMemberReferences(SandboxConfig sandboxConfig, IEnumerable<MMemberRef> members, ConcurrentBag<SandboxError> errors)
+    internal static void CheckMemberReferences(SandboxConfig sandboxConfig,
+        IEnumerable<MMemberRef> members,
+        ConcurrentBag<SandboxError> errors,
+        string asmName
+        )
     {
         Parallel.ForEach(members, memberRef =>
         {
@@ -28,7 +32,8 @@ internal static class MemberReferenceScanner
                 // Technically this error isn't necessary since we have an earlier pass
                 // checking all referenced types. That should have caught this
                 // We still need the typeCfg so that's why we're checking. Might as well.
-                errors.Add(new($"Access to type not allowed: {baseTypeReferenced}"));
+                errors.Add(new($"Access to type not allowed: {baseTypeReferenced} in Assembly {asmName}"));
+                
                 return;
             }
 
