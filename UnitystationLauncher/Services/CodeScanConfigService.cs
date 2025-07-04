@@ -46,7 +46,7 @@ public class CodeScanConfigService : ICodeScanConfigService
         }
 
         string pathBase = _preferencesService.GetPreferences().InstallationPath;
-        string folderName = GetFolderName(version);
+        string folderName = GetFolderName(version, _environmentService);
         string versionPath = Path.Combine(pathBase, "nonbuild", version, folderName);
 
         if (Directory.Exists(versionPath) == false)
@@ -194,9 +194,9 @@ public class CodeScanConfigService : ICodeScanConfigService
         }
     }
 
-    private string GetFolderName(string version)
+    public static string GetFolderName(string version, IEnvironmentService environmentService)
     {
-        CurrentEnvironment os = _environmentService.GetCurrentEnvironment();
+        CurrentEnvironment os = environmentService.GetCurrentEnvironment();
         switch (os)
         {
             case CurrentEnvironment.WindowsStandalone:

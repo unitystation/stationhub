@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
@@ -19,4 +21,10 @@ public interface IServerService
     /// <param name="installation">Installation to check</param>
     /// <returns>true if at least one server is using this installation. false otherwise</returns>
     public bool IsInstallationInUse(Installation installation);
+
+    public async Task<Server?> GetServerByIpAddress(string ipAddress)
+    {
+        var results = await GetServersAsync();
+        return results.Count == 0 ? null : results.Find(x => x.ServerIp == ipAddress);
+    }
 }

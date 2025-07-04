@@ -48,11 +48,20 @@ namespace UnitystationLauncher.ViewModels
             get => _TTSEnabled;
             set => this.RaiseAndSetIfChanged(ref _TTSEnabled, value);
         }
+        
+        private bool? _allowCodeScan = true;
+        
+        public bool? AllowCodeScan
+        {
+            get => _allowCodeScan;
+            set => this.RaiseAndSetIfChanged(ref _allowCodeScan, value);
+        }
 
         private readonly IPreferencesService _preferencesService;
         private readonly IInstallationService _installationService;
         private readonly IEnvironmentService _environmentService;
         private readonly ITTSService _ttsService;
+        
 
         public PreferencesPanelViewModel(
             IPreferencesService preferencesService,
@@ -69,6 +78,7 @@ namespace UnitystationLauncher.ViewModels
             _installationPath = preferences.InstallationPath;
             _autoRemove = preferences.AutoRemove;
             _TTSEnabled = preferences.TTSEnabled;
+            _allowCodeScan = preferences.AllowCodeScan;
             this.WhenAnyValue(p => p.AutoRemove)
                 .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
                 .Concat()
@@ -76,6 +86,11 @@ namespace UnitystationLauncher.ViewModels
 
             this.WhenAnyValue(p => p.TTSEnabled)
                 .Select(_ => Observable.FromAsync(OnTTSChangedAsync))
+                .Concat()
+                .Subscribe();
+            
+            this.WhenAnyValue(p => p.AllowCodeScan)
+                .Select(_ => Observable.FromAsync(OnAllowCodeScanChangedAsync))
                 .Concat()
                 .Subscribe();
         }
@@ -159,6 +174,26 @@ namespace UnitystationLauncher.ViewModels
                 Log.Warning($"Invalid directory as installation path, ignoring change: {path}");
                 await MessageBoxBuilder.CreateMessageBox(MessageBoxButtons.Ok, "Invalid installation path", invalidReason).ShowAsync();
             }
+        }
+        
+        public async Task OnAllowCodeScanChangedAsync()
+        {
+            if (AllowCodeScan == false)
+            {
+                IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+                    MessageBoxButtons.YesNo,
+                    "Warning",
+                    "For security reasons, we recommend you never disable the codescan feature unless you're trying to play on older servers that are no longer supported.\n Are you sure you want to proceed?"
+                );
+
+                string response = await msgBox.ShowAsync();
+                if (response.Equals(MessageBoxResults.No))
+                {
+                    AllowCodeScan = true; // Revert the change
+                }
+            }
+
+            _preferencesService.GetPreferences().AllowCodeScan = AllowCodeScan;
         }
 
         public override void Refresh()

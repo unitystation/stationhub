@@ -69,6 +69,11 @@
                         <TextBlock FontSize="16" VerticalAlignment="Center"> Enable the Text-To-Speech System </TextBlock>
                     </CheckBox>
                 </Grid>
+                <Grid Grid.Row="4">
+                    <CheckBox DockPanel.Dock="Right" Margin="5" IsChecked="{Binding AllowCodeScan}" HorizontalAlignment="Left">
+                        <TextBlock FontSize="16" VerticalAlignment="Center"> Enable Code Scan Feature </TextBlock>
+                    </CheckBox>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
