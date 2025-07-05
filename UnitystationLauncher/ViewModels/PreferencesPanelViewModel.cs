@@ -49,12 +49,12 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _TTSEnabled, value);
         }
         
-        private bool? _allowCodeScan = true;
+        private bool? _enableCodeScan = true;
         
-        public bool? AllowCodeScan
+        public bool? EnableCodeScan
         {
-            get => _allowCodeScan;
-            set => this.RaiseAndSetIfChanged(ref _allowCodeScan, value);
+            get => _enableCodeScan;
+            set => this.RaiseAndSetIfChanged(ref _enableCodeScan, value);
         }
 
         private readonly IPreferencesService _preferencesService;
@@ -78,7 +78,7 @@ namespace UnitystationLauncher.ViewModels
             _installationPath = preferences.InstallationPath;
             _autoRemove = preferences.AutoRemove;
             _TTSEnabled = preferences.TTSEnabled;
-            _allowCodeScan = preferences.AllowCodeScan;
+            _enableCodeScan = preferences.EnableCodeScan;
             this.WhenAnyValue(p => p.AutoRemove)
                 .Select(_ => Observable.FromAsync(OnAutoRemoveChangedAsync))
                 .Concat()
@@ -89,7 +89,7 @@ namespace UnitystationLauncher.ViewModels
                 .Concat()
                 .Subscribe();
             
-            this.WhenAnyValue(p => p.AllowCodeScan)
+            this.WhenAnyValue(p => p.EnableCodeScan)
                 .Select(_ => Observable.FromAsync(OnAllowCodeScanChangedAsync))
                 .Concat()
                 .Subscribe();
@@ -178,7 +178,7 @@ namespace UnitystationLauncher.ViewModels
         
         public async Task OnAllowCodeScanChangedAsync()
         {
-            if (AllowCodeScan == false)
+            if (EnableCodeScan == false)
             {
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                     MessageBoxButtons.YesNo,
@@ -189,11 +189,11 @@ namespace UnitystationLauncher.ViewModels
                 string response = await msgBox.ShowAsync();
                 if (response.Equals(MessageBoxResults.No))
                 {
-                    AllowCodeScan = true; // Revert the change
+                    EnableCodeScan = true; // Revert the change
                 }
             }
 
-            _preferencesService.GetPreferences().AllowCodeScan = AllowCodeScan;
+            _preferencesService.GetPreferences().EnableCodeScan = EnableCodeScan;
         }
 
         public override void Refresh()

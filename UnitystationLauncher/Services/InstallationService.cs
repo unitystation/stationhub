@@ -95,7 +95,7 @@ public class InstallationService : IInstallationService
             return (null!, failureReason);
         }
 
-        if (_preferencesService.GetPreferences().AllowCodeScan is true)
+        if (_preferencesService.GetPreferences().EnableCodeScan is true)
         {
             bool result = await _codeScanConfigService.ValidGoodFilesVersionAsync(server.GoodFileVersion);
 
@@ -491,7 +491,7 @@ public class InstallationService : IInstallationService
 
             // ExtractAndScan() must be run in a separate thread, but we want this one to wait for that one to finish
             // Without this download progress will not work properly
-            if (_preferencesService.GetPreferences().AllowCodeScan is false)
+            if (_preferencesService.GetPreferences().EnableCodeScan is false)
             {
                 await Task.Run(() => Extract(download, progressStream));
             }
