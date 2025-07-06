@@ -183,7 +183,7 @@ namespace UnitystationLauncher.ViewModels
                 IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
                     MessageBoxButtons.YesNo,
                     "Warning",
-                    "For security reasons, we recommend you never disable the codescan feature unless you're trying to play on older servers that are no longer supported.\n Are you sure you want to proceed?"
+                    "For security reasons, we recommend you never disable the codescan feature unless you understand what you are doing and you trust the server you are trying to play on.\n Are you sure you want to proceed?"
                 );
 
                 string response = await msgBox.ShowAsync();
