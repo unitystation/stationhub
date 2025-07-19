@@ -11,6 +11,7 @@ using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.ConfigFile;
+using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
 {
@@ -20,43 +21,31 @@ namespace UnitystationLauncher.Services
         public LoginMsg? LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
         public IAuthProvider _IAuthProvider;
+        private readonly IPreferencesService _preferencesService;
 
-        public AuthService(HttpClient http, IAuthProvider IAuthProvider)
+        public AuthService(HttpClient http, IAuthProvider IAuthProvider, IPreferencesService preferencesService)
         {
             _http = http;
             _IAuthProvider = IAuthProvider;
+            _preferencesService = preferencesService;
             LoadAuthSettings();
         }
-
-
-        public string? CurrentRefreshToken => "AccountLoginResponse?.RefreshToken";
-
-        public string? Uid => "AccountLoginResponse?.User.LocalId";
-
-        private readonly string AuthSettingsPath = Path.Combine("TODO", "authSettings.json");
-
-        public AccountLoginResponse AccountLoginResponse;
         
-        private void ConvertToNewAuthFileName()
-        {
-            string oldAuthSettingsPath = Path.Combine("TODO", "settings.json");
-            if (File.Exists(oldAuthSettingsPath))
-            {
-                File.Move(oldAuthSettingsPath, AuthSettingsPath);
-            }
-        }
+
+        private string AuthSettingsPath => Path.Combine(_preferencesService.GetPreferences().InstallationPath, "authSettings.json");
+
+        public AccountLoginResponse? AccountLoginResponse;
+        
 
         private void LoadAuthSettings()
         {
             try
             {
-                ConvertToNewAuthFileName();
-
                 if (File.Exists(AuthSettingsPath))
                 {
                     var json = File.ReadAllText(AuthSettingsPath);
-                    // var AccountLoginResponse = JsonSerializer.Deserialize<FirebaseAccountLoginResponse>(json);
-                    // AccountLoginResponse = AccountLoginResponse;
+                    var AccountLoginResponseA = JsonSerializer.Deserialize<AccountLoginResponse>(json);
+                    AccountLoginResponse = AccountLoginResponseA;
                 }
             }
             catch (Exception)
@@ -77,37 +66,25 @@ namespace UnitystationLauncher.Services
             }
         }
 
-        public void ResendVerificationEmail()
+        public void ResendVerificationEmail(string email)
         {
-            //_authProvider.SendEmailVerificationAsync(AccountLoginResponse);
+            _IAuthProvider.ResendEmailConfirmation(email);
         }
 
         public void SendForgotPasswordEmail(string email)
         {
-            //_authProvider.SendPasswordResetEmailAsync(email);
+            _IAuthProvider.SendForgotPasswordEmail(email);
         }
 
         internal Task<AccountLoginResponse> SignInWithEmailAndPasswordAsync(string email, string password)
         { 
-            _IAuthProvider.SignInWithEmailAndPasswordAsync(email, password);
-          return  Task.FromResult(new AccountLoginResponse());;
+          return  _IAuthProvider.SignInWithEmailAndPasswordAsync(email, password);
         }
             
-
-        internal Task<AccountLoginResponse> SignInWithCustomTokenAsync(string token)
-        {
-           return  Task.FromResult(new AccountLoginResponse());;
-        }
-            
-
-        /// <summary>
-        /// Asks firebase to create the user's account.
-        /// The provided email's domain is checked against a list of disposable email addresses.
-        /// If the domain is not in the list (or if GitHub is down) then account creation continues.
-        /// Otherwise an exception is thrown.
-        /// </summary>
-        /// <returns></returns>
-        internal async Task<AccountLoginResponse> CreateAccountAsync(string username, string email, string password)
+        
+        
+        
+        internal async Task<AccountLoginResponse> CreateAccountAsync(string userId,string username, string email, string password)
         {
             // Client-side check for disposable email address.
             const string url =
@@ -152,81 +129,46 @@ namespace UnitystationLauncher.Services
             {
                 throw new InvalidOperationException("The email domain provided by the user is on our blacklist.");
             }
+            
+            ApiResult<AccountRegisterResponse> registerResponse = await _IAuthProvider.Register(userId, email, username, password);
 
-            //return await _authProvider.CreateUserWithEmailAndPasswordAsync(email, password, username, true);
-            return AccountLoginResponse;
-        }
-
-        internal Task<User> GetUpdatedUserAsync()
-        {
+            if (registerResponse.IsSuccess == false)
+            {
+                throw new InvalidOperationException("Failed to register account");
+            }
+            
             return null;
-            //return _authProvider.GetUserAsync(AccountLoginResponse);
         }
+        
 
-        public async Task<string> GetCustomTokenAsync(RefreshToken refreshToken)
+        
+        public async Task<string> GetCustomTokenAsync(string refreshToken)
         {
-            HttpRequestMessage r = new(HttpMethod.Get, ApiUrls.ValidateTokenUrl + Uri.EscapeDataString(JsonSerializer.Serialize(refreshToken)));
-            CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
-            HttpResponseMessage res;
-
             try
             {
-                res = await _http.SendAsync(r, cancellationToken);
+                ApiResult<AccountLoginResponse> Response = await _IAuthProvider.Login(refreshToken);
+                if (Response.IsSuccess == false)
+                {
+                    Log.Error("Error: {Error}", Response.Exception);
+                    return "";
+                }
+                else
+                {
+                    AccountLoginResponse = Response.Data;
+                    return Response.Data.Token;
+                }
             }
             catch (Exception e)
             {
                 Log.Error(e, "Failed when sending token validation request");
                 return "";
             }
-
-            string msg = await res.Content.ReadAsStringAsync(cancellationToken);
-            ApiResponse? response = JsonSerializer.Deserialize<ApiResponse>(msg, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (response == null)
-            {
-                Log.Error("Error: {Error}", "Response from /validatetoken cannot be deserialized");
-                return "";
-            }
-
-            if (response.ErrorCode != 0)
-            {
-                Log.Error("Error: {Error}", response.ErrorMsg);
-                return "";
-            }
-
-            return response.Message ?? "";
+            
         }
 
         public async Task SignOutUserAsync()
         {
-            if (AccountLoginResponse == null || Uid == null || CurrentRefreshToken == null)
-            {
-                return;
-            }
-
-            RefreshToken token = new()
-            {
-                UserId = Uid,
-                Token = CurrentRefreshToken
-            };
-
-            HttpRequestMessage r = new(HttpMethod.Get, ApiUrls.SignOutUrl + Uri.EscapeDataString(JsonSerializer.Serialize(token)));
-            CancellationToken cancellationToken = new CancellationTokenSource(120000).Token;
-            HttpResponseMessage res;
-
-            try
-            {
-                res = await _http.SendAsync(r, cancellationToken);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Http request to sign out failed");
-                return;
-            }
-
-            string msg = await res.Content.ReadAsStringAsync(cancellationToken);
-
-            Log.Information("Logout message: {Message}", msg);
+            await _IAuthProvider.Logout(AccountLoginResponse.Token);
             AccountLoginResponse = null;
         }
     }

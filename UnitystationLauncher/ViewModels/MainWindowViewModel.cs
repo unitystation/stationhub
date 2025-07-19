@@ -93,13 +93,7 @@ namespace UnitystationLauncher.ViewModels
                 return;
             }
 
-            RefreshToken refreshToken = new()
-            {
-                // UserId = _authService.AccountLoginResponse.User.LocalId,
-                // Token = _authService.AccountLoginResponse.RefreshToken
-            };
-
-            string token = await _authService.GetCustomTokenAsync(refreshToken);
+            string token = await _authService.GetCustomTokenAsync(_authService.AccountLoginResponse.Token);
 
             if (string.IsNullOrEmpty(token))
             {
@@ -108,26 +102,7 @@ namespace UnitystationLauncher.ViewModels
                 _authService.AttemptingAutoLogin = false;
                 return;
             }
-
-            try
-            {
-                _authService.AccountLoginResponse = await _authService.SignInWithCustomTokenAsync(token);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Login failed");
-                Content = _loginVm;
-                _authService.AttemptingAutoLogin = false;
-                return;
-            }
-
-            var user = await _authService.GetUpdatedUserAsync();
-            // if (!user.IsEmailVerified)
-            // {
-            //     Content = _loginVm;
-            //     _authService.AttemptingAutoLogin = false;
-            //     return;
-            // }
+            
             _authService.AttemptingAutoLogin = false;
             _authService.SaveAuthSettings();
             Content = _launcherVm.Value;
@@ -146,9 +121,9 @@ namespace UnitystationLauncher.ViewModels
                     loginStatusVm.GoBack.Select(vm => (ViewModelBase)vm),
                     loginStatusVm.OpenLauncher.Select(vm => (ViewModelBase)vm)),
 
-                // LauncherViewModel launcherVm => Observable.Merge(
-                //     launcherVm.Logout.Select(vm => (ViewModelBase)vm),
-                //     launcherVm.ShowUpdateView.Select(vm => (ViewModelBase)vm)),
+                 LauncherViewModel launcherVm => Observable.Merge(
+                     launcherVm.Logout.Select(vm => (ViewModelBase)vm),
+                     launcherVm.ShowUpdateView.Select(vm => (ViewModelBase)vm)),
 
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,

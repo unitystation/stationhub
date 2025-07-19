@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ReactiveUI;
 using Serilog;
 using UnitystationLauncher.Services;
+using ZstdSharp.Unsafe;
 
 namespace UnitystationLauncher.ViewModels
 {
@@ -14,12 +15,19 @@ namespace UnitystationLauncher.ViewModels
         string _email = "";
         string _password = "";
         string _username = "";
+        string _usernameID = "";
         private string? _creationMessage;
         private string? _endButtonText;
         private bool _isFormVisible;
         private bool _isWaitingVisible;
         private bool _isCreatedVisible;
 
+        public string UsernameID
+        {
+            get => _usernameID;
+            set => this.RaiseAndSetIfChanged(ref _usernameID, value);
+        }
+        
         public string Username
         {
             get => _username;
@@ -83,11 +91,15 @@ namespace UnitystationLauncher.ViewModels
                 x => x.Email,
                 x => x.Password,
                 x => x.Username,
-                (u, p, i) =>
+                x => x.UsernameID,
+                (u, p, i,m) =>
                     !string.IsNullOrWhiteSpace(u) &&
                     !string.IsNullOrWhiteSpace(p) &&
                     p.Length > 6 &&
-                    !string.IsNullOrEmpty(i));
+                    !string.IsNullOrEmpty(i) &&
+                    !string.IsNullOrEmpty(m));
+            
+            
 
             Submit = ReactiveCommand.CreateFromTask(
                 UserCreateAsync, possibleCredentials);
@@ -110,7 +122,7 @@ namespace UnitystationLauncher.ViewModels
 
             try
             {
-                await _authService.CreateAccountAsync(_username, _email, _password);
+                await _authService.CreateAccountAsync(_usernameID, _username, _email, _password);
             }
             catch (Exception e)
             {

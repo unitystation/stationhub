@@ -12,6 +12,7 @@ using UnitystationLauncher.Constants;
 using UnitystationLauncher.Infrastructure;
 using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Models.Enums;
+using UnitystationLauncher.Services;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.ViewModels
@@ -22,9 +23,9 @@ namespace UnitystationLauncher.ViewModels
         private readonly IHubService _hubService;
         private readonly IPreferencesService _preferencesService;
         private readonly IEnvironmentService _environmentService;
-
+        private readonly Lazy<LoginViewModel> _logoutVm;
         private readonly ITTSService _ITTSService;
-
+        private readonly AuthService _authService;
         public ReactiveCommand<Unit, Unit> OpenMainSite { get; }
         public ReactiveCommand<Unit, Unit> OpenPatreon { get; }
         public ReactiveCommand<Unit, Unit> OpenDiscordInvite { get; }
@@ -42,7 +43,7 @@ namespace UnitystationLauncher.ViewModels
             get => _selectedPanel;
             set => this.RaiseAndSetIfChanged(ref _selectedPanel, value);
         }
-
+        public ReactiveCommand<Unit, LoginViewModel> Logout { get; }
         public ReactiveCommand<Unit, HubUpdateViewModel> ShowUpdateView { get; }
 
         public LauncherViewModel(
@@ -55,8 +56,11 @@ namespace UnitystationLauncher.ViewModels
             IPreferencesService preferencesService,
             IEnvironmentService environmentService,
             IGameCommunicationPipeService gameCommunicationPipeService,
-            ITTSService ITTSService)
+            ITTSService ITTSService,
+            Lazy<LoginViewModel> logoutVm, AuthService authService)
         {
+            _authService = authService;
+            _logoutVm = logoutVm;
             _hubUpdateVm = hubUpdateVm;
             _hubService = hubService;
             _preferencesService = preferencesService;
@@ -67,7 +71,7 @@ namespace UnitystationLauncher.ViewModels
             OpenMainSite = ReactiveCommand.Create(() => OpenLink(LinkUrls.MainSiteUrl));
             OpenPatreon = ReactiveCommand.Create(() => OpenLink(LinkUrls.PatreonUrl));
             OpenDiscordInvite = ReactiveCommand.Create(() => OpenLink(LinkUrls.DiscordInviteUrl));
-
+            Logout = ReactiveCommand.CreateFromTask(LogoutAsync);
             _panels = GetEnabledPanels(newsPanel, serversPanel, installationsPanel, preferencesPanel);
             ShowUpdateView = ReactiveCommand.Create(ShowUpdateImp);
             SelectedPanel = serversPanel;
@@ -76,6 +80,13 @@ namespace UnitystationLauncher.ViewModels
             RxApp.MainThreadScheduler.Schedule((_) => StartTTSIfInstalled());
 
         }
+        private async Task<LoginViewModel> LogoutAsync()
+        {
+            await _authService.SignOutUserAsync();
+            return _logoutVm.Value;
+        }
+
+
 
         private static PanelBase[] GetEnabledPanels(
             NewsPanelViewModel newsPanel,

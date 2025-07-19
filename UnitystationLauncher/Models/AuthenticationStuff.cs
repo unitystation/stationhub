@@ -21,6 +21,52 @@ public abstract class JsonObject
     }
 }
 
+
+[Serializable]
+public class AccountRegister : JsonObject
+{
+    [JsonProperty("unique_identifier")]
+    public string UniqueIdentifier { get; set; }
+
+    [JsonProperty("email")]
+    public string Email {get; set;}
+
+    [JsonProperty("username")]
+    public string Username {get; set;}
+
+    [JsonProperty("password")]
+    public string Password {get; set;}
+}
+
+
+[Serializable]
+public class ForgotPasswordModel : JsonObject
+{
+    [JsonProperty("email")]
+    public string Email { get; set; }
+}
+
+
+[Serializable]
+public class AccountRegisterResponse : JsonObject
+{
+    [JsonProperty("account")]
+    public AccountRegisterDetails Account { get; set; }
+}
+
+[Serializable]
+public class AccountRegisterDetails : JsonObject
+{
+    [JsonProperty("unique_identifier")]
+    public string UniqueIdentifier {get; set;}
+
+    [JsonProperty("email")]
+    public string Email {get; set;}
+
+    [JsonProperty("username")]
+    public string Username {get; set;}
+}
+
 [Serializable]
 public class AccountLoginResponse : JsonObject
 {
@@ -42,6 +88,25 @@ public class AccountGetResponse : JsonObject
 
     [JsonProperty("is_verified")]
     public bool IsVerified {get; set;}
+}
+
+[Serializable]
+public class AccountLoginToken : JsonObject, ITokenAuthable
+{
+    public string Token { get; set; }
+}
+
+[Serializable]
+public class AccountLogout : JsonObject, ITokenAuthable
+{
+    public string Token { get; set; }
+}
+
+[Serializable]
+public class AccountResendEmailConfirmationRequest : JsonObject
+{
+    [JsonProperty("email")]
+    public string Email { get; set; }
 }
 
 [Serializable]

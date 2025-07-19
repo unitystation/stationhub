@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models;
 
 namespace UnitystationLauncher.Services;
@@ -7,13 +8,23 @@ namespace UnitystationLauncher.Services;
 public interface IAuthProvider
 {
     public Task<AccountLoginResponse> SignInWithEmailAndPasswordAsync(string email, string password);
+    public Task<ApiResult<AccountLoginResponse>> Login(string token);
+
+    public Task<JsonObject> Logout(string token, bool destroyAllSessions = false);
+
+    public Task<ApiResult<AccountRegisterResponse>> Register(
+        string uniqueIdentifier, string emailAddress, string username, string password);
+
+    public Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email);
+    
+    public  Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email);
 }
 
 public class OfficialCentralCommandAuthentication : IAuthProvider
 {		
     
-    public static string Host => "INhere";
-    public static UriBuilder UriBuilder = new("https", Host);
+    public static string Host => ApiUrls.ApiBaseUrlLogin;
+    public static UriBuilder UriBuilder = new( Host);
     public static Uri GetUri(string endpoint, string queries = null)
     {
 
@@ -25,6 +36,23 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
         }
 
         return UriBuilder.Uri;
+    }
+    
+    public async Task<ApiResult<AccountLoginResponse>> Login(string token)
+    {
+        AccountLoginToken requestBody = new()
+        {
+            Token = token,
+        };
+
+        ApiResult<AccountLoginResponse> response = await ApiServer.Post<AccountLoginResponse>(GetUri("login-token"), requestBody);
+
+        if (!response.IsSuccess)
+        {
+            throw response.Exception!;
+        }
+
+        return response;
     }
     
     public static async Task<ApiResult<AccountLoginResponse>> Login(string emailAddress, string password)
@@ -52,5 +80,76 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
         AccountLoginResponse account = loginResponse.Data;
         
         return account;
+    }
+    public async Task<JsonObject> Logout(string token, bool destroyAllSessions = false) // TODO: but no response?
+    {
+        AccountLogout requestBody = new()
+        {
+            Token = token,
+        };
+
+        var response = await ApiServer.Post<JsonObject>(GetUri(destroyAllSessions ? "logoutall" : "logout"), requestBody);
+
+        return response;
+    }
+    
+    public  async Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email)
+    {
+        AccountResendEmailConfirmationRequest requestBody = new()
+        {
+            Email = email,
+        };
+
+        var response = await ApiServer.Post<JsonObject>(GetUri("resend-account-confirmation"), requestBody);
+        return response;
+    }
+    
+    public async Task<ApiResult<AccountRegisterResponse>> Register(
+        string uniqueIdentifier, string emailAddress, string username, string password)
+    {
+        var requestBody = new AccountRegister
+        {
+            Email = emailAddress,
+            UniqueIdentifier = uniqueIdentifier,
+            Username = username,
+            Password = password,
+        };
+
+        var response = await ApiServer.Post<AccountRegisterResponse>(GetUri("register"), requestBody);
+
+        if (!response.IsSuccess)
+        {
+            throw response.Exception!;
+        }
+
+        return response;
+    }
+
+
+    public async Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email)
+    {
+        try
+        {
+            var requestBody = new ForgotPasswordModel
+            {
+                Email = email,
+            };
+
+            var response = await ApiServer.Post<JsonObject>(GetUri("reset-password/"), requestBody);
+
+            if (!response.IsSuccess)
+            {
+                throw response.Exception!;
+            }
+
+            return response;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    
+        
     }
 }

@@ -42,13 +42,16 @@
         <StackPanel IsVisible="{Binding IsFailedVisible}">
             <TextBlock TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="15"
                        Text="{Binding FailedMessage}" />
+               
+            <TextBox Text="{Binding ResendEmailAddress, Mode=TwoWay}" 
+                     Watermark="Enter email to resend verification"
+                     Margin="15" MinWidth="250" HorizontalAlignment="Center"/>
 
             <Button Command="{Binding ResendEmail}" IsVisible="{Binding IsResendEmailVisible}" Padding="5" Margin="15"
                     HorizontalAlignment="Center" MinWidth="100"
                     Content="Resend" Classes="SmallButton" />
             <Button Command="{Binding GoBack}" Padding="5" Margin="15" HorizontalAlignment="Center" MinWidth="100"
                     Content="Back" Classes="SmallButton" />
-
         </StackPanel>
 
         <Border BorderThickness="1" BorderBrush="#c5c5c5" />

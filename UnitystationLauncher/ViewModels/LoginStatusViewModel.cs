@@ -20,7 +20,7 @@ namespace UnitystationLauncher.ViewModels
         private bool _isResendEmailVisible;
         private bool _resendClicked;
         private bool _isWaitingVisible;
-
+        private string? _resendEmailAddress;
         public LoginStatusViewModel(AuthService authService, Lazy<LauncherViewModel> launcherVm,
             LoginViewModel loginVm)
         {
@@ -51,6 +51,13 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
+        
+  
+        public string? ResendEmailAddress
+        {
+            get => _resendEmailAddress;
+            set => this.RaiseAndSetIfChanged(ref _resendEmailAddress, value);
+        }
         public bool IsFailedVisible
         {
             get => _isFailedVisible;
@@ -106,7 +113,7 @@ namespace UnitystationLauncher.ViewModels
             {
                 await _authService.SignInWithEmailAndPasswordAsync(
                     _authService.LoginMsg.Email, _authService.LoginMsg.Pass).AwaitWithTimeout(TimeSpan.FromSeconds(20),
-                    firebaseAccountLoginResponse => _authService.AccountLoginResponse = firebaseAccountLoginResponse);
+                    AccountLoginResponse => _authService.AccountLoginResponse = AccountLoginResponse);
             }
             catch (OperationCanceledException)
             {
@@ -123,21 +130,7 @@ namespace UnitystationLauncher.ViewModels
                                 "and try again.";
                 signInSuccess = false;
             }
-
-            if (signInSuccess)
-            {
-                var user = await _authService.GetUpdatedUserAsync();
-
-                // if (!user.IsEmailVerified)
-                // {
-                //     FailedMessage = "Email not yet verified.\r\n" +
-                //                     "Please click on the activation link sent to your\r\n" +
-                //                     "email address. Alternatively you can request another verification\r\n" +
-                //                     "email by clicking the resend button below.";
-                //     signInSuccess = false;
-                //     IsResendEmailVisible = true;
-                // }
-            }
+            
 
             _authService.LoginMsg = null;
 
@@ -155,10 +148,16 @@ namespace UnitystationLauncher.ViewModels
 
         public void OnResend()
         {
-            _authService.ResendVerificationEmail();
+            if (string.IsNullOrWhiteSpace(ResendEmailAddress))
+            {
+                FailedMessage = "Please enter a valid email address to resend verification.";
+                return;
+            }
+            
+            _authService.ResendVerificationEmail(ResendEmailAddress);
             ResendClicked = true;
             FailedMessage = "A new verification email has been sent to:\r\n" +
-                            $"{_authService.AccountLoginResponse?.Account.Username ?? "{ no email }"}\r\n" +
+                            $"{ResendEmailAddress ?? "{ no email }"}\r\n" +
                             $"Please activate your account by clicking the link\r\n" +
                             $"in the email and try again.";
         }

@@ -41,6 +41,12 @@
                 </TextBox.KeyBindings>
             </TextBox>
 
+            <TextBox Text="{Binding UsernameID}" Margin="15" Watermark="User ID" MaxWidth="400">
+                <TextBox.KeyBindings>
+                    <KeyBinding Command="{Binding Login}" Gesture="Return" />
+                </TextBox.KeyBindings>
+            </TextBox>
+            
             <TextBox Text="{Binding Email}" Margin="15" Watermark="Valid Email" MaxWidth="400">
                 <TextBox.KeyBindings>
                     <KeyBinding Command="{Binding Login}" Gesture="Return" />
