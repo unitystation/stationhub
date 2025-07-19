@@ -44,8 +44,6 @@ namespace UnitystationLauncher.ViewModels
 
             ForgotPw = ReactiveCommand.Create(
                 ForgotPass);
-
-            RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => CheckForLastLoginAsync());
         }
 
         public string Email
@@ -72,8 +70,6 @@ namespace UnitystationLauncher.ViewModels
                 Pass = Password
             };
 
-            await SaveLoginEmailAsync();
-
             return _loginStatusVm.Value;
         }
 
@@ -90,17 +86,6 @@ namespace UnitystationLauncher.ViewModels
         public override void Refresh()
         {
 
-        }
-
-        async Task CheckForLastLoginAsync()
-        {
-            //Email = (await _config.GetPreferencesAsync()).LastLogin ?? "";
-        }
-
-        async Task SaveLoginEmailAsync()
-        {
-            // var prefs = await _config.GetPreferencesAsync();
-            // prefs.LastLogin = _email;
         }
     }
 }
