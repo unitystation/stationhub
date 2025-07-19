@@ -29,13 +29,13 @@ public class AccountRegister : JsonObject
     public string UniqueIdentifier { get; set; }
 
     [JsonProperty("email")]
-    public string Email {get; set;}
+    public string Email { get; set; }
 
     [JsonProperty("username")]
-    public string Username {get; set;}
+    public string Username { get; set; }
 
     [JsonProperty("password")]
-    public string Password {get; set;}
+    public string Password { get; set; }
 }
 
 
@@ -58,36 +58,36 @@ public class AccountRegisterResponse : JsonObject
 public class AccountRegisterDetails : JsonObject
 {
     [JsonProperty("unique_identifier")]
-    public string UniqueIdentifier {get; set;}
+    public string UniqueIdentifier { get; set; }
 
     [JsonProperty("email")]
-    public string Email {get; set;}
+    public string Email { get; set; }
 
     [JsonProperty("username")]
-    public string Username {get; set;}
+    public string Username { get; set; }
 }
 
 [Serializable]
 public class AccountLoginResponse : JsonObject
 {
     [JsonProperty("token")]
-    public string Token {get; set;}
+    public string Token { get; set; }
 
     [JsonProperty("account")]
-    public AccountGetResponse Account {get; set;}
+    public AccountGetResponse Account { get; set; }
 }
 
 [Serializable]
 public class AccountGetResponse : JsonObject
 {
     [JsonProperty("unique_identifier")]
-    public string UniqueIdentifier {get; set;}
+    public string UniqueIdentifier { get; set; }
 
     [JsonProperty("username")]
-    public string Username {get; set;}
+    public string Username { get; set; }
 
     [JsonProperty("is_verified")]
-    public bool IsVerified {get; set;}
+    public bool IsVerified { get; set; }
 }
 
 [Serializable]
@@ -113,17 +113,17 @@ public class AccountResendEmailConfirmationRequest : JsonObject
 public class AccountLoginCredentials : JsonObject
 {
     [JsonProperty("email")]
-    public string Email {get; set;}
+    public string Email { get; set; }
 
     [JsonProperty("password")]
-    public string Password {get; set;}
+    public string Password { get; set; }
 }
 
-public class ApiResult<T>: JsonObject where T : JsonObject
+public class ApiResult<T> : JsonObject where T : JsonObject
 {
-    public HttpStatusCode StatusCode { get;  set; }
-    public T Data { get;  set; }
-    public ApiHttpException Exception { get;  set; }
+    public HttpStatusCode StatusCode { get; set; }
+    public T Data { get; set; }
+    public ApiHttpException Exception { get; set; }
 
     public bool IsSuccess => Exception == null;
 

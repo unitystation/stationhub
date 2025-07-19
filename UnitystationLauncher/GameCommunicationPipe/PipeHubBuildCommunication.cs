@@ -15,17 +15,17 @@ public class PipeHubBuildCommunication : IDisposable
 {
     private static NamedPipeServerStream _serverPipe;
     private static StreamReader? _reader;
-    private static  StreamWriter? _writer;
+    private static StreamWriter? _writer;
 
     public PipeHubBuildCommunication()
     {
-        _serverPipe?.Close();      
+        _serverPipe?.Close();
         _serverPipe?.Dispose();
         _reader?.Close();
         _reader?.Dispose();
         _writer?.Close();
         _writer?.Dispose();
-        
+
         _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
     }

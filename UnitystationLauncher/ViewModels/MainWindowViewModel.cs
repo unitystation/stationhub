@@ -102,7 +102,7 @@ namespace UnitystationLauncher.ViewModels
                 _authService.AttemptingAutoLogin = false;
                 return;
             }
-            
+
             _authService.AttemptingAutoLogin = false;
             _authService.SaveAuthSettings();
             Content = _launcherVm.Value;
@@ -121,9 +121,9 @@ namespace UnitystationLauncher.ViewModels
                     loginStatusVm.GoBack.Select(vm => (ViewModelBase)vm),
                     loginStatusVm.OpenLauncher.Select(vm => (ViewModelBase)vm)),
 
-                 LauncherViewModel launcherVm => Observable.Merge(
-                     launcherVm.Logout.Select(vm => (ViewModelBase)vm),
-                     launcherVm.ShowUpdateView.Select(vm => (ViewModelBase)vm)),
+                LauncherViewModel launcherVm => Observable.Merge(
+                    launcherVm.Logout.Select(vm => (ViewModelBase)vm),
+                    launcherVm.ShowUpdateView.Select(vm => (ViewModelBase)vm)),
 
                 SignUpViewModel signUpViewModel => Observable.Merge(
                     signUpViewModel.Cancel,

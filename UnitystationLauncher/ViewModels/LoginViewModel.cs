@@ -89,7 +89,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override void Refresh()
         {
-            
+
         }
 
         async Task CheckForLastLoginAsync()
@@ -99,8 +99,8 @@ namespace UnitystationLauncher.ViewModels
 
         async Task SaveLoginEmailAsync()
         {
-           // var prefs = await _config.GetPreferencesAsync();
-           // prefs.LastLogin = _email;
+            // var prefs = await _config.GetPreferencesAsync();
+            // prefs.LastLogin = _email;
         }
     }
 }

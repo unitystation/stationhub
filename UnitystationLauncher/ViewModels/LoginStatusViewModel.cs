@@ -51,8 +51,8 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
-        
-  
+
+
         public string? ResendEmailAddress
         {
             get => _resendEmailAddress;
@@ -130,7 +130,7 @@ namespace UnitystationLauncher.ViewModels
                                 "and try again.";
                 signInSuccess = false;
             }
-            
+
 
             _authService.LoginMsg = null;
 
@@ -153,7 +153,7 @@ namespace UnitystationLauncher.ViewModels
                 FailedMessage = "Please enter a valid email address to resend verification.";
                 return;
             }
-            
+
             _authService.ResendVerificationEmail(ResendEmailAddress);
             ResendClicked = true;
             FailedMessage = "A new verification email has been sent to:\r\n" +
@@ -173,7 +173,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override void Refresh()
         {
-            
+
         }
     }
 }

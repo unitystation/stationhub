@@ -27,7 +27,7 @@ namespace UnitystationLauncher.ViewModels
             get => _usernameID;
             set => this.RaiseAndSetIfChanged(ref _usernameID, value);
         }
-        
+
         public string Username
         {
             get => _username;
@@ -92,14 +92,14 @@ namespace UnitystationLauncher.ViewModels
                 x => x.Password,
                 x => x.Username,
                 x => x.UsernameID,
-                (u, p, i,m) =>
+                (u, p, i, m) =>
                     !string.IsNullOrWhiteSpace(u) &&
                     !string.IsNullOrWhiteSpace(p) &&
                     p.Length > 6 &&
                     !string.IsNullOrEmpty(i) &&
                     !string.IsNullOrEmpty(m));
-            
-            
+
+
 
             Submit = ReactiveCommand.CreateFromTask(
                 UserCreateAsync, possibleCredentials);
@@ -111,7 +111,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override void Refresh()
         {
-            
+
         }
 
         public async Task UserCreateAsync()

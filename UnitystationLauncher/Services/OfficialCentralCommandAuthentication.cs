@@ -16,15 +16,15 @@ public interface IAuthProvider
         string uniqueIdentifier, string emailAddress, string username, string password);
 
     public Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email);
-    
-    public  Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email);
+
+    public Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email);
 }
 
 public class OfficialCentralCommandAuthentication : IAuthProvider
-{		
-    
+{
+
     public static string Host => ApiUrls.ApiBaseUrlLogin;
-    public static UriBuilder UriBuilder = new( Host);
+    public static UriBuilder UriBuilder = new(Host);
     public static Uri GetUri(string endpoint, string queries = null)
     {
 
@@ -37,7 +37,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         return UriBuilder.Uri;
     }
-    
+
     public async Task<ApiResult<AccountLoginResponse>> Login(string token)
     {
         AccountLoginToken requestBody = new()
@@ -54,7 +54,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         return response;
     }
-    
+
     public static async Task<ApiResult<AccountLoginResponse>> Login(string emailAddress, string password)
     {
         AccountLoginCredentials requestBody = new()
@@ -72,13 +72,13 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         return response;
     }
-    
+
     public async Task<AccountLoginResponse> SignInWithEmailAndPasswordAsync(string emailAddress, string password)
     {
         ApiResult<AccountLoginResponse> loginResponse = await Login(emailAddress, password);
-        
+
         AccountLoginResponse account = loginResponse.Data;
-        
+
         return account;
     }
     public async Task<JsonObject> Logout(string token, bool destroyAllSessions = false) // TODO: but no response?
@@ -92,8 +92,8 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         return response;
     }
-    
-    public  async Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email)
+
+    public async Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email)
     {
         AccountResendEmailConfirmationRequest requestBody = new()
         {
@@ -103,7 +103,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
         var response = await ApiServer.Post<JsonObject>(GetUri("resend-account-confirmation"), requestBody);
         return response;
     }
-    
+
     public async Task<ApiResult<AccountRegisterResponse>> Register(
         string uniqueIdentifier, string emailAddress, string username, string password)
     {
@@ -149,7 +149,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
             Console.WriteLine(e);
             throw;
         }
-    
-        
+
+
     }
 }

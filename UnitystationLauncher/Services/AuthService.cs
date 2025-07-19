@@ -30,12 +30,12 @@ namespace UnitystationLauncher.Services
             _preferencesService = preferencesService;
             LoadAuthSettings();
         }
-        
+
 
         private string AuthSettingsPath => Path.Combine(_preferencesService.GetPreferences().InstallationPath, "authSettings.json");
 
         public AccountLoginResponse? AccountLoginResponse;
-        
+
 
         private void LoadAuthSettings()
         {
@@ -77,14 +77,14 @@ namespace UnitystationLauncher.Services
         }
 
         internal Task<AccountLoginResponse> SignInWithEmailAndPasswordAsync(string email, string password)
-        { 
-          return  _IAuthProvider.SignInWithEmailAndPasswordAsync(email, password);
+        {
+            return _IAuthProvider.SignInWithEmailAndPasswordAsync(email, password);
         }
-            
-        
-        
-        
-        internal async Task<AccountLoginResponse> CreateAccountAsync(string userId,string username, string email, string password)
+
+
+
+
+        internal async Task<AccountLoginResponse> CreateAccountAsync(string userId, string username, string email, string password)
         {
             // Client-side check for disposable email address.
             const string url =
@@ -129,19 +129,19 @@ namespace UnitystationLauncher.Services
             {
                 throw new InvalidOperationException("The email domain provided by the user is on our blacklist.");
             }
-            
+
             ApiResult<AccountRegisterResponse> registerResponse = await _IAuthProvider.Register(userId, email, username, password);
 
             if (registerResponse.IsSuccess == false)
             {
                 throw new InvalidOperationException("Failed to register account");
             }
-            
+
             return null;
         }
-        
 
-        
+
+
         public async Task<string> GetCustomTokenAsync(string refreshToken)
         {
             try
@@ -163,7 +163,7 @@ namespace UnitystationLauncher.Services
                 Log.Error(e, "Failed when sending token validation request");
                 return "";
             }
-            
+
         }
 
         public async Task SignOutUserAsync()

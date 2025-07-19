@@ -88,7 +88,7 @@ public static class ApiServer
         HttpClient Client = new HttpClient();
         HttpResponseMessage response = await Client.SendAsync(request);
         string responseBody = await response.Content.ReadAsStringAsync();
-   
+
         if (response.IsSuccessStatusCode == false)
         {
             if (TryGetApiRequestException(responseBody, response.StatusCode, out ApiRequestException requestException))
