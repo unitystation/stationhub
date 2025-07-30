@@ -120,6 +120,7 @@ public class AccountLoginCredentials : JsonObject
 }
 
 public class ApiResult<T> : JsonObject where T : JsonObject
+
 {
     public HttpStatusCode StatusCode { get; set; }
     public T Data { get; set; }

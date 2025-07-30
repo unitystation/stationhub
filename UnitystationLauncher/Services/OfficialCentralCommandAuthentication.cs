@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.Api;
 
 namespace UnitystationLauncher.Services;
 
@@ -18,6 +19,10 @@ public interface IAuthProvider
     public Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email);
 
     public Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email);
+    
+    public Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret);
+    
+    public Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName);
 }
 
 public class OfficialCentralCommandAuthentication : IAuthProvider
@@ -149,7 +154,57 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
             Console.WriteLine(e);
             throw;
         }
+    }
 
+    public Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret)
+    {
+        try
+        {
+            // var requestBody = new ForgotPasswordModel
+            // {
+            //     Email = email,
+            // };
+            //
+            // var response = await ApiServer.Post<JsonObject>(GetUri("reset-password/"), requestBody);
+            //
+            // if (!response.IsSuccess)
+            // {
+            //     throw response.Exception!;
+            // }
+            //
+            // return response;
+            return null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
 
+    public Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName)
+    {
+        try
+        {
+            // var requestBody = new ForgotPasswordModel
+            // {
+            //     Email = email,
+            // };
+            //
+            // var response = await ApiServer.Post<JsonObject>(GetUri("reset-password/"), requestBody);
+            //
+            // if (!response.IsSuccess)
+            // {
+            //     throw response.Exception!;
+            // }
+            //
+            // return response;
+            return null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

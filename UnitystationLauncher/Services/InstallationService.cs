@@ -43,9 +43,15 @@ public class InstallationService : IInstallationService
     private readonly string _installationsJsonFilePath;
     private readonly ITTSService _TTSVersionService;
 
+    public readonly IServerAuthenticationService _IServerAuthenticationService;
+    private readonly AuthService _authService;
+
     public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
-        ICodeScanConfigService codeScanConfigService, ITTSService ITTSVersionService)
+        ICodeScanConfigService codeScanConfigService, ITTSService ITTSVersionService,
+        IServerAuthenticationService IServerAuthenticationService,
+            AuthService authService
+        )
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
@@ -54,7 +60,8 @@ public class InstallationService : IInstallationService
         _codeScanService = codeScanService;
         _codeScanConfigService = codeScanConfigService;
         _TTSVersionService = ITTSVersionService;
-
+        _IServerAuthenticationService = IServerAuthenticationService;
+        _authService = authService;
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
 
@@ -173,7 +180,7 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        string arguments = GetArguments(server, port);
+        string arguments = GetArguments(installation, server, port);
         ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
@@ -418,12 +425,25 @@ public class InstallationService : IInstallationService
         return (true, string.Empty);
     }
 
-    private static string GetArguments(string? server, long? port)
+    private string GetArguments(Installation Installation, string? server, long? port)
     {
         string arguments = string.Empty;
 
-        if (!string.IsNullOrWhiteSpace(server))
+        if (string.IsNullOrWhiteSpace(server) == false)
         {
+            //TODO Asynchronous!!!
+            var Arguments = _IServerAuthenticationService.AuthenticateWithServer(server, Installation).Result;
+
+            var AccountID = _authService.AccountLoginResponse.Account.UniqueIdentifier;
+            var Username = _authService.AccountLoginResponse.Account.Username;
+            
+            arguments += $"-AccountID {AccountID}";
+            arguments += $"-Username {Username}";
+            foreach (var Argument in Arguments)
+            {
+                arguments += $"{Argument.Key} {Argument.Value}";
+            }
+            
             arguments += $"--server {server}";
 
             if (port.HasValue)
@@ -512,7 +532,8 @@ public class InstallationService : IInstallationService
                     ForkName = download.ForkName,
                     InstallationId = Guid.NewGuid(),
                     InstallationPath = download.InstallPath,
-                    LastPlayedDate = DateTime.Now
+                    LastPlayedDate = DateTime.Now,
+                    GoodFileVersion = download.GoodFileVersion
                 });
 
                 WriteInstallations();

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Serilog;
 using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models;
+using UnitystationLauncher.Models.Api;
 using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Services.Interface;
 
@@ -64,6 +65,16 @@ namespace UnitystationLauncher.Services
             {
                 writer.WriteLine(json);
             }
+        }
+
+        public async Task<CharacterTokenResponse> GenerateCharacterSheetTokenForFork(string Fork)
+        {
+            return (await _IAuthProvider.GenerateCharacterSheetTokenForFork(AccountLoginResponse.Token, Fork)).Data;
+        }
+
+        public void RegisterJoiningServerWithSecret(string SharedSecret)
+        {
+            _IAuthProvider.SendRegisterSharedSecret(AccountLoginResponse.Token, SharedSecret);
         }
 
         public void ResendVerificationEmail(string email)
