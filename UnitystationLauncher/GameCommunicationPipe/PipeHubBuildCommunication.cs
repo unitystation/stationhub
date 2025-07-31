@@ -37,7 +37,7 @@ public class PipeHubBuildCommunication : IDisposable
             _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
                 PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
-        
+
         await _serverPipe.WaitForConnectionAsync();
         _reader = new(_serverPipe);
         _writer = new(_serverPipe);
