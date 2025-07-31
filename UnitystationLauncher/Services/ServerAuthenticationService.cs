@@ -32,7 +32,9 @@ public class ServerAuthenticationService : IServerAuthenticationService
 
     public readonly AuthService _AuthService;
     private readonly HttpClient _httpClient = new HttpClient();
-
+    
+    private readonly SHA512 SHA512 = SHA512.Create();
+    
     public async Task<Server> GetServerInfoByIP(string IP)
     {
         string Port = "7778";
@@ -92,7 +94,9 @@ public class ServerAuthenticationService : IServerAuthenticationService
             throw new AuthenticationException(contentBack  +$" When trying to authenticate with {url}");
         }
         
-        _AuthService.RegisterJoiningServerWithSecret(base64Secret);
+        var SHA512Check = Convert.ToBase64String(SHA512.ComputeHash(Encoding.UTF8.GetBytes(base64Secret + Info.ServerPublicKey)));
+        _AuthService.RegisterJoiningServerWithSecret(SHA512Check);
+        
         var CharacterToken = await  _AuthService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
         
         return new Dictionary<string, string>()
