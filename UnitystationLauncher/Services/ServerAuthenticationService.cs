@@ -30,7 +30,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
     }
 
 
-    public readonly AuthService _AuthService;
+    private readonly AuthService _AuthService;
     private readonly HttpClient _httpClient = new HttpClient();
     
     private readonly SHA512 SHA512 = SHA512.Create();
@@ -65,7 +65,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
         // Optional: convert to Base64 if you want to transmit/store it
         string base64Secret = Convert.ToBase64String(sharedSecret);
 
-        var ToSend = new ServerConnectionAuthenticationRequest()
+        var ToSend = new ServerConnectionAuthenticationRequest
         {
             EncryptedConnectionPublicServerKey = EncryptString(rsa, Info.ServerConnectionPublicKey),
             EncryptedClientVersion = EncryptString(rsa, Installation.BuildVersion.ToString()),
@@ -99,7 +99,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
         
         var CharacterToken = await  _AuthService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
         
-        return new Dictionary<string, string>()
+        return new Dictionary<string, string>
         {
             { "-CharacterToken", CharacterToken.CharacterToken},
             { "-SharedSecret", base64Secret},

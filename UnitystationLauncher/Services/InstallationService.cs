@@ -43,7 +43,7 @@ public class InstallationService : IInstallationService
     private readonly string _installationsJsonFilePath;
     private readonly ITTSService _TTSVersionService;
 
-    public readonly IServerAuthenticationService _IServerAuthenticationService;
+    private readonly IServerAuthenticationService _IServerAuthenticationService;
     private readonly AuthService _authService;
 
     public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,

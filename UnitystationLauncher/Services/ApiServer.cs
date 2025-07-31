@@ -16,13 +16,15 @@ namespace UnitystationLauncher.Services;
 /// </summary>
 public static class ApiServer
 {
+    public const string AuthenticationHeaderValue = "Token";
+    
     internal static async Task<ApiResult<T>> Get<T>(Uri uri, string token = default) where T : JsonObject
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
 
         if (token != default)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Token", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationHeaderValue, token);
         }
 
         return await Send<T>(request);
@@ -35,12 +37,12 @@ public static class ApiServer
 
         if (body is ITokenAuthable authable)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Token", authable.Token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationHeaderValue, authable.Token);
         }
 
         if (token != default)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Token", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationHeaderValue, token);
         }
 
         string sss = JsonConvert.SerializeObject(body);
@@ -55,12 +57,12 @@ public static class ApiServer
 
         if (body is ITokenAuthable authable)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Token", authable.Token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationHeaderValue, authable.Token);
         }
 
         if (token != default)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Token", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationHeaderValue, token);
         }
 
         var sss = JsonConvert.SerializeObject(body);
@@ -75,7 +77,7 @@ public static class ApiServer
 
         if (token != default)
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Token", token);
+            request.Headers.Authorization = new AuthenticationHeaderValue(AuthenticationHeaderValue, token);
         }
 
         return await Send<T>(request);

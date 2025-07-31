@@ -61,7 +61,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override void Refresh()
         {
-
+                // Do nothing
         }
 
         public LoginViewModel ReturnToLogin()

@@ -111,7 +111,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override void Refresh()
         {
-
+            // Do nothing
         }
 
         public async Task UserCreateAsync()

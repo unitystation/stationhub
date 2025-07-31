@@ -43,7 +43,7 @@ namespace UnitystationLauncher.ViewModels
 
             if (!authService.AttemptingAutoLogin)
             {
-                RxApp.MainThreadScheduler.ScheduleAsync((scheduler, ct) => UserLoginAsync());
+                RxApp.MainThreadScheduler.ScheduleAsync((_, _) => UserLoginAsync());
             }
             else
             {
@@ -173,7 +173,7 @@ namespace UnitystationLauncher.ViewModels
 
         public override void Refresh()
         {
-
+            // Do nothing
         }
     }
 }

@@ -21,7 +21,7 @@ namespace UnitystationLauncher.Services
         private readonly HttpClient _http;
         public LoginMsg? LoginMsg { get; set; }
         public bool AttemptingAutoLogin { get; set; }
-        public IAuthProvider _IAuthProvider;
+        private IAuthProvider _IAuthProvider;
         private readonly IPreferencesService _preferencesService;
 
         public AuthService(HttpClient http, IAuthProvider IAuthProvider, IPreferencesService preferencesService)
@@ -35,8 +35,11 @@ namespace UnitystationLauncher.Services
 
         private string AuthSettingsPath => Path.Combine(_preferencesService.GetPreferences().InstallationPath, "authSettings.json");
 
-        public AccountLoginResponse? AccountLoginResponse;
+        public AccountLoginResponse? AccountLoginResponse => accountLoginResponse;
 
+        private AccountLoginResponse? accountLoginResponse;
+
+        
 
         private void LoadAuthSettings()
         {
@@ -46,7 +49,7 @@ namespace UnitystationLauncher.Services
                 {
                     var json = File.ReadAllText(AuthSettingsPath);
                     var AccountLoginResponseA = JsonSerializer.Deserialize<AccountLoginResponse>(json);
-                    AccountLoginResponse = AccountLoginResponseA;
+                    accountLoginResponse = AccountLoginResponseA;
                 }
             }
             catch (Exception)
@@ -165,7 +168,7 @@ namespace UnitystationLauncher.Services
                 }
                 else
                 {
-                    AccountLoginResponse = Response.Data;
+                    accountLoginResponse = Response.Data;
                     return Response.Data.Token;
                 }
             }
@@ -180,7 +183,7 @@ namespace UnitystationLauncher.Services
         public async Task SignOutUserAsync()
         {
             await _IAuthProvider.Logout(AccountLoginResponse.Token);
-            AccountLoginResponse = null;
+            accountLoginResponse = null;
         }
     }
 

@@ -8,7 +8,7 @@ namespace UnitystationLauncher.Services;
 
 public interface IAuthProvider
 {
-    public Task<AccountLoginResponse> SignInWithEmailAndPasswordAsync(string email, string password);
+    public Task<AccountLoginResponse> SignInWithEmailAndPasswordAsync(string emailAddress, string password);
     public Task<ApiResult<AccountLoginResponse>> Login(string token);
 
     public Task<JsonObject> Logout(string token, bool destroyAllSessions = false);
@@ -29,7 +29,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 {
 
     public static string Host => ApiUrls.ApiBaseUrlLogin;
-    public static UriBuilder UriBuilder = new(Host);
+    private static UriBuilder UriBuilder = new(Host);
     public static Uri GetUri(string endpoint, string queries = null)
     {
 
