@@ -18,7 +18,7 @@ public static class ApiServer
 {
     public const string AuthenticationHeaderValue = "Token";
 
-    internal static async Task<ApiResult<T>> Get<T>(Uri uri, string token = default) where T : JsonObject
+    internal static async Task<ApiResult<T>> Get<T>(Uri uri, string? token = default) where T : JsonObject
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);
 
@@ -30,7 +30,7 @@ public static class ApiServer
         return await Send<T>(request);
     }
 
-    internal static async Task<ApiResult<T>> Post<T>(Uri uri, JsonObject body, string token = default)
+    internal static async Task<ApiResult<T>> Post<T>(Uri uri, JsonObject body, string? token = default)
         where T : JsonObject
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri);
@@ -50,7 +50,7 @@ public static class ApiServer
         return await Send<T>(request);
     }
 
-    internal static async Task<ApiResult<T>> Put<T>(Uri uri, JsonObject body, string token = default)
+    internal static async Task<ApiResult<T>> Put<T>(Uri uri, JsonObject body, string? token = default)
         where T : JsonObject
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Put, uri);
@@ -71,7 +71,7 @@ public static class ApiServer
         return await Send<T>(request);
     }
 
-    internal static async Task<ApiResult<T>> Delete<T>(Uri uri, string token = default) where T : JsonObject
+    internal static async Task<ApiResult<T>> Delete<T>(Uri uri, string? token = default) where T : JsonObject
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, uri);
 

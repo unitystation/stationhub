@@ -30,7 +30,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
     public static string Host => ApiUrls.ApiBaseUrlLogin;
     private static UriBuilder UriBuilder = new(Host);
-    public static Uri GetUri(string endpoint, string queries = null)
+    public static Uri GetUri(string endpoint, string? queries = null)
     {
 
         UriBuilder.Path = $"/accounts/{endpoint}";

@@ -124,11 +124,11 @@ public class ApiResult<T> : JsonObject where T : JsonObject
 {
     public HttpStatusCode StatusCode { get; set; }
     public T Data { get; set; }
-    public ApiHttpException Exception { get; set; }
+    public ApiHttpException? Exception { get; set; }
 
     public bool IsSuccess => Exception == null;
 
-    private ApiResult(HttpStatusCode statusCode, T data, ApiHttpException exception = null)
+    private ApiResult(HttpStatusCode statusCode, T data, ApiHttpException? exception = null)
     {
         StatusCode = statusCode;
         Data = data;

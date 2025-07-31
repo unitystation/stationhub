@@ -6,10 +6,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Serilog;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
-using System.Security.Cryptography;
 
 namespace UnitystationLauncher.Services;
 

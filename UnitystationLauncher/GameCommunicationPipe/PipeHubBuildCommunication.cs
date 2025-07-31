@@ -13,7 +13,7 @@ namespace UnitystationLauncher.GameCommunicationPipe;
 
 public class PipeHubBuildCommunication : IDisposable
 {
-    private static NamedPipeServerStream _serverPipe;
+    private static NamedPipeServerStream? _serverPipe;
     private static StreamReader? _reader;
     private static StreamWriter? _writer;
 
@@ -32,6 +32,12 @@ public class PipeHubBuildCommunication : IDisposable
 
     public async Task StartServerPipe()
     {
+        if (_serverPipe == null)
+        {
+            _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+                PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        }
+        
         await _serverPipe.WaitForConnectionAsync();
         _reader = new(_serverPipe);
         _writer = new(_serverPipe);
