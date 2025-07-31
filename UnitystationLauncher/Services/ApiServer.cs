@@ -17,7 +17,7 @@ namespace UnitystationLauncher.Services;
 public static class ApiServer
 {
     public const string AuthenticationHeaderValue = "Token";
-    
+
     internal static async Task<ApiResult<T>> Get<T>(Uri uri, string token = default) where T : JsonObject
     {
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri);

@@ -436,14 +436,14 @@ public class InstallationService : IInstallationService
 
             var AccountID = _authService.AccountLoginResponse.Account.UniqueIdentifier;
             var Username = _authService.AccountLoginResponse.Account.Username;
-            
+
             arguments += $"-AccountID {AccountID}";
             arguments += $"-Username {Username}";
             foreach (var Argument in Arguments)
             {
                 arguments += $"{Argument.Key} {Argument.Value}";
             }
-            
+
             arguments += $"--server {server}";
 
             if (port.HasValue)

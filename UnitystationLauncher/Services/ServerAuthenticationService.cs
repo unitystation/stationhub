@@ -16,9 +16,9 @@ namespace UnitystationLauncher.Services;
 public interface IServerAuthenticationService
 {
     public Task<Server> GetServerInfoByIP(string IP);
-    
-    public Task< Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation);
-    
+
+    public Task<Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation);
+
 }
 
 public class ServerAuthenticationService : IServerAuthenticationService
@@ -32,14 +32,14 @@ public class ServerAuthenticationService : IServerAuthenticationService
 
     private readonly AuthService _AuthService;
     private readonly HttpClient _httpClient = new HttpClient();
-    
+
     private readonly SHA512 SHA512 = SHA512.Create();
-    
+
     public async Task<Server> GetServerInfoByIP(string IP)
     {
         string Port = "7778";
         string url = $"http://{IP}:{Port}/";
-        
+
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
 
@@ -49,7 +49,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
         return serverInfo;
     }
 
-    public async Task< Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation)
+    public async Task<Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation)
     {
 
         var Info = await GetServerInfoByIP(IP);
@@ -58,7 +58,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
 
         using RSA rsa = RSA.Create();
         rsa.ImportRSAPublicKey(publicKeyBytes, out _);
-        
+
         byte[] sharedSecret = new byte[32]; // 256-bit key
         RandomNumberGenerator.Fill(sharedSecret);
 
@@ -74,31 +74,31 @@ public class ServerAuthenticationService : IServerAuthenticationService
             EncryptedSharedSecret = EncryptString(rsa, base64Secret),
             EncryptedAccountID = EncryptString(rsa, _AuthService.AccountLoginResponse.Account.UniqueIdentifier)
         };
-        
-        
+
+
         // Serialize the object to JSON
         string json = JsonConvert.SerializeObject(ToSend);
 
         // Wrap it in a StringContent with JSON media type
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        
+
         string Port = "7778";
         string url = $"http://{IP}:{Port}/";
-        
+
         var response = await _httpClient.PostAsync(url, content);
         response.EnsureSuccessStatusCode();
 
         string contentBack = await response.Content.ReadAsStringAsync();
         if (contentBack != "OK")
         {
-            throw new AuthenticationException(contentBack  +$" When trying to authenticate with {url}");
+            throw new AuthenticationException(contentBack + $" When trying to authenticate with {url}");
         }
-        
+
         var SHA512Check = Convert.ToBase64String(SHA512.ComputeHash(Encoding.UTF8.GetBytes(base64Secret + Info.ServerPublicKey)));
         _AuthService.RegisterJoiningServerWithSecret(SHA512Check);
-        
-        var CharacterToken = await  _AuthService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
-        
+
+        var CharacterToken = await _AuthService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
+
         return new Dictionary<string, string>
         {
             { "-CharacterToken", CharacterToken.CharacterToken},

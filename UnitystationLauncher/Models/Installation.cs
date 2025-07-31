@@ -11,7 +11,7 @@ public class Installation
     public int BuildVersion { get; set; }
 
     public string? GoodFileVersion { get; set; }
-    
+
     public string? InstallationPath { get; set; }
 
     public DateTime LastPlayedDate { get; set; }

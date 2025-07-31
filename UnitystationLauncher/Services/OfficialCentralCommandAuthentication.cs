@@ -19,9 +19,9 @@ public interface IAuthProvider
     public Task<ApiResult<JsonObject>> ResendEmailConfirmation(string email);
 
     public Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email);
-    
+
     public Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret);
-    
+
     public Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName);
 }
 

@@ -95,52 +95,8 @@ namespace UnitystationLauncher.Services
 
 
 
-        internal async Task<AccountLoginResponse> CreateAccountAsync(string userId, string username, string email, string password)
+        internal async Task<ApiResult<AccountRegisterResponse>> CreateAccountAsync(string userId, string username, string email, string password)
         {
-            // Client-side check for disposable email address.
-            const string url =
-                "https://raw.githubusercontent.com/martenson/disposable-email-domains/master/disposable_email_blocklist.conf";
-            HttpRequestMessage requestMessage = new(HttpMethod.Get, url);
-
-            CancellationToken cancellationToken = new CancellationTokenSource(60000).Token;
-            bool isDomainBlacklisted = false;
-            try
-            {
-                HttpResponseMessage response = await _http.SendAsync(requestMessage, cancellationToken);
-                string msg = await response.Content.ReadAsStringAsync(cancellationToken);
-
-                // Turn msg into a hashset of all domains
-                using StringReader stringReader = new(msg);
-                List<string> lines = new();
-
-                while (await stringReader.ReadLineAsync() is { } line)
-                {
-                    if (!string.IsNullOrWhiteSpace(line) && !line.TrimStart().StartsWith("//"))
-                    {
-                        lines.Add(line);
-                    }
-                }
-
-                HashSet<string> blacklist = new(lines, StringComparer.OrdinalIgnoreCase);
-
-                MailAddress address = new(email);
-                if (blacklist.Contains(address.Host))
-                {
-                    // Randomly wait before failing. Might frustrate users who try different disposable emails.
-                    await Task.Delay(new Random().Next(3000, 12000), cancellationToken);
-                    isDomainBlacklisted = true;
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Error or timeout in check for email domain blacklist, check has been skipped");
-            }
-
-            if (isDomainBlacklisted)
-            {
-                throw new InvalidOperationException("The email domain provided by the user is on our blacklist.");
-            }
-
             ApiResult<AccountRegisterResponse> registerResponse = await _IAuthProvider.Register(userId, email, username, password);
 
             if (registerResponse.IsSuccess == false)
@@ -148,7 +104,7 @@ namespace UnitystationLauncher.Services
                 throw new InvalidOperationException("Failed to register account");
             }
 
-            return null;
+            return registerResponse;
         }
 
 
