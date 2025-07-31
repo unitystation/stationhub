@@ -35,7 +35,17 @@ namespace UnitystationLauncher.Services
 
         private string AuthSettingsPath => Path.Combine(_preferencesService.GetPreferences().InstallationPath, "authSettings.json");
 
-        public AccountLoginResponse? AccountLoginResponse => accountLoginResponse;
+        public AccountLoginResponse? AccountLoginResponse
+        {
+            get
+            {
+                return accountLoginResponse;
+            }
+            set
+            {
+                accountLoginResponse = value;
+            }
+        }
 
         private AccountLoginResponse? accountLoginResponse;
 
