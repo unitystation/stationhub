@@ -150,8 +150,8 @@ Justification given by the Fork : " + requests[1]);
 
     public void Dispose()
     {
-        _serverPipe.Close();
-        _serverPipe.Dispose();
+        _serverPipe?.Close();
+        _serverPipe?.Dispose();
         _reader?.Close();
         _reader?.Dispose();
         _writer?.Close();

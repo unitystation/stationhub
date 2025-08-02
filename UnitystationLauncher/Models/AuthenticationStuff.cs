@@ -26,16 +26,16 @@ public abstract class JsonObject
 public class AccountRegister : JsonObject
 {
     [JsonProperty("unique_identifier")]
-    public string UniqueIdentifier { get; set; }
+    public string? UniqueIdentifier { get; set; }
 
     [JsonProperty("email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [JsonProperty("username")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [JsonProperty("password")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 }
 
 
@@ -43,7 +43,7 @@ public class AccountRegister : JsonObject
 public class ForgotPasswordModel : JsonObject
 {
     [JsonProperty("email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 }
 
 
