@@ -46,6 +46,21 @@ public class ForgotPasswordModel : JsonObject
     public string? Email { get; set; }
 }
 
+[Serializable]
+public class Registersha512token : JsonObject
+{
+    [JsonProperty("sha512_token")]
+    public string? sha512_token { get; set; }
+}
+
+
+[Serializable]
+public class GetCharacterForkToken : JsonObject
+{
+    [JsonProperty("fork_compatibility")]
+    public string? fork_compatibility { get; set; }
+}
+
 
 [Serializable]
 public class AccountRegisterResponse : JsonObject

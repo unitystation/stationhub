@@ -2,5 +2,5 @@
 
 public class CharacterTokenResponse : JsonObject
 {
-    public string CharacterToken { get; set; }
-}
+    public string token { get; set; }
+}  

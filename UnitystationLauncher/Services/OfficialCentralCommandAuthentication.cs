@@ -30,11 +30,17 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
     public static string Host => ApiUrls.ApiBaseUrlLogin;
     private static UriBuilder UriBuilder = new(Host);
-    public static Uri GetUri(string endpoint, string? queries = null)
+    public static Uri GetUri(string endpoint, string? queries = null, string BeginningOverride = null)
     {
 
         UriBuilder.Path = $"/accounts/{endpoint}";
 
+        if (string.IsNullOrEmpty(BeginningOverride) == false)
+        {
+            UriBuilder.Path =BeginningOverride + $"{endpoint}";
+
+        }
+        
         if (string.IsNullOrEmpty(queries) == false)
         {
             UriBuilder.Query = queries;
@@ -156,24 +162,23 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
         }
     }
 
-    public Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret)
+    public async Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret)
     {
         try
         {
-            // var requestBody = new ForgotPasswordModel
-            // {
-            //     Email = email,
-            // };
-            //
-            // var response = await ApiServer.Post<JsonObject>(GetUri("reset-password/"), requestBody);
-            //
-            // if (!response.IsSuccess)
-            // {
-            //     throw response.Exception!;
-            // }
-            //
-            // return response;
-            return null;
+            var requestBody = new Registersha512token
+            {
+                sha512_token = SharedSecret,
+            };
+            
+            var response = await ApiServer.Post<JsonObject>(GetUri("register-SHA512-for-account/"), requestBody, token);
+            
+            if (!response.IsSuccess)
+            {
+                throw response.Exception!;
+            }
+            
+            return response;
         }
         catch (Exception e)
         {
@@ -182,24 +187,23 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
         }
     }
 
-    public Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName)
+    public async Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName)
     {
         try
         {
-            // var requestBody = new ForgotPasswordModel
-            // {
-            //     Email = email,
-            // };
-            //
-            // var response = await ApiServer.Post<JsonObject>(GetUri("reset-password/"), requestBody);
-            //
-            // if (!response.IsSuccess)
-            // {
-            //     throw response.Exception!;
-            // }
-            //
-            // return response;
-            return null;
+            var requestBody = new GetCharacterForkToken
+            {
+                fork_compatibility = ForkName,
+            };
+            
+            var response = await ApiServer.Post<CharacterTokenResponse>(GetUri("GenForkToken/", BeginningOverride: "/characters/"), requestBody, token);
+            
+            if (!response.IsSuccess)
+            {
+                throw response.Exception!;
+            }
+            
+            return response;
         }
         catch (Exception e)
         {

@@ -99,7 +99,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
 
         return new Dictionary<string, string>
         {
-            { "-CharacterToken", CharacterToken.CharacterToken},
+            { "-CharacterToken", CharacterToken.token},
             { "-SharedSecret", base64Secret},
             { "-ServerPublicConnectionKey", Info.ServerConnectionPublicKey},
         };
