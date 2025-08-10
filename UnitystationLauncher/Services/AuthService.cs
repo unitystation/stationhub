@@ -49,8 +49,9 @@ namespace UnitystationLauncher.Services
                     AccountLoginResponse = AccountLoginResponseA;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Log.Error(ex.ToString());
                 // Something went wrong reading the auth settings. Just ask the user to log in again.
                 // The auth settings file will get overwritten after they do so we don't need to clean it up.
             }
