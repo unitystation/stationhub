@@ -28,7 +28,7 @@ public class MockNoActiveDownloads : IInstallationService
         throw new NotImplementedException();
     }
 
-    public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
+    public Task<(bool, string)> StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
         throw new NotImplementedException();
     }
