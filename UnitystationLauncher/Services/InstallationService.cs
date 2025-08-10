@@ -427,33 +427,33 @@ public class InstallationService : IInstallationService
 
     private async Task<string> GetArguments(Installation Installation, string? server, long? port)
     {
-        string arguments = string.Empty;
+        StringBuilder arguments = new StringBuilder();
 
         if (string.IsNullOrWhiteSpace(server) == false)
         {
             var Arguments = await _IServerAuthenticationService.AuthenticateWithServer(server, Installation);
-           
-     
+
+
             foreach (var Argument in Arguments)
             {
-                arguments += $"{Argument.Key} {Argument.Value} ";
+                arguments.Append($"{Argument.Key} {Argument.Value} ");
             }
 
-            arguments += $"--server {server} ";
+            arguments.Append($"--server {server} ");
 
             if (port.HasValue)
             {
-                arguments += $" --port {port} ";
+                arguments.Append($"--port {port} ");
             }
         }
 
         var AccountID = _authService.AccountLoginResponse.Account.UniqueIdentifier;
         var Username = _authService.AccountLoginResponse.Account.Username;
-        arguments += $"-AccountID {AccountID} ";
-        arguments += $"-Username {Username} ";
+        arguments.Append($"-AccountID {AccountID} ");
+        arguments.Append($"-Username {Username} ");
         var CharacterToken = await _authService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
-        arguments += $" -CharacterToken {CharacterToken.token} ";
-        return arguments;
+        arguments.Append($"-CharacterToken {CharacterToken.token} ");
+        return arguments.ToString();
     }
 
 

@@ -3,4 +3,4 @@
 public class CharacterTokenResponse : JsonObject
 {
     public string token { get; set; }
-}  
+}

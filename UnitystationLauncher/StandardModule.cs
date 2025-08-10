@@ -27,7 +27,7 @@ namespace UnitystationLauncher
             builder.RegisterType<AuthService>().As<AuthService>().SingleInstance();
             builder.RegisterType<OfficialCentralCommandAuthentication>().As<IAuthProvider>().SingleInstance();
             builder.RegisterType<ServerAuthenticationService>().As<IServerAuthenticationService>().SingleInstance();
-             
+
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)
                 .Where(t => t.Name.EndsWith("ViewModel"));

@@ -67,7 +67,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
         using (var sr = new StringReader(pem))
         {
             var pr = new PemReader(sr);
-            return (AsymmetricKeyParameter) pr.ReadObject();
+            return (AsymmetricKeyParameter)pr.ReadObject();
         }
     }
 

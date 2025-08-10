@@ -37,10 +37,10 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         if (string.IsNullOrEmpty(BeginningOverride) == false)
         {
-            UriBuilder.Path =BeginningOverride + $"{endpoint}";
+            UriBuilder.Path = BeginningOverride + $"{endpoint}";
 
         }
-        
+
         if (string.IsNullOrEmpty(queries) == false)
         {
             UriBuilder.Query = queries;
@@ -170,14 +170,14 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
             {
                 sha512_token = SharedSecret,
             };
-            
+
             var response = await ApiServer.Post<JsonObject>(GetUri("register-SHA512-for-account/"), requestBody, token);
-            
+
             if (!response.IsSuccess)
             {
                 throw response.Exception!;
             }
-            
+
             return response;
         }
         catch (Exception e)
@@ -195,14 +195,14 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
             {
                 fork_compatibility = ForkName,
             };
-            
+
             var response = await ApiServer.Post<CharacterTokenResponse>(GetUri("GenForkToken", BeginningOverride: "/persistence/characters/"), requestBody, token);
-            
+
             if (!response.IsSuccess)
             {
                 throw response.Exception!;
             }
-            
+
             return response;
         }
         catch (Exception e)

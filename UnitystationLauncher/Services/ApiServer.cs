@@ -67,7 +67,6 @@ public static class ApiServer
 
         var sss = JsonConvert.SerializeObject(body);
         request.Content = new StringContent(sss, Encoding.UTF8, "application/json");
-        //request.Content = body.ToStringContent();
         return await Send<T>(request);
     }
 

@@ -30,7 +30,7 @@ public class PipeHubBuildCommunication : IDisposable
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
     }
 
-    public async Task StartServerPipe()
+    public static async Task StartServerPipe()
     {
         if (_serverPipe == null)
         {
