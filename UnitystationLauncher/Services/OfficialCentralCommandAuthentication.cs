@@ -58,7 +58,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         ApiResult<AccountLoginResponse> response = await ApiServer.Post<AccountLoginResponse>(GetUri("login-token"), requestBody);
 
-        if (!response.IsSuccess)
+        if (response.IsSuccess == false)
         {
             throw response.Exception!;
         }
@@ -76,7 +76,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         ApiResult<AccountLoginResponse> response = await ApiServer.Post<AccountLoginResponse>(GetUri("login-credentials"), requestBody);
 
-        if (!response.IsSuccess)
+        if (response.IsSuccess == false)
         {
             throw response.Exception!;
         }
@@ -128,7 +128,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
         var response = await ApiServer.Post<AccountRegisterResponse>(GetUri("register"), requestBody);
 
-        if (!response.IsSuccess)
+        if (response.IsSuccess == false)
         {
             throw response.Exception!;
         }
@@ -148,7 +148,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
             var response = await ApiServer.Post<JsonObject>(GetUri("reset-password/"), requestBody);
 
-            if (!response.IsSuccess)
+            if (response.IsSuccess == false)
             {
                 throw response.Exception!;
             }
@@ -173,7 +173,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
             var response = await ApiServer.Post<JsonObject>(GetUri("register-SHA512-for-account/"), requestBody, token);
 
-            if (!response.IsSuccess)
+            if (response.IsSuccess == false)
             {
                 throw response.Exception!;
             }
@@ -198,7 +198,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
             var response = await ApiServer.Post<CharacterTokenResponse>(GetUri("GenForkToken", BeginningOverride: "/persistence/characters/"), requestBody, token);
 
-            if (!response.IsSuccess)
+            if (response.IsSuccess == false)
             {
                 throw response.Exception!;
             }

@@ -81,6 +81,7 @@ namespace UnitystationLauncher.ViewModels
                 Content = _loginStatusVm.Value;
                 await AttemptAuthRefreshAsync();
             }
+            //Will go to login screen if null
         }
 
         async Task AttemptAuthRefreshAsync()

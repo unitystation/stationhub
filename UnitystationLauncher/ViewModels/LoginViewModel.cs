@@ -35,7 +35,7 @@ namespace UnitystationLauncher.ViewModels
                     !string.IsNullOrWhiteSpace(u) &&
                     !string.IsNullOrWhiteSpace(p));
 
-            Login = ReactiveCommand.CreateFromTask(
+            Login = ReactiveCommand.Create(
                 UserLoginAsync,
                 possibleCredentials);
 
@@ -62,7 +62,7 @@ namespace UnitystationLauncher.ViewModels
         public ReactiveCommand<Unit, SignUpViewModel> Create { get; }
         public ReactiveCommand<Unit, ForgotPasswordViewModel> ForgotPw { get; }
 
-        public async Task<LoginStatusViewModel> UserLoginAsync()
+        public LoginStatusViewModel UserLoginAsync()
         {
             _authService.LoginMsg = new LoginMsg
             {

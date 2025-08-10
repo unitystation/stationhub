@@ -17,6 +17,7 @@ public class PipeHubBuildCommunication : IDisposable
     private static StreamReader? _reader;
     private static StreamWriter? _writer;
 
+    private const string Unitystation_Hub_Build_Communication = "Unitystation_Hub_Build_Communication";
     public PipeHubBuildCommunication()
     {
         _serverPipe?.Close();
@@ -26,7 +27,7 @@ public class PipeHubBuildCommunication : IDisposable
         _writer?.Close();
         _writer?.Dispose();
 
-        _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+        _serverPipe = new(Unitystation_Hub_Build_Communication, PipeDirection.InOut, 1,
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
     }
 
@@ -34,7 +35,7 @@ public class PipeHubBuildCommunication : IDisposable
     {
         if (_serverPipe == null)
         {
-            _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+            _serverPipe = new(Unitystation_Hub_Build_Communication, PipeDirection.InOut, 1,
                 PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
         }
 
@@ -55,7 +56,7 @@ public class PipeHubBuildCommunication : IDisposable
                 {
                     Log.Error(e.ToString());
                     _serverPipe.Close();
-                    _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
+                    _serverPipe = new(Unitystation_Hub_Build_Communication, PipeDirection.InOut,
                         1,
                         PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                     await _serverPipe.WaitForConnectionAsync();
