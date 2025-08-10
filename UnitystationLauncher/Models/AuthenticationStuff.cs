@@ -85,8 +85,7 @@ public class AccountRegisterDetails : JsonObject
 [Serializable]
 public class AccountLoginResponse : JsonObject
 {
-    [JsonProperty("token")]
-    public string Token { get; set; }
+    [JsonProperty("token")] public string Token { get; set; } = "";
 
     [JsonProperty("account")]
     public AccountGetResponse Account { get; set; }
@@ -96,10 +95,10 @@ public class AccountLoginResponse : JsonObject
 public class AccountGetResponse : JsonObject
 {
     [JsonProperty("unique_identifier")]
-    public string UniqueIdentifier { get; set; }
+    public string UniqueIdentifier { get; set; } = "";
 
     [JsonProperty("username")]
-    public string Username { get; set; }
+    public string Username { get; set; } = "";
 
     [JsonProperty("is_verified")]
     public bool IsVerified { get; set; }
@@ -108,30 +107,29 @@ public class AccountGetResponse : JsonObject
 [Serializable]
 public class AccountLoginToken : JsonObject, ITokenAuthable
 {
-    public string Token { get; set; }
+    public string Token { get; set; } = "";
 }
 
 [Serializable]
 public class AccountLogout : JsonObject, ITokenAuthable
 {
-    public string Token { get; set; }
+    public string Token { get; set; } = "";
 }
 
 [Serializable]
 public class AccountResendEmailConfirmationRequest : JsonObject
 {
     [JsonProperty("email")]
-    public string Email { get; set; }
+    public string Email { get; set; } = "";
 }
 
 [Serializable]
 public class AccountLoginCredentials : JsonObject
 {
     [JsonProperty("email")]
-    public string Email { get; set; }
+    public string Email { get; set; } = "";
 
-    [JsonProperty("password")]
-    public string Password { get; set; }
+    [JsonProperty("password")] public string Password { get; set; } = "";
 }
 
 public class ApiResult<T> : JsonObject where T : JsonObject
