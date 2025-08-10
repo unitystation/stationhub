@@ -158,7 +158,7 @@ public class InstallationService : IInstallationService
         return (download, string.Empty);
     }
 
-    public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
+    public async Task<(bool, string)> StartInstallation(Guid installationId, string? server = null, short? port = null)
     {
         _TTSVersionService.StartTTS();
 
@@ -180,7 +180,7 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        string arguments = GetArguments(installation, server, port);
+        string arguments = await GetArguments(installation, server, port);
         ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
@@ -425,33 +425,34 @@ public class InstallationService : IInstallationService
         return (true, string.Empty);
     }
 
-    private string GetArguments(Installation Installation, string? server, long? port)
+    private async Task<string> GetArguments(Installation Installation, string? server, long? port)
     {
         string arguments = string.Empty;
 
         if (string.IsNullOrWhiteSpace(server) == false)
         {
-            //TODO Asynchronous!!!
-            var Arguments = _IServerAuthenticationService.AuthenticateWithServer(server, Installation).Result;
-
-            var AccountID = _authService.AccountLoginResponse.Account.UniqueIdentifier;
-            var Username = _authService.AccountLoginResponse.Account.Username;
-
-            arguments += $"-AccountID {AccountID}";
-            arguments += $"-Username {Username}";
+            var Arguments = await _IServerAuthenticationService.AuthenticateWithServer(server, Installation);
+           
+     
             foreach (var Argument in Arguments)
             {
-                arguments += $"{Argument.Key} {Argument.Value}";
+                arguments += $"{Argument.Key} {Argument.Value} ";
             }
 
-            arguments += $"--server {server}";
+            arguments += $"--server {server} ";
 
             if (port.HasValue)
             {
-                arguments += $" --port {port}";
+                arguments += $" --port {port} ";
             }
         }
 
+        var AccountID = _authService.AccountLoginResponse.Account.UniqueIdentifier;
+        var Username = _authService.AccountLoginResponse.Account.Username;
+        arguments += $"-AccountID {AccountID} ";
+        arguments += $"-Username {Username} ";
+        var CharacterToken = await _authService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
+        arguments += $" -CharacterToken {CharacterToken.token} ";
         return arguments;
     }
 

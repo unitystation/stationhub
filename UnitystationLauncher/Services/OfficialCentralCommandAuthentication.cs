@@ -196,7 +196,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
                 fork_compatibility = ForkName,
             };
             
-            var response = await ApiServer.Post<CharacterTokenResponse>(GetUri("GenForkToken/", BeginningOverride: "/characters/"), requestBody, token);
+            var response = await ApiServer.Post<CharacterTokenResponse>(GetUri("GenForkToken", BeginningOverride: "/persistence/characters/"), requestBody, token);
             
             if (!response.IsSuccess)
             {
