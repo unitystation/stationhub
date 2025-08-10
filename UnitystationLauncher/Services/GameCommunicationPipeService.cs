@@ -10,7 +10,7 @@ public class GameCommunicationPipeService : IGameCommunicationPipeService
     public void Init()
     {
         PipeHubBuildCommunication data = new();
-        _ = data.StartServerPipe();
+        _ = PipeHubBuildCommunication.StartServerPipe();
         _coolPipeHubBuildCommunication = data;
     }
 }
