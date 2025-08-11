@@ -14,6 +14,7 @@ using Org.BouncyCastle.Crypto.Encodings;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Math.EC;
 using Org.BouncyCastle.OpenSsl;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
@@ -22,9 +23,9 @@ namespace UnitystationLauncher.Services;
 
 public interface IServerAuthenticationService
 {
-    public Task<Server> GetServerInfoByIP(string IP);
+    public Task<Server> QueryServerInfo(string IP);
 
-    public Task<Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation);
+    public Task<Dictionary<string, string>> PrenegotiateWithServer(string IP, Installation Installation);
 }
 
 public class ServerAuthenticationService : IServerAuthenticationService
@@ -38,13 +39,15 @@ public class ServerAuthenticationService : IServerAuthenticationService
     private readonly AuthService _AuthService;
     private readonly HttpClient _httpClient = new HttpClient();
 
-    private readonly SHA512 SHA512 = SHA512.Create();
-
-    public async Task<Server> GetServerInfoByIP(string IP)
+    public async Task<Server> QueryServerInfo(string IP)
     {
         try
         {
-            string Port = "7778";
+            // check if IP is in the format "IP:Port"
+            // if not, assume default port 7778
+            string[] parts = IP.Split(':');
+            string Port = parts.Length == 2 ? parts[1] : "7778";
+
             string url = $"http://{IP}:{Port}/";
 
             var response = await _httpClient.GetAsync(url);
@@ -72,42 +75,38 @@ public class ServerAuthenticationService : IServerAuthenticationService
     }
 
 
-    public async Task<Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation)
+    public async Task<Dictionary<string, string>> PrenegotiateWithServer(string IP, Installation Installation)
     {
-        var Info = await GetServerInfoByIP(IP);
-        var RSAEncrypt = new OaepEncoding(
-            new RsaEngine(),
+        var Info = await QueryServerInfo(IP);
+        var CryptoEncoding = new OaepEncoding(
+            new ElGamalEngine(),
             new Sha256Digest()
         );
 
-        RSAEncrypt.Init(true, ImportKeyFromPem(Info.ServerPublicKey)); // false = decrypt mode
+        // wrap the base64 encoded public key in PEM format
+        var ServerPublicKey = ImportKeyFromPem("-----BEGIN PUBLIC KEY-----\n" +
+            Info.ServerPublicKey + "\n" +
+            "-----END PUBLIC KEY-----\n");
+
+        CryptoEncoding.Init(true, ServerPublicKey); // false = decrypt mode
 
         byte[] sharedSecret = new byte[32]; // 256-bit key
         RandomNumberGenerator.Fill(sharedSecret);
 
-        // Optional: convert to Base64 if you want to transmit/store it
-        string base64Secret = Convert.ToBase64String(sharedSecret);
+        var hashInput = new byte[64];
+        Array.Copy(sharedSecret, 0, hashInput, 0, 32);
+        Array.Copy(Convert.FromBase64String(Info.ServerPublicKey), 0, hashInput, 32, 32);
 
-        var SHA512Check = Convert.ToBase64String(
-            SHA512.ComputeHash(
-                Encoding.UTF8.GetBytes(
-                    base64Secret
-                    + Info.ServerPublicKey
-                    + Installation.BuildVersion.ToString()
-                    + Installation.ForkName.ToString()
-                    + Installation.GoodFileVersion.ToString()
-                    + Info.ServerConnectionPublicKey)));
-        _AuthService.RegisterJoiningServerWithSecret(SHA512Check);
+        var ConnectionChallenge = Convert.ToHexString(SHA512.HashData(hashInput));
+
+        var ScopeToken = await _AuthService.RegisterConnectionChallenge(ConnectionChallenge, Installation.ForkName);
 
 
         var ToSend = new ServerConnectionAuthenticationRequest
         {
-            ConnectionPublicServerKey = Info.ServerConnectionPublicKey,
-            ClientVersion = Installation.BuildVersion.ToString(),
-            GoodFileVersion = Installation.GoodFileVersion.ToString(),
-            ClientFork = Installation.ForkName.ToString(),
-            EncryptedSharedSecret = EncryptString(RSAEncrypt, base64Secret),
-            EncryptedAccountID = EncryptString(RSAEncrypt, _AuthService.AccountLoginResponse.Account.UniqueIdentifier)
+            SharedSecret = Convert.ToBase64String(sharedSecret),
+            UniqueIdentifier = _AuthService.AccountLoginResponse.Account.UniqueIdentifier,
+            AuthRealm = _AuthService
         };
 
 
@@ -115,7 +114,9 @@ public class ServerAuthenticationService : IServerAuthenticationService
         string json = JsonConvert.SerializeObject(ToSend);
 
         // Wrap it in a StringContent with JSON media type
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+        //TODO make this into a function like QueryServerIP
 
         string Port = "7778";
         string url = $"http://{IP}:{Port}/";
@@ -128,17 +129,19 @@ public class ServerAuthenticationService : IServerAuthenticationService
         {
             throw new AuthenticationException(contentBack + $" When trying to authenticate with {url}");
         }
+        //end of todo
 
         return new Dictionary<string, string>
         {
             {"-SharedSecret", base64Secret},
-            {"-ServerPublicConnectionKey", Info.ServerConnectionPublicKey},
+            {"-ServerPublicConnectionKey", Info.DEPRECATEME_ServerConnectionPublicKey},
+            {"-ScopedToken", ScopeToken.ScopeToken}
         };
     }
 
-    private string EncryptString(OaepEncoding rsa, string ToEncrypt)
+    private string EncryptString(OaepEncoding encoding, string ToEncrypt)
     {
         var Bytes = Encoding.UTF8.GetBytes(ToEncrypt);
-        return Convert.ToBase64String(rsa.ProcessBlock(Bytes, 0, Bytes.Length));
+        return Convert.ToBase64String(encoding.ProcessBlock(Bytes, 0, Bytes.Length));
     }
 }

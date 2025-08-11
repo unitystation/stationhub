@@ -431,8 +431,7 @@ public class InstallationService : IInstallationService
 
         if (string.IsNullOrWhiteSpace(server) == false)
         {
-            var Arguments = await _IServerAuthenticationService.AuthenticateWithServer(server, Installation);
-
+            var Arguments = await _IServerAuthenticationService.PrenegotiateWithServer(server, Installation);
 
             foreach (var Argument in Arguments)
             {
@@ -451,8 +450,6 @@ public class InstallationService : IInstallationService
         var Username = _authService.AccountLoginResponse.Account.Username;
         arguments.Append($"-AccountID {AccountID} ");
         arguments.Append($"-Username {Username} ");
-        var CharacterToken = await _authService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
-        arguments.Append($"-CharacterToken {CharacterToken.token} ");
         return arguments.ToString();
     }
 

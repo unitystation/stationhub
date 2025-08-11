@@ -20,9 +20,7 @@ public interface IAuthProvider
 
     public Task<ApiResult<JsonObject>> SendForgotPasswordEmail(string email);
 
-    public Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret);
-
-    public Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName);
+    public Task<ApiResult<ScopeTokenResponse>> SendRegisterConnectionChallenge(string AccountToken, string ConnectionChallenge, string ForkCompatibility);
 }
 
 public class OfficialCentralCommandAuthentication : IAuthProvider
@@ -30,7 +28,7 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
 
     public static string Host => ApiUrls.ApiBaseUrlLogin;
     private static UriBuilder UriBuilder = new(Host);
-    public static Uri GetUri(string endpoint, string? queries = null, string BeginningOverride = null)
+    public static Uri GetUri(string endpoint, string? queries = null, string BeginningOverride = "")
     {
 
         UriBuilder.Path = $"/accounts/{endpoint}";
@@ -162,41 +160,17 @@ public class OfficialCentralCommandAuthentication : IAuthProvider
         }
     }
 
-    public async Task<ApiResult<JsonObject>> SendRegisterSharedSecret(string token, string SharedSecret)
+    public async Task<ApiResult<ScopeTokenResponse>> SendRegisterConnectionChallenge(string AccountToken, string ConnectionChallenge, string ForkCompatibility)
     {
         try
         {
-            var requestBody = new Registersha512token
+            var requestBody = new ConnectionChallengeModel
             {
-                sha512_token = SharedSecret,
+                ConnectionChallenge = ConnectionChallenge,
+                ForkCompatibility = ForkCompatibility,
             };
 
-            var response = await ApiServer.Post<JsonObject>(GetUri("register-SHA512-for-account/"), requestBody, token);
-
-            if (response.IsSuccess == false)
-            {
-                throw response.Exception!;
-            }
-
-            return response;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
-
-    public async Task<ApiResult<CharacterTokenResponse>> GenerateCharacterSheetTokenForFork(string token, string ForkName)
-    {
-        try
-        {
-            var requestBody = new GetCharacterForkToken
-            {
-                fork_compatibility = ForkName,
-            };
-
-            var response = await ApiServer.Post<CharacterTokenResponse>(GetUri("GenForkToken", BeginningOverride: "/persistence/characters/"), requestBody, token);
+            var response = await ApiServer.Post<ScopeTokenResponse>(GetUri("auth-request/"), requestBody, AccountToken);
 
             if (response.IsSuccess == false)
             {
