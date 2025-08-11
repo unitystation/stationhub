@@ -33,7 +33,7 @@ namespace UnitystationLauncher.Models.Api
         public string GoodFileVersion { get; set; } = string.Empty;
         public string ServerPublicKey { get; set; }
 
-        public string ServerConnectionPublicKey { get; set; }
+        public string DEPRECATEME_ServerConnectionPublicKey { get; set; }
 
         public (string, int) ForkAndVersion => (ForkName, BuildVersion);
 

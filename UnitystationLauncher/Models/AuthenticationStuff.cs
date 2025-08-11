@@ -47,15 +47,17 @@ public class ForgotPasswordModel : JsonObject
 }
 
 [Serializable]
-public class Registersha512token : JsonObject
+public class ConnectionChallengeModel : JsonObject
 {
-    [JsonProperty("sha512_token")]
-    public string? sha512_token { get; set; }
+    [JsonProperty("connection_challenge")]
+    public string? ConnectionChallenge { get; set; }
+    [JsonProperty("fork_compatibility")]
+    public string? ForkCompatibility { get; set; }
 }
 
 
 [Serializable]
-public class GetCharacterForkToken : JsonObject
+public class DEPRECATEME_GetCharacterForkToken : JsonObject
 {
     [JsonProperty("fork_compatibility")]
     public string? fork_compatibility { get; set; }

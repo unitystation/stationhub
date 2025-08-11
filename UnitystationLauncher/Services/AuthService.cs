@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Net.Mail;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
-using UnitystationLauncher.Constants;
 using UnitystationLauncher.Models;
 using UnitystationLauncher.Models.Api;
-using UnitystationLauncher.Models.ConfigFile;
 using UnitystationLauncher.Services.Interface;
 
 namespace UnitystationLauncher.Services
@@ -68,14 +63,15 @@ namespace UnitystationLauncher.Services
             }
         }
 
-        public async Task<CharacterTokenResponse> GenerateCharacterSheetTokenForFork(string Fork)
+        public async Task<ScopeTokenResponse> RegisterConnectionChallenge(string ConnectionChallenge, string ForkCompatibility)
         {
-            return (await _IAuthProvider.GenerateCharacterSheetTokenForFork(AccountLoginResponse.Token, Fork)).Data;
-        }
+            if(AccountLoginResponse == null)
+            {
+                Log.Error("Tried to register connection challenge with null AccountLoginResponse");
+                throw new InvalidOperationException("AccountLoginResponse is null. Cannot register connection challenge.");
+            }
 
-        public void RegisterJoiningServerWithSecret(string SharedSecret)
-        {
-            _IAuthProvider.SendRegisterSharedSecret(AccountLoginResponse.Token, SharedSecret);
+            return (await _IAuthProvider.SendRegisterConnectionChallenge(AccountLoginResponse.Token, ConnectionChallenge, ForkCompatibility)).Data;
         }
 
         public void ResendVerificationEmail(string email)
