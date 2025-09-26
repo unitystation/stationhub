@@ -158,7 +158,7 @@ public class InstallationService : IInstallationService
         return (download, string.Empty);
     }
 
-    public async Task<(bool, string)> StartInstallation(Guid installationId, string? server = null, short? port = null)
+    public async Task<(bool, string)> StartInstallation(Guid installationId, string? server = null, short? NegotiationPort = null , short? port = null)
     {
         _TTSVersionService.StartTTS();
 
@@ -180,7 +180,7 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        string arguments = await GetArguments(installation, server, port);
+        string arguments = await GetArguments(installation, server, NegotiationPort, port);
         ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
@@ -425,13 +425,13 @@ public class InstallationService : IInstallationService
         return (true, string.Empty);
     }
 
-    private async Task<string> GetArguments(Installation Installation, string? server, long? port)
+    private async Task<string> GetArguments(Installation Installation, string? server, int? NegotiationPort, long? port)
     {
         StringBuilder arguments = new StringBuilder();
 
         if (string.IsNullOrWhiteSpace(server) == false)
         {
-            var Arguments = await _IServerAuthenticationService.AuthenticateWithServer(server, Installation);
+            var Arguments = await _IServerAuthenticationService.AuthenticateWithServer(server, NegotiationPort.Value, Installation);
 
 
             foreach (var Argument in Arguments)

@@ -8,12 +8,13 @@ namespace UnitystationLauncher.Models.Api
     [Serializable]
     public class Server
     {
-        public Server(string forkName, int buildVersion, string serverIp, int serverPort)
+        public Server(string forkName, int buildVersion, string serverIp, int serverPort, int ServerConnectionNegotiationPort)
         {
             ForkName = forkName;
             BuildVersion = buildVersion;
             ServerIp = serverIp;
             ServerPort = serverPort;
+            this.ServerConnectionNegotiationPort = ServerConnectionNegotiationPort;
         }
 
         public string? ServerName { get; set; }
@@ -26,6 +27,7 @@ namespace UnitystationLauncher.Models.Api
         public int PlayerCountMax { get; set; }
         public string ServerIp { get; }
         public int ServerPort { get; }
+        public int ServerConnectionNegotiationPort { get; }
         public string? WinDownload { get; set; }
         public string? OsxDownload { get; set; }
         public string? LinuxDownload { get; set; }

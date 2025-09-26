@@ -22,9 +22,9 @@ namespace UnitystationLauncher.Services;
 
 public interface IServerAuthenticationService
 {
-    public Task<Server> GetServerInfoByIP(string IP);
+    public Task<Server> GetServerInfoByIP(string IP, int Port);
 
-    public Task<Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation);
+    public Task<Dictionary<string, string>> AuthenticateWithServer(string IP, int Port, Installation Installation);
 }
 
 public class ServerAuthenticationService : IServerAuthenticationService
@@ -40,11 +40,10 @@ public class ServerAuthenticationService : IServerAuthenticationService
 
     private readonly SHA512 SHA512 = SHA512.Create();
 
-    public async Task<Server> GetServerInfoByIP(string IP)
+    public async Task<Server> GetServerInfoByIP(string IP, int Port)
     {
         try
         {
-            string Port = "7778";
             string url = $"http://{IP}:{Port}/";
 
             var response = await _httpClient.GetAsync(url);
@@ -72,9 +71,9 @@ public class ServerAuthenticationService : IServerAuthenticationService
     }
 
 
-    public async Task<Dictionary<string, string>> AuthenticateWithServer(string IP, Installation Installation)
+    public async Task<Dictionary<string, string>> AuthenticateWithServer(string IP, int Port, Installation Installation)
     {
-        var Info = await GetServerInfoByIP(IP);
+        var Info = await GetServerInfoByIP(IP, Port);
         var RSAEncrypt = new OaepEncoding(
             new RsaEngine(),
             new Sha256Digest()
@@ -116,8 +115,7 @@ public class ServerAuthenticationService : IServerAuthenticationService
 
         // Wrap it in a StringContent with JSON media type
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-        string Port = "7778";
+        
         string url = $"http://{IP}:{Port}/";
 
         var response = await _httpClient.PostAsync(url, content);
