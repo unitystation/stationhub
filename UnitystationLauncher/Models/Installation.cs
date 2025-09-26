@@ -10,6 +10,8 @@ public class Installation
     public string? ForkName { get; set; }
     public int BuildVersion { get; set; }
 
+    public string? GoodFileVersion { get; set; }
+
     public string? InstallationPath { get; set; }
 
     public DateTime LastPlayedDate { get; set; }

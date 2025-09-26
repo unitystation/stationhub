@@ -30,7 +30,7 @@ namespace UnitystationLauncher.ViewModels
 
         private void LaunchInstallation()
         {
-            _installationService.StartInstallation(Installation.InstallationId);
+            _ = _installationService.StartInstallation(Installation.InstallationId);
         }
 
         private void DeleteInstallation()

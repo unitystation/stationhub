@@ -15,9 +15,14 @@
     <Grid RowDefinitions="54,*">
         <Grid Background="#1d3b50" Grid.Row="0" ColumnDefinitions="54,*,150">
             <Border Margin="5 5 0 6" Grid.Column="0">
-                <Image Source="avares://StationHub/Assets/unityico.png" Margin="0 2 1 2" />
+                <Image Source="avares://StationHub/Assets/userico.jpg" Margin="0 2 1 2">
+                    <Image.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Log out" Command="{Binding Logout}" />
+                        </ContextMenu>
+                    </Image.ContextMenu>
+                </Image>
             </Border>
-
             <ListBox ItemsSource="{Binding Panels}" SelectedItem="{Binding SelectedPanel}" BorderThickness="0"
                      ScrollViewer.VerticalScrollBarVisibility="Disabled" Background="Transparent"
                      HorizontalAlignment="Left" Grid.Column="1">

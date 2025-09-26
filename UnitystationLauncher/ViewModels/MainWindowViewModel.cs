@@ -1,14 +1,23 @@
 using System;
+using System.Reactive.Concurrency;
 using ReactiveUI;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Media;
+using Serilog;
+using UnitystationLauncher.Services;
 
 namespace UnitystationLauncher.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private ViewModelBase _content;
+        private readonly Lazy<LauncherViewModel> _launcherVm;
+        private readonly Lazy<LoginStatusViewModel> _loginStatusVm;
+        private readonly AuthService _authService;
+        private readonly LoginViewModel _loginVm;
+
+        ViewModelBase _content;
         private Geometry _maximizeIcon;
         private string _maximizeToolTip;
 
@@ -24,11 +33,18 @@ namespace UnitystationLauncher.ViewModels
             set => this.RaiseAndSetIfChanged(ref _maximizeToolTip, value);
         }
 
-        public MainWindowViewModel(LauncherViewModel launcherVm)
+        public MainWindowViewModel(LoginViewModel loginVm, Lazy<LoginStatusViewModel> loginStatusVm, Lazy<LauncherViewModel> launcherVm,
+            AuthService authService)
         {
+            _loginStatusVm = loginStatusVm;
+            _loginVm = loginVm;
+            _authService = authService;
+            _launcherVm = launcherVm;
+            Content = _content = loginVm;
+            authService.AttemptingAutoLogin = false;
             _maximizeIcon = Geometry.Parse("M2048 2048v-2048h-2048v2048h2048zM1843 1843h-1638v-1638h1638v1638z");
             _maximizeToolTip = "Maximize";
-            Content = _content = launcherVm;
+            RxApp.MainThreadScheduler.ScheduleAsync((_, _) => CheckForExistingUserAsync());
         }
 
         private void Maximize()
@@ -57,16 +73,70 @@ namespace UnitystationLauncher.ViewModels
             }
         }
 
+        async Task CheckForExistingUserAsync()
+        {
+            if (_authService.AccountLoginResponse != null)
+            {
+                _authService.AttemptingAutoLogin = true;
+                Content = _loginStatusVm.Value;
+                await AttemptAuthRefreshAsync();
+            }
+            //Will go to login screen if null
+        }
+
+        async Task AttemptAuthRefreshAsync()
+        {
+            if (_authService.AccountLoginResponse == null)
+            {
+                Log.Error("Login failed");
+                Content = _loginVm;
+                _authService.AttemptingAutoLogin = false;
+                return;
+            }
+
+            string token = await _authService.GetCustomTokenAsync(_authService.AccountLoginResponse.Token);
+
+            if (string.IsNullOrEmpty(token))
+            {
+                Log.Error("Login failed");
+                Content = _loginVm;
+                _authService.AttemptingAutoLogin = false;
+                return;
+            }
+
+            _authService.AttemptingAutoLogin = false;
+            _authService.SaveAuthSettings();
+            Content = _launcherVm.Value;
+        }
+
         private void ContentChanged()
         {
             SubscribeToVm(Content switch
             {
+                LoginViewModel loginVm => Observable.Merge(
+                    loginVm.Login.Select(vm => (ViewModelBase)vm),
+                    loginVm.Create.Select(vm => (ViewModelBase)vm),
+                    loginVm.ForgotPw.Select(vm => (ViewModelBase)vm)),
+
+                LoginStatusViewModel loginStatusVm => Observable.Merge(
+                    loginStatusVm.GoBack.Select(vm => (ViewModelBase)vm),
+                    loginStatusVm.OpenLauncher.Select(vm => (ViewModelBase)vm)),
+
                 LauncherViewModel launcherVm => Observable.Merge(
+                    launcherVm.Logout.Select(vm => (ViewModelBase)vm),
                     launcherVm.ShowUpdateView.Select(vm => (ViewModelBase)vm)),
+
+                SignUpViewModel signUpViewModel => Observable.Merge(
+                    signUpViewModel.Cancel,
+                    signUpViewModel.DoneButton),
 
                 HubUpdateViewModel hubUpdateViewModel => Observable.Merge(
                     hubUpdateViewModel.Skip,
                     hubUpdateViewModel.Ignore),
+
+                ForgotPasswordViewModel forgotPasswordViewModel => Observable.Merge(
+                    forgotPasswordViewModel.DoneButton),
+
 
                 _ => throw new ArgumentException($"ViewModel type is not handled and will never be able to change")
             });

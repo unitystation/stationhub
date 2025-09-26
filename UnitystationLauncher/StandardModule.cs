@@ -24,6 +24,9 @@ namespace UnitystationLauncher
             builder.RegisterType<TTSService>().As<ITTSService>().SingleInstance();
             builder.RegisterType<CodeScanConfigService>().As<ICodeScanConfigService>().SingleInstance();
             builder.RegisterType<GameCommunicationPipeService>().As<IGameCommunicationPipeService>().SingleInstance();
+            builder.RegisterType<AuthService>().As<AuthService>().SingleInstance();
+            builder.RegisterType<OfficialCentralCommandAuthentication>().As<IAuthProvider>().SingleInstance();
+            builder.RegisterType<ServerAuthenticationService>().As<IServerAuthenticationService>().SingleInstance();
 
             // View Models
             builder.RegisterAssemblyTypes(ThisAssembly)

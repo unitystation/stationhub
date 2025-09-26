@@ -13,18 +13,32 @@ namespace UnitystationLauncher.GameCommunicationPipe;
 
 public class PipeHubBuildCommunication : IDisposable
 {
-    private NamedPipeServerStream _serverPipe;
-    private StreamReader? _reader;
-    private StreamWriter? _writer;
+    private static NamedPipeServerStream? _serverPipe;
+    private static StreamReader? _reader;
+    private static StreamWriter? _writer;
 
+    private const string Unitystation_Hub_Build_Communication = "Unitystation_Hub_Build_Communication";
     public PipeHubBuildCommunication()
     {
-        _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut, 1,
+        _serverPipe?.Close();
+        _serverPipe?.Dispose();
+        _reader?.Close();
+        _reader?.Dispose();
+        _writer?.Close();
+        _writer?.Dispose();
+
+        _serverPipe = new(Unitystation_Hub_Build_Communication, PipeDirection.InOut, 1,
             PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
     }
 
-    public async Task StartServerPipe()
+    public static async Task StartServerPipe()
     {
+        if (_serverPipe == null)
+        {
+            _serverPipe = new(Unitystation_Hub_Build_Communication, PipeDirection.InOut, 1,
+                PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+        }
+
         await _serverPipe.WaitForConnectionAsync();
         _reader = new(_serverPipe);
         _writer = new(_serverPipe);
@@ -42,7 +56,7 @@ public class PipeHubBuildCommunication : IDisposable
                 {
                     Log.Error(e.ToString());
                     _serverPipe.Close();
-                    _serverPipe = new("Unitystation_Hub_Build_Communication", PipeDirection.InOut,
+                    _serverPipe = new(Unitystation_Hub_Build_Communication, PipeDirection.InOut,
                         1,
                         PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
                     await _serverPipe.WaitForConnectionAsync();
@@ -137,8 +151,11 @@ Justification given by the Fork : " + requests[1]);
 
     public void Dispose()
     {
-        _serverPipe.Dispose();
+        _serverPipe?.Close();
+        _serverPipe?.Dispose();
+        _reader?.Close();
         _reader?.Dispose();
+        _writer?.Close();
         _writer?.Dispose();
 
         GC.SuppressFinalize(this);

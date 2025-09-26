@@ -43,9 +43,15 @@ public class InstallationService : IInstallationService
     private readonly string _installationsJsonFilePath;
     private readonly ITTSService _TTSVersionService;
 
+    private readonly IServerAuthenticationService _IServerAuthenticationService;
+    private readonly AuthService _authService;
+
     public InstallationService(HttpClient httpClient, IPreferencesService preferencesService,
         IEnvironmentService environmentService, IServerService serverService, ICodeScanService codeScanService,
-        ICodeScanConfigService codeScanConfigService, ITTSService ITTSVersionService)
+        ICodeScanConfigService codeScanConfigService, ITTSService ITTSVersionService,
+        IServerAuthenticationService IServerAuthenticationService,
+            AuthService authService
+        )
     {
         _httpClient = httpClient;
         _preferencesService = preferencesService;
@@ -54,7 +60,8 @@ public class InstallationService : IInstallationService
         _codeScanService = codeScanService;
         _codeScanConfigService = codeScanConfigService;
         _TTSVersionService = ITTSVersionService;
-
+        _IServerAuthenticationService = IServerAuthenticationService;
+        _authService = authService;
         _downloads = new();
         _installationsJsonFilePath = Path.Combine(_environmentService.GetUserdataDirectory(), "installations.json");
 
@@ -151,7 +158,7 @@ public class InstallationService : IInstallationService
         return (download, string.Empty);
     }
 
-    public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null)
+    public async Task<(bool, string)> StartInstallation(Guid installationId, string? server = null, short? NegotiationPort = null , short? port = null)
     {
         _TTSVersionService.StartTTS();
 
@@ -173,7 +180,7 @@ public class InstallationService : IInstallationService
 
         EnsureExecutableFlagOnUnixSystems(executable);
 
-        string arguments = GetArguments(server, port);
+        string arguments = await GetArguments(installation, server, NegotiationPort, port);
         ProcessStartInfo? startInfo = _environmentService.GetGameProcessStartInfo(executable, arguments);
 
         if (startInfo == null)
@@ -418,21 +425,35 @@ public class InstallationService : IInstallationService
         return (true, string.Empty);
     }
 
-    private static string GetArguments(string? server, long? port)
+    private async Task<string> GetArguments(Installation Installation, string? server, int? NegotiationPort, long? port)
     {
-        string arguments = string.Empty;
+        StringBuilder arguments = new StringBuilder();
 
-        if (!string.IsNullOrWhiteSpace(server))
+        if (string.IsNullOrWhiteSpace(server) == false)
         {
-            arguments += $"--server {server}";
+            var Arguments = await _IServerAuthenticationService.AuthenticateWithServer(server, NegotiationPort.Value, Installation);
+
+
+            foreach (var Argument in Arguments)
+            {
+                arguments.Append($"{Argument.Key} {Argument.Value} ");
+            }
+
+            arguments.Append($"--server {server} ");
 
             if (port.HasValue)
             {
-                arguments += $" --port {port}";
+                arguments.Append($"--port {port} ");
             }
         }
 
-        return arguments;
+        var AccountID = _authService.AccountLoginResponse.Account.UniqueIdentifier;
+        var Username = _authService.AccountLoginResponse.Account.Username;
+        arguments.Append($"-AccountID {AccountID} ");
+        arguments.Append($"-Username {Username} ");
+        var CharacterToken = await _authService.GenerateCharacterSheetTokenForFork(Installation.ForkName);
+        arguments.Append($"-CharacterToken {CharacterToken.token} ");
+        return arguments.ToString();
     }
 
 
@@ -512,7 +533,8 @@ public class InstallationService : IInstallationService
                     ForkName = download.ForkName,
                     InstallationId = Guid.NewGuid(),
                     InstallationPath = download.InstallPath,
-                    LastPlayedDate = DateTime.Now
+                    LastPlayedDate = DateTime.Now,
+                    GoodFileVersion = download.GoodFileVersion
                 });
 
                 WriteInstallations();

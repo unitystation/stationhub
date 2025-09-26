@@ -47,7 +47,7 @@ public interface IInstallationService
     /// <param name="server">Server to connect to, either IP or domain</param>
     /// <param name="port">Port to use, requires server parameter</param>
     /// <returns>Status code for if it was successful, if unsuccessful the string will have the reason</returns>
-    public (bool, string) StartInstallation(Guid installationId, string? server = null, short? port = null);
+    public Task<(bool, string)> StartInstallation(Guid installationId, string? server = null, short? NegotiationPort = null , short? port = null);
 
     /// <summary>
     ///   Deletes an installation 

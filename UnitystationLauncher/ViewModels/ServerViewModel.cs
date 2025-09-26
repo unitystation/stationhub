@@ -56,7 +56,7 @@ public class ServerViewModel : ViewModelBase
             return;
         }
 
-        _installationService.StartInstallation(Installation.InstallationId, Server.ServerIp, (short)Server.ServerPort);
+        _ = _installationService.StartInstallation(Installation.InstallationId, Server.ServerIp, (short)Server.ServerConnectionNegotiationPort, (short)Server.ServerPort);
     }
 
     private async Task GetPing(IScheduler _, CancellationToken cancellationToken)

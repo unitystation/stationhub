@@ -2,7 +2,7 @@ namespace UnitystationLauncher.Constants;
 
 public static class ApiUrls
 {
-    private static string ApiBaseUrl => "https://api.unitystation.org";
+    public static string ApiBaseUrl => "https://api.unitystation.org";
     public static string ServerListUrl => $"{ApiBaseUrl}/serverlist";
     public static string ValidateUrl => $"{ApiBaseUrl}/validatehubclient";
     public static string ValidateTokenUrl => $"{ApiBaseUrl}/validatetoken?data=";
@@ -20,5 +20,8 @@ public static class ApiUrls
     public static string CodeScanListUrl => $"{RawGitHubFileBaseUrl}/CodeScanList.json";
     public static string TTSFiles => $"{CdnBaseUrl}/STTBundleTTS/TTS";
     public static string TTSVersionFile => $"{TTSFiles}/version.txt";
+
+
+    public static string ApiBaseUrlLogin => "https://prod-api.unitystation.org";
 
 }
