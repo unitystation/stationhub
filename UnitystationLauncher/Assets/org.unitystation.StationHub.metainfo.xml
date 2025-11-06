@@ -65,6 +65,14 @@
 </screenshots>
 
 <releases>
+    <release version="939" date="2025-11-06">
+        <description>
+            <p>Refactor:</p>
+            <ul>
+                <li>Added support for the new server list backend. Nothing exciting yet, but just wait until we are done.</li>
+            </ul>
+        </description>
+    </release>
 	<release version="938" date="2024-12-13">
 		<description>
 			<p>Fix:</p>
