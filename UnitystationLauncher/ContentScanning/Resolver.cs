@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
+using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using ILVerify;
 using Serilog;
@@ -28,7 +28,7 @@ public sealed class Resolver : IResolver
         }
     }
 
-    PEReader IResolver.ResolveAssembly(AssemblyName assemblyName)
+    public PEReader ResolveAssembly(AssemblyNameInfo assemblyName)
     {
         if (assemblyName.Name == null)
         {
@@ -47,7 +47,7 @@ public sealed class Resolver : IResolver
             string fileName = Path.GetFileNameWithoutExtension(file.Name);
             if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
             {
-                Log.Information($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                Log.Information("Found DLL for assembly \'{AssemblyNameName}\': {FileFullName}", assemblyName.Name, file.FullName);
                 _dictionaryLookup[assemblyName.Name] =
                     new(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
                 return _dictionaryLookup[assemblyName.Name];
@@ -61,7 +61,7 @@ public sealed class Resolver : IResolver
             string fileName = Path.GetFileNameWithoutExtension(file.Name);
             if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
             {
-                Log.Information($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                Log.Information("Found DLL for assembly \'{AssemblyNameName}\': {FileFullName}", assemblyName.Name, file.FullName);
                 _dictionaryLookup[assemblyName.Name] =
                     new(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
                 return _dictionaryLookup[assemblyName.Name];
@@ -75,7 +75,7 @@ public sealed class Resolver : IResolver
             string fileName = Path.GetFileNameWithoutExtension(file.Name);
             if (string.Equals(fileName, assemblyName.Name, StringComparison.OrdinalIgnoreCase))
             {
-                Log.Information($"Found DLL for assembly '{assemblyName.Name}': {file.FullName}");
+                Log.Information("Found DLL for assembly \'{AssemblyNameName}\': {FileFullName}", assemblyName.Name, file.FullName);
                 _dictionaryLookup[assemblyName.Name] =
                     new(file.Open(FileMode.Open, FileAccess.Read, FileShare.Read));
                 return _dictionaryLookup[assemblyName.Name];
@@ -85,10 +85,12 @@ public sealed class Resolver : IResolver
         throw new FileNotFoundException("Unable to find it " + assemblyName.FullName);
     }
 
-    PEReader IResolver.ResolveModule(AssemblyName referencingAssembly, string fileName)
+    public PEReader ResolveModule(AssemblyNameInfo referencingAssembly, string fileName)
     {
         //TODO idk This is never used anywhere
         throw new NotImplementedException(
             $"idk How IResolver.ResolveModule(AssemblyName {referencingAssembly}, string {fileName}) , And it's never been called so.. ");
     }
+
+
 }

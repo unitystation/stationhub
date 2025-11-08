@@ -3,7 +3,8 @@ namespace UnitystationLauncher.Constants;
 public static class ApiUrls
 {
     private static string ApiBaseUrl => "https://api.unitystation.org";
-    public static string ServerListUrl => $"{ApiBaseUrl}/serverlist";
+    private static string CentralCommandBaseUrl => "https://prod-api.unitystation.org";
+    public static string ServerListUrl => $"{CentralCommandBaseUrl}/baby-serverlist/servers";
     public static string ValidateUrl => $"{ApiBaseUrl}/validatehubclient";
     public static string ValidateTokenUrl => $"{ApiBaseUrl}/validatetoken?data=";
     public static string SignOutUrl => $"{ApiBaseUrl}/signout?data=";
