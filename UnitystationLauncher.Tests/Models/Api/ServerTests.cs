@@ -59,7 +59,7 @@ public static class ServerTests
     [Theory]
     [InlineData("http://myshadyunitystationdownload.test")]
     [InlineData("http://127.0.0.1")]
-    [InlineData("http://unitystationfile.b-cdn.net")]
+    [InlineData("http://cdn.unitystation.org")]
     [InlineData(" ")]
     [InlineData("")]
     public static void HasTrustedUrlSource_ShouldReturnFalseWhenUntrusted(string url)
@@ -79,9 +79,9 @@ public static class ServerTests
     {
         Server server = new("Unit Test", 0, "127.0.0.1", 0)
         {
-            WinDownload = "https://unitystationfile.b-cdn.net/Windows",
-            OsxDownload = "https://unitystationfile.b-cdn.net/Mac",
-            LinuxDownload = "https://unitystationfile.b-cdn.net/Linux"
+            WinDownload = "https://cdn.unitystation.org/Windows",
+            OsxDownload = "https://cdn.unitystation.org/Mac",
+            LinuxDownload = "https://cdn.unitystation.org/Linux"
         };
 
         server.HasTrustedUrlSource.Should().BeTrue();

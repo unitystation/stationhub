@@ -108,10 +108,10 @@ appstream-util validate org.unitystation.StationHub.metainfo.xml
 If you get errors like these, they can be ignored.
 ```
 org.unitystation.StationHub.metainfo.xml: FAILED:
-• attribute-invalid     : <screenshot> width too large [https://unitystationfile.b-cdn.net/screenshots/unitystation-monke.png] maximum is 1600px
-• attribute-invalid     : <screenshot> height too large [https://unitystationfile.b-cdn.net/screenshots/unitystation-monke.png] maximum is 900px
-• attribute-invalid     : <screenshot> width too large [https://unitystationfile.b-cdn.net/screenshots/cargo-ui.jpg] maximum is 1600px
-• attribute-invalid     : <screenshot> height too large [https://unitystationfile.b-cdn.net/screenshots/cargo-ui.jpg] maximum is 900px
+• attribute-invalid     : <screenshot> width too large [https://cdn.unitystation.org/screenshots/unitystation-monke.png] maximum is 1600px
+• attribute-invalid     : <screenshot> height too large [https://cdn.unitystation.org/screenshots/unitystation-monke.png] maximum is 900px
+• attribute-invalid     : <screenshot> width too large [https://cdn.unitystation.org/screenshots/cargo-ui.jpg] maximum is 1600px
+• attribute-invalid     : <screenshot> height too large [https://cdn.unitystation.org/screenshots/cargo-ui.jpg] maximum is 900px
 ```
 
 ### Desktop entry

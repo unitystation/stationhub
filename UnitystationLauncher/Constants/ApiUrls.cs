@@ -13,7 +13,7 @@ public static class ApiUrls
     public static string Latest10VersionsUrl => $"{ChangelogBaseUrl}/all-changes?format=json&limit=10";
     public static string LatestBlogPosts => $"{ChangelogBaseUrl}/posts/?format=json";
 
-    private static string CdnBaseUrl => "https://unitystationfile.b-cdn.net";
+    private static string CdnBaseUrl => "https://cdn.unitystation.org";
     public static string GoodFilesBaseUrl => $"{CdnBaseUrl}/GoodFiles";
     public static string AllowedGoodFilesUrl => $"{GoodFilesBaseUrl}/AllowGoodFiles.json";
 
