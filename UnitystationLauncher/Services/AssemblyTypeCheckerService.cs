@@ -149,7 +149,7 @@ public sealed class AssemblyTypeCheckerService : IAssemblyTypeCheckerService
             LogMessage = $"Type abuse... {fullStopwatch.ElapsedMilliseconds}ms"
         });
 
-        MemberReferenceScanner.CheckMemberReferences(loadedConfig, members, errors);
+        MemberReferenceScanner.CheckMemberReferences(loadedConfig, members, errors, asmName);
         scanLog.Invoke(new()
         {
             LogMessage = errors.IsEmpty ? "No sandbox violations." : $"Total violations: {errors.Count}"
