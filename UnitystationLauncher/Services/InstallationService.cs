@@ -95,15 +95,21 @@ public class InstallationService : IInstallationService
             return (null!, failureReason);
         }
 
-        bool result = await _codeScanConfigService.ValidGoodFilesVersionAsync(server.GoodFileVersion);
-
-        if (result == false)
+        if (_preferencesService.GetPreferences().EnableCodeScan is true)
         {
-            const string failureReason = "server does not have a valid ServerGoodFileVersion ";
-            Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.GoodFileVersion}");
-            return (null!, failureReason);
-        }
+            bool result = await _codeScanConfigService.ValidGoodFilesVersionAsync(server.GoodFileVersion);
 
+            if (result == false)
+            {
+                const string failureReason = "server does not have a valid ServerGoodFileVersion ";
+                Log.Warning(failureReason + $" ServerName: {server.ServerName} ServerGoodFileVersion : {server.GoodFileVersion}");
+                return (null!, failureReason);
+            }
+        }
+        else
+        {
+            Log.Information("Code scan is disabled, skipping...");
+        }
 
         Download? download = GetInProgressDownload(server.ForkName, server.BuildVersion);
 
@@ -168,6 +174,7 @@ public class InstallationService : IInstallationService
         {
             const string failureReason = "Couldn't find executable to start.";
             Log.Warning(failureReason + $" Installation Path: {installation.InstallationPath ?? "null"}");
+            _ = ShowErrorWhenNoServerExecutable(installationId, server);
             return (false, failureReason);
         }
 
@@ -193,6 +200,30 @@ public class InstallationService : IInstallationService
         UpdateLastPlayedTime(installation);
 
         return (true, string.Empty);
+    }
+
+    private async Task ShowErrorWhenNoServerExecutable(Guid installationId, string? server)
+    {
+        if (server is "") return;
+        IMsBox<string> msgBox = MessageBoxBuilder.CreateMessageBox(
+            MessageBoxButtons.YesNo,
+            "Executable Not Found",
+            "The executable for this installation could not be found. Would you like to re-download it?"
+        );
+        string response = await msgBox.ShowAsync();
+        if (response.Equals(MessageBoxResults.Yes))
+        {
+            DeleteInstallation(installationId);
+            Server? serverDetails = await _serverService.GetServerByIpAddress(server);
+            if (serverDetails != null)
+            {
+                _ = DownloadInstallationAsync(serverDetails);
+            }
+        }
+        else
+        {
+            DeleteInstallation(installationId);
+        }
     }
 
     public (bool, string) DeleteInstallation(Guid installationId)
@@ -460,7 +491,14 @@ public class InstallationService : IInstallationService
 
             // ExtractAndScan() must be run in a separate thread, but we want this one to wait for that one to finish
             // Without this download progress will not work properly
-            await Task.Run(() => ExtractAndScan(download, progressStream));
+            if (_preferencesService.GetPreferences().EnableCodeScan is false)
+            {
+                await Task.Run(() => Extract(download, progressStream));
+            }
+            else
+            {
+                await Task.Run(() => ExtractAndScan(download, progressStream));
+            }
         }
         catch (Exception e)
         {
@@ -471,6 +509,22 @@ public class InstallationService : IInstallationService
         {
             download.Active = false;
             WriteInstallations();
+        }
+    }
+
+    private async Task Extract(Download download, ProgressStream progressStream)
+    {
+        try
+        {
+            ZipArchive archive = new(progressStream);
+            Log.Information($"Extracting without scan to: {download.InstallPath}");
+            archive.ExtractToDirectory(download.InstallPath, true);
+            InstallationDone(download);
+        } 
+        catch (Exception e)
+        {
+            Log.Information($"Extracting stopped with {e}");
+            download.DownloadState = DownloadState.Failed;
         }
     }
 
@@ -498,26 +552,13 @@ public class InstallationService : IInstallationService
 
                 scanLogs.Add(log);
             }
-
+            
             download.DownloadState = DownloadState.Scanning;
             bool scanTask = await _codeScanService.OnScanAsync(archive, download.InstallPath, download.GoodFileVersion, ScanLogs);
 
             if (scanTask)
             {
-                Log.Information("Download completed");
-
-                _installations.Add(new()
-                {
-                    BuildVersion = download.BuildVersion,
-                    ForkName = download.ForkName,
-                    InstallationId = Guid.NewGuid(),
-                    InstallationPath = download.InstallPath,
-                    LastPlayedDate = DateTime.Now
-                });
-
-                WriteInstallations();
-                EnsureExecutableFlagOnUnixSystems(download.InstallPath);
-                download.DownloadState = DownloadState.Installed;
+                InstallationDone(download);
             }
             else
             {
@@ -551,6 +592,24 @@ public class InstallationService : IInstallationService
             Log.Information($"Extracting stopped with {e}");
             download.DownloadState = DownloadState.Failed;
         }
+    }
+
+    private void InstallationDone(Download download)
+    {
+        Log.Information("Download completed");
+
+        _installations.Add(new()
+        {
+            BuildVersion = download.BuildVersion,
+            ForkName = download.ForkName,
+            InstallationId = Guid.NewGuid(),
+            InstallationPath = download.InstallPath,
+            LastPlayedDate = DateTime.Now
+        });
+
+        WriteInstallations();
+        EnsureExecutableFlagOnUnixSystems(download.InstallPath);
+        download.DownloadState = DownloadState.Installed;
     }
 
     private static async Task ShowScanFailPopUp(string message, string logFolder)

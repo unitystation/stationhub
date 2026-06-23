@@ -8,6 +8,7 @@ public class Preferences : ReactiveObject
     private int _ignoreVersionUpdate;
     private string _installationPath = string.Empty;
     private bool? _TTSEnabled = null;
+    private bool? _enableCodeScan = true;
 
     public bool AutoRemove
     {
@@ -31,5 +32,11 @@ public class Preferences : ReactiveObject
     {
         get => _TTSEnabled;
         set => this.RaiseAndSetIfChanged(ref _TTSEnabled, value);
+    }
+    
+    public bool? EnableCodeScan
+    {
+        get => _enableCodeScan;
+        set => this.RaiseAndSetIfChanged(ref _enableCodeScan, value);
     }
 }
